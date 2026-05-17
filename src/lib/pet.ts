@@ -5,10 +5,14 @@ export type PetStats = {
   hunger: number;
   happiness: number;
   energy: number;
+  level: number;
+  experience: number;
+  coins: number;
   lastCareAt: Date;
 };
 
 const HOURS_DECAY = 4;
+const XP_PER_LEVEL = 100;
 
 export function applyPetDecay(pet: PetStats): PetStats {
   const hours =
@@ -24,6 +28,16 @@ export function applyPetDecay(pet: PetStats): PetStats {
     happiness: Math.max(0, pet.happiness - decay),
     energy: Math.max(0, pet.energy - decay),
   };
+}
+
+export function addExperience(pet: PetStats, xp: number): PetStats {
+  let experience = pet.experience + xp;
+  let level = pet.level;
+  while (experience >= XP_PER_LEVEL) {
+    experience -= XP_PER_LEVEL;
+    level += 1;
+  }
+  return { ...pet, experience, level };
 }
 
 export function petMood(pet: PetStats): {
@@ -42,26 +56,46 @@ export type CareAction = "feed" | "play" | "rest";
 export function applyCare(pet: PetStats, action: CareAction): PetStats {
   const base = applyPetDecay(pet);
   const now = new Date();
+  let next = base;
 
   switch (action) {
     case "feed":
-      return {
+      next = {
         ...base,
         hunger: Math.min(100, base.hunger + 25),
+        coins: base.coins + 2,
         lastCareAt: now,
       };
+      break;
     case "play":
-      return {
+      next = {
         ...base,
         happiness: Math.min(100, base.happiness + 25),
         energy: Math.max(0, base.energy - 10),
+        coins: base.coins + 3,
         lastCareAt: now,
       };
+      break;
     case "rest":
-      return {
+      next = {
         ...base,
         energy: Math.min(100, base.energy + 30),
         lastCareAt: now,
       };
+      break;
   }
+
+  return addExperience(next, 15);
+}
+
+export function applyTreat(pet: PetStats): PetStats {
+  const base = applyPetDecay(pet);
+  const boosted = {
+    ...base,
+    happiness: Math.min(100, base.happiness + 15),
+    hunger: Math.min(100, base.hunger + 10),
+    coins: base.coins + 5,
+    lastCareAt: new Date(),
+  };
+  return addExperience(boosted, 10);
 }

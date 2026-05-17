@@ -53,3 +53,11 @@ export const updateProfileSchema = z.object({
     .regex(/^[a-z0-9_]+$/, "Use apenas letras minúsculas, números e _")
     .optional(),
 });
+
+export const viewModeSchema = z.object({
+  viewMode: z.enum(["FEED", "INSTA", "REELS"]),
+});
+
+export const petTreatSchema = z.object({
+  toUserId: z.string().min(1),
+});

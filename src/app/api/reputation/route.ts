@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
+import { REPUTATION_BY_LEVEL } from "@/lib/constants";
+import { createNotification } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
 import { reputationSchema } from "@/lib/validators";
 
@@ -32,6 +34,14 @@ export async function POST(request: Request) {
       create: { fromUserId: user.id, toUserId, level },
       update: { level },
     });
+
+    const personality = REPUTATION_BY_LEVEL[level];
+    await createNotification(
+      toUserId,
+      "REPUTATION_VOTE",
+      `${user.name} votou em você como ${personality.breed} ${personality.emoji}`,
+      `/perfil/${target.username}`,
+    );
 
     return NextResponse.json({ ok: true });
   } catch {

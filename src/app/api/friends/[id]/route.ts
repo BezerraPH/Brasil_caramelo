@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
+import { createNotification } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
 
 export async function PATCH(
@@ -21,10 +22,22 @@ export async function PATCH(
   }
 
   if (action === "accept") {
-    await prisma.friendship.update({
+    const updated = await prisma.friendship.update({
       where: { id },
       data: { status: "ACCEPTED" },
+      include: { requester: { select: { name: true } } },
     });
+    const me = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { name: true },
+    });
+    await createNotification(
+      friendship.requesterId,
+      "FRIEND_ACCEPTED",
+      `${me?.name ?? "Alguém"} aceitou seu pedido de amizade!`,
+      "/amigos",
+    );
+    void updated;
     return NextResponse.json({ ok: true, status: "ACCEPTED" });
   }
 

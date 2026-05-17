@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { LogoutButton } from "./LogoutButton";
+import { NotificationBell } from "./NotificationBell";
 
 type NavBarProps = {
   user: { name: string; username: string };
@@ -11,6 +12,7 @@ type NavBarProps = {
 
 const LINKS = [
   { href: "/feed", label: "Feed", icon: "📰" },
+  { href: "/ranking", label: "Matilha", icon: "🏆" },
   { href: "/buscar", label: "Buscar", icon: "🔍" },
   { href: "/amigos", label: "Amigos", icon: "🤝" },
   { href: "/cachorro", label: "Cachorro", icon: "🐕" },
@@ -71,6 +73,7 @@ export function NavBar({ user }: NavBarProps) {
         </nav>
 
         <div className="flex items-center gap-2">
+          <NotificationBell />
           <span className="hidden max-w-[90px] truncate text-xs text-bc-brown md:inline">
             @{user.username}
           </span>

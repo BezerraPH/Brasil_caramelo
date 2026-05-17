@@ -1,10 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageContainer } from "@/components/PageContainer";
+import { PersonalityProfileCard } from "@/components/PersonalityProfileCard";
+import { PetYardVisit } from "@/components/PetYardVisit";
 import { ReputationBar } from "@/components/ReputationBar";
 import { ReputationPButton } from "@/components/ReputationPButton";
 import { UserAvatar } from "@/components/UserAvatar";
 import { getCurrentUser } from "@/lib/auth";
+import { getPersonalityTheme } from "@/lib/personality-theme";
 import { prisma } from "@/lib/prisma";
 import { summarizeReputation } from "@/lib/reputation";
 
@@ -40,6 +43,7 @@ export default async function ProfilePage({ params }: PageProps) {
     profile.reputationsReceived.map((r) => r.level),
   );
   const isOwnProfile = profile.id === viewer.id;
+  const theme = getPersonalityTheme(summary.dominant?.level);
 
   const recentPosts = await prisma.post.findMany({
     where: { authorId: profile.id },
@@ -50,10 +54,26 @@ export default async function ProfilePage({ params }: PageProps) {
 
   return (
     <PageContainer narrow>
-      <article className="bc-card bc-animate-in overflow-hidden">
-        <div className="relative h-28 bg-gradient-to-r from-bc-blue via-bc-green/80 to-bc-caramel/60">
+      <PersonalityProfileCard dominantLevel={summary.dominant?.level}>
+        <div
+          className={`relative h-28 ${summary.dominant?.level === "HUSKY" ? "bc-profile-banner--husky" : ""}`}
+          style={{
+            background: theme
+              ? `linear-gradient(120deg, ${theme.accent} 0%, ${theme.accentSoft} 40%, #2d8b57 100%)`
+              : undefined,
+          }}
+        >
+          {!theme && (
+            <div className="absolute inset-0 bg-gradient-to-r from-bc-blue via-bc-green/80 to-bc-caramel/60" />
+          )}
+          {theme?.pattern && theme.pattern !== "none" && (
+            <div
+              className="absolute inset-0 opacity-60"
+              style={{ background: theme.pattern }}
+            />
+          )}
           {!isOwnProfile && (
-            <div className="absolute bottom-3 right-4">
+            <div className="absolute bottom-3 right-4 z-10">
               <ReputationPButton
                 toUserId={profile.id}
                 myLevel={myReputation?.level ?? null}
@@ -64,21 +84,39 @@ export default async function ProfilePage({ params }: PageProps) {
 
         <div className="relative px-6 pb-6 pt-0">
           <div className="-mt-14 mb-3 flex items-end justify-between gap-4">
-            <div className="rounded-full border-4 border-bc-white shadow-lg">
+            <div
+              className="rounded-full border-4 border-bc-white shadow-lg"
+              style={theme ? { borderColor: theme.accent } : undefined}
+            >
               <UserAvatar
                 name={profile.name}
                 avatarUrl={profile.avatarUrl}
                 size="lg"
               />
             </div>
-            {isOwnProfile && (
-              <Link href="/configuracoes" className="bc-btn-secondary text-sm">
-                Editar perfil
-              </Link>
-            )}
+            <div className="flex flex-wrap gap-2">
+              {isOwnProfile && (
+                <Link href="/configuracoes" className="bc-btn-secondary text-sm">
+                  Editar perfil
+                </Link>
+              )}
+              {summary.dominant && (
+                <span
+                  className="rounded-full px-3 py-1 text-xs font-semibold text-white"
+                  style={{ backgroundColor: theme?.accent }}
+                >
+                  DNA {summary.dominant.breed} {summary.dominant.emoji}
+                </span>
+              )}
+            </div>
           </div>
 
-          <h1 className="text-2xl font-bold text-bc-blue">{profile.name}</h1>
+          <h1
+            className="text-2xl font-bold"
+            style={{ color: theme?.accent ?? "var(--bc-blue)" }}
+          >
+            {profile.name}
+          </h1>
           <p className="text-bc-brown">@{profile.username}</p>
           {profile.bio && (
             <p className="mt-3 text-sm leading-relaxed text-gray-700">
@@ -100,12 +138,17 @@ export default async function ProfilePage({ params }: PageProps) {
             )}
           </section>
 
+          {!isOwnProfile && <PetYardVisit ownerUserId={profile.id} />}
+
           {recentPosts.length > 0 && (
             <section className="mt-8 border-t border-bc-blue/10 pt-6">
               <h2 className="mb-3 font-bold text-bc-blue">Últimos recados</h2>
               <ul className="space-y-3">
                 {recentPosts.map((p) => (
-                  <li key={p.id} className="rounded-xl bg-bc-white/80 p-4 ring-1 ring-bc-blue/10">
+                  <li
+                    key={p.id}
+                    className="rounded-xl bg-bc-white/80 p-4 ring-1 ring-bc-blue/10"
+                  >
                     <p className="whitespace-pre-wrap text-sm">{p.content}</p>
                     <time className="mt-2 block text-xs text-bc-brown">
                       {p.createdAt.toLocaleString("pt-BR")}
@@ -125,7 +168,7 @@ export default async function ProfilePage({ params }: PageProps) {
             </Link>
           )}
         </div>
-      </article>
+      </PersonalityProfileCard>
     </PageContainer>
   );
 }

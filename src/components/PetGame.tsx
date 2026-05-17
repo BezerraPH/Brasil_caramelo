@@ -9,6 +9,9 @@ type PetData = {
   hunger: number;
   energy: number;
   happiness: number;
+  level: number;
+  experience: number;
+  coins: number;
 };
 
 type Mood = { label: string; emoji: string; color: string };
@@ -86,6 +89,9 @@ export function PetGame() {
           <h2 className="text-2xl font-bold text-bc-blue">{pet.name}</h2>
           <p className="mt-1 text-sm font-medium" style={{ color: mood.color }}>
             {mood.emoji} {mood.label}
+          </p>
+          <p className="mt-2 text-xs text-bc-brown">
+            Nv. {pet.level} · {pet.experience}/100 XP · 🪙 {pet.coins} CarameloCoins
           </p>
         </div>
 

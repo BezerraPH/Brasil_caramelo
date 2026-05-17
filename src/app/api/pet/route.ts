@@ -28,6 +28,9 @@ export async function GET() {
         hunger: stats.hunger,
         happiness: stats.happiness,
         energy: stats.energy,
+        level: stats.level,
+        experience: stats.experience,
+        coins: stats.coins,
       },
     });
   }
@@ -61,6 +64,9 @@ export async function PATCH(request: Request) {
           hunger: updated.hunger,
           happiness: updated.happiness,
           energy: updated.energy,
+          level: updated.level,
+          experience: updated.experience,
+          coins: updated.coins,
           lastCareAt: updated.lastCareAt,
         },
       });

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { NavBar } from "@/components/NavBar";
+import { ViewModeSwitcher } from "@/components/ViewModeSwitcher";
 import { getCurrentUser } from "@/lib/auth";
 
 export default async function AppLayout({
@@ -14,6 +15,7 @@ export default async function AppLayout({
     <>
       <NavBar user={user} />
       {children}
+      <ViewModeSwitcher currentMode={user.viewMode} />
     </>
   );
 }

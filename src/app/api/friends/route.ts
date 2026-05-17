@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { validationMessage } from "@/lib/api-error";
+import { createNotification } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
 import { friendRequestSchema } from "@/lib/validators";
 
@@ -103,6 +104,13 @@ export async function POST(request: Request) {
         status: "PENDING",
       },
     });
+
+    await createNotification(
+      target.id,
+      "FRIEND_REQUEST",
+      `${user.name} quer ser seu amigo na matilha!`,
+      "/amigos",
+    );
 
     return NextResponse.json({ ok: true, id: friendship.id });
   } catch (error) {

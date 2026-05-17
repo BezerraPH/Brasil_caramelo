@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { validationMessage } from "@/lib/api-error";
 import { prisma } from "@/lib/prisma";
-import { updateProfileSchema } from "@/lib/validators";
+import { updateProfileSchema, viewModeSchema } from "@/lib/validators";
 
 export async function GET() {
   const user = await getCurrentUser();
@@ -20,6 +20,23 @@ export async function PATCH(request: Request) {
 
   try {
     const body = await request.json();
+
+    if (body.viewMode !== undefined) {
+      const { viewMode } = viewModeSchema.parse(body);
+      if (viewMode !== "FEED") {
+        return NextResponse.json(
+          { error: "Modo Insta e Reels chegam em breve. Por ora, só Feed." },
+          { status: 400 },
+        );
+      }
+      const updated = await prisma.user.update({
+        where: { id: user.id },
+        data: { viewMode },
+        select: { id: true, viewMode: true },
+      });
+      return NextResponse.json(updated);
+    }
+
     const data = updateProfileSchema.parse(body);
 
     if (data.username && data.username !== user.username) {

@@ -31,6 +31,13 @@ enum DogReputationLevel {
   CHOW_CHOW
 }
 
+enum NotificationType {
+  REPUTATION_VOTE
+  PET_TREAT
+  FRIEND_REQUEST
+  FRIEND_ACCEPTED
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -43,15 +50,18 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  posts              Post[]
-  comments           Comment[]
-  likes              Like[]
-  sessions           Session[]
-  reputationsGiven   Reputation[] @relation("ReputationFrom")
-  reputationsReceived Reputation[] @relation("ReputationTo")
-  sentFriendships    Friendship[] @relation("FriendshipRequester")
-  receivedFriendships Friendship[] @relation("FriendshipAddressee")
-  pet                Pet?
+  posts               Post[]
+  comments            Comment[]
+  likes               Like[]
+  sessions            Session[]
+  reputationsGiven    Reputation[]   @relation("ReputationFrom")
+  reputationsReceived Reputation[]   @relation("ReputationTo")
+  sentFriendships     Friendship[]   @relation("FriendshipRequester")
+  receivedFriendships Friendship[]   @relation("FriendshipAddressee")
+  pet                 Pet?
+  notifications       Notification[]
+  treatsGiven         PetTreat[]     @relation("TreatFrom")
+  treatsReceived      PetTreat[]     @relation("TreatTo")
 }
 
 model Session {
@@ -114,6 +124,7 @@ model Reputation {
 
   @@unique([fromUserId, toUserId])
   @@index([toUserId])
+  @@index([level, createdAt])
 }
 
 model Friendship {
@@ -129,15 +140,43 @@ model Friendship {
 }
 
 model Pet {
-  id          String   @id @default(cuid())
-  userId      String   @unique
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name        String   @default("Caramelo")
-  color       String   @default("#C68642")
-  hunger      Int      @default(80)
-  happiness   Int      @default(80)
-  energy      Int      @default(80)
-  lastCareAt  DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String   @default("Caramelo")
+  color      String   @default("#C68642")
+  hunger     Int      @default(80)
+  happiness  Int      @default(80)
+  energy     Int      @default(80)
+  level      Int      @default(1)
+  experience Int      @default(0)
+  coins      Int      @default(50)
+  lastCareAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model PetTreat {
+  id         String   @id @default(cuid())
+  fromUserId String
+  fromUser   User     @relation("TreatFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUserId   String
+  toUser     User     @relation("TreatTo", fields: [toUserId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@index([toUserId, createdAt])
+  @@index([fromUserId, toUserId])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  message   String
+  link      String?
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  @@index([userId, read, createdAt])
 }

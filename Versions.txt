@@ -3,7 +3,7 @@
 ================================================================================
 
 Última atualização: 2026-05-17
-Versão atual do pacote (package.json): 0.6.0
+Versão atual do pacote (package.json): 0.7.0
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
   Sempre que o programa for melhorado, atualize ESTE arquivo:
@@ -126,7 +126,7 @@ DogReputationLevel (10 personalidades ativas):
   BORDER_COLLIE, BASSET_HOUND, CHOW_CHOW
 
 ================================================================================
-  5. FUNCIONALIDADES ATUAIS (v0.6.0)
+  5. FUNCIONALIDADES ATUAIS (v0.7.0)
 ================================================================================
 
 [OK] Cadastro e login
@@ -134,20 +134,27 @@ DogReputationLevel (10 personalidades ativas):
 [OK] Feed: recados, curtir (animação), comentários expansíveis
 [OK] Perfil + editar (/configuracoes): nome, username, bio
 [OK] Personalidade canina: botão P, 10 raças, dominante por maioria
+[OK] DNA visual no perfil (tema por personalidade dominante)
+[OK] Ranking da matilha (/ranking) — Top 10 semanal por raça
 [OK] Amigos (/amigos): enviar pedido, aceitar, recusar, listar
 [OK] Buscar pessoas (/buscar) por nome ou @usuário
-[OK] Jogo do cachorro (/cachorro): alimentar, brincar, descansar; stats decaem
+[OK] Jogo do cachorro (/cachorro): level, XP, CarameloCoins, cuidados
+[OK] Quintal social: visitar pet de amigo, dar petisco, badge Cachorreiros Próximos
+[OK] Notificações (sino na NavBar; voto, amizade, petisco)
+[OK] PWA: manifest + service worker (instalar no celular)
+[OK] ViewModeSwitcher (patinha) — preferência de modo salva no usuário
 [OK] Design: animações CSS, cards hover, landing redesenhada, menu mobile
 [OK] API /api/health
 [OK] Deploy Docker + Gitea
 
 [PENDENTE — ROADMAP]
-  - Modo Insta (grade de fotos)
+  - Modo Insta (grade de fotos) + upload (Uploadthing/Cloudinary)
   - Modo Reels
   - Chats e grupos em tempo real
   - Chamadas de voz/vídeo e reuniões (WebRTC / LiveKit)
   - Upload de foto de avatar
-  - Notificações
+  - Notificações em tempo real (Pusher / Socket.io)
+  - Itens cosméticos para o pet (loja com CarameloCoins)
 
 ================================================================================
   6. PERSONALIDADES CANINAS (v0.5.0)
@@ -182,6 +189,7 @@ Páginas:
   /amigos              — amizades
   /buscar              — buscar usuários
   /cachorro            — jogo do pet
+  /ranking             — top 10 semanal por personalidade
 
 API:
   POST /api/auth/register | login | logout
@@ -193,7 +201,10 @@ API:
   GET|POST /api/friends
   PATCH /api/friends/[id]  (accept|reject)
   GET|PATCH /api/pet
-  GET|PATCH /api/users/me
+  POST /api/pet/treat
+  GET  /api/pet/visit/[userId]
+  GET|PATCH /api/notifications
+  GET|PATCH /api/users/me  (perfil + viewMode)
   GET  /api/users/search?q=
 
 ================================================================================
@@ -222,6 +233,46 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v0.7.0 — 2026-05-17
+------------------------------------------------------------------------------
+  SOUL — DNA DO USUÁRIO:
+  + Temas dinâmicos no perfil por personalidade dominante (cores, padrões, borda)
+  + Banner Husky com animação de “tremor”; Pinscher com pulso
+  + Badge “DNA {raça}” no perfil
+  + lib/personality-theme.ts — paleta por raça
+
+  GAMIFICAÇÃO E PET SOCIAL:
+  + Pet: level, experience, coins (CarameloCoins) — lib/pet.ts
+  + Visitas de quintal no perfil de amigos — PetYardVisit
+  + Dar petisco (amigos) — POST /api/pet/treat (limite 10/dia)
+  + Badge “Cachorreiros Próximos” após 5 interações de petisco
+  + GET /api/pet/visit/[userId]
+
+  RANKING DA MATILHA:
+  + /ranking — Top 10 semanal por cada uma das 10 personalidades
+  + lib/ranking.ts
+
+  NOTIFICAÇÕES:
+  + Model Notification + tipos (voto, petisco, amizade)
+  + GET/PATCH /api/notifications + NotificationBell na NavBar
+  + Notificações ao votar, pedir/aceitar amizade, dar petisco
+
+  PWA E UX:
+  + manifest.json + service worker (/sw.js) + PWARegister
+  + ViewModeSwitcher (botão patinha) — persiste viewMode via PATCH /api/users/me
+  + Link “Matilha” na NavBar
+
+  DB:
+  + Migração soul_gamification (Pet level/exp/coins, PetTreat, Notification)
+
+  * package.json: 0.6.0 → 0.7.0
+
+  PRÓXIMO SPRINT (roadmap):
+  - Upload de avatar (Uploadthing / Cloudinary)
+  - Real-time (Pusher / Socket.io) para notificações instantâneas
+  - Modo Insta + Image do Next.js
 
 ------------------------------------------------------------------------------
 v0.6.0 — 2026-05-17

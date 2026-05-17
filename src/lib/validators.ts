@@ -26,6 +26,23 @@ export const reputationSchema = z.object({
   level: z.enum(DOG_REPUTATION_LEVELS),
 });
 
+export const commentSchema = z.object({
+  content: z.string().min(1).max(500),
+});
+
+export const friendRequestSchema = z.object({
+  username: z.string().min(3).max(30),
+});
+
+export const petCareSchema = z.object({
+  action: z.enum(["feed", "play", "rest"]),
+});
+
+export const petUpdateSchema = z.object({
+  name: z.string().min(1).max(30).optional(),
+  color: z.string().max(20).optional(),
+});
+
 export const updateProfileSchema = z.object({
   name: z.string().min(2).max(80),
   bio: z.string().max(300).optional().nullable(),

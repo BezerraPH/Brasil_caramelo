@@ -50,7 +50,7 @@ export default async function ProfilePage({ params }: PageProps) {
 
   return (
     <PageContainer narrow>
-      <article className="bc-card overflow-hidden">
+      <article className="bc-card bc-animate-in overflow-hidden">
         <div className="relative h-28 bg-gradient-to-r from-bc-blue via-bc-green/80 to-bc-caramel/60">
           {!isOwnProfile && (
             <div className="absolute bottom-3 right-4">

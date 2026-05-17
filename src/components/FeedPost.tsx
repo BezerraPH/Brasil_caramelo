@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { CommentSection } from "./CommentSection";
 import { UserAvatar } from "./UserAvatar";
 
 type FeedPostProps = {
@@ -19,11 +20,13 @@ type FeedPostProps = {
     };
     _count: { likes: number; comments: number };
   };
+  animationDelay?: string;
 };
 
-export function FeedPost({ post }: FeedPostProps) {
+export function FeedPost({ post, animationDelay }: FeedPostProps) {
   const [liked, setLiked] = useState(post.likedByMe);
   const [likeCount, setLikeCount] = useState(post._count.likes);
+  const [likeAnim, setLikeAnim] = useState(false);
   const router = useRouter();
 
   async function toggleLike() {
@@ -32,6 +35,10 @@ export function FeedPost({ post }: FeedPostProps) {
     const data = await res.json();
     setLiked(data.liked);
     setLikeCount((c) => (data.liked ? c + 1 : c - 1));
+    if (data.liked) {
+      setLikeAnim(true);
+      setTimeout(() => setLikeAnim(false), 400);
+    }
     router.refresh();
   }
 
@@ -43,9 +50,13 @@ export function FeedPost({ post }: FeedPostProps) {
   });
 
   return (
-    <article className="bc-card p-5">
+    <article
+      className={`bc-card bc-card-interactive bc-animate-in p-5 ${animationDelay ?? ""}`}
+    >
       <header className="mb-3 flex items-center gap-3">
-        <UserAvatar name={post.author.name} avatarUrl={post.author.avatarUrl} />
+        <Link href={`/perfil/${post.author.username}`}>
+          <UserAvatar name={post.author.name} avatarUrl={post.author.avatarUrl} />
+        </Link>
         <div>
           <Link
             href={`/perfil/${post.author.username}`}
@@ -61,19 +72,19 @@ export function FeedPost({ post }: FeedPostProps) {
       <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-800">
         {post.content}
       </p>
-      <footer className="mt-4 flex gap-4 border-t border-bc-blue/10 pt-3 text-sm">
+      <footer className="mt-4">
         <button
           type="button"
           onClick={toggleLike}
-          className={`font-medium transition ${
-            liked ? "text-bc-green" : "text-bc-brown hover:text-bc-green"
-          }`}
+          className={`mb-2 inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium transition ${
+            liked
+              ? "bg-bc-green/15 text-bc-green"
+              : "text-bc-brown hover:bg-bc-brown/10 hover:text-bc-green"
+          } ${likeAnim ? "bc-animate-pop" : ""}`}
         >
           {liked ? "❤️" : "🤍"} Legal ({likeCount})
         </button>
-        <span className="text-bc-brown/60">
-          💬 {post._count.comments} comentários
-        </span>
+        <CommentSection postId={post.id} initialCount={post._count.comments} />
       </footer>
     </article>
   );

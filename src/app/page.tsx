@@ -7,37 +7,49 @@ export default async function HomePage() {
   if (user) redirect("/feed");
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-bc-white via-bc-white to-bc-green/10 px-4">
-      <div className="max-w-lg text-center">
-        <p className="text-6xl" aria-hidden>
-          🐕
-        </p>
-        <h1 className="mt-4 text-4xl font-bold text-bc-blue">
-          Brasil <span className="text-bc-brown">Caramelo</span>
-        </h1>
-        <p className="mt-3 text-bc-brown">
-          Uma rede social que se apresenta de várias formas — começando pelo
-          modo Feed, no espírito das comunidades brasileiras online.
-        </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-4">
-          <Link
-            href="/cadastro"
-            className="rounded-xl bg-bc-green px-6 py-3 font-semibold text-white shadow-md transition hover:bg-bc-green/90"
-          >
-            Criar conta
+    <main className="bc-hero-bg bc-pattern-dots relative min-h-screen overflow-hidden">
+      <div className="relative mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center px-4 py-16">
+        <div className="bc-animate-in-up text-center">
+          <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-bc-caramel/40 to-bc-green/30 text-5xl shadow-lg ring-4 ring-bc-white">
+            🐕
+          </div>
+          <h1 className="text-4xl font-extrabold tracking-tight text-bc-blue sm:text-5xl">
+            Brasil{" "}
+            <span className="bg-gradient-to-r from-bc-brown to-bc-caramel bg-clip-text text-transparent">
+              Caramelo
+            </span>
+          </h1>
+          <p className="mx-auto mt-4 max-w-md text-lg text-bc-brown">
+            A rede social que se reinventa — Feed, personalidade canina, amigos e
+            seu cachorro virtual.
+          </p>
+        </div>
+
+        <div className="bc-animate-in bc-stagger-2 mt-10 flex flex-wrap justify-center gap-4">
+          <Link href="/cadastro" className="bc-btn-primary px-8 py-3 text-base shadow-lg">
+            Criar conta grátis
           </Link>
-          <Link
-            href="/entrar"
-            className="rounded-xl border-2 border-bc-blue px-6 py-3 font-semibold text-bc-blue transition hover:bg-bc-blue hover:text-white"
-          >
-            Entrar
+          <Link href="/entrar" className="bc-btn-secondary px-8 py-3 text-base">
+            Já tenho conta
           </Link>
         </div>
-        <ul className="mt-10 space-y-2 text-left text-sm text-bc-brown">
-          <li>🐾 Personalidade canina nos perfis (Poodle, Pitbull, Vira-lata…)</li>
-          <li>📰 Modo Feed ativo — Insta e Reels em breve</li>
-          <li>🎮 Jogo do cachorro, chats e chamadas no roadmap</li>
-        </ul>
+
+        <div className="bc-animate-in bc-stagger-3 mt-16 grid w-full max-w-2xl gap-4 sm:grid-cols-3">
+          {[
+            { icon: "📰", title: "Feed", desc: "Recados e comunidade" },
+            { icon: "🐾", title: "Personalidade P", desc: "10 vibes caninas" },
+            { icon: "🎮", title: "Seu cachorro", desc: "Cuide todo dia" },
+          ].map((f) => (
+            <div
+              key={f.title}
+              className="bc-card bc-card-interactive p-4 text-center"
+            >
+              <span className="text-3xl">{f.icon}</span>
+              <p className="mt-2 font-bold text-bc-blue">{f.title}</p>
+              <p className="text-xs text-bc-brown">{f.desc}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </main>
   );

@@ -3,7 +3,7 @@
 ================================================================================
 
 Última atualização: 2026-05-17
-Versão atual do pacote (package.json): 0.5.0
+Versão atual do pacote (package.json): 0.6.0
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
   Sempre que o programa for melhorado, atualize ESTE arquivo:
@@ -85,14 +85,20 @@ brasil_caramelo/
         feed/                  — feed de recados
         perfil/[username]/     — perfil público
         configuracoes/         — editar perfil
+        amigos/                — pedidos e lista de amigos
+        buscar/                — busca de usuários
+        cachorro/              — jogo do pet virtual
       api/
         auth/                  — login, register, logout
-        posts/                 — recados e curtidas
+        posts/                 — recados, curtidas, comentários
         reputation/            — voto de personalidade
+        friends/               — amizades
+        pet/                   — jogo do cachorro
         users/me/              — GET/PATCH perfil
+        users/search/          — busca
         health/                — saúde do banco
-    components/                — UI (NavBar, FeedPost, ReputationPButton, etc.)
-    lib/                       — auth, prisma, constants, reputation, validators
+    components/                — UI (NavBar, FeedPost, CommentSection, PetGame…)
+    lib/                       — auth, prisma, pet, constants, reputation, validators
   deploy/gitea/                — docker-compose do Gitea
   docker-compose.yml           — app + postgres
   Dockerfile
@@ -107,11 +113,11 @@ brasil_caramelo/
 User          — conta (email, senha, nome, username, bio, avatar, viewMode)
 Session       — sessão de login
 Post          — recado no feed
-Comment       — comentário (estrutura pronta, UI parcial)
+Comment       — comentário em recados (UI + API)
 Like          — curtida em recado
 Reputation    — 1 voto de personalidade por par (fromUser → toUser)
-Friendship    — amizades (estrutura pronta, UI não implementada)
-Pet           — jogo do cachorro (estrutura pronta, fase futura)
+Friendship    — pedidos e amizades aceitas
+Pet           — jogo do cachorro (fome, felicidade, energia; decay 4h)
 
 ViewMode (futuro na UI): FEED | INSTA | REELS
 
@@ -120,32 +126,28 @@ DogReputationLevel (10 personalidades ativas):
   BORDER_COLLIE, BASSET_HOUND, CHOW_CHOW
 
 ================================================================================
-  5. FUNCIONALIDADES ATUAIS (v0.5.0)
+  5. FUNCIONALIDADES ATUAIS (v0.6.0)
 ================================================================================
 
 [OK] Cadastro e login
-[OK] Sessão persistente (cookie; corrigido para HTTP em rede local)
-[OK] Feed estilo comunidade (recados, curtir)
-[OK] Perfil com nome, @username, bio, recados recentes
-[OK] Editar perfil (/configuracoes): nome, username, bio
-[OK] Personalidade canina:
-     - Botão "P" no perfil de outros usuários → menu com 10 raças
-     - 1 voto por pessoa (pode trocar)
-     - Personalidade dominante = raça com mais votos (ex.: 40 Pitbull, 10 Husky → Pitbull)
-     - Cada raça tem: o que diz sobre o usuário + vibe da conta
+[OK] Sessão persistente (cookie; HTTP local com COOKIE_SECURE=false)
+[OK] Feed: recados, curtir (animação), comentários expansíveis
+[OK] Perfil + editar (/configuracoes): nome, username, bio
+[OK] Personalidade canina: botão P, 10 raças, dominante por maioria
+[OK] Amigos (/amigos): enviar pedido, aceitar, recusar, listar
+[OK] Buscar pessoas (/buscar) por nome ou @usuário
+[OK] Jogo do cachorro (/cachorro): alimentar, brincar, descansar; stats decaem
+[OK] Design: animações CSS, cards hover, landing redesenhada, menu mobile
 [OK] API /api/health
-[OK] Deploy Docker no Ubuntu
-[OK] Repositório Git no Gitea (meksteel/brasil_caramelo)
+[OK] Deploy Docker + Gitea
 
 [PENDENTE — ROADMAP]
   - Modo Insta (grade de fotos)
   - Modo Reels
-  - Jogo do cachorro (modelo Pet)
-  - Amizades (modelo Friendship)
-  - Chats e grupos
+  - Chats e grupos em tempo real
   - Chamadas de voz/vídeo e reuniões (WebRTC / LiveKit)
-  - Upload de avatar
-  - Comentários na UI do feed
+  - Upload de foto de avatar
+  - Notificações
 
 ================================================================================
   6. PERSONALIDADES CANINAS (v0.5.0)
@@ -177,16 +179,22 @@ Páginas:
   /feed                — feed (autenticado)
   /perfil/[username]   — perfil
   /configuracoes       — editar perfil
+  /amigos              — amizades
+  /buscar              — buscar usuários
+  /cachorro            — jogo do pet
 
 API:
-  POST /api/auth/register
-  POST /api/auth/login
-  POST /api/auth/logout
+  POST /api/auth/register | login | logout
   GET  /api/health
   GET|POST /api/posts
   POST /api/posts/[id]/like
+  GET|POST /api/posts/[id]/comments
   POST /api/reputation
+  GET|POST /api/friends
+  PATCH /api/friends/[id]  (accept|reject)
+  GET|PATCH /api/pet
   GET|PATCH /api/users/me
+  GET  /api/users/search?q=
 
 ================================================================================
   8. VARIÁVEIS DE AMBIENTE
@@ -214,6 +222,32 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v0.6.0 — 2026-05-17
+------------------------------------------------------------------------------
+  DESIGN E ANIMAÇÕES:
+  + CSS: bc-animate-in, fade-in-up, scale-in, pop, stagger, menu-enter
+  + Cards com hover (sombra, leve elevação)
+  + Landing page redesenhada (hero, gradiente, grid de features)
+  + NavBar com menu mobile, links ativos, ícones
+  + Feed com animação escalonada nos recados
+  + Curtida com animação "pop"
+  + Menu P com animação de entrada
+  + prefers-reduced-motion respeitado
+
+  NOVAS FUNCIONALIDADES:
+  + Comentários em recados (expandir, listar, enviar) — /api/posts/[id]/comments
+  + Amigos: pedido, aceitar, recusar — /amigos + /api/friends
+  + Buscar usuários — /buscar + /api/users/search
+  + Jogo do cachorro — /cachorro + /api/pet (feed, play, rest; decay 4h)
+  + lib/pet.ts — lógica de stats e humor
+
+  COMPONENTES NOVOS:
+  + CommentSection, PetGame, PageContainer (melhorado)
+  + NavBar client-side com pathname
+
+  * package.json: 0.5.0 → 0.6.0
 
 ------------------------------------------------------------------------------
 v0.5.0 — 2026-05-17

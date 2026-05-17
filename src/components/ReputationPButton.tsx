@@ -77,7 +77,7 @@ export function ReputationPButton({ toUserId, myLevel }: ReputationPButtonProps)
       {open && (
         <div
           role="listbox"
-          className="absolute right-0 top-full z-50 mt-2 max-h-[min(70vh,420px)] w-[min(100vw-2rem,320px)] overflow-y-auto rounded-2xl border-2 border-bc-blue/30 bg-bc-white py-2 shadow-xl"
+          className="bc-menu-enter absolute right-0 top-full z-50 mt-2 max-h-[min(70vh,420px)] w-[min(100vw-2rem,320px)] overflow-y-auto rounded-2xl border-2 border-bc-blue/30 bg-bc-white py-2 shadow-xl"
         >
           <p className="border-b border-bc-blue/10 px-3 pb-2 text-center text-xs font-semibold text-bc-blue">
             Qual vibe combina?

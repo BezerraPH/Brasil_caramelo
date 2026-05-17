@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BcImage } from "./BcImage";
 import { CommentSection } from "./CommentSection";
+import { DeletePostButton } from "./DeletePostButton";
 import { SavePostButton } from "./SavePostButton";
+import { SharePostButton } from "./SharePostButton";
 import { UserAvatar } from "./UserAvatar";
 
 type FeedPostProps = {
@@ -24,15 +26,22 @@ type FeedPostProps = {
     };
     _count: { likes: number; comments: number };
   };
+  currentUserId?: string;
   animationDelay?: string;
   savedByMe?: boolean;
 };
 
-export function FeedPost({ post, animationDelay, savedByMe }: FeedPostProps) {
+export function FeedPost({
+  post,
+  currentUserId,
+  animationDelay,
+  savedByMe,
+}: FeedPostProps) {
   const [liked, setLiked] = useState(post.likedByMe);
   const [likeCount, setLikeCount] = useState(post._count.likes);
   const [likeAnim, setLikeAnim] = useState(false);
   const router = useRouter();
+  const isOwn = currentUserId === post.author.id;
 
   async function toggleLike() {
     const res = await fetch(`/api/posts/${post.id}/like`, { method: "POST" });
@@ -56,13 +65,14 @@ export function FeedPost({ post, animationDelay, savedByMe }: FeedPostProps) {
 
   return (
     <article
-      className={`bc-card bc-card-interactive bc-animate-in p-5 ${animationDelay ?? ""}`}
+      id={`post-${post.id}`}
+      className={`bc-card bc-card-interactive bc-animate-in scroll-mt-24 p-5 ${animationDelay ?? ""}`}
     >
       <header className="mb-3 flex items-center gap-3">
         <Link href={`/perfil/${post.author.username}`}>
           <UserAvatar name={post.author.name} avatarUrl={post.author.avatarUrl} />
         </Link>
-        <div>
+        <div className="min-w-0 flex-1">
           <Link
             href={`/perfil/${post.author.username}`}
             className="font-semibold text-bc-blue hover:underline"
@@ -75,7 +85,7 @@ export function FeedPost({ post, animationDelay, savedByMe }: FeedPostProps) {
         </div>
       </header>
       {post.videoUrl && (
-        <div className="relative mb-3 aspect-video max-h-96 w-full overflow-hidden rounded-xl bg-black">
+        <div className="relative mb-3 aspect-video max-h-96 w-full overflow-hidden rounded-xl bg-black shadow-inner">
           <video
             src={post.videoUrl}
             className="h-full w-full object-cover"
@@ -85,35 +95,37 @@ export function FeedPost({ post, animationDelay, savedByMe }: FeedPostProps) {
         </div>
       )}
       {post.imageUrl && !post.videoUrl && (
-        <div className="relative mb-3 aspect-video max-h-96 w-full overflow-hidden rounded-xl bg-bc-blue/5">
+        <div className="relative mb-3 aspect-video max-h-96 w-full overflow-hidden rounded-xl bg-bc-blue/5 shadow-inner">
           <BcImage
             src={post.imageUrl}
             alt=""
             fill
             sizes="(max-width:768px) 100vw, 600px"
-            className="object-cover"
+            className="object-cover transition duration-500 hover:scale-[1.02]"
           />
         </div>
       )}
       {post.content && (
-        <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-800">
+        <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
           {post.content}
         </p>
       )}
-      <footer className="mt-4">
-        <div className="mb-2 flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          onClick={toggleLike}
-          className={`mb-2 inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium transition ${
-            liked
-              ? "bg-bc-green/15 text-bc-green"
-              : "text-bc-brown hover:bg-bc-brown/10 hover:text-bc-green"
-          } ${likeAnim ? "bc-animate-pop" : ""}`}
-        >
-          {liked ? "❤️" : "🤍"} Legal ({likeCount})
-        </button>
-        <SavePostButton postId={post.id} initialSaved={savedByMe} />
+      <footer className="mt-4 border-t border-bc-blue/10 pt-3">
+        <div className="flex flex-wrap items-center gap-1">
+          <button
+            type="button"
+            onClick={toggleLike}
+            className={`bc-ripple inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium transition ${
+              liked
+                ? "bg-bc-green/15 text-bc-green"
+                : "text-bc-brown hover:bg-bc-brown/10 hover:text-bc-green"
+            } ${likeAnim ? "bc-animate-pop" : ""}`}
+          >
+            {liked ? "❤️" : "🤍"} Legal ({likeCount})
+          </button>
+          <SavePostButton postId={post.id} initialSaved={savedByMe} />
+          <SharePostButton postId={post.id} />
+          {isOwn && <DeletePostButton postId={post.id} />}
         </div>
         <CommentSection postId={post.id} initialCount={post._count.comments} />
       </footer>

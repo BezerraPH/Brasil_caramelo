@@ -4,10 +4,11 @@ import { getCurrentUser } from "@/lib/auth";
 import { purgeExpiredStories } from "@/lib/cleanup";
 import { createNotification } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
+import { mediaUrlSchema } from "@/lib/validators";
 import { pushGlobalEvent } from "@/lib/pusher-server";
 
 const storySchema = z.object({
-  mediaUrl: z.string().url(),
+  mediaUrl: mediaUrlSchema,
   mediaType: z.enum(["IMAGE", "VIDEO"]).default("IMAGE"),
 });
 

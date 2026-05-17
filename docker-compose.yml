@@ -24,9 +24,8 @@ services:
     environment:
       DATABASE_URL: postgresql://caramelo:caramelo_secret@db:5432/brasil_caramelo
       NODE_ENV: production
-      # HTTP na rede local (192.168.x): false. Com HTTPS reverso: true
       COOKIE_SECURE: "false"
-      UPLOADTHING_TOKEN: ${UPLOADTHING_TOKEN:-}
+      UPLOAD_DIR: /app/data/uploads
       NEXT_PUBLIC_PUSHER_KEY: ${NEXT_PUBLIC_PUSHER_KEY:-}
       NEXT_PUBLIC_PUSHER_CLUSTER: ${NEXT_PUBLIC_PUSHER_CLUSTER:-us2}
       PUSHER_APP_ID: ${PUSHER_APP_ID:-}
@@ -35,9 +34,12 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       EVENT_ADMIN_SECRET: ${EVENT_ADMIN_SECRET:-}
       PREMIUM_CODE: ${PREMIUM_CODE:-}
+    volumes:
+      - uploads_data:/app/data/uploads
     depends_on:
       db:
         condition: service_healthy
 
 volumes:
   pgdata:
+  uploads_data:

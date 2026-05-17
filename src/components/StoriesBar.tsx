@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { useCallback, useState } from "react";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
-import { useUploadHint } from "@/hooks/use-upload-hint";
-import { UploadButton } from "@/lib/uploadthing";
 import { BcImage } from "./BcImage";
+import { LocalMediaUpload } from "./LocalMediaUpload";
 import { UserAvatar } from "./UserAvatar";
 
 type StoryGroup = {
@@ -27,8 +26,6 @@ export function StoriesBar({ currentUserId }: { currentUserId: string }) {
     group: StoryGroup;
     index: number;
   } | null>(null);
-  const { formatUploadError } = useUploadHint();
-
   const load = useCallback(async () => {
     const res = await fetch("/api/stories");
     const data = await res.json();
@@ -58,41 +55,35 @@ export function StoriesBar({ currentUserId }: { currentUserId: string }) {
       <section className="bc-card bc-glass mb-4 overflow-x-auto p-3">
         <div className="flex gap-3">
           <div className="flex shrink-0 flex-col items-center gap-1">
-            <UploadButton
-              endpoint="storyMedia"
-              onClientUploadComplete={async (res) => {
-                setUploadError(null);
-                const file = res?.[0];
-                const url = file?.ufsUrl ?? file?.url;
-                if (!url) return;
-                const name = file?.name?.toLowerCase() ?? "";
-                const isVideo =
-                  file?.type?.startsWith("video") ||
-                  name.endsWith(".mp4") ||
-                  name.endsWith(".webm") ||
-                  name.endsWith(".mov");
-                const postRes = await fetch("/api/stories", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    mediaUrl: url,
-                    mediaType: isVideo ? "VIDEO" : "IMAGE",
-                  }),
-                });
-                if (!postRes.ok) {
-                  const data = await postRes.json();
-                  setUploadError(data.error ?? "Não foi possível publicar o story.");
-                  return;
-                }
-                load();
-              }}
-              onUploadError={(e) => setUploadError(formatUploadError(e))}
-              appearance={{
-                button:
-                  "bc-story-ring flex h-16 w-16 items-center justify-center rounded-full bg-bc-white text-2xl ut-ready:bg-bc-white",
-              }}
-              content={{ button: "+" }}
-            />
+            <div className="bc-story-ring rounded-full">
+              <LocalMediaUpload
+                kind="story"
+                accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime"
+                label="+"
+                className="flex h-16 w-16 items-center justify-center rounded-full bg-bc-white text-2xl font-bold text-bc-blue"
+                onUploaded={async (url, mime) => {
+                  setUploadError(null);
+                  const isVideo = mime.startsWith("video/");
+                  const postRes = await fetch("/api/stories", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      mediaUrl: url,
+                      mediaType: isVideo ? "VIDEO" : "IMAGE",
+                    }),
+                  });
+                  if (!postRes.ok) {
+                    const data = await postRes.json();
+                    setUploadError(
+                      data.error ?? "Não foi possível publicar o story.",
+                    );
+                    return;
+                  }
+                  load();
+                }}
+                onError={setUploadError}
+              />
+            </div>
             <span className="max-w-[64px] truncate text-[10px] font-medium text-bc-blue">
               Seu story
             </span>

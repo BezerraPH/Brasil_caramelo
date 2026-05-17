@@ -1,22 +1,24 @@
 import { NextResponse } from "next/server";
-import { diagnoseUploadthingToken } from "@/lib/uploadthing-token";
 import { prisma } from "@/lib/prisma";
+import { ensureUploadDirWritable, getUploadRoot } from "@/lib/storage";
 
 export async function GET() {
-  const upload = diagnoseUploadthingToken();
+  const uploadsWritable = await ensureUploadDirWritable();
   try {
     await prisma.$queryRaw`SELECT 1`;
     return NextResponse.json({
       ok: true,
       database: "connected",
-      upload: upload.ok ? "ready" : upload.issue,
+      storage: uploadsWritable ? "ready" : "unavailable",
+      uploadDir: getUploadRoot(),
     });
   } catch {
     return NextResponse.json(
       {
         ok: false,
         database: "disconnected",
-        upload: upload.ok ? "ready" : upload.issue,
+        storage: uploadsWritable ? "ready" : "unavailable",
+        uploadDir: getUploadRoot(),
       },
       { status: 503 },
     );

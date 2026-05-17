@@ -1,16 +1,16 @@
 import { VIEW_MODES } from "@/lib/constants";
 
 const DONE = [
-  { icon: "💬", title: "Comentários nos recados" },
-  { icon: "🤝", title: "Amigos e pedidos" },
-  { icon: "🔍", title: "Buscar pessoas" },
-  { icon: "🐕", title: "Jogo do cachorro" },
+  { icon: "💾", title: "Mídia no seu servidor" },
+  { icon: "⭕", title: "Stories com visto" },
+  { icon: "🔖", title: "Recados salvos" },
+  { icon: "🎁", title: "Missão diária do pet" },
+  { icon: "↗", title: "Compartilhar e apagar posts" },
 ];
 
 const FUTURE = [
-  { icon: "📹", title: "Chamadas de voz e vídeo", phase: "Fase 4" },
   { icon: "💬", title: "Chats em tempo real", phase: "Fase 3" },
-  { icon: "📅", title: "Reuniões", phase: "Fase 4" },
+  { icon: "📹", title: "Chamadas de voz e vídeo", phase: "Fase 4" },
 ];
 
 export function RoadmapPanel() {
@@ -22,21 +22,17 @@ export function RoadmapPanel() {
           {VIEW_MODES.map((m) => (
             <li
               key={m.id}
-              className={`rounded-lg px-3 py-2 ${
-                m.available
-                  ? "bg-bc-green/10 font-medium text-bc-green"
-                  : "text-bc-brown/60"
-              }`}
+              className="rounded-lg bg-bc-green/10 px-3 py-2 font-medium text-bc-green"
             >
               <span className="font-semibold">{m.label}</span>
-              {!m.available && <span className="ml-1 text-xs">(em breve)</span>}
+              <span className="ml-1 block text-xs opacity-80">{m.description}</span>
             </li>
           ))}
         </ul>
       </section>
 
       <section className="bc-card p-4">
-        <h2 className="mb-3 font-bold text-bc-blue">Novo nesta versão</h2>
+        <h2 className="mb-3 font-bold text-bc-blue">v1.2 — Novidades</h2>
         <ul className="space-y-2 text-sm text-bc-brown">
           {DONE.map((f) => (
             <li key={f.title} className="flex gap-2">

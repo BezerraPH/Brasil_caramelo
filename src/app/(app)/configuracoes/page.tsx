@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AvatarUpload } from "@/components/AvatarUpload";
-import { UploadSetupBanner } from "@/components/UploadSetupBanner";
+import { StoragePanel } from "@/components/StoragePanel";
 import { EditProfileForm } from "@/components/EditProfileForm";
 import { PageContainer } from "@/components/PageContainer";
 import { getCurrentUser } from "@/lib/auth";
@@ -19,7 +19,6 @@ export default async function SettingsPage() {
 
   return (
     <PageContainer narrow>
-      <UploadSetupBanner />
       <div className="mb-6">
         <Link
           href={`/perfil/${user.username}`}
@@ -33,6 +32,7 @@ export default async function SettingsPage() {
         </p>
       </div>
 
+      <StoragePanel />
       <AvatarUpload name={full.name} avatarUrl={full.avatarUrl} />
       <EditProfileForm user={full} />
 

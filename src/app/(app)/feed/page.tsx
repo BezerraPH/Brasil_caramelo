@@ -7,8 +7,11 @@ import { PageContainer } from "@/components/PageContainer";
 import { ReelsFeed } from "@/components/ReelsFeed";
 import { RoadmapPanel } from "@/components/RoadmapPanel";
 import { StoriesBar } from "@/components/StoriesBar";
+import { PostScrollOnLoad } from "@/components/PostScrollOnLoad";
+import { RecentActivity } from "@/components/RecentActivity";
 import { TrendingPosts } from "@/components/TrendingPosts";
-import { UploadSetupBanner } from "@/components/UploadSetupBanner";
+import { WelcomeBanner } from "@/components/WelcomeBanner";
+import { Suspense } from "react";
 import { UserAvatar } from "@/components/UserAvatar";
 import { getCurrentUser } from "@/lib/auth";
 import { finalizeExpiredBattles } from "@/lib/battles";
@@ -138,12 +141,15 @@ export default async function FeedPage() {
         </aside>
 
         <section className="space-y-4">
-          <header className="bc-animate-in">
-            <h1 className="bc-shimmer-text text-2xl font-bold">{title}</h1>
-            <p className="text-sm text-bc-brown">{subtitle}</p>
+          <Suspense fallback={null}>
+            <PostScrollOnLoad />
+          </Suspense>
+          <header className="bc-page-header bc-animate-in">
+            <h1 className="bc-shimmer-text text-2xl font-bold sm:text-3xl">{title}</h1>
+            <p className="mt-1 text-sm text-bc-brown">{subtitle}</p>
           </header>
 
-          <UploadSetupBanner />
+          <WelcomeBanner />
 
           {flashEvent && (
             <FlashEventBanner
@@ -183,6 +189,7 @@ export default async function FeedPage() {
                   i < 6 ? `bc-stagger-${Math.min(i + 2, 5)}` : undefined
                 }
                 post={mappedPosts[i]}
+                currentUserId={user.id}
                 savedByMe={mappedPosts[i].savedByMe}
               />
             ))
@@ -191,6 +198,7 @@ export default async function FeedPage() {
 
         <aside className="hidden lg:block">
           <div className="bc-animate-in bc-stagger-2 space-y-4">
+            <RecentActivity userId={user.id} />
             <TrendingPosts />
             <RoadmapPanel />
             <Link href="/premium" className="bc-card block p-4 text-center transition hover:border-bc-gold/40">

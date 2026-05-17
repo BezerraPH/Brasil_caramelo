@@ -17,11 +17,20 @@ export const loginSchema = z.object({
   password: z.string().min(1),
 });
 
+/** URL absoluta (legado) ou caminho servido pelo próprio servidor. */
+export const mediaUrlSchema = z
+  .string()
+  .min(1)
+  .refine(
+    (v) => v.startsWith("/api/media/") || /^https?:\/\//i.test(v),
+    { message: "URL de mídia inválida." },
+  );
+
 export const postSchema = z
   .object({
     content: z.string().max(2000).optional(),
-    imageUrl: z.string().url().optional(),
-    videoUrl: z.string().url().optional(),
+    imageUrl: mediaUrlSchema.optional(),
+    videoUrl: mediaUrlSchema.optional(),
     communityLevel: z.enum(DOG_REPUTATION_LEVELS).optional(),
   })
   .refine(

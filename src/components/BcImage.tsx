@@ -11,6 +11,10 @@ type BcImageProps = {
   priority?: boolean;
 };
 
+function isLocalMedia(src: string) {
+  return src.startsWith("/api/media/");
+}
+
 export function BcImage({
   src,
   alt,
@@ -22,6 +26,30 @@ export function BcImage({
   priority,
 }: BcImageProps) {
   const altText = alt ?? "";
+
+  if (isLocalMedia(src)) {
+    if (fill) {
+      return (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src}
+          alt={altText}
+          className={`absolute inset-0 h-full w-full object-cover ${className ?? ""}`}
+        />
+      );
+    }
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={src}
+        alt={altText}
+        width={width ?? 600}
+        height={height ?? 600}
+        className={className}
+      />
+    );
+  }
+
   const sizeHint = sizes ?? "(max-width: 768px) 100vw, 50vw";
 
   if (fill) {

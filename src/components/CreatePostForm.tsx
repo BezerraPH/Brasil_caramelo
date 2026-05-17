@@ -3,9 +3,8 @@
 import type { DogReputationLevel } from "@/generated/prisma/enums";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useUploadHint } from "@/hooks/use-upload-hint";
-import { UploadButton } from "@/lib/uploadthing";
 import { AiCaptionButton } from "./AiCaptionButton";
+import { LocalMediaUpload } from "./LocalMediaUpload";
 import { BcImage } from "./BcImage";
 
 type CreatePostFormProps = {
@@ -24,7 +23,6 @@ export function CreatePostForm({
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { formatUploadError } = useUploadHint();
   const router = useRouter();
 
   const hasMedia = Boolean(imageUrl || videoUrl);
@@ -114,39 +112,31 @@ export function CreatePostForm({
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {!reelsMode && (
-          <UploadButton
-            endpoint="postImage"
-            onClientUploadComplete={(res) => {
-              const url = res?.[0]?.ufsUrl ?? res?.[0]?.url;
-              if (url) {
-                setImageUrl(url);
-                setVideoUrl(null);
-              }
+          <LocalMediaUpload
+            kind="postImage"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            label="📷 Foto"
+            className="rounded-lg border-2 border-bc-blue/30 bg-bc-white px-3 py-1.5 text-xs font-semibold text-bc-blue"
+            onUploaded={(url) => {
+              setImageUrl(url);
+              setVideoUrl(null);
+              setError(null);
             }}
-            onUploadError={(e) => setError(formatUploadError(e))}
-            appearance={{
-              button:
-                "rounded-lg border-2 border-bc-blue/30 bg-bc-white px-3 py-1.5 text-xs font-semibold text-bc-blue",
-            }}
-            content={{ button: instaMode ? "📷 Foto" : "📷 Foto" }}
+            onError={setError}
           />
         )}
         {(reelsMode || !instaMode) && (
-          <UploadButton
-            endpoint="postVideo"
-            onClientUploadComplete={(res) => {
-              const url = res?.[0]?.ufsUrl ?? res?.[0]?.url;
-              if (url) {
-                setVideoUrl(url);
-                setImageUrl(null);
-              }
+          <LocalMediaUpload
+            kind="postVideo"
+            accept="video/mp4,video/webm,video/quicktime"
+            label="🎬 Vídeo"
+            className="rounded-lg border-2 border-bc-caramel/40 bg-bc-white px-3 py-1.5 text-xs font-semibold text-bc-caramel"
+            onUploaded={(url) => {
+              setVideoUrl(url);
+              setImageUrl(null);
+              setError(null);
             }}
-            onUploadError={(e) => setError(formatUploadError(e))}
-            appearance={{
-              button:
-                "rounded-lg border-2 border-bc-caramel/40 bg-bc-white px-3 py-1.5 text-xs font-semibold text-bc-caramel",
-            }}
-            content={{ button: "🎬 Vídeo" }}
+            onError={setError}
           />
         )}
         <AiCaptionButton onCaption={setContent} hint={content || "cachorro"} />

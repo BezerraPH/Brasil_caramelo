@@ -226,6 +226,20 @@ body {
   transform: scale(0.98);
 }
 
+.bc-toast {
+  @apply rounded-xl border border-bc-green/30 bg-bc-white px-4 py-2.5 text-sm font-medium text-bc-blue shadow-lg;
+}
+
+.bc-page-header {
+  @apply border-b border-bc-blue/10 pb-4;
+}
+
+.bc-btn-primary:focus-visible,
+.bc-btn-secondary:focus-visible,
+.bc-btn-ghost:focus-visible {
+  @apply outline-none ring-2 ring-bc-green ring-offset-2;
+}
+
 .bc-stagger-1 {
   animation-delay: 0.05s;
 }

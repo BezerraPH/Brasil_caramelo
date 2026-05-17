@@ -1,10 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
-import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
-import { extractRouterConfig } from "uploadthing/server";
-import { ourFileRouter } from "@/app/api/uploadthing/core";
 import { PWARegister } from "@/components/PWARegister";
-import "@uploadthing/react/styles.css";
 import "./globals.css";
 
 const geist = Geist({
@@ -39,7 +35,6 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon.svg" />
       </head>
       <body className="min-h-full antialiased">
-        <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
         {children}
         <PWARegister />
       </body>

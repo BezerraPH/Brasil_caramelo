@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-17
-Versão atual do pacote (package.json): 1.0.0
+Última atualização: 2026-05-18
+Versão atual do pacote (package.json): 1.2.0
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
   Sempre que o programa for melhorado, atualize ESTE arquivo:
@@ -263,6 +263,41 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v1.2.0 — 2026-05-18 (social, UX e armazenamento)
+------------------------------------------------------------------------------
+  NOVAS FUNCIONALIDADES:
+  + Apagar próprio recado — DELETE /api/posts/[id]
+  + Compartilhar / copiar link do post (Web Share API + toast)
+  + Painel de armazenamento em Configurações — GET /api/storage/stats
+  + Atividade da matilha (likes/comentários de amigos) no feed
+  + Banner de boas-vindas (dismissível)
+  + Scroll automático para ?post=id ao abrir link compartilhado
+
+  UX & DESIGN:
+  + ToastProvider global (feedback de ações)
+  + Feed: cabeçalho, rodapé nos cards, hover suave em fotos
+  + Roadmap atualizado (v1.2)
+  + MobileNav: Explorar no lugar de Buscar
+
+------------------------------------------------------------------------------
+v1.1.0 — 2026-05-18 (mídia 100% no servidor — sem Uploadthing)
+------------------------------------------------------------------------------
+  ARMAZENAMENTO LOCAL:
+  + POST /api/upload — avatar, fotos, vídeos e stories no disco do servidor
+  + GET /api/media/[userId]/[arquivo] — entrega pública com cache longo
+  + UPLOAD_DIR (padrão: ./data/uploads) + volume Docker uploads_data
+  + Removidos uploadthing, @uploadthing/react e UPLOADTHING_TOKEN
+
+  COMPONENTES:
+  + LocalMediaUpload substitui UploadButton em feed, stories e perfil
+  + BcImage usa <img> para URLs /api/media/ (otimização local)
+
+  LEGADO:
+  + URLs antigas (utfs.io) em posts existentes continuam exibindo via next/image
+
+  Deploy: git pull → docker compose up -d --build (volume persiste mídia)
 
 ------------------------------------------------------------------------------
 v1.0.0 — 2026-05-18 (release — upload, social, design)

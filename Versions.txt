@@ -1,0 +1,272 @@
+================================================================================
+  BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
+================================================================================
+
+Última atualização: 2026-05-17
+Versão atual do pacote (package.json): 0.5.0
+
+INSTRUÇÃO PARA DESENVOLVEDORES / IA:
+  Sempre que o programa for melhorado, atualize ESTE arquivo:
+  - Ajuste "Versão atual" e a data no topo
+  - Incremente a versão em package.json (semver: major.minor.patch)
+  - Adicione uma nova seção em "HISTÓRICO DE VERSÕES" com o que mudou
+  - Atualize "FUNCIONALIDADES ATUAIS" e "ROADMAP" se necessário
+
+================================================================================
+  1. VISÃO GERAL
+================================================================================
+
+Nome: Brasil Caramelo
+Tipo: Rede social brasileira com múltiplos "modos" de apresentação
+Estado: MVP em desenvolvimento ativo (Fase 1 + reputação avançada)
+
+Conceito:
+  Uma rede social que pode se apresentar de várias formas — começando pelo
+  modo Feed (estilo comunidade / Orkut). No futuro: modo Insta (grade de fotos),
+  Reels (vídeos curtos), jogo do cachorro, chats, grupos, chamadas e reuniões.
+
+Identidade visual (cores):
+  - Branco (#FFFFFF)
+  - Azul (#1B6CA8)
+  - Verde (#2D8B57)
+  - Marrom (#8B5E3C)
+  - Caramelo (#C68642) — destaque
+
+Servidor de referência do usuário:
+  - Ubuntu 26.04 LTS (ntek-servidor)
+  - IP LAN: 192.168.1.4
+  - Tailscale: 100.94.55.27
+  - App: http://192.168.1.4:3000
+  - Gitea (Git): http://192.168.1.4:3001 (SSH Git na porta 2222)
+
+================================================================================
+  2. STACK TÉCNICA
+================================================================================
+
+Frontend / Backend:
+  - Next.js 16 (App Router)
+  - React 19
+  - TypeScript
+  - Tailwind CSS 4
+
+Banco de dados:
+  - PostgreSQL 16
+  - Prisma 7 (client em src/generated/prisma, adapter @prisma/adapter-pg)
+
+Autenticação:
+  - Sessão por cookie httpOnly (bc_session)
+  - Senhas com bcrypt
+  - COOKIE_SECURE=false em HTTP local (docker-compose)
+
+Deploy:
+  - Docker + Docker Compose (app + postgres)
+  - Gitea self-hosted para versionamento (pasta ~/gitea no servidor)
+
+Scripts npm:
+  - npm run dev          — desenvolvimento local
+  - npm run build        — prisma generate + next build
+  - npm run start        — produção
+  - npm run db:migrate   — migrações em dev
+  - npm run db:deploy    — migrações em produção
+
+================================================================================
+  3. ESTRUTURA DE PASTAS (PRINCIPAL)
+================================================================================
+
+brasil_caramelo/
+  prisma/
+    schema.prisma              — modelos e enums
+    migrations/                — migrações SQL
+  src/
+    app/
+      page.tsx                 — landing (entrar / cadastro)
+      entrar/ cadastro/        — autenticação
+      (app)/                   — rotas autenticadas
+        feed/                  — feed de recados
+        perfil/[username]/     — perfil público
+        configuracoes/         — editar perfil
+      api/
+        auth/                  — login, register, logout
+        posts/                 — recados e curtidas
+        reputation/            — voto de personalidade
+        users/me/              — GET/PATCH perfil
+        health/                — saúde do banco
+    components/                — UI (NavBar, FeedPost, ReputationPButton, etc.)
+    lib/                       — auth, prisma, constants, reputation, validators
+  deploy/gitea/                — docker-compose do Gitea
+  docker-compose.yml           — app + postgres
+  Dockerfile
+  DEPLOY.md                    — deploy Ubuntu
+  TESTE.md                     — roteiro de testes
+  Versions.txt                 — ESTE ARQUIVO
+
+================================================================================
+  4. MODELOS DE DADOS (RESUMO)
+================================================================================
+
+User          — conta (email, senha, nome, username, bio, avatar, viewMode)
+Session       — sessão de login
+Post          — recado no feed
+Comment       — comentário (estrutura pronta, UI parcial)
+Like          — curtida em recado
+Reputation    — 1 voto de personalidade por par (fromUser → toUser)
+Friendship    — amizades (estrutura pronta, UI não implementada)
+Pet           — jogo do cachorro (estrutura pronta, fase futura)
+
+ViewMode (futuro na UI): FEED | INSTA | REELS
+
+DogReputationLevel (10 personalidades ativas):
+  PITBULL, HUSKY, CARAMELO, POODLE, PINSCHER, GOLDEN, VIRALATA,
+  BORDER_COLLIE, BASSET_HOUND, CHOW_CHOW
+
+================================================================================
+  5. FUNCIONALIDADES ATUAIS (v0.5.0)
+================================================================================
+
+[OK] Cadastro e login
+[OK] Sessão persistente (cookie; corrigido para HTTP em rede local)
+[OK] Feed estilo comunidade (recados, curtir)
+[OK] Perfil com nome, @username, bio, recados recentes
+[OK] Editar perfil (/configuracoes): nome, username, bio
+[OK] Personalidade canina:
+     - Botão "P" no perfil de outros usuários → menu com 10 raças
+     - 1 voto por pessoa (pode trocar)
+     - Personalidade dominante = raça com mais votos (ex.: 40 Pitbull, 10 Husky → Pitbull)
+     - Cada raça tem: o que diz sobre o usuário + vibe da conta
+[OK] API /api/health
+[OK] Deploy Docker no Ubuntu
+[OK] Repositório Git no Gitea (meksteel/brasil_caramelo)
+
+[PENDENTE — ROADMAP]
+  - Modo Insta (grade de fotos)
+  - Modo Reels
+  - Jogo do cachorro (modelo Pet)
+  - Amizades (modelo Friendship)
+  - Chats e grupos
+  - Chamadas de voz/vídeo e reuniões (WebRTC / LiveKit)
+  - Upload de avatar
+  - Comentários na UI do feed
+
+================================================================================
+  6. PERSONALIDADES CANINAS (v0.5.0)
+================================================================================
+
+Raça            | Sobre o usuário                          | Vibe da conta
+----------------|------------------------------------------|----------------------------------
+Pitbull         | Direto, intenso, não faz média.          | Digo a verdade doa a quem doer.
+Husky           | Dramático, reclama de tudo, faz barulho. | A vida é um caos e eu vou gritar...
+Caramelo        | Raiz, humilde, gente boa, sobrevivente.  | Tamo junto, aceito café e pix.
+Poodle          | Elegante, blasé, seletivo, classe alta.  | Feed estético, não respondo DM.
+Pinscher        | 220v, briguento, pavio curto.            | Opinião errada? Comento 10x.
+Golden          | Biscoiteiro, quer agradar todos.         | Amo vocês! Dia lindo!
+Vira-lata       | Desleixado (bom sentido), relax.         | Foto tremida e nem ligo.
+Border Collie   | Produtivo, posta tutorial de tudo.       | X dicas para ser eficiente.
+Basset Hound    | Preguiçoso, só olha.                     | Vi os stories e fui dormir.
+Chow Chow       | Antissocial, fiel a poucos.              | Não me segue que não te sigo.
+
+Definições em: src/lib/constants.ts (REPUTATION_PERSONALITIES)
+
+================================================================================
+  7. ROTAS DA APLICAÇÃO
+================================================================================
+
+Páginas:
+  /                    — landing
+  /entrar              — login
+  /cadastro            — registro
+  /feed                — feed (autenticado)
+  /perfil/[username]   — perfil
+  /configuracoes       — editar perfil
+
+API:
+  POST /api/auth/register
+  POST /api/auth/login
+  POST /api/auth/logout
+  GET  /api/health
+  GET|POST /api/posts
+  POST /api/posts/[id]/like
+  POST /api/reputation
+  GET|PATCH /api/users/me
+
+================================================================================
+  8. VARIÁVEIS DE AMBIENTE
+================================================================================
+
+DATABASE_URL     — PostgreSQL (obrigatório em runtime)
+COOKIE_SECURE    — "true" com HTTPS; "false" em HTTP local (docker-compose)
+NODE_ENV         — production no Docker
+
+Arquivo exemplo: .env.example
+
+================================================================================
+  9. FLUXO DE TRABALHO (GIT)
+================================================================================
+
+PC Windows:
+  git add . && git commit -m "..." && git push
+
+Servidor:
+  cd ~/brasil_caramelo && git pull && docker compose up -d --build
+
+Remote Gitea:
+  ssh://git@192.168.1.4:2222/meksteel/brasil_caramelo.git
+
+================================================================================
+  10. HISTÓRICO DE VERSÕES
+================================================================================
+
+------------------------------------------------------------------------------
+v0.5.0 — 2026-05-17
+------------------------------------------------------------------------------
+  + Botão "P" no perfil: menu para votar personalidade canina
+  + 10 raças/personalidades (tabela completa com vibe da conta)
+  + Personalidade dominante por maioria de votos (sem nota 1–5)
+  + Página /configuracoes — editar nome, username e bio
+  + API PATCH /api/users/me
+  + Layout visual: bc-card, bc-input, PageContainer, NavBar sticky
+  + Migração DB: expand_personalities (enum 10 valores; SALSICHA → PINSCHER)
+  - Removido ReputationPicker (grid grande); substituído por ReputationPButton
+  * package.json: 0.4.0 → 0.5.0
+
+------------------------------------------------------------------------------
+v0.4.0 — 2026-05-17
+------------------------------------------------------------------------------
+  + Reputação por personalidade (arquétipo + perfil + comportamento)
+  + Removido ranking numérico médio /5 e barras de estrelas
+  5 raças: Poodle, Pitbull, Salsicha, Vira-lata, Caramelo
+  + Componente UserAvatar unificado
+  + ReputationPicker com cards descritivos (depois substituído em v0.5.0)
+
+------------------------------------------------------------------------------
+v0.3.0 — 2026-05-17
+------------------------------------------------------------------------------
+  + fix: cookie de sessão em HTTP (COOKIE_SECURE=false no docker-compose)
+  + fix: login normaliza e-mail em minúsculas
+  + API GET /api/health
+  + Prisma client lazy (Proxy) + DATABASE_URL no Dockerfile para build
+  * Corrige: login/cadastro não mantinha sessão em http://192.168.1.4:3000
+
+------------------------------------------------------------------------------
+v0.2.0 — 2026-05-17
+------------------------------------------------------------------------------
+  + deploy/gitea/ — Gitea com interface web (porta 3001)
+  + TESTE.md — roteiro de testes e correção Git Windows
+  + DEPLOY.md — instruções Ubuntu
+  + .dockerignore
+  + fix Dockerfile: npm ci --ignore-scripts (postinstall prisma sem schema)
+  + Postgres exposto só em 127.0.0.1:5432 no host
+
+------------------------------------------------------------------------------
+v0.1.0 — 2026-05-17 (MVP inicial)
+------------------------------------------------------------------------------
+  + Projeto Next.js 16 + Prisma + PostgreSQL + Tailwind
+  + Cadastro, login, sessão, feed de recados, curtidas
+  + Perfis com reputação canina (5 níveis tipo ranking 1–5)
+  + Docker Compose (app :3000, db)
+  + Migração inicial: users, posts, likes, reputation, friendship, pet
+  + Paleta branco, azul, verde, marrom
+  + Roadmap: Insta, Reels, jogo, chats, chamadas (painel no feed)
+
+================================================================================
+  FIM DO ARQUIVO — Versions.txt
+================================================================================

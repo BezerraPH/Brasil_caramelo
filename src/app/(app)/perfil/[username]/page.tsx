@@ -75,6 +75,7 @@ export default async function ProfilePage({ params }: PageProps) {
           {!isOwnProfile && (
             <div className="absolute bottom-3 right-4 z-10">
               <ReputationPButton
+                key={myReputation?.level ?? "none"}
                 toUserId={profile.id}
                 myLevel={myReputation?.level ?? null}
               />

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
+import { useAsyncEffect } from "@/hooks/use-async-effect";
 import { PageContainer } from "@/components/PageContainer";
 import { UserAvatar } from "@/components/UserAvatar";
 
@@ -37,9 +38,7 @@ export default function AmigosPage() {
     setLoading(false);
   }, []);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  useAsyncEffect(load, [load]);
 
   async function sendRequest(e: React.FormEvent) {
     e.preventDefault();

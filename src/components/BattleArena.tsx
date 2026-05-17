@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useAsyncEffect } from "@/hooks/use-async-effect";
 import { UserAvatar } from "./UserAvatar";
 
 type Battle = {
@@ -41,9 +42,10 @@ export function BattleArena({
     if (res.ok) setBattles(data.battles);
   }, []);
 
+  useAsyncEffect(load, [load]);
+
   useEffect(() => {
-    load();
-    const t = setInterval(load, 8000);
+    const t = setInterval(() => void load(), 8000);
     return () => clearInterval(t);
   }, [load]);
 

@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { GlobalLiveListener } from "@/components/GlobalLiveListener";
+import { MobileNav } from "@/components/MobileNav";
 import { NavBar } from "@/components/NavBar";
 import { ViewModeSwitcher } from "@/components/ViewModeSwitcher";
 import { getCurrentUser } from "@/lib/auth";
@@ -24,6 +25,7 @@ export default async function AppLayout({
         pusherCluster={process.env.NEXT_PUBLIC_PUSHER_CLUSTER ?? null}
       />
       {children}
+      <MobileNav />
       <ViewModeSwitcher currentMode={user.viewMode} />
     </>
   );

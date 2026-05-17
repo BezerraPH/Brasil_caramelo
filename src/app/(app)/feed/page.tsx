@@ -10,6 +10,7 @@ import { StoriesBar } from "@/components/StoriesBar";
 import { UserAvatar } from "@/components/UserAvatar";
 import { getCurrentUser } from "@/lib/auth";
 import { finalizeExpiredBattles } from "@/lib/battles";
+import { purgeExpiredStories } from "@/lib/cleanup";
 import { getActiveFlashEvent } from "@/lib/events";
 import { prisma } from "@/lib/prisma";
 
@@ -17,7 +18,7 @@ export default async function FeedPage() {
   const user = await getCurrentUser();
   if (!user) return null;
 
-  await finalizeExpiredBattles();
+  await Promise.all([finalizeExpiredBattles(), purgeExpiredStories()]);
 
   const posts = await prisma.post.findMany({
     where: { communityLevel: null },

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Pusher from "pusher-js";
 import { useCallback, useEffect, useState } from "react";
+import { useAsyncEffect } from "@/hooks/use-async-effect";
 
 type NotificationItem = {
   id: string;
@@ -36,9 +37,7 @@ export function NotificationBell({
     }
   }, []);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  useAsyncEffect(load, [load]);
 
   useEffect(() => {
     if (!pusherKey || !pusherCluster) {

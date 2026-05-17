@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
+import { useAsyncEffect } from "@/hooks/use-async-effect";
 import { getEquippedDisplay } from "@/lib/pet-cosmetics";
 import { PetCosmeticShop } from "./PetCosmeticShop";
 
@@ -39,9 +40,7 @@ export function PetGame() {
     setLoading(false);
   }, []);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  useAsyncEffect(load, [load]);
 
   async function care(action: "feed" | "play" | "rest") {
     setActing(action);
@@ -108,6 +107,9 @@ export function PetGame() {
           <p className="mt-2 text-xs text-bc-brown">
             Nv. {pet.level} · {pet.experience}/100 XP · 🪙 {pet.coins} CarameloCoins
           </p>
+          {equipped.length > 0 && (
+            <p className="mt-2 text-xl">{equipped.join(" ")}</p>
+          )}
         </div>
 
         <div className="space-y-4 p-6">

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
+import { useAsyncEffect } from "@/hooks/use-async-effect";
 import { UploadButton } from "@/lib/uploadthing";
 import { BcImage } from "./BcImage";
 import { UserAvatar } from "./UserAvatar";
@@ -29,9 +30,7 @@ export function StoriesBar({ currentUserId }: { currentUserId: string }) {
     if (res.ok) setGroups(data.groups);
   }, []);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  useAsyncEffect(load, [load]);
 
   return (
     <>

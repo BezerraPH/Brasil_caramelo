@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
+import { useAsyncEffect } from "@/hooks/use-async-effect";
 
 type VisitData = {
   owner: { name: string; username: string };
@@ -36,9 +37,7 @@ export function PetYardVisit({ ownerUserId }: PetYardVisitProps) {
     setLoading(false);
   }, [ownerUserId]);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  useAsyncEffect(load, [load]);
 
   async function giveTreat() {
     setTreating(true);

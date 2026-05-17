@@ -3,7 +3,7 @@
 ================================================================================
 
 Última atualização: 2026-05-17
-Versão atual do pacote (package.json): 0.9.0
+Versão atual do pacote (package.json): 1.0.0-rc.1
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
   Sempre que o programa for melhorado, atualize ESTE arquivo:
@@ -263,6 +263,27 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v1.0.0-rc.1 — 2026-05-17 (auditoria pré-release)
+------------------------------------------------------------------------------
+  QUALIDADE & LINT:
+  + Hook useAsyncEffect — corrige set-state-in-effect em client components
+  + auth: cookieSecureEnabled (sem falso positivo rules-of-hooks)
+  + ReputationPButton: aspas escapadas, key no perfil para sync de nível
+
+  UX & NAVEGAÇÃO:
+  + MobileNav fixa no rodapé (md:hidden) + padding pb-24 no PageContainer
+  + ViewModeSwitcher reposicionado (bottom-20) para não sobrepor a nav
+  + NavBar: Explorar, Ranking, Rolezinho
+  + Página /explorar — hub de rotas e casinhas em destaque
+  + error.tsx (app) e global-error.tsx — fallbacks amigáveis
+
+  MANUTENÇÃO:
+  + lib/cleanup.ts — purgeExpiredStories no feed e GET /api/stories
+  + PetGame exibe cosméticos equipados no avatar
+
+  Deploy: git pull → prisma migrate deploy → docker compose up -d --build
 
 ------------------------------------------------------------------------------
 v0.9.0 — 2026-05-17 (rumo à v1.0.0 — coletivo)

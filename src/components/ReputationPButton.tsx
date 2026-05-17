@@ -21,10 +21,6 @@ export function ReputationPButton({ toUserId, myLevel }: ReputationPButtonProps)
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setSelected(myLevel ?? null);
-  }, [myLevel]);
-
-  useEffect(() => {
     if (!open) return;
     function onPointerDown(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -102,7 +98,9 @@ export function ReputationPButton({ toUserId, myLevel }: ReputationPButtonProps)
                     <span className="font-semibold text-bc-blue">{p.breed}</span>
                   </div>
                   <p className="mt-0.5 text-[11px] text-bc-brown">{p.about}</p>
-                  <p className="text-[10px] italic text-gray-500">"{p.vibe}"</p>
+                  <p className="text-[10px] italic text-gray-500">
+                    &ldquo;{p.vibe}&rdquo;
+                  </p>
                 </button>
               </li>
             ))}

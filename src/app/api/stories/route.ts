@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getCurrentUser } from "@/lib/auth";
+import { purgeExpiredStories } from "@/lib/cleanup";
 import { createNotification } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
 import { pushGlobalEvent } from "@/lib/pusher-server";
@@ -15,6 +16,8 @@ export async function GET() {
   if (!user) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
   }
+
+  await purgeExpiredStories();
 
   const now = new Date();
   const stories = await prisma.story.findMany({

@@ -5,14 +5,14 @@ export const SESSION_COOKIE = "bc_session";
 const SESSION_DAYS = 30;
 
 /** Em HTTP (rede local) use COOKIE_SECURE=false. Em HTTPS, use true. */
-function useSecureCookies() {
+function cookieSecureEnabled() {
   return process.env.COOKIE_SECURE === "true";
 }
 
 function sessionCookieOptions(expires: Date) {
   return {
     httpOnly: true,
-    secure: useSecureCookies(),
+    secure: cookieSecureEnabled(),
     sameSite: "lax" as const,
     path: "/",
     expires,

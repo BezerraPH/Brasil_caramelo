@@ -4,6 +4,21 @@ import { prisma } from "./prisma";
 export const SESSION_COOKIE = "bc_session";
 const SESSION_DAYS = 30;
 
+/** Em HTTP (rede local) use COOKIE_SECURE=false. Em HTTPS, use true. */
+function useSecureCookies() {
+  return process.env.COOKIE_SECURE === "true";
+}
+
+function sessionCookieOptions(expires: Date) {
+  return {
+    httpOnly: true,
+    secure: useSecureCookies(),
+    sameSite: "lax" as const,
+    path: "/",
+    expires,
+  };
+}
+
 export async function createSession(userId: string) {
   const token = crypto.randomUUID() + crypto.randomUUID();
   const expiresAt = new Date();
@@ -14,13 +29,7 @@ export async function createSession(userId: string) {
   });
 
   const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    expires: expiresAt,
-  });
+  cookieStore.set(SESSION_COOKIE, token, sessionCookieOptions(expiresAt));
 }
 
 export async function destroySession() {
@@ -28,8 +37,11 @@ export async function destroySession() {
   const token = cookieStore.get(SESSION_COOKIE)?.value;
   if (token) {
     await prisma.session.deleteMany({ where: { token } });
-    cookieStore.delete(SESSION_COOKIE);
   }
+  cookieStore.set(SESSION_COOKIE, "", {
+    ...sessionCookieOptions(new Date(0)),
+    maxAge: 0,
+  });
 }
 
 export async function getCurrentUser() {

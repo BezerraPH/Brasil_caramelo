@@ -147,5 +147,6 @@ Abra **http://localhost:3000** e repita os passos do navegador acima.
 | Página não abre | `docker compose ps` — app deve estar `running` |
 | Erro de banco | `docker compose logs db` e confira `DATABASE_URL` no `.env` |
 | 503 em `/api/health` | Banco ainda subindo; espere e `docker compose restart app` |
+| Login não mantém sessão | Acesso por HTTP exige `COOKIE_SECURE=false` no docker-compose |
 | Push Git falha | Chave SSH do PC cadastrada no Gitea? |
 | Porta 5432 no browser | Não use; só HTTP na 3000 e 3001 |

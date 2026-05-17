@@ -8,8 +8,9 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const data = loginSchema.parse(body);
+    const email = data.email.toLowerCase().trim();
 
-    const user = await prisma.user.findUnique({ where: { email: data.email } });
+    const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       return NextResponse.json(
         { error: "E-mail ou senha incorretos." },

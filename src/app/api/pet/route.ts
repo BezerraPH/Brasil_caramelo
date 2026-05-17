@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { validationMessage } from "@/lib/api-error";
+import { PREMIUM_PERKS } from "@/lib/constants";
+import { applyCoinMultiplier, getCoinMultiplier } from "@/lib/events";
 import { applyCare, applyPetDecay, petMood } from "@/lib/pet";
 import { prisma } from "@/lib/prisma";
 import { petCareSchema, petUpdateSchema } from "@/lib/validators";
@@ -57,7 +59,18 @@ export async function PATCH(request: Request) {
         pet = await prisma.pet.create({ data: { userId: user.id } });
       }
 
-      const updated = applyCare(applyPetDecay(pet), action);
+      const decayed = applyPetDecay(pet);
+      const coinsBefore = decayed.coins;
+      let updated = applyCare(decayed, action);
+      const gain = updated.coins - coinsBefore;
+      if (gain > 0) {
+        const mult = await getCoinMultiplier(user.id);
+        const prem = user.isPremium ? PREMIUM_PERKS.coinBonus : 1;
+        updated = {
+          ...updated,
+          coins: coinsBefore + applyCoinMultiplier(gain, mult * prem),
+        };
+      }
       const saved = await prisma.pet.update({
         where: { id: pet.id },
         data: {

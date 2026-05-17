@@ -21,10 +21,14 @@ export const postSchema = z
   .object({
     content: z.string().max(2000).optional(),
     imageUrl: z.string().url().optional(),
+    videoUrl: z.string().url().optional(),
+    communityLevel: z.enum(DOG_REPUTATION_LEVELS).optional(),
   })
-  .refine((d) => (d.content?.trim().length ?? 0) > 0 || d.imageUrl, {
-    message: "Escreva um texto ou envie uma foto.",
-  });
+  .refine(
+    (d) =>
+      (d.content?.trim().length ?? 0) > 0 || d.imageUrl || d.videoUrl,
+    { message: "Escreva um texto ou envie mídia." },
+  );
 
 export const reputationSchema = z.object({
   toUserId: z.string().min(1),

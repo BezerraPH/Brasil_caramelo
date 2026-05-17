@@ -12,6 +12,7 @@ type FeedPostProps = {
     id: string;
     content: string;
     imageUrl?: string | null;
+    videoUrl?: string | null;
     createdAt: string;
     likedByMe: boolean;
     author: {
@@ -71,7 +72,17 @@ export function FeedPost({ post, animationDelay }: FeedPostProps) {
           </p>
         </div>
       </header>
-      {post.imageUrl && (
+      {post.videoUrl && (
+        <div className="relative mb-3 aspect-video max-h-96 w-full overflow-hidden rounded-xl bg-black">
+          <video
+            src={post.videoUrl}
+            className="h-full w-full object-cover"
+            controls
+            playsInline
+          />
+        </div>
+      )}
+      {post.imageUrl && !post.videoUrl && (
         <div className="relative mb-3 aspect-video max-h-96 w-full overflow-hidden rounded-xl bg-bc-blue/5">
           <BcImage
             src={post.imageUrl}

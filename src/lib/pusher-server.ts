@@ -30,6 +30,10 @@ export function userChannelName(userId: string) {
   return `private-user-${userId}`;
 }
 
+import { GLOBAL_CHANNEL } from "./pusher-constants";
+
+export { GLOBAL_CHANNEL };
+
 export async function pushNotificationEvent(
   userId: string,
   payload: {
@@ -44,4 +48,10 @@ export async function pushNotificationEvent(
   if (!server) return;
 
   await server.trigger(userChannelName(userId), "notification", payload);
+}
+
+export async function pushGlobalEvent(event: string, payload: unknown) {
+  const server = getPusherServer();
+  if (!server) return;
+  await server.trigger(GLOBAL_CHANNEL, event, payload as Record<string, unknown>);
 }

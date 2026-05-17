@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { GlobalLiveListener } from "@/components/GlobalLiveListener";
 import { NavBar } from "@/components/NavBar";
 import { ViewModeSwitcher } from "@/components/ViewModeSwitcher";
 import { getCurrentUser } from "@/lib/auth";
@@ -13,6 +14,10 @@ export default async function AppLayout({
 
   return (
     <>
+      <GlobalLiveListener
+        pusherKey={process.env.NEXT_PUBLIC_PUSHER_KEY ?? null}
+        pusherCluster={process.env.NEXT_PUBLIC_PUSHER_CLUSTER ?? null}
+      />
       <NavBar
         user={user}
         pusherKey={process.env.NEXT_PUBLIC_PUSHER_KEY ?? null}

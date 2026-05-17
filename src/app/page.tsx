@@ -8,25 +8,29 @@ export default async function HomePage() {
 
   return (
     <main className="bc-hero-bg bc-pattern-dots relative min-h-screen overflow-hidden">
+      <div className="pointer-events-none absolute -right-20 top-20 h-64 w-64 rounded-full bg-bc-green/10 blur-3xl" />
+      <div className="pointer-events-none absolute -left-16 bottom-32 h-48 w-48 rounded-full bg-bc-caramel/15 blur-3xl" />
+
       <div className="relative mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center px-4 py-16">
         <div className="bc-animate-in-up text-center">
-          <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-bc-caramel/40 to-bc-green/30 text-5xl shadow-lg ring-4 ring-bc-white">
+          <div className="bc-animate-float mx-auto mb-6 flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-bc-caramel/50 to-bc-green/40 text-6xl shadow-xl ring-4 ring-bc-white">
             🐕
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-bc-blue sm:text-5xl">
-            Brasil{" "}
-            <span className="bg-gradient-to-r from-bc-brown to-bc-caramel bg-clip-text text-transparent">
-              Caramelo
-            </span>
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
+            <span className="text-bc-blue">Brasil </span>
+            <span className="bc-shimmer-text">Caramelo</span>
           </h1>
-          <p className="mx-auto mt-4 max-w-md text-lg text-bc-brown">
-            A rede social que se reinventa — Feed, personalidade canina, amigos e
-            seu cachorro virtual.
+          <p className="mx-auto mt-4 max-w-lg text-lg text-bc-brown">
+            Feed, Insta, Cinelar, stories, casinhas e batalhas de fofura — a
+            rede social que late em comunidade.
           </p>
         </div>
 
         <div className="bc-animate-in bc-stagger-2 mt-10 flex flex-wrap justify-center gap-4">
-          <Link href="/cadastro" className="bc-btn-primary px-8 py-3 text-base shadow-lg">
+          <Link
+            href="/cadastro"
+            className="bc-btn-primary px-8 py-3 text-base shadow-lg"
+          >
             Criar conta grátis
           </Link>
           <Link href="/entrar" className="bc-btn-secondary px-8 py-3 text-base">
@@ -34,15 +38,16 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        <div className="bc-animate-in bc-stagger-3 mt-16 grid w-full max-w-2xl gap-4 sm:grid-cols-3">
+        <div className="bc-animate-in bc-stagger-3 mt-16 grid w-full max-w-3xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { icon: "📰", title: "Feed", desc: "Recados e comunidade" },
-            { icon: "🐾", title: "Personalidade P", desc: "10 vibes caninas" },
-            { icon: "🎮", title: "Seu cachorro", desc: "Cuide todo dia" },
+            { icon: "📰", title: "Feed & Casinhas", desc: "10 tocas por raça" },
+            { icon: "🎬", title: "Cinelar", desc: "Shorts com autoplay" },
+            { icon: "⭕", title: "Stories 24h", desc: "FOMO canino" },
+            { icon: "⚔️", title: "Batalhas", desc: "Votação ao vivo" },
           ].map((f) => (
             <div
               key={f.title}
-              className="bc-card bc-card-interactive p-4 text-center"
+              className="bc-card bc-glass bc-card-interactive p-4 text-center"
             >
               <span className="text-3xl">{f.icon}</span>
               <p className="mt-2 font-bold text-bc-blue">{f.title}</p>
@@ -50,6 +55,10 @@ export default async function HomePage() {
             </div>
           ))}
         </div>
+
+        <p className="bc-animate-in bc-stagger-4 mt-12 text-center text-xs text-bc-brown/80">
+          v0.9.0 — Rumo à v1.0.0 🐾
+        </p>
       </div>
     </main>
   );

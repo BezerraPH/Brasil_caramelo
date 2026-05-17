@@ -103,5 +103,11 @@ export const REPUTATION_LEVELS = REPUTATION_PERSONALITIES;
 export const VIEW_MODES = [
   { id: "FEED", label: "Feed", description: "Estilo comunidade (Orkut)", available: true },
   { id: "INSTA", label: "Insta", description: "Grade de fotos", available: true },
-  { id: "REELS", label: "Reels", description: "Vídeos curtos", available: false },
+  { id: "REELS", label: "Cinelar", description: "Shorts com vídeo", available: true },
 ] as const;
+
+export const PREMIUM_PERKS = {
+  badge: "Pedigree",
+  coinBonus: 1.5,
+  treatLimitBonus: 5,
+} as const;

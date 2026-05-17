@@ -33,6 +33,31 @@ export const ourFileRouter = {
     .onUploadComplete(async ({ metadata }) => {
       return { userId: metadata.userId };
     }),
+
+  postVideo: f({
+    video: { maxFileSize: "32MB", maxFileCount: 1 },
+  })
+    .middleware(async () => {
+      const user = await getCurrentUser();
+      if (!user) throw new UploadThingError("Não autorizado");
+      return { userId: user.id };
+    })
+    .onUploadComplete(async ({ metadata }) => {
+      return { userId: metadata.userId };
+    }),
+
+  storyMedia: f({
+    image: { maxFileSize: "8MB", maxFileCount: 1 },
+    video: { maxFileSize: "16MB", maxFileCount: 1 },
+  })
+    .middleware(async () => {
+      const user = await getCurrentUser();
+      if (!user) throw new UploadThingError("Não autorizado");
+      return { userId: user.id };
+    })
+    .onUploadComplete(async ({ metadata }) => {
+      return { userId: metadata.userId };
+    }),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;

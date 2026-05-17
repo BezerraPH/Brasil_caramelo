@@ -3,7 +3,7 @@
 ================================================================================
 
 Última atualização: 2026-05-17
-Versão atual do pacote (package.json): 0.8.0
+Versão atual do pacote (package.json): 0.9.0
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
   Sempre que o programa for melhorado, atualize ESTE arquivo:
@@ -126,7 +126,7 @@ DogReputationLevel (10 personalidades ativas):
   BORDER_COLLIE, BASSET_HOUND, CHOW_CHOW
 
 ================================================================================
-  5. FUNCIONALIDADES ATUAIS (v0.8.0)
+  5. FUNCIONALIDADES ATUAIS (v0.9.0)
 ================================================================================
 
 [OK] Cadastro e login
@@ -147,15 +147,24 @@ DogReputationLevel (10 personalidades ativas):
 [OK] Modo Insta: grade de fotos no /feed + publicar com imagem
 [OK] Notificações em tempo real via Pusher (fallback polling 45s)
 [OK] Loja de cosméticos do pet (/cachorro) — comprar e equipar com CarameloCoins
-[OK] Design: animações CSS, cards hover, landing redesenhada, menu mobile
+[OK] Cinelar (REELS) — shorts com vídeo + Intersection Observer autoplay
+[OK] Stories 24h — barra no feed, upload foto/vídeo, expira em 24h
+[OK] Casinhas — 10 comunidades por raça (/casinhas, /casinha/[slug])
+[OK] Rolezinho flash — eventos 2x moedas + Pusher global (/rolezinho)
+[OK] Batalha de pets — desafio entre amigos, votação ao vivo (/batalha)
+[OK] Pedigree (premium) — selo, rolezinhos, bônus de moedas (/premium)
+[OK] Legenda IA — /api/ai/caption (OpenAI opcional ou templates locais)
+[OK] Design v2 — glass, shimmer, flash glow, landing animada, bc-btn-gold
 [OK] API /api/health
 [OK] Deploy Docker + Gitea
 
-[PENDENTE — ROADMAP]
-  - Modo Reels
+[PENDENTE — v1.0.0]
   - Chats e grupos em tempo real
-  - Chamadas de voz/vídeo e reuniões (WebRTC / LiveKit)
-  - Blur-up placeholder nas imagens (next/image blurDataURL)
+  - Chamadas WebRTC / LiveKit
+  - Filtro de conteúdo com IA (moderação de imagens)
+  - Pagamento real Pedigree (Stripe/Pix)
+  - Anúncios geolocalizados de pet shops
+  - Blur-up nas imagens (next/image)
 
 ================================================================================
   6. PERSONALIDADES CANINAS (v0.5.0)
@@ -191,6 +200,11 @@ Páginas:
   /buscar              — buscar usuários
   /cachorro            — jogo do pet
   /ranking             — top 10 semanal por personalidade
+  /casinhas            — lista de comunidades
+  /casinha/[slug]      — feed da casinha (pitbull, caramelo, …)
+  /rolezinho           — eventos flash ativos
+  /batalha             — batalhas de fofura
+  /premium             — assinatura Pedigree
 
 API:
   POST /api/auth/register | login | logout
@@ -210,6 +224,12 @@ API:
   GET|POST /api/uploadthing
   POST /api/pusher/auth
   POST /api/pet/cosmetics  (buy|equip|unequip)
+  GET|POST /api/stories
+  GET|POST /api/events
+  GET|POST /api/battles  (criar|votar)
+  POST /api/battles/finalize
+  POST /api/ai/caption
+  POST /api/premium
 
 ================================================================================
   8. VARIÁVEIS DE AMBIENTE
@@ -221,6 +241,9 @@ NODE_ENV         — production no Docker
 UPLOADTHING_TOKEN — token do dashboard Uploadthing (upload avatar/fotos)
 NEXT_PUBLIC_PUSHER_KEY / NEXT_PUBLIC_PUSHER_CLUSTER — cliente Pusher
 PUSHER_APP_ID / PUSHER_KEY / PUSHER_SECRET — servidor Pusher (mesmo KEY do público)
+EVENT_ADMIN_SECRET — iniciar rolezinho sem ser Pedigree
+OPENAI_API_KEY — legendas IA (opcional)
+PREMIUM_CODE — código extra Pedigree
 
 Arquivo exemplo: .env.example
 
@@ -240,6 +263,46 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v0.9.0 — 2026-05-17 (rumo à v1.0.0 — coletivo)
+------------------------------------------------------------------------------
+  DESIGN & LAYOUT:
+  + globals: glass, gold, flash-glow, shimmer-text, float, reels-snap, story-ring
+  + Landing redesenhada (hero animado, grid 4 features)
+  + Feed com título shimmer, sidebar links coletivos
+  + Cards bc-glass na NavBar e stories
+
+  CINELAR (REELS):
+  + Modo REELS habilitado no switcher (Cinelar)
+  + Upload postVideo (Uploadthing até 32MB)
+  + ReelsFeed — scroll vertical + Intersection Observer play/pause
+
+  STORIES 24H:
+  + Model Story + API /api/stories
+  + StoriesBar no feed + viewer fullscreen
+  + Upload storyMedia (foto ou vídeo)
+
+  CASINHAS:
+  + lib/casinhas.ts — 10 comunidades temáticas
+  + /casinhas + /casinha/[slug] com posts communityLevel
+
+  COLETIVO & RETENÇÃO:
+  + FlashEvent + /rolezinho + banner no feed
+  + PetBattle + /batalha + votos em tempo real (Pusher global)
+  + User.isPremium + /premium (códigos demo PEDIGREE, etc.)
+  + Moedas com multiplicador de rolezinho + bônus Pedigree
+
+  IA:
+  + /api/ai/caption — OpenAI ou fallback por personalidade
+  + Botão "Legenda IA" no CreatePostForm
+
+  PUSHER:
+  + Canal global brasil-caramelo-live (flash, battle, story)
+  + GlobalLiveListener no layout autenticado
+
+  DB: migração collective_v09
+  * package.json: 0.8.0 → 0.9.0
 
 ------------------------------------------------------------------------------
 v0.8.0 — 2026-05-17

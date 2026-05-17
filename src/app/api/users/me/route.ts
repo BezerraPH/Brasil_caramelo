@@ -23,12 +23,6 @@ export async function PATCH(request: Request) {
 
     if (body.viewMode !== undefined) {
       const { viewMode } = viewModeSchema.parse(body);
-      if (viewMode === "REELS") {
-        return NextResponse.json(
-          { error: "Modo Reels chega em breve." },
-          { status: 400 },
-        );
-      }
       const updated = await prisma.user.update({
         where: { id: user.id },
         data: { viewMode },

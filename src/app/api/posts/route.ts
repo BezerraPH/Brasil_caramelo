@@ -38,12 +38,15 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { content, imageUrl } = postSchema.parse(body);
+    const { content, imageUrl, videoUrl, communityLevel } =
+      postSchema.parse(body);
 
     const post = await prisma.post.create({
       data: {
         content: content?.trim() ?? "",
         imageUrl: imageUrl ?? null,
+        videoUrl: videoUrl ?? null,
+        communityLevel: communityLevel ?? null,
         authorId: user.id,
       },
       include: {

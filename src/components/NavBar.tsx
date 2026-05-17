@@ -14,10 +14,9 @@ type NavBarProps = {
 
 const LINKS = [
   { href: "/feed", label: "Feed", icon: "📰" },
-  { href: "/ranking", label: "Matilha", icon: "🏆" },
-  { href: "/buscar", label: "Buscar", icon: "🔍" },
-  { href: "/amigos", label: "Amigos", icon: "🤝" },
-  { href: "/cachorro", label: "Cachorro", icon: "🐕" },
+  { href: "/casinhas", label: "Casinhas", icon: "🏠" },
+  { href: "/batalha", label: "Batalha", icon: "⚔️" },
+  { href: "/cachorro", label: "Pet", icon: "🐕" },
 ] as const;
 
 export function NavBar({ user, pusherKey, pusherCluster }: NavBarProps) {

@@ -6,8 +6,10 @@
   --bc-green: #2d8b57;
   --bc-brown: #8b5e3c;
   --bc-caramel: #c68642;
+  --bc-gold: #d4a017;
   --background: #e8f0ec;
   --foreground: #1a2e24;
+  --bc-glass: rgba(255, 255, 255, 0.72);
 }
 
 @theme inline {
@@ -16,6 +18,7 @@
   --color-bc-green: var(--bc-green);
   --color-bc-brown: var(--bc-brown);
   --color-bc-caramel: var(--bc-caramel);
+  --color-bc-gold: var(--bc-gold);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -26,6 +29,10 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
   min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse 100% 80% at 50% -30%, rgba(45, 139, 87, 0.12), transparent),
+    radial-gradient(ellipse 60% 50% at 100% 0%, rgba(27, 108, 168, 0.08), transparent);
+  background-attachment: fixed;
 }
 
 /* Padrão visual */
@@ -63,6 +70,50 @@ body {
 
 .bc-btn-ghost {
   @apply rounded-lg px-3 py-1.5 text-sm font-medium text-bc-blue transition hover:bg-bc-blue/10;
+}
+
+.bc-glass {
+  background: var(--bc-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.bc-btn-gold {
+  @apply rounded-xl bg-gradient-to-r from-bc-gold to-bc-caramel px-5 py-2.5 text-sm font-bold text-white shadow-md transition hover:shadow-lg active:scale-[0.98];
+}
+
+.bc-badge-premium {
+  @apply inline-flex items-center gap-0.5 rounded-full bg-gradient-to-r from-bc-gold/90 to-bc-caramel px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm;
+}
+
+.bc-flash-banner {
+  @apply relative overflow-hidden rounded-2xl border-2 border-bc-gold/40 bg-gradient-to-r from-bc-gold/20 via-bc-caramel/15 to-bc-green/20 p-4;
+  animation: bc-flash-glow 2.5s ease-in-out infinite;
+}
+
+.bc-nav-link-active {
+  @apply bg-bc-green/15 text-bc-green shadow-inner;
+}
+
+.bc-reels-snap {
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+.bc-reels-item {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.bc-story-ring {
+  background: linear-gradient(135deg, var(--bc-caramel), var(--bc-green), var(--bc-blue));
+  padding: 3px;
+  border-radius: 9999px;
+}
+
+.bc-story-ring-seen {
+  background: #cbd5e1;
+  padding: 2px;
 }
 
 /* Animações */
@@ -108,6 +159,26 @@ body {
   }
   100% {
     transform: scale(1);
+  }
+}
+
+@keyframes bc-flash-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(212, 160, 23, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 24px 4px rgba(212, 160, 23, 0.35);
+  }
+}
+
+@keyframes bc-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
   }
 }
 
@@ -208,6 +279,24 @@ body {
 
 .bc-profile-banner--pinscher {
   animation: bc-pinscher-pulse 2s ease-in-out infinite;
+}
+
+.bc-animate-float {
+  animation: bc-float 4s ease-in-out infinite;
+}
+
+.bc-shimmer-text {
+  background: linear-gradient(
+    90deg,
+    var(--bc-blue) 0%,
+    var(--bc-green) 50%,
+    var(--bc-caramel) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: bc-shimmer 4s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {

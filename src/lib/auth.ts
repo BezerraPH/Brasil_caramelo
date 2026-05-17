@@ -61,6 +61,8 @@ export async function getCurrentUser() {
           bio: true,
           avatarUrl: true,
           viewMode: true,
+          isPremium: true,
+          premiumUntil: true,
           createdAt: true,
         },
       },

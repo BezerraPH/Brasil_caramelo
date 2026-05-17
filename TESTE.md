@@ -72,6 +72,7 @@ git pull
 
 ```bash
 cp -n .env.example .env   # só se .env não existir
+# O docker-compose já define DATABASE_URL no container; .env é opcional para Docker
 ```
 
 ### 3. Subir app + banco

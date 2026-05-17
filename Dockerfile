@@ -8,6 +8,9 @@ RUN npm ci --ignore-scripts
 
 COPY . .
 
+# Next.js avalia rotas no build; precisa de URL (o Postgres real só na execução)
+ENV DATABASE_URL=postgresql://caramelo:caramelo_secret@db:5432/brasil_caramelo
+
 RUN npx prisma generate
 RUN npm run build
 

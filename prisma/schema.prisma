@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ViewMode {
+  FEED
+  INSTA
+  REELS
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+}
+
+enum DogReputationLevel {
+  PITBULL
+  POODLE
+  SALSICHA
+  VIRALATA
+  CARAMELO
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  username     String   @unique
+  bio          String?
+  avatarUrl    String?
+  viewMode     ViewMode @default(FEED)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  posts              Post[]
+  comments           Comment[]
+  likes              Like[]
+  sessions           Session[]
+  reputationsGiven   Reputation[] @relation("ReputationFrom")
+  reputationsReceived Reputation[] @relation("ReputationTo")
+  sentFriendships    Friendship[] @relation("FriendshipRequester")
+  receivedFriendships Friendship[] @relation("FriendshipAddressee")
+  pet                Pet?
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([token])
+}
+
+model Post {
+  id        String    @id @default(cuid())
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String
+  imageUrl  String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  comments  Comment[]
+  likes     Like[]
+
+  @@index([authorId, createdAt])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+
+  @@index([postId])
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+}
+
+model Reputation {
+  id         String             @id @default(cuid())
+  fromUserId String
+  fromUser   User               @relation("ReputationFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUserId   String
+  toUser     User               @relation("ReputationTo", fields: [toUserId], references: [id], onDelete: Cascade)
+  level      DogReputationLevel
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+
+  @@unique([fromUserId, toUserId])
+  @@index([toUserId])
+}
+
+model Friendship {
+  id          String           @id @default(cuid())
+  requesterId String
+  requester   User             @relation("FriendshipRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addresseeId String
+  addressee   User             @relation("FriendshipAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+
+  @@unique([requesterId, addresseeId])
+}
+
+/// Jogo do cachorro — estrutura pronta para a fase 2
+model Pet {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String   @default("Caramelo")
+  color       String   @default("#C68642")
+  hunger      Int      @default(80)
+  happiness   Int      @default(80)
+  energy      Int      @default(80)
+  lastCareAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

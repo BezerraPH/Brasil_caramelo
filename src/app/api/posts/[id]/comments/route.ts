@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { validationMessage } from "@/lib/api-error";
+import { createNotification } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
 import { commentSchema } from "@/lib/validators";
 
@@ -60,6 +61,15 @@ export async function POST(
         },
       },
     });
+
+    if (post.authorId !== user.id) {
+      await createNotification(
+        post.authorId,
+        "POST_COMMENT",
+        `${user.name} comentou no seu recado`,
+        `/feed?post=${postId}`,
+      );
+    }
 
     return NextResponse.json({
       comment: { ...comment, createdAt: comment.createdAt.toISOString() },

@@ -49,6 +49,8 @@ enum NotificationType {
   FLASH_EVENT
   PET_BATTLE
   STORY_NEW
+  POST_LIKE
+  POST_COMMENT
 }
 
 model User {

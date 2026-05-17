@@ -6,6 +6,8 @@ import { useState } from "react";
 import { BcImage } from "./BcImage";
 import { CommentSection } from "./CommentSection";
 import { DeletePostButton } from "./DeletePostButton";
+import { EditPostButton } from "./EditPostButton";
+import { PostContent } from "./PostContent";
 import { SavePostButton } from "./SavePostButton";
 import { SharePostButton } from "./SharePostButton";
 import { UserAvatar } from "./UserAvatar";
@@ -105,11 +107,7 @@ export function FeedPost({
           />
         </div>
       )}
-      {post.content && (
-        <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">
-          {post.content}
-        </p>
-      )}
+      {post.content && <PostContent content={post.content} />}
       <footer className="mt-4 border-t border-bc-blue/10 pt-3">
         <div className="flex flex-wrap items-center gap-1">
           <button
@@ -125,6 +123,12 @@ export function FeedPost({
           </button>
           <SavePostButton postId={post.id} initialSaved={savedByMe} />
           <SharePostButton postId={post.id} />
+          {isOwn && (post.content || post.imageUrl || post.videoUrl) && (
+            <EditPostButton
+              postId={post.id}
+              initialContent={post.content ?? ""}
+            />
+          )}
           {isOwn && <DeletePostButton postId={post.id} />}
         </div>
         <CommentSection postId={post.id} initialCount={post._count.comments} />

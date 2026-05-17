@@ -1,11 +1,10 @@
 import { VIEW_MODES } from "@/lib/constants";
 
 const DONE = [
+  { icon: "🎬", title: "Cinelar estilo TikTok" },
   { icon: "🌙", title: "Modo escuro" },
-  { icon: "💾", title: "Mídia 100% no servidor" },
-  { icon: "↗", title: "Compartilhar e apagar posts" },
-  { icon: "🔖", title: "Recados salvos" },
-  { icon: "⭕", title: "Stories com visto" },
+  { icon: "💾", title: "Mídia no servidor" },
+  { icon: "🔔", title: "Notif. de curtida/comentário" },
 ];
 
 const FUTURE = [
@@ -31,7 +30,7 @@ export function RoadmapPanel() {
       </section>
 
       <section className="bc-card p-4">
-        <h2 className="mb-3 font-bold text-bc-blue">v1.3</h2>
+        <h2 className="mb-3 font-bold text-bc-blue">v1.4</h2>
         <ul className="space-y-2 text-sm text-bc-brown">
           {DONE.map((f) => (
             <li key={f.title} className="flex gap-2">

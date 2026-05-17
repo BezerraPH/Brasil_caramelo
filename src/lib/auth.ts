@@ -1,7 +1,8 @@
 import { cookies } from "next/headers";
 import { prisma } from "./prisma";
+import { SESSION_COOKIE } from "./session-cookie";
 
-export const SESSION_COOKIE = "bc_session";
+export { SESSION_COOKIE };
 const SESSION_DAYS = 30;
 
 /** Em HTTP (rede local) use COOKIE_SECURE=false. Em HTTPS, use true. */

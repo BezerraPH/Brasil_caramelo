@@ -89,8 +89,13 @@ export default async function FeedPage() {
       : "O que a comunidade está latindo";
 
   return (
-    <PageContainer>
-      <div className="grid gap-6 lg:grid-cols-[240px_1fr_260px]">
+    <PageContainer className={isReels ? "!max-w-lg !px-2" : ""}>
+      <div
+        className={
+          isReels ? "space-y-3" : "grid gap-6 lg:grid-cols-[240px_1fr_260px]"
+        }
+      >
+        {!isReels && (
         <aside className="hidden lg:block">
           <section className="bc-card bc-glass bc-animate-in p-5 text-center">
             <Link
@@ -140,6 +145,7 @@ export default async function FeedPage() {
             </Link>
           </section>
         </aside>
+        )}
 
         <section className="space-y-4">
           <Suspense fallback={null}>
@@ -153,9 +159,9 @@ export default async function FeedPage() {
             <FeedRefreshButton />
           </header>
 
-          <WelcomeBanner />
+          {!isReels && <WelcomeBanner />}
 
-          {flashEvent && (
+          {!isReels && flashEvent && (
             <FlashEventBanner
               title={flashEvent.title}
               message={flashEvent.message}
@@ -164,7 +170,7 @@ export default async function FeedPage() {
             />
           )}
 
-          <StoriesBar currentUserId={user.id} />
+          {!isReels && <StoriesBar currentUserId={user.id} />}
 
           <div className="bc-animate-in bc-stagger-1">
             <CreatePostForm instaMode={isInsta} reelsMode={isReels} />
@@ -172,6 +178,7 @@ export default async function FeedPage() {
 
           {isReels ? (
             <ReelsFeed
+              currentUserId={user.id}
               posts={mappedPosts
                 .filter((p) => p.videoUrl)
                 .map((p) => ({
@@ -200,6 +207,7 @@ export default async function FeedPage() {
           )}
         </section>
 
+        {!isReels && (
         <aside className="hidden lg:block">
           <div className="bc-animate-in bc-stagger-2 space-y-4">
             <RecentActivity userId={user.id} />
@@ -212,6 +220,7 @@ export default async function FeedPage() {
             </Link>
           </div>
         </aside>
+        )}
       </div>
     </PageContainer>
   );

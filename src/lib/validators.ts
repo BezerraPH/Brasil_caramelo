@@ -44,6 +44,10 @@ export const reputationSchema = z.object({
   level: z.enum(DOG_REPUTATION_LEVELS),
 });
 
+export const editPostSchema = z.object({
+  content: z.string().min(1).max(2000),
+});
+
 export const commentSchema = z.object({
   content: z.string().min(1).max(500),
 });

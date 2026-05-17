@@ -127,6 +127,40 @@ body {
   scroll-snap-stop: always;
 }
 
+.bc-cinelar-shell {
+  @apply bg-black md:rounded-2xl md:shadow-2xl;
+}
+
+.bc-cinelar-scroll {
+  scrollbar-width: none;
+}
+.bc-cinelar-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.bc-cinelar-action {
+  @apply flex flex-col items-center gap-0.5 text-[11px] font-semibold text-white drop-shadow-md transition active:scale-90;
+}
+
+.bc-cinelar-heart-pop {
+  animation: bc-cinelar-heart 0.7s ease forwards;
+}
+
+@keyframes bc-cinelar-heart {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+  40% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.15);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
 .bc-story-ring {
   background: linear-gradient(135deg, var(--bc-caramel), var(--bc-green), var(--bc-blue));
   padding: 3px;
@@ -352,6 +386,29 @@ body {
   background-clip: text;
   color: transparent;
   animation: bc-shimmer 4s linear infinite;
+}
+
+.bc-skeleton {
+  @apply bg-bc-blue/10;
+}
+
+.bc-skeleton-pulse .bc-skeleton,
+.bc-card.bc-skeleton-pulse {
+  animation: bc-skeleton-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes bc-skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.bc-hashtag:hover {
+  @apply text-bc-green/90;
 }
 
 @media (prefers-reduced-motion: reduce) {

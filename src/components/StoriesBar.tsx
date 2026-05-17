@@ -128,6 +128,10 @@ export function StoriesBar({ currentUserId }: { currentUserId: string }) {
           index={viewer.index}
           currentUserId={currentUserId}
           onClose={() => setViewer(null)}
+          onDeleted={() => {
+            setViewer(null);
+            load();
+          }}
           onMarkViewed={markViewed}
           onNext={(nextIndex) => {
             const next = viewer.group.stories[nextIndex];
@@ -147,8 +151,10 @@ export function StoriesBar({ currentUserId }: { currentUserId: string }) {
 function StoryViewer({
   group,
   index,
+  currentUserId,
   onClose,
   onNext,
+  onDeleted,
 }: {
   group: StoryGroup;
   index: number;
@@ -156,9 +162,24 @@ function StoryViewer({
   onClose: () => void;
   onNext: (nextIndex: number) => void;
   onMarkViewed: (ids: string[]) => Promise<void>;
+  onDeleted: () => void;
 }) {
   const story = group.stories[index];
+  const [deleting, setDeleting] = useState(false);
   if (!story) return null;
+
+  const isOwn = group.user.id === currentUserId;
+
+  async function removeStory() {
+    if (!confirm("Apagar este story?")) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/stories/${story.id}`, { method: "DELETE" });
+      if (res.ok) onDeleted();
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 p-4">
@@ -169,6 +190,16 @@ function StoryViewer({
       >
         ✕
       </button>
+      {isOwn && (
+        <button
+          type="button"
+          disabled={deleting}
+          onClick={() => void removeStory()}
+          className="absolute left-4 top-4 z-10 rounded-lg bg-red-600/90 px-3 py-1.5 text-sm font-medium text-white"
+        >
+          {deleting ? "…" : "Apagar"}
+        </button>
+      )}
       <div className="relative max-h-[85vh] w-full max-w-md overflow-hidden rounded-2xl bg-black">
         <div className="absolute left-0 right-0 top-0 z-10 flex gap-0.5 p-2">
           {group.stories.map((s, i) => (

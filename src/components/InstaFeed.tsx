@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { BcImage } from "./BcImage";
 import { CommentSection } from "./CommentSection";
+import { PostContent } from "./PostContent";
 import { UserAvatar } from "./UserAvatar";
 
 type InstaPost = {
@@ -107,7 +108,10 @@ function InstaTile({ post, delay }: { post: InstaPost; delay: number }) {
                 </Link>
               </header>
               {post.content && (
-                <p className="mb-3 text-sm text-gray-800">{post.content}</p>
+                <PostContent
+                  content={post.content}
+                  className="mb-3 text-sm text-gray-800"
+                />
               )}
               <button
                 type="button"

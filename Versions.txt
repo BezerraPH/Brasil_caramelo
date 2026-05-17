@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-18 (v1.3.0)
-Versão atual do pacote (package.json): 1.3.0
+Última atualização: 2026-05-17 (v1.5.0)
+Versão atual do pacote (package.json): 1.5.0
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
   Sempre que o programa for melhorado, atualize ESTE arquivo:
@@ -137,10 +137,16 @@ DogReputationLevel (10 personalidades ativas):
 [OK] DNA visual no perfil (tema por personalidade dominante)
 [OK] Ranking da matilha (/ranking) — Top 10 semanal por raça
 [OK] Amigos (/amigos): enviar pedido, aceitar, recusar, listar
-[OK] Buscar pessoas (/buscar) por nome ou @usuário
+[OK] Buscar (/buscar): pessoas, recados e hashtags (#tag)
+[OK] Editar legenda do próprio recado (PATCH /api/posts/[id])
+[OK] Apagar próprio story (DELETE /api/stories/[id]) + limpeza de mídia
+[OK] Página /notificacoes — histórico completo com marcar lidas
+[OK] Hashtags clicáveis nos recados (PostContent → busca por tag)
+[OK] Middleware de sessão nas rotas autenticadas
+[OK] Página 404 personalizada + skeleton de carregamento no feed
 [OK] Jogo do cachorro (/cachorro): level, XP, CarameloCoins, cuidados
 [OK] Quintal social: visitar pet de amigo, dar petisco, badge Cachorreiros Próximos
-[OK] Notificações (sino na NavBar; voto, amizade, petisco)
+[OK] Notificações (sino na NavBar; voto, amizade, petisco, curtida e comentário em posts)
 [OK] PWA: manifest + service worker (instalar no celular)
 [OK] ViewModeSwitcher (patinha) — preferência de modo salva no usuário
 [OK] Upload local no servidor (POST /api/upload, GET /api/media) — sem terceiros
@@ -148,7 +154,7 @@ DogReputationLevel (10 personalidades ativas):
 [OK] Modo Insta: grade de fotos no /feed + publicar com imagem
 [OK] Notificações em tempo real via Pusher (fallback polling 45s)
 [OK] Loja de cosméticos do pet (/cachorro) — comprar e equipar com CarameloCoins
-[OK] Cinelar (REELS) — shorts com vídeo + Intersection Observer autoplay
+[OK] Cinelar (REELS) — UI estilo TikTok: scroll vertical, ações laterais, duplo toque, comentários
 [OK] Stories 24h — barra no feed, upload foto/vídeo, expira em 24h
 [OK] Casinhas — 10 comunidades por raça (/casinhas, /casinha/[slug])
 [OK] Rolezinho flash — eventos 2x moedas + Pusher global (/rolezinho)
@@ -203,7 +209,8 @@ Páginas:
   /perfil/[username]   — perfil
   /configuracoes       — editar perfil
   /amigos              — amizades
-  /buscar              — buscar usuários
+  /buscar              — buscar pessoas, recados e hashtags
+  /notificacoes        — histórico de notificações
   /cachorro            — jogo do pet
   /ranking             — top 10 semanal por personalidade
   /casinhas            — lista de comunidades
@@ -218,6 +225,8 @@ API:
   POST /api/auth/register | login | logout
   GET  /api/health
   GET|POST /api/posts
+  GET  /api/posts/search?q= | ?tag=
+  PATCH|DELETE /api/posts/[id]
   POST /api/posts/[id]/like
   GET|POST /api/posts/[id]/comments
   POST /api/reputation
@@ -232,13 +241,13 @@ API:
   POST /api/upload
   GET  /api/media/[...path]
   GET  /api/storage/stats
-  DELETE /api/posts/[id]
   GET|POST /api/saved
   POST /api/stories/view
   GET|POST /api/pet/daily
   POST /api/pusher/auth
   POST /api/pet/cosmetics  (buy|equip|unequip)
   GET|POST /api/stories
+  DELETE /api/stories/[id]
   GET|POST /api/events
   GET|POST /api/battles  (criar|votar)
   POST /api/battles/finalize
@@ -277,6 +286,44 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v1.5.0 — 2026-05-17 (hashtags, busca, edição e notificações)
+------------------------------------------------------------------------------
+  NOVAS FUNCIONALIDADES:
+  + Hashtags (#tag) clicáveis em recados — PostContent + lib/hashtags.ts
+  + Busca em duas abas: Pessoas | Recados — GET /api/posts/search
+  + Editar legenda do próprio post — PATCH /api/posts/[id] + EditPostButton
+  + Apagar próprio story — DELETE /api/stories/[id] (remove mídia do disco)
+  + Página /notificacoes com lista completa e marcar lidas
+  + Link "Ver todas" no sino da NavBar
+
+  CORREÇÕES E INFRA:
+  + middleware.ts — redireciona visitantes sem sessão (cookie only, Edge-safe)
+  + not-found.tsx — página 404 com identidade Brasil Caramelo
+  + feed/loading.tsx + FeedSkeleton (shimmer de carregamento)
+  + storage: getUploadRoot com turbopackIgnore (menos aviso no build)
+
+  DESIGN:
+  + CSS .bc-skeleton, .bc-skeleton-pulse, .bc-hashtag
+  + Hashtags no Cinelar e modo Insta
+  + Explorar: atalho Notificações; busca descreve hashtags
+
+------------------------------------------------------------------------------
+v1.4.0 — 2026-05-18 (Cinelar estilo TikTok + notificações sociais)
+------------------------------------------------------------------------------
+  CINELAR (inspirado em example_template/reel.html):
+  + UI vertical fullscreen: barra lateral (curtir, comentar, enviar, som)
+  + Duplo toque no vídeo para curtir + animação de coração
+  + Barra de progresso do vídeo, sheet de comentários
+  + Feed em modo REELS: layout focado, sem sidebars
+
+  NOTIFICAÇÕES:
+  + POST_LIKE e POST_COMMENT ao curtir/comentar (autor do post)
+  + Migração enum NotificationType
+
+  DOCS:
+  + example_template/README.md — referência, não usado em runtime
 
 ------------------------------------------------------------------------------
 v1.3.0 — 2026-05-18 (tema escuro, perfil e limpeza de mídia)

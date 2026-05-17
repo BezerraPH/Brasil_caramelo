@@ -11,7 +11,8 @@ const HUB = [
   { href: "/rolezinho", icon: "🎉", title: "Rolezinho", desc: "Eventos 2x moedas" },
   { href: "/cachorro", icon: "🐕", title: "Meu pet", desc: "Cuidar e loja" },
   { href: "/amigos", icon: "🤝", title: "Amigos", desc: "Matilha social" },
-  { href: "/buscar", icon: "🔍", title: "Buscar", desc: "Achar pessoas" },
+  { href: "/buscar", icon: "🔍", title: "Buscar", desc: "Pessoas, recados e #tags" },
+  { href: "/notificacoes", icon: "🔔", title: "Notificações", desc: "Tudo da matilha" },
   { href: "/salvos", icon: "🔖", title: "Salvos", desc: "Recados favoritos" },
   { href: "/premium", icon: "👑", title: "Pedigree", desc: "Apoiar o projeto" },
 ];

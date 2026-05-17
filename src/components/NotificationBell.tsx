@@ -115,6 +115,15 @@ export function NotificationBell({
                 </button>
               )}
             </div>
+            <div className="border-b border-bc-blue/10 px-4 py-2 text-center">
+              <Link
+                href="/notificacoes"
+                onClick={() => setOpen(false)}
+                className="text-xs font-medium text-bc-blue hover:underline"
+              >
+                Ver todas →
+              </Link>
+            </div>
             <ul className="max-h-72 overflow-y-auto p-2">
               {items.length === 0 ? (
                 <li className="px-3 py-6 text-center text-sm text-bc-brown">

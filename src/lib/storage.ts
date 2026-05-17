@@ -50,7 +50,10 @@ const DEFAULT_UPLOAD_SUBDIR = "data/uploads";
 export function getUploadRoot(): string {
   const custom = process.env.UPLOAD_DIR?.trim();
   if (custom) return custom;
-  return path.join(process.cwd(), DEFAULT_UPLOAD_SUBDIR);
+  return path.join(
+    /* turbopackIgnore: true */ process.cwd(),
+    ...DEFAULT_UPLOAD_SUBDIR.split("/"),
+  );
 }
 
 export function mediaUrlToRelativePath(url: string | null | undefined): string | null {

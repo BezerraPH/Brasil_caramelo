@@ -71,7 +71,7 @@ export default async function ProfilePage({ params }: PageProps) {
           </p>
 
           <section className="mt-6 rounded-xl border border-bc-green/30 bg-bc-green/5 p-4">
-            <h2 className="mb-2 font-bold text-bc-green">Reputação canina</h2>
+            <h2 className="mb-2 font-bold text-bc-green">Personalidade canina</h2>
             <ReputationBar summary={summary} />
             {!isOwnProfile && (
               <div className="mt-4 border-t border-bc-green/20 pt-4">

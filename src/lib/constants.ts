@@ -1,59 +1,85 @@
 import type { DogReputationLevel } from "@/generated/prisma/enums";
 
-export const REPUTATION_LEVELS: {
+export type ReputationPersonality = {
   level: DogReputationLevel;
-  rank: number;
-  label: string;
+  archetype: string;
+  breed: string;
   emoji: string;
-  description: string;
-}[] = [
-  {
-    level: "PITBULL",
-    rank: 1,
-    label: "Pitbull",
-    emoji: "🐕‍🦺",
-    description: "Intenso e direto",
-  },
+  profile: string;
+  behavior: string;
+};
+
+/** Cinco personalidades ativas (sem ranking numérico — é “quem essa pessoa lembra”). */
+export const REPUTATION_PERSONALITIES: ReputationPersonality[] = [
   {
     level: "POODLE",
-    rank: 2,
-    label: "Poodle",
+    archetype: "O Inabalável",
+    breed: "Poodle",
     emoji: "🐩",
-    description: "Elegante e organizado",
+    profile: "Calmo, elegante e polido.",
+    behavior:
+      "Mantém a pose mesmo sob pressão; não perde o foco nem a elegância.",
   },
   {
-    level: "SALSICHA",
-    rank: 3,
-    label: "Salsicha",
-    emoji: "🌭",
-    description: "Único e divertido",
+    level: "PITBULL",
+    archetype: "O Bruto",
+    breed: "Pitbull",
+    emoji: "🐕‍🦺",
+    profile: "Direto, intenso e sem rodeios.",
+    behavior:
+      "Resolve na força bruta; intimida sem precisar latir muito.",
   },
   {
     level: "VIRALATA",
-    rank: 4,
-    label: "Vira-lata",
+    archetype: "O Despojado",
+    breed: "Vira-lata",
     emoji: "🐕",
-    description: "Autêntico e leal",
+    profile: "Largado, relaxado e de boa.",
+    behavior:
+      "Não se estressa com regras ou estética; flui conforme a música.",
   },
   {
     level: "CARAMELO",
-    rank: 5,
-    label: "Caramelo",
+    archetype: "O Autêntico",
+    breed: "Caramelo",
     emoji: "🟤",
-    description: "O melhor amigo de todos",
+    profile: "Raiz, resiliente e onipresente.",
+    behavior:
+      "Sobrevivente de verdade; conhece todo mundo e entende a malícia da rua.",
+  },
+  {
+    level: "SALSICHA",
+    archetype: "O Singular",
+    breed: "Salsicha",
+    emoji: "🌭",
+    profile: "Teimoso, corajoso e sem meio-termo.",
+    behavior:
+      "Não passa despercebido; acha que é grandão e vai até o fim.",
   },
 ];
+
+/** Próximas raças (fase futura — 10 personalidades) */
+export const REPUTATION_PERSONALITIES_FUTURE = [
+  { archetype: "O Reclamão", breed: "Husky" },
+  { archetype: "O Explosivo", breed: "Pinscher" },
+  { archetype: "O Good Vibes", breed: "Golden Retriever" },
+  { archetype: "O Workaholic", breed: "Border Collie" },
+  { archetype: "O Teimoso", breed: "Bulldog Inglês" },
+  { archetype: "O Alerta", breed: "Chihuahua" },
+] as const;
+
+export const REPUTATION_BY_LEVEL: Record<
+  DogReputationLevel,
+  ReputationPersonality
+> = Object.fromEntries(
+  REPUTATION_PERSONALITIES.map((p) => [p.level, p]),
+) as Record<DogReputationLevel, ReputationPersonality>;
+
+/** @deprecated use REPUTATION_PERSONALITIES */
+export const REPUTATION_LEVELS = REPUTATION_PERSONALITIES;
 
 export const VIEW_MODES = [
   { id: "FEED", label: "Feed", description: "Estilo comunidade (Orkut)", available: true },
   { id: "INSTA", label: "Insta", description: "Grade de fotos", available: false },
   { id: "REELS", label: "Reels", description: "Vídeos curtos", available: false },
 ] as const;
-
-export const LEVEL_RANK: Record<DogReputationLevel, number> = {
-  PITBULL: 1,
-  POODLE: 2,
-  SALSICHA: 3,
-  VIRALATA: 4,
-  CARAMELO: 5,
-};

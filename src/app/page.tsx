@@ -34,7 +34,7 @@ export default async function HomePage() {
           </Link>
         </div>
         <ul className="mt-10 space-y-2 text-left text-sm text-bc-brown">
-          <li>🟤 Reputação canina nos perfis (Pitbull → Caramelo)</li>
+          <li>🐾 Personalidade canina nos perfis (Poodle, Pitbull, Vira-lata…)</li>
           <li>📰 Modo Feed ativo — Insta e Reels em breve</li>
           <li>🎮 Jogo do cachorro, chats e chamadas no roadmap</li>
         </ul>

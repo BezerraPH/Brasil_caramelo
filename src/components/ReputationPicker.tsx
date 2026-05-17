@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { REPUTATION_LEVELS } from "@/lib/constants";
+import { REPUTATION_PERSONALITIES } from "@/lib/constants";
 import type { DogReputationLevel } from "@/generated/prisma/enums";
 
 type ReputationPickerProps = {
@@ -33,7 +33,7 @@ export function ReputationPicker({ toUserId, myLevel }: ReputationPickerProps) {
         return;
       }
       setSelected(level);
-      setMessage("Latido registrado! 🐾");
+      setMessage("Personalidade registrada! 🐾");
       router.refresh();
     } catch {
       setMessage("Erro de conexão.");
@@ -43,32 +43,43 @@ export function ReputationPicker({ toUserId, myLevel }: ReputationPickerProps) {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <p className="text-sm font-medium text-bc-blue">
-        Como você vê essa pessoa?
+        Qual personalidade canina combina com essa pessoa?
       </p>
-      <div className="flex flex-wrap gap-2">
-        {REPUTATION_LEVELS.map((r) => (
+      <div className="grid gap-2 sm:grid-cols-2">
+        {REPUTATION_PERSONALITIES.map((p) => (
           <button
-            key={r.level}
+            key={p.level}
             type="button"
             disabled={saving}
-            onClick={() => rate(r.level)}
-            title={r.description}
-            className={`flex flex-col items-center rounded-xl border-2 px-3 py-2 text-xs transition ${
-              selected === r.level
-                ? "border-bc-green bg-bc-green/10"
-                : "border-bc-blue/30 hover:border-bc-blue"
+            onClick={() => rate(p.level)}
+            className={`rounded-xl border-2 p-3 text-left transition ${
+              selected === p.level
+                ? "border-bc-green bg-bc-green/10 ring-2 ring-bc-green/30"
+                : "border-bc-blue/25 bg-bc-white hover:border-bc-blue"
             }`}
           >
-            <span className="text-xl">{r.emoji}</span>
-            <span className="font-medium text-bc-brown">{r.label}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl" aria-hidden>
+                {p.emoji}
+              </span>
+              <div>
+                <span className="block text-sm font-bold text-bc-blue">
+                  {p.archetype}
+                </span>
+                <span className="text-xs text-bc-brown">{p.breed}</span>
+              </div>
+            </div>
+            <p className="mt-2 text-xs font-medium text-bc-brown">{p.profile}</p>
+            <p className="mt-1 text-[11px] leading-snug text-gray-600">
+              {p.behavior}
+            </p>
           </button>
         ))}
       </div>
-      {message && (
-        <p className="text-xs text-bc-green">{message}</p>
-      )}
+      {message && <p className="text-xs text-bc-green">{message}</p>}
     </div>
   );
 }
+

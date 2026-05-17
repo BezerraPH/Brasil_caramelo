@@ -1,11 +1,16 @@
 import type { DogReputationLevel } from "@/generated/prisma/enums";
-import { LEVEL_RANK, REPUTATION_LEVELS } from "./constants";
+import {
+  REPUTATION_BY_LEVEL,
+  REPUTATION_PERSONALITIES,
+  type ReputationPersonality,
+} from "./constants";
 
 export type ReputationSummary = {
-  averageRank: number;
   totalVotes: number;
-  dominant: (typeof REPUTATION_LEVELS)[number] | null;
+  dominant: ReputationPersonality | null;
   breakdown: Record<DogReputationLevel, number>;
+  /** Personalidades com pelo menos 1 voto, da mais votada para a menos */
+  ranked: { personality: ReputationPersonality; count: number; percent: number }[];
 };
 
 export function summarizeReputation(
@@ -25,11 +30,8 @@ export function summarizeReputation(
 
   const totalVotes = levels.length;
   if (totalVotes === 0) {
-    return { averageRank: 0, totalVotes: 0, dominant: null, breakdown };
+    return { totalVotes: 0, dominant: null, breakdown, ranked: [] };
   }
-
-  const averageRank =
-    levels.reduce((sum, l) => sum + LEVEL_RANK[l], 0) / totalVotes;
 
   let dominantLevel: DogReputationLevel = "CARAMELO";
   let maxCount = 0;
@@ -43,8 +45,15 @@ export function summarizeReputation(
     }
   }
 
-  const dominant =
-    REPUTATION_LEVELS.find((r) => r.level === dominantLevel) ?? null;
+  const dominant = REPUTATION_BY_LEVEL[dominantLevel] ?? null;
 
-  return { averageRank, totalVotes, dominant, breakdown };
+  const ranked = REPUTATION_PERSONALITIES.map((personality) => ({
+    personality,
+    count: breakdown[personality.level],
+    percent: Math.round((breakdown[personality.level] / totalVotes) * 100),
+  }))
+    .filter((r) => r.count > 0)
+    .sort((a, b) => b.count - a.count);
+
+  return { totalVotes, dominant, breakdown, ranked };
 }

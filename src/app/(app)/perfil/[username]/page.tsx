@@ -5,6 +5,7 @@ import { PersonalityProfileCard } from "@/components/PersonalityProfileCard";
 import { PetYardVisit } from "@/components/PetYardVisit";
 import { ReputationBar } from "@/components/ReputationBar";
 import { ReputationPButton } from "@/components/ReputationPButton";
+import { FeedPost } from "@/components/FeedPost";
 import { UserAvatar } from "@/components/UserAvatar";
 import { getCurrentUser } from "@/lib/auth";
 import { getPersonalityTheme } from "@/lib/personality-theme";
@@ -46,11 +47,28 @@ export default async function ProfilePage({ params }: PageProps) {
   const theme = getPersonalityTheme(summary.dominant?.level);
 
   const recentPosts = await prisma.post.findMany({
-    where: { authorId: profile.id },
+    where: { authorId: profile.id, communityLevel: null },
     orderBy: { createdAt: "desc" },
-    take: 10,
-    select: { id: true, content: true, createdAt: true },
+    take: 5,
+    include: {
+      author: {
+        select: {
+          id: true,
+          name: true,
+          username: true,
+          avatarUrl: true,
+        },
+      },
+      _count: { select: { likes: true, comments: true } },
+      likes: { where: { userId: viewer.id }, select: { id: true } },
+    },
   });
+
+  const profilePosts = recentPosts.map((p) => ({
+    ...p,
+    createdAt: p.createdAt.toISOString(),
+    likedByMe: p.likes.length > 0,
+  }));
 
   return (
     <PageContainer narrow>
@@ -141,22 +159,16 @@ export default async function ProfilePage({ params }: PageProps) {
 
           {!isOwnProfile && <PetYardVisit ownerUserId={profile.id} />}
 
-          {recentPosts.length > 0 && (
-            <section className="mt-8 border-t border-bc-blue/10 pt-6">
-              <h2 className="mb-3 font-bold text-bc-blue">Últimos recados</h2>
-              <ul className="space-y-3">
-                {recentPosts.map((p) => (
-                  <li
-                    key={p.id}
-                    className="rounded-xl bg-bc-white/80 p-4 ring-1 ring-bc-blue/10"
-                  >
-                    <p className="whitespace-pre-wrap text-sm">{p.content}</p>
-                    <time className="mt-2 block text-xs text-bc-brown">
-                      {p.createdAt.toLocaleString("pt-BR")}
-                    </time>
-                  </li>
-                ))}
-              </ul>
+          {profilePosts.length > 0 && (
+            <section className="mt-8 space-y-4 border-t border-bc-blue/10 pt-6">
+              <h2 className="font-bold text-bc-blue">Últimos recados</h2>
+              {profilePosts.map((post) => (
+                <FeedPost
+                  key={post.id}
+                  post={post}
+                  currentUserId={viewer.id}
+                />
+              ))}
             </section>
           )}
 

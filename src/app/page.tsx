@@ -57,7 +57,7 @@ export default async function HomePage() {
         </div>
 
         <p className="bc-animate-in bc-stagger-4 mt-12 text-center text-xs text-bc-brown/80">
-          v1.2.0 — 100% no seu servidor 🐾
+          v1.3.0 — 100% no seu servidor 🐾
         </p>
       </div>
     </main>

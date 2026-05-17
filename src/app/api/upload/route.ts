@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import {
+  deleteMediaByUrl,
   ensureUploadDirWritable,
   saveUploadedFile,
   type UploadKind,
@@ -48,10 +49,15 @@ export async function POST(request: Request) {
     const saved = await saveUploadedFile(file, user.id, kind);
 
     if (kind === "avatar") {
+      const current = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { avatarUrl: true },
+      });
       await prisma.user.update({
         where: { id: user.id },
         data: { avatarUrl: saved.url },
       });
+      await deleteMediaByUrl(current?.avatarUrl);
     }
 
     return NextResponse.json({

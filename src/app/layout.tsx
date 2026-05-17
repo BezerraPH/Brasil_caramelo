@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import { PWARegister } from "@/components/PWARegister";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import "./globals.css";
 
 const geist = Geist({
@@ -34,9 +35,11 @@ export default function RootLayout({
       <head>
         <link rel="apple-touch-icon" href="/icons/icon.svg" />
       </head>
-      <body className="min-h-full antialiased">
-        {children}
-        <PWARegister />
+      <body className="min-h-full antialiased transition-colors duration-300">
+        <ThemeProvider>
+          {children}
+          <PWARegister />
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { LogoutButton } from "./LogoutButton";
 import { NotificationBell } from "./NotificationBell";
+import { ThemeToggle } from "./ThemeToggle";
 
 type NavBarProps = {
   user: { id: string; name: string; username: string };
@@ -25,7 +26,7 @@ export function NavBar({ user, pusherKey, pusherCluster }: NavBarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b-2 border-bc-blue/15 bg-bc-white/95 shadow-sm backdrop-blur-md">
+    <header className="bc-glass sticky top-0 z-40 border-b-2 border-bc-blue/15 shadow-sm">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
         <Link
           href="/feed"
@@ -75,6 +76,7 @@ export function NavBar({ user, pusherKey, pusherCluster }: NavBarProps) {
         </nav>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <NotificationBell
             userId={user.id}
             pusherKey={pusherKey}

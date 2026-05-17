@@ -10,11 +10,17 @@ type SavedPost = Parameters<typeof FeedPost>[0]["post"];
 export default function SalvosPage() {
   const [posts, setPosts] = useState<SavedPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const res = await fetch("/api/saved");
-    const data = await res.json();
-    if (res.ok) setPosts(data.posts);
+    const [savedRes, meRes] = await Promise.all([
+      fetch("/api/saved"),
+      fetch("/api/users/me"),
+    ]);
+    const savedData = await savedRes.json();
+    const meData = await meRes.json();
+    if (savedRes.ok) setPosts(savedData.posts);
+    if (meRes.ok) setUserId(meData.user?.id ?? null);
     setLoading(false);
   }, []);
 
@@ -41,6 +47,7 @@ export default function SalvosPage() {
             <FeedPost
               key={post.id}
               post={post}
+              currentUserId={userId ?? undefined}
               savedByMe
               animationDelay={i < 5 ? `bc-stagger-${i + 1}` : undefined}
             />

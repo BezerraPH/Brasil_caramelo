@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CreatePostForm } from "@/components/CreatePostForm";
+import { FeedRefreshButton } from "@/components/FeedRefreshButton";
 import { FlashEventBanner } from "@/components/FlashEventBanner";
 import { FeedPost } from "@/components/FeedPost";
 import { InstaFeed } from "@/components/InstaFeed";
@@ -144,9 +145,12 @@ export default async function FeedPage() {
           <Suspense fallback={null}>
             <PostScrollOnLoad />
           </Suspense>
-          <header className="bc-page-header bc-animate-in">
-            <h1 className="bc-shimmer-text text-2xl font-bold sm:text-3xl">{title}</h1>
-            <p className="mt-1 text-sm text-bc-brown">{subtitle}</p>
+          <header className="bc-page-header bc-animate-in flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h1 className="bc-shimmer-text text-2xl font-bold sm:text-3xl">{title}</h1>
+              <p className="mt-1 text-sm text-bc-brown">{subtitle}</p>
+            </div>
+            <FeedRefreshButton />
           </header>
 
           <WelcomeBanner />

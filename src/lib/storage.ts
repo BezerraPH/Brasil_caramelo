@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { mkdir, writeFile, access, readdir, stat } from "fs/promises";
+import { mkdir, writeFile, access, readdir, stat, unlink } from "fs/promises";
 import { constants } from "fs";
 import path from "path";
 
@@ -45,8 +45,29 @@ const LIMITS: Record<
   },
 };
 
+const DEFAULT_UPLOAD_SUBDIR = "data/uploads";
+
 export function getUploadRoot(): string {
-  return process.env.UPLOAD_DIR?.trim() || path.join(process.cwd(), "data", "uploads");
+  const custom = process.env.UPLOAD_DIR?.trim();
+  if (custom) return custom;
+  return path.join(process.cwd(), DEFAULT_UPLOAD_SUBDIR);
+}
+
+export function mediaUrlToRelativePath(url: string | null | undefined): string | null {
+  if (!url?.startsWith("/api/media/")) return null;
+  return url.slice("/api/media/".length);
+}
+
+export async function deleteMediaByUrl(url: string | null | undefined): Promise<void> {
+  const relative = mediaUrlToRelativePath(url);
+  if (!relative) return;
+  const absolute = resolveSafePath(relative);
+  if (!absolute) return;
+  try {
+    await unlink(absolute);
+  } catch {
+    /* arquivo já removido ou inexistente */
+  }
 }
 
 export function publicMediaUrl(relativePath: string): string {

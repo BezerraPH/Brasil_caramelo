@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-18
-Versão atual do pacote (package.json): 1.2.0
+Última atualização: 2026-05-18 (v1.3.0)
+Versão atual do pacote (package.json): 1.3.0
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
   Sempre que o programa for melhorado, atualize ESTE arquivo:
@@ -143,7 +143,8 @@ DogReputationLevel (10 personalidades ativas):
 [OK] Notificações (sino na NavBar; voto, amizade, petisco)
 [OK] PWA: manifest + service worker (instalar no celular)
 [OK] ViewModeSwitcher (patinha) — preferência de modo salva no usuário
-[OK] Upload de avatar e fotos de post (Uploadthing) + componente BcImage (Next/Image)
+[OK] Upload local no servidor (POST /api/upload, GET /api/media) — sem terceiros
+[OK] Componente BcImage (Next/Image + img local)
 [OK] Modo Insta: grade de fotos no /feed + publicar com imagem
 [OK] Notificações em tempo real via Pusher (fallback polling 45s)
 [OK] Loja de cosméticos do pet (/cachorro) — comprar e equipar com CarameloCoins
@@ -155,10 +156,15 @@ DogReputationLevel (10 personalidades ativas):
 [OK] Pedigree (premium) — selo, rolezinhos, bônus de moedas (/premium)
 [OK] Legenda IA — /api/ai/caption (OpenAI opcional ou templates locais)
 [OK] Design v2 — glass, shimmer, flash glow, landing animada, bc-btn-gold
-[OK] API /api/health
-[OK] Deploy Docker + Gitea
+[OK] Recados salvos (/salvos), stories vistos, missão diária do pet
+[OK] Compartilhar/apagar posts, toasts, atividade da matilha no feed
+[OK] Modo escuro (toggle na NavBar, preferência em localStorage)
+[OK] Limpeza de arquivos ao apagar post ou trocar avatar
+[OK] Painel de armazenamento em /configuracoes
+[OK] API /api/health + /api/storage/stats
+[OK] Deploy Docker + Gitea (volume uploads_data)
 
-[PENDENTE — v1.0.0]
+[PENDENTE]
   - Chats e grupos em tempo real
   - Chamadas WebRTC / LiveKit
   - Filtro de conteúdo com IA (moderação de imagens)
@@ -205,6 +211,8 @@ Páginas:
   /rolezinho           — eventos flash ativos
   /batalha             — batalhas de fofura
   /premium             — assinatura Pedigree
+  /explorar            — hub de funcionalidades
+  /salvos              — recados favoritos
 
 API:
   POST /api/auth/register | login | logout
@@ -221,7 +229,13 @@ API:
   GET|PATCH /api/notifications
   GET|PATCH /api/users/me  (perfil + viewMode)
   GET  /api/users/search?q=
-  GET|POST /api/uploadthing
+  POST /api/upload
+  GET  /api/media/[...path]
+  GET  /api/storage/stats
+  DELETE /api/posts/[id]
+  GET|POST /api/saved
+  POST /api/stories/view
+  GET|POST /api/pet/daily
   POST /api/pusher/auth
   POST /api/pet/cosmetics  (buy|equip|unequip)
   GET|POST /api/stories
@@ -238,7 +252,7 @@ API:
 DATABASE_URL     — PostgreSQL (obrigatório em runtime)
 COOKIE_SECURE    — "true" com HTTPS; "false" em HTTP local (docker-compose)
 NODE_ENV         — production no Docker
-UPLOADTHING_TOKEN — token do dashboard Uploadthing (upload avatar/fotos)
+UPLOAD_DIR — pasta de mídia no servidor (padrão: ./data/uploads)
 NEXT_PUBLIC_PUSHER_KEY / NEXT_PUBLIC_PUSHER_CLUSTER — cliente Pusher
 PUSHER_APP_ID / PUSHER_KEY / PUSHER_SECRET — servidor Pusher (mesmo KEY do público)
 EVENT_ADMIN_SECRET — iniciar rolezinho sem ser Pedigree
@@ -263,6 +277,23 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v1.3.0 — 2026-05-18 (tema escuro, perfil e limpeza de mídia)
+------------------------------------------------------------------------------
+  NOVAS FUNCIONALIDADES:
+  + Modo escuro/claro — ThemeProvider + toggle 🌙/☀️ na NavBar
+  + Perfil com FeedPost completo nos últimos recados (curtir, comentar, etc.)
+  + Botão "Atualizar" no feed
+
+  CORREÇÕES:
+  + Apagar post remove arquivos em /api/media/ do disco
+  + Novo avatar remove foto antiga local
+  + Salvos: apagar/compartilhar com usuário logado
+  + Versions.txt alinhado (sem referências Uploadthing)
+
+  DESIGN:
+  + Variáveis CSS dark, NavBar glass, transição suave no body
 
 ------------------------------------------------------------------------------
 v1.2.0 — 2026-05-18 (social, UX e armazenamento)

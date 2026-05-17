@@ -12,6 +12,28 @@
   --bc-glass: rgba(255, 255, 255, 0.72);
 }
 
+html.dark {
+  --bc-white: #1a2420;
+  --bc-blue: #5eb3e8;
+  --bc-green: #4cb87a;
+  --bc-brown: #c9a882;
+  --bc-caramel: #e0a86a;
+  --bc-gold: #f0c040;
+  --background: #0d1410;
+  --foreground: #e8f0ec;
+  --bc-glass: rgba(26, 36, 32, 0.85);
+}
+
+html.dark body {
+  background-image:
+    radial-gradient(ellipse 100% 80% at 50% -30%, rgba(45, 139, 87, 0.08), transparent),
+    radial-gradient(ellipse 60% 50% at 100% 0%, rgba(27, 108, 168, 0.06), transparent);
+}
+
+html.dark .bc-card {
+  @apply border-bc-blue/20 bg-bc-white;
+}
+
 @theme inline {
   --color-bc-white: var(--bc-white);
   --color-bc-blue: var(--bc-blue);

@@ -54,7 +54,7 @@ export function AuthForm({ mode }: AuthFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="w-full max-w-md space-y-4 rounded-2xl border-2 border-bc-blue/30 bg-bc-white p-8 shadow-lg"
+      className="bc-card w-full max-w-md space-y-4 p-8 shadow-lg"
     >
       <h1 className="text-center text-2xl font-bold text-bc-blue">
         {mode === "login" ? "Entrar" : "Criar conta"}

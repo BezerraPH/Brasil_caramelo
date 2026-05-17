@@ -43,7 +43,7 @@ export function FeedPost({ post }: FeedPostProps) {
   });
 
   return (
-    <article className="rounded-xl border-2 border-bc-blue/20 bg-bc-white p-4 shadow-sm">
+    <article className="bc-card p-5">
       <header className="mb-3 flex items-center gap-3">
         <UserAvatar name={post.author.name} avatarUrl={post.author.avatarUrl} />
         <div>

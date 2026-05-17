@@ -6,7 +6,7 @@
   --bc-green: #2d8b57;
   --bc-brown: #8b5e3c;
   --bc-caramel: #c68642;
-  --background: #f4f8f6;
+  --background: #eef4f1;
   --foreground: #1a2e24;
 }
 
@@ -26,4 +26,24 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
   min-height: 100vh;
+}
+
+.bc-card {
+  @apply rounded-2xl border-2 border-bc-blue/15 bg-bc-white shadow-sm;
+}
+
+.bc-label {
+  @apply mb-1.5 block text-sm font-semibold text-bc-blue;
+}
+
+.bc-input {
+  @apply w-full rounded-xl border border-bc-brown/25 bg-bc-white px-4 py-2.5 text-sm transition focus:border-bc-green focus:outline-none focus:ring-2 focus:ring-bc-green/25;
+}
+
+.bc-btn-primary {
+  @apply rounded-xl bg-bc-green px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-bc-green/90 disabled:opacity-50;
+}
+
+.bc-btn-secondary {
+  @apply rounded-xl border-2 border-bc-blue/30 bg-bc-white px-4 py-2 font-medium text-bc-blue transition hover:border-bc-blue hover:bg-bc-blue/5;
 }

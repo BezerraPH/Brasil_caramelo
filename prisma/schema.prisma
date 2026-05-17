@@ -20,10 +20,15 @@ enum FriendshipStatus {
 
 enum DogReputationLevel {
   PITBULL
-  POODLE
-  SALSICHA
-  VIRALATA
+  HUSKY
   CARAMELO
+  POODLE
+  PINSCHER
+  GOLDEN
+  VIRALATA
+  BORDER_COLLIE
+  BASSET_HOUND
+  CHOW_CHOW
 }
 
 model User {
@@ -123,7 +128,6 @@ model Friendship {
   @@unique([requesterId, addresseeId])
 }
 
-/// Jogo do cachorro — estrutura pronta para a fase 2
 model Pet {
   id          String   @id @default(cuid())
   userId      String   @unique

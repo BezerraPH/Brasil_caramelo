@@ -1,5 +1,6 @@
 import type { DogReputationLevel } from "@/generated/prisma/enums";
 import {
+  DOG_REPUTATION_LEVELS,
   REPUTATION_BY_LEVEL,
   REPUTATION_PERSONALITIES,
   type ReputationPersonality,
@@ -9,23 +10,24 @@ export type ReputationSummary = {
   totalVotes: number;
   dominant: ReputationPersonality | null;
   breakdown: Record<DogReputationLevel, number>;
-  /** Personalidades com pelo menos 1 voto, da mais votada para a menos */
   ranked: { personality: ReputationPersonality; count: number; percent: number }[];
 };
+
+function emptyBreakdown(): Record<DogReputationLevel, number> {
+  return Object.fromEntries(
+    DOG_REPUTATION_LEVELS.map((l) => [l, 0]),
+  ) as Record<DogReputationLevel, number>;
+}
 
 export function summarizeReputation(
   levels: DogReputationLevel[],
 ): ReputationSummary {
-  const breakdown: Record<DogReputationLevel, number> = {
-    PITBULL: 0,
-    POODLE: 0,
-    SALSICHA: 0,
-    VIRALATA: 0,
-    CARAMELO: 0,
-  };
+  const breakdown = emptyBreakdown();
 
   for (const level of levels) {
-    breakdown[level] += 1;
+    if (level in breakdown) {
+      breakdown[level] += 1;
+    }
   }
 
   const totalVotes = levels.length;
@@ -35,12 +37,9 @@ export function summarizeReputation(
 
   let dominantLevel: DogReputationLevel = "CARAMELO";
   let maxCount = 0;
-  for (const [level, count] of Object.entries(breakdown) as [
-    DogReputationLevel,
-    number,
-  ][]) {
-    if (count > maxCount) {
-      maxCount = count;
+  for (const level of DOG_REPUTATION_LEVELS) {
+    if (breakdown[level] > maxCount) {
+      maxCount = breakdown[level];
       dominantLevel = level;
     }
   }

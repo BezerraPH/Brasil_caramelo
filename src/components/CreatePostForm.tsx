@@ -30,7 +30,7 @@ export function CreatePostForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-xl border-2 border-bc-blue/30 bg-bc-white p-4 shadow-sm"
+      className="bc-card p-5"
     >
       <label htmlFor="recado" className="mb-2 block text-sm font-semibold text-bc-blue">
         Escrever recado

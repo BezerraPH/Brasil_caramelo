@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BcImage } from "./BcImage";
 import { CommentSection } from "./CommentSection";
+import { SavePostButton } from "./SavePostButton";
 import { UserAvatar } from "./UserAvatar";
 
 type FeedPostProps = {
@@ -24,9 +25,10 @@ type FeedPostProps = {
     _count: { likes: number; comments: number };
   };
   animationDelay?: string;
+  savedByMe?: boolean;
 };
 
-export function FeedPost({ post, animationDelay }: FeedPostProps) {
+export function FeedPost({ post, animationDelay, savedByMe }: FeedPostProps) {
   const [liked, setLiked] = useState(post.likedByMe);
   const [likeCount, setLikeCount] = useState(post._count.likes);
   const [likeAnim, setLikeAnim] = useState(false);
@@ -99,6 +101,7 @@ export function FeedPost({ post, animationDelay }: FeedPostProps) {
         </p>
       )}
       <footer className="mt-4">
+        <div className="mb-2 flex flex-wrap items-center gap-2">
         <button
           type="button"
           onClick={toggleLike}
@@ -110,6 +113,8 @@ export function FeedPost({ post, animationDelay }: FeedPostProps) {
         >
           {liked ? "❤️" : "🤍"} Legal ({likeCount})
         </button>
+        <SavePostButton postId={post.id} initialSaved={savedByMe} />
+        </div>
         <CommentSection postId={post.id} initialCount={post._count.comments} />
       </footer>
     </article>

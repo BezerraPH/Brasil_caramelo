@@ -207,6 +207,25 @@ body {
   animation: bc-pop 0.35s ease;
 }
 
+@keyframes bc-skeleton-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.bc-skeleton {
+  @apply bg-bc-blue/10;
+  animation: bc-skeleton-pulse 1.2s ease-in-out infinite;
+}
+
+.bc-ripple:active {
+  transform: scale(0.98);
+}
+
 .bc-stagger-1 {
   animation-delay: 0.05s;
 }

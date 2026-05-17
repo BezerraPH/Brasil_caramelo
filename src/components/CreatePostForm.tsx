@@ -3,6 +3,7 @@
 import type { DogReputationLevel } from "@/generated/prisma/enums";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useUploadHint } from "@/hooks/use-upload-hint";
 import { UploadButton } from "@/lib/uploadthing";
 import { AiCaptionButton } from "./AiCaptionButton";
 import { BcImage } from "./BcImage";
@@ -23,6 +24,7 @@ export function CreatePostForm({
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { formatUploadError } = useUploadHint();
   const router = useRouter();
 
   const hasMedia = Boolean(imageUrl || videoUrl);
@@ -121,7 +123,7 @@ export function CreatePostForm({
                 setVideoUrl(null);
               }
             }}
-            onUploadError={(e) => setError(e.message)}
+            onUploadError={(e) => setError(formatUploadError(e))}
             appearance={{
               button:
                 "rounded-lg border-2 border-bc-blue/30 bg-bc-white px-3 py-1.5 text-xs font-semibold text-bc-blue",
@@ -139,7 +141,7 @@ export function CreatePostForm({
                 setImageUrl(null);
               }
             }}
-            onUploadError={(e) => setError(e.message)}
+            onUploadError={(e) => setError(formatUploadError(e))}
             appearance={{
               button:
                 "rounded-lg border-2 border-bc-caramel/40 bg-bc-white px-3 py-1.5 text-xs font-semibold text-bc-caramel",

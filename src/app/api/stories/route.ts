@@ -28,6 +28,15 @@ export async function GET() {
     },
   });
 
+  const viewed = await prisma.storyView.findMany({
+    where: {
+      userId: user.id,
+      storyId: { in: stories.map((s) => s.id) },
+    },
+    select: { storyId: true },
+  });
+  const viewedSet = new Set(viewed.map((v) => v.storyId));
+
   const byUser = new Map<
     string,
     {
@@ -43,16 +52,24 @@ export async function GET() {
   }
 
   return NextResponse.json({
-    groups: Array.from(byUser.values()).map((g) => ({
-      user: g.user,
-      stories: g.items.map((s) => ({
-        id: s.id,
-        mediaUrl: s.mediaUrl,
-        mediaType: s.mediaType,
-        expiresAt: s.expiresAt.toISOString(),
-        createdAt: s.createdAt.toISOString(),
-      })),
-    })),
+    groups: Array.from(byUser.values()).map((g) => {
+      const isOwn = g.user.id === user.id;
+      const allViewed =
+        isOwn ||
+        g.items.every((s) => viewedSet.has(s.id));
+      return {
+        user: g.user,
+        allViewed,
+        stories: g.items.map((s) => ({
+          id: s.id,
+          mediaUrl: s.mediaUrl,
+          mediaType: s.mediaType,
+          expiresAt: s.expiresAt.toISOString(),
+          createdAt: s.createdAt.toISOString(),
+          viewed: isOwn || viewedSet.has(s.id),
+        })),
+      };
+    }),
   });
 }
 

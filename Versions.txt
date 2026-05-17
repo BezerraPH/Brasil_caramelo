@@ -3,7 +3,7 @@
 ================================================================================
 
 Última atualização: 2026-05-17
-Versão atual do pacote (package.json): 1.0.0-rc.1
+Versão atual do pacote (package.json): 1.0.0
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
   Sempre que o programa for melhorado, atualize ESTE arquivo:
@@ -263,6 +263,28 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v1.0.0 — 2026-05-18 (release — upload, social, design)
+------------------------------------------------------------------------------
+  UPLOADTHING (correção crítica):
+  + Diagnóstico de UPLOADTHING_TOKEN (v7 base64 vs sk_live_ antigo)
+  + GET /api/media/config + banner UploadSetupBanner no feed
+  + Mensagens amigáveis em avatar, posts e stories
+  + Health check reporta status do upload
+
+  NOVAS FUNCIONALIDADES:
+  + Recados salvos — POST/GET /api/saved, página /salvos, botão 🔖 no feed
+  + Stories vistos — StoryView, anel cinza quando já visto, barras de progresso
+  + Missão diária do pet — POST/GET /api/pet/daily (+25 moedas, +15 XP/dia)
+  + Widget "Em alta" no feed (top likes 7 dias)
+
+  DESIGN:
+  + bc-skeleton, bc-ripple, animações refinadas
+  + Stories com indicador de progresso no viewer
+
+  Deploy: git pull → prisma migrate deploy → docker compose up -d --build
+  Upload: colar SDK token v7 em UPLOADTHING_TOKEN (ver .env.example)
 
 ------------------------------------------------------------------------------
 v1.0.0-rc.1 — 2026-05-17 (auditoria pré-release)

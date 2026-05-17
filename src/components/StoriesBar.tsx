@@ -3,26 +3,31 @@
 import Link from "next/link";
 import { useCallback, useState } from "react";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
+import { useUploadHint } from "@/hooks/use-upload-hint";
 import { UploadButton } from "@/lib/uploadthing";
 import { BcImage } from "./BcImage";
 import { UserAvatar } from "./UserAvatar";
 
 type StoryGroup = {
   user: { id: string; name: string; username: string; avatarUrl: string | null };
+  allViewed: boolean;
   stories: {
     id: string;
     mediaUrl: string;
     mediaType: string;
     expiresAt: string;
+    viewed?: boolean;
   }[];
 };
 
 export function StoriesBar({ currentUserId }: { currentUserId: string }) {
   const [groups, setGroups] = useState<StoryGroup[]>([]);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [viewer, setViewer] = useState<{
     group: StoryGroup;
     index: number;
   } | null>(null);
+  const { formatUploadError } = useUploadHint();
 
   const load = useCallback(async () => {
     const res = await fetch("/api/stories");
@@ -32,6 +37,22 @@ export function StoriesBar({ currentUserId }: { currentUserId: string }) {
 
   useAsyncEffect(load, [load]);
 
+  async function markViewed(storyIds: string[]) {
+    await fetch("/api/stories/view", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ storyIds }),
+    });
+    load();
+  }
+
+  function openGroup(g: StoryGroup) {
+    setViewer({ group: g, index: 0 });
+    if (g.user.id !== currentUserId) {
+      void markViewed([g.stories[0]?.id].filter(Boolean));
+    }
+  }
+
   return (
     <>
       <section className="bc-card bc-glass mb-4 overflow-x-auto p-3">
@@ -40,11 +61,17 @@ export function StoriesBar({ currentUserId }: { currentUserId: string }) {
             <UploadButton
               endpoint="storyMedia"
               onClientUploadComplete={async (res) => {
+                setUploadError(null);
                 const file = res?.[0];
                 const url = file?.ufsUrl ?? file?.url;
                 if (!url) return;
-                const isVideo = file?.type?.startsWith("video");
-                await fetch("/api/stories", {
+                const name = file?.name?.toLowerCase() ?? "";
+                const isVideo =
+                  file?.type?.startsWith("video") ||
+                  name.endsWith(".mp4") ||
+                  name.endsWith(".webm") ||
+                  name.endsWith(".mov");
+                const postRes = await fetch("/api/stories", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({
@@ -52,8 +79,14 @@ export function StoriesBar({ currentUserId }: { currentUserId: string }) {
                     mediaType: isVideo ? "VIDEO" : "IMAGE",
                   }),
                 });
+                if (!postRes.ok) {
+                  const data = await postRes.json();
+                  setUploadError(data.error ?? "Não foi possível publicar o story.");
+                  return;
+                }
                 load();
               }}
+              onUploadError={(e) => setUploadError(formatUploadError(e))}
               appearance={{
                 button:
                   "bc-story-ring flex h-16 w-16 items-center justify-center rounded-full bg-bc-white text-2xl ut-ready:bg-bc-white",
@@ -69,14 +102,14 @@ export function StoriesBar({ currentUserId }: { currentUserId: string }) {
             <button
               key={g.user.id}
               type="button"
-              onClick={() => setViewer({ group: g, index: 0 })}
+              onClick={() => openGroup(g)}
               className="flex shrink-0 flex-col items-center gap-1"
             >
               <div
                 className={
-                  g.user.id === currentUserId
+                  g.user.id === currentUserId || !g.allViewed
                     ? "bc-story-ring"
-                    : "bc-story-ring"
+                    : "bc-story-ring-seen"
                 }
               >
                 <div className="rounded-full bg-bc-white p-0.5">
@@ -93,17 +126,25 @@ export function StoriesBar({ currentUserId }: { currentUserId: string }) {
             </button>
           ))}
         </div>
+        {uploadError && (
+          <p className="mt-2 text-xs text-red-600">{uploadError}</p>
+        )}
       </section>
 
       {viewer && (
         <StoryViewer
           group={viewer.group}
           index={viewer.index}
+          currentUserId={currentUserId}
           onClose={() => setViewer(null)}
-          onNext={() => {
-            const next = viewer.index + 1;
-            if (next < viewer.group.stories.length) {
-              setViewer({ ...viewer, index: next });
+          onMarkViewed={markViewed}
+          onNext={(nextIndex) => {
+            const next = viewer.group.stories[nextIndex];
+            if (next && viewer.group.user.id !== currentUserId) {
+              void markViewed([next.id]);
+            }
+            if (nextIndex < viewer.group.stories.length) {
+              setViewer({ ...viewer, index: nextIndex });
             } else setViewer(null);
           }}
         />
@@ -120,8 +161,10 @@ function StoryViewer({
 }: {
   group: StoryGroup;
   index: number;
+  currentUserId: string;
   onClose: () => void;
-  onNext: () => void;
+  onNext: (nextIndex: number) => void;
+  onMarkViewed: (ids: string[]) => Promise<void>;
 }) {
   const story = group.stories[index];
   if (!story) return null;
@@ -136,9 +179,17 @@ function StoryViewer({
         ✕
       </button>
       <div className="relative max-h-[85vh] w-full max-w-md overflow-hidden rounded-2xl bg-black">
+        <div className="absolute left-0 right-0 top-0 z-10 flex gap-0.5 p-2">
+          {group.stories.map((s, i) => (
+            <div
+              key={s.id}
+              className={`h-0.5 flex-1 rounded-full ${i <= index ? "bg-white" : "bg-white/30"}`}
+            />
+          ))}
+        </div>
         <Link
           href={`/perfil/${group.user.username}`}
-          className="absolute left-3 top-3 z-10 flex items-center gap-2 text-white"
+          className="absolute left-3 top-6 z-10 flex items-center gap-2 text-white"
         >
           <UserAvatar name={group.user.name} avatarUrl={group.user.avatarUrl} size="sm" />
           <span className="text-sm font-semibold">{group.user.name}</span>
@@ -150,18 +201,18 @@ function StoryViewer({
             autoPlay
             muted
             playsInline
-            onEnded={onNext}
+            onEnded={() => onNext(index + 1)}
           />
         ) : (
           <div className="relative aspect-[9/16] w-full">
-            <BcImage src={story.mediaUrl} alt="" fill className="object-contain" />
+            <BcImage src={story.mediaUrl} alt="Story" fill className="object-contain" />
           </div>
         )}
         <button
           type="button"
           className="absolute inset-y-0 right-0 w-1/3"
           aria-label="Próximo"
-          onClick={onNext}
+          onClick={() => onNext(index + 1)}
         />
       </div>
     </div>

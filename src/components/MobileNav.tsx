@@ -7,7 +7,7 @@ const TABS = [
   { href: "/feed", label: "Início", icon: "🏠" },
   { href: "/casinhas", label: "Casas", icon: "🏡" },
   { href: "/buscar", label: "Buscar", icon: "🔍" },
-  { href: "/amigos", label: "Amigos", icon: "🤝" },
+  { href: "/salvos", label: "Salvos", icon: "🔖" },
   { href: "/cachorro", label: "Pet", icon: "🐕" },
 ] as const;
 

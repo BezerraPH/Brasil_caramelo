@@ -2,14 +2,23 @@ import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { UploadThingError } from "uploadthing/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { diagnoseUploadthingToken } from "@/lib/uploadthing-token";
 
 const f = createUploadthing();
+
+function requireUploadAuth() {
+  const token = diagnoseUploadthingToken();
+  if (!token.ok) {
+    throw new UploadThingError(token.hint ?? "Uploadthing não configurado no servidor.");
+  }
+}
 
 export const ourFileRouter = {
   avatar: f({
     image: { maxFileSize: "4MB", maxFileCount: 1 },
   })
     .middleware(async () => {
+      requireUploadAuth();
       const user = await getCurrentUser();
       if (!user) throw new UploadThingError("Não autorizado");
       return { userId: user.id };
@@ -26,6 +35,7 @@ export const ourFileRouter = {
     image: { maxFileSize: "8MB", maxFileCount: 1 },
   })
     .middleware(async () => {
+      requireUploadAuth();
       const user = await getCurrentUser();
       if (!user) throw new UploadThingError("Não autorizado");
       return { userId: user.id };
@@ -38,6 +48,7 @@ export const ourFileRouter = {
     video: { maxFileSize: "32MB", maxFileCount: 1 },
   })
     .middleware(async () => {
+      requireUploadAuth();
       const user = await getCurrentUser();
       if (!user) throw new UploadThingError("Não autorizado");
       return { userId: user.id };
@@ -51,6 +62,7 @@ export const ourFileRouter = {
     video: { maxFileSize: "16MB", maxFileCount: 1 },
   })
     .middleware(async () => {
+      requireUploadAuth();
       const user = await getCurrentUser();
       if (!user) throw new UploadThingError("Não autorizado");
       return { userId: user.id };

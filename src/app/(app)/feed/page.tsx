@@ -7,6 +7,8 @@ import { PageContainer } from "@/components/PageContainer";
 import { ReelsFeed } from "@/components/ReelsFeed";
 import { RoadmapPanel } from "@/components/RoadmapPanel";
 import { StoriesBar } from "@/components/StoriesBar";
+import { TrendingPosts } from "@/components/TrendingPosts";
+import { UploadSetupBanner } from "@/components/UploadSetupBanner";
 import { UserAvatar } from "@/components/UserAvatar";
 import { getCurrentUser } from "@/lib/auth";
 import { finalizeExpiredBattles } from "@/lib/battles";
@@ -52,10 +54,20 @@ export default async function FeedPage() {
     getActiveFlashEvent(user.id),
   ]);
 
+  const savedIds = new Set(
+    (
+      await prisma.savedPost.findMany({
+        where: { userId: user.id, postId: { in: posts.map((p) => p.id) } },
+        select: { postId: true },
+      })
+    ).map((s) => s.postId),
+  );
+
   const mappedPosts = posts.map((post) => ({
     ...post,
     createdAt: post.createdAt.toISOString(),
     likedByMe: post.likes.length > 0,
+    savedByMe: savedIds.has(post.id),
   }));
 
   const isInsta = user.viewMode === "INSTA";
@@ -131,6 +143,8 @@ export default async function FeedPage() {
             <p className="text-sm text-bc-brown">{subtitle}</p>
           </header>
 
+          <UploadSetupBanner />
+
           {flashEvent && (
             <FlashEventBanner
               title={flashEvent.title}
@@ -169,6 +183,7 @@ export default async function FeedPage() {
                   i < 6 ? `bc-stagger-${Math.min(i + 2, 5)}` : undefined
                 }
                 post={mappedPosts[i]}
+                savedByMe={mappedPosts[i].savedByMe}
               />
             ))
           )}
@@ -176,6 +191,7 @@ export default async function FeedPage() {
 
         <aside className="hidden lg:block">
           <div className="bc-animate-in bc-stagger-2 space-y-4">
+            <TrendingPosts />
             <RoadmapPanel />
             <Link href="/premium" className="bc-card block p-4 text-center transition hover:border-bc-gold/40">
               <span className="text-2xl">👑</span>

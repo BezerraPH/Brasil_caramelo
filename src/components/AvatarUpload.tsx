@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useUploadHint } from "@/hooks/use-upload-hint";
 import { UploadButton } from "@/lib/uploadthing";
 import { UserAvatar } from "./UserAvatar";
 
@@ -14,6 +15,7 @@ export function AvatarUpload({ name, avatarUrl }: AvatarUploadProps) {
   const router = useRouter();
   const [url, setUrl] = useState(avatarUrl);
   const [error, setError] = useState<string | null>(null);
+  const { formatUploadError } = useUploadHint();
 
   return (
     <section className="bc-card mb-6 flex flex-col items-center gap-4 p-6 sm:flex-row sm:items-start">
@@ -35,7 +37,7 @@ export function AvatarUpload({ name, avatarUrl }: AvatarUploadProps) {
               }
             }}
             onUploadError={(e) => {
-              setError(e.message);
+              setError(formatUploadError(e));
             }}
             appearance={{
               button:

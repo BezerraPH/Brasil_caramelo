@@ -12,6 +12,7 @@ const HUB = [
   { href: "/cachorro", icon: "🐕", title: "Meu pet", desc: "Cuidar e loja" },
   { href: "/amigos", icon: "🤝", title: "Amigos", desc: "Matilha social" },
   { href: "/buscar", icon: "🔍", title: "Buscar", desc: "Achar pessoas" },
+  { href: "/salvos", icon: "🔖", title: "Salvos", desc: "Recados favoritos" },
   { href: "/premium", icon: "👑", title: "Pedigree", desc: "Apoiar o projeto" },
 ];
 

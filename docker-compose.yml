@@ -32,6 +32,9 @@ services:
       PUSHER_APP_ID: ${PUSHER_APP_ID:-}
       PUSHER_KEY: ${PUSHER_KEY:-}
       PUSHER_SECRET: ${PUSHER_SECRET:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      EVENT_ADMIN_SECRET: ${EVENT_ADMIN_SECRET:-}
+      PREMIUM_CODE: ${PREMIUM_CODE:-}
     depends_on:
       db:
         condition: service_healthy

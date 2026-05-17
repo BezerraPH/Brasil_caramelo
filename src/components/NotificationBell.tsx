@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Pusher from "pusher-js";
 import { useCallback, useEffect, useState } from "react";
 
 type NotificationItem = {
@@ -11,7 +12,17 @@ type NotificationItem = {
   createdAt: string;
 };
 
-export function NotificationBell() {
+type NotificationBellProps = {
+  userId: string;
+  pusherKey?: string | null;
+  pusherCluster?: string | null;
+};
+
+export function NotificationBell({
+  userId,
+  pusherKey,
+  pusherCluster,
+}: NotificationBellProps) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [unread, setUnread] = useState(0);
@@ -27,9 +38,30 @@ export function NotificationBell() {
 
   useEffect(() => {
     load();
-    const t = setInterval(load, 45000);
-    return () => clearInterval(t);
   }, [load]);
+
+  useEffect(() => {
+    if (!pusherKey || !pusherCluster) {
+      const t = setInterval(load, 45000);
+      return () => clearInterval(t);
+    }
+
+    const pusher = new Pusher(pusherKey, {
+      cluster: pusherCluster,
+      authEndpoint: "/api/pusher/auth",
+    });
+
+    const channel = pusher.subscribe(`private-user-${userId}`);
+    channel.bind("notification", () => {
+      load();
+    });
+
+    return () => {
+      channel.unbind_all();
+      pusher.unsubscribe(`private-user-${userId}`);
+      pusher.disconnect();
+    };
+  }, [pusherKey, pusherCluster, userId, load]);
 
   async function markAllRead() {
     await fetch("/api/notifications", {
@@ -66,7 +98,14 @@ export function NotificationBell() {
           />
           <div className="bc-menu-enter absolute right-0 top-full z-50 mt-2 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border-2 border-bc-blue/15 bg-bc-white shadow-xl">
             <div className="flex items-center justify-between border-b border-bc-blue/10 px-4 py-3">
-              <span className="font-semibold text-bc-blue">Notificações</span>
+              <span className="font-semibold text-bc-blue">
+                Notificações
+                {pusherKey && (
+                  <span className="ml-1 text-[10px] font-normal text-bc-green">
+                    ● ao vivo
+                  </span>
+                )}
+              </span>
               {unread > 0 && (
                 <button
                   type="button"
@@ -90,7 +129,9 @@ export function NotificationBell() {
                         href={n.link}
                         onClick={() => setOpen(false)}
                         className={`block rounded-xl px-3 py-2.5 text-sm transition hover:bg-bc-green/10 ${
-                          n.read ? "text-bc-brown" : "bg-bc-blue/5 font-medium text-bc-blue"
+                          n.read
+                            ? "text-bc-brown"
+                            : "bg-bc-blue/5 font-medium text-bc-blue"
                         }`}
                       >
                         {n.message}
@@ -98,7 +139,9 @@ export function NotificationBell() {
                     ) : (
                       <p
                         className={`rounded-xl px-3 py-2.5 text-sm ${
-                          n.read ? "text-bc-brown" : "bg-bc-blue/5 font-medium text-bc-blue"
+                          n.read
+                            ? "text-bc-brown"
+                            : "bg-bc-blue/5 font-medium text-bc-blue"
                         }`}
                       >
                         {n.message}

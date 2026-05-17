@@ -23,9 +23,9 @@ export async function PATCH(request: Request) {
 
     if (body.viewMode !== undefined) {
       const { viewMode } = viewModeSchema.parse(body);
-      if (viewMode !== "FEED") {
+      if (viewMode === "REELS") {
         return NextResponse.json(
-          { error: "Modo Insta e Reels chegam em breve. Por ora, só Feed." },
+          { error: "Modo Reels chega em breve." },
           { status: 400 },
         );
       }

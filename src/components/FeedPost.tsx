@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { BcImage } from "./BcImage";
 import { CommentSection } from "./CommentSection";
 import { UserAvatar } from "./UserAvatar";
 
@@ -10,6 +11,7 @@ type FeedPostProps = {
   post: {
     id: string;
     content: string;
+    imageUrl?: string | null;
     createdAt: string;
     likedByMe: boolean;
     author: {
@@ -69,9 +71,22 @@ export function FeedPost({ post, animationDelay }: FeedPostProps) {
           </p>
         </div>
       </header>
-      <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-800">
-        {post.content}
-      </p>
+      {post.imageUrl && (
+        <div className="relative mb-3 aspect-video max-h-96 w-full overflow-hidden rounded-xl bg-bc-blue/5">
+          <BcImage
+            src={post.imageUrl}
+            alt=""
+            fill
+            sizes="(max-width:768px) 100vw, 600px"
+            className="object-cover"
+          />
+        </div>
+      )}
+      {post.content && (
+        <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-800">
+          {post.content}
+        </p>
+      )}
       <footer className="mt-4">
         <button
           type="button"

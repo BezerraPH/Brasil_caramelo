@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { getEquippedDisplay } from "@/lib/pet-cosmetics";
+import { PetCosmeticShop } from "./PetCosmeticShop";
 
 type PetData = {
   id: string;
@@ -12,6 +14,10 @@ type PetData = {
   level: number;
   experience: number;
   coins: number;
+  ownedCosmetics: string[];
+  equippedHat: string | null;
+  equippedCollar: string | null;
+  equippedAccessory: string | null;
 };
 
 type Mood = { label: string; emoji: string; color: string };
@@ -66,6 +72,15 @@ export function PetGame() {
   }
 
   if (!pet || !mood) return null;
+
+  const equipped = getEquippedDisplay(pet);
+  const shopState = {
+    coins: pet.coins,
+    ownedCosmetics: pet.ownedCosmetics,
+    equippedHat: pet.equippedHat,
+    equippedCollar: pet.equippedCollar,
+    equippedAccessory: pet.equippedAccessory,
+  };
 
   const bars = [
     { label: "Fome", value: pet.hunger, color: "bg-bc-caramel" },
@@ -135,6 +150,13 @@ export function PetGame() {
           </button>
         ))}
       </div>
+
+      <PetCosmeticShop
+        initial={shopState}
+        onUpdate={(next) => {
+          setPet((p) => (p ? { ...p, ...next } : p));
+        }}
+      />
 
       <p className="text-center text-xs text-bc-brown/70">
         Os status caem a cada 4 horas sem cuidado. Volte todo dia!

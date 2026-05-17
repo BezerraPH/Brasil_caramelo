@@ -17,9 +17,14 @@ export const loginSchema = z.object({
   password: z.string().min(1),
 });
 
-export const postSchema = z.object({
-  content: z.string().min(1).max(2000),
-});
+export const postSchema = z
+  .object({
+    content: z.string().max(2000).optional(),
+    imageUrl: z.string().url().optional(),
+  })
+  .refine((d) => (d.content?.trim().length ?? 0) > 0 || d.imageUrl, {
+    message: "Escreva um texto ou envie uma foto.",
+  });
 
 export const reputationSchema = z.object({
   toUserId: z.string().min(1),

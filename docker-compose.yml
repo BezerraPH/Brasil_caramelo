@@ -26,6 +26,12 @@ services:
       NODE_ENV: production
       # HTTP na rede local (192.168.x): false. Com HTTPS reverso: true
       COOKIE_SECURE: "false"
+      UPLOADTHING_TOKEN: ${UPLOADTHING_TOKEN:-}
+      NEXT_PUBLIC_PUSHER_KEY: ${NEXT_PUBLIC_PUSHER_KEY:-}
+      NEXT_PUBLIC_PUSHER_CLUSTER: ${NEXT_PUBLIC_PUSHER_CLUSTER:-us2}
+      PUSHER_APP_ID: ${PUSHER_APP_ID:-}
+      PUSHER_KEY: ${PUSHER_KEY:-}
+      PUSHER_SECRET: ${PUSHER_SECRET:-}
     depends_on:
       db:
         condition: service_healthy

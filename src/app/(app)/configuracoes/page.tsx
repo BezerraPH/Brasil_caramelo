@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AvatarUpload } from "@/components/AvatarUpload";
 import { EditProfileForm } from "@/components/EditProfileForm";
 import { PageContainer } from "@/components/PageContainer";
 import { getCurrentUser } from "@/lib/auth";
@@ -10,7 +11,7 @@ export default async function SettingsPage() {
 
   const full = await prisma.user.findUnique({
     where: { id: user.id },
-    select: { name: true, username: true, bio: true, email: true },
+    select: { name: true, username: true, bio: true, email: true, avatarUrl: true },
   });
 
   if (!full) return null;
@@ -30,6 +31,7 @@ export default async function SettingsPage() {
         </p>
       </div>
 
+      <AvatarUpload name={full.name} avatarUrl={full.avatarUrl} />
       <EditProfileForm user={full} />
 
       <p className="mt-4 text-center text-xs text-bc-brown/70">

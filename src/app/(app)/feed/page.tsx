@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CreatePostForm } from "@/components/CreatePostForm";
+import { InstaFeed } from "@/components/InstaFeed";
 import { PageContainer } from "@/components/PageContainer";
 import { UserAvatar } from "@/components/UserAvatar";
 import { FeedPost } from "@/components/FeedPost";
@@ -33,6 +34,14 @@ export default async function FeedPage() {
   const pendingFriends = await prisma.friendship.count({
     where: { status: "PENDING", addresseeId: user.id },
   });
+
+  const mappedPosts = posts.map((post) => ({
+    ...post,
+    createdAt: post.createdAt.toISOString(),
+    likedByMe: post.likes.length > 0,
+  }));
+
+  const isInsta = user.viewMode === "INSTA";
 
   return (
     <PageContainer>
@@ -75,13 +84,21 @@ export default async function FeedPage() {
 
         <section className="space-y-4">
           <header className="bc-animate-in">
-            <h1 className="text-2xl font-bold text-bc-blue">Recados</h1>
-            <p className="text-sm text-bc-brown">O que a comunidade está latindo</p>
+            <h1 className="text-2xl font-bold text-bc-blue">
+              {isInsta ? "Insta Caramelo" : "Recados"}
+            </h1>
+            <p className="text-sm text-bc-brown">
+              {isInsta
+                ? "Grade de fotos da matilha"
+                : "O que a comunidade está latindo"}
+            </p>
           </header>
           <div className="bc-animate-in bc-stagger-1">
-            <CreatePostForm />
+            <CreatePostForm instaMode={isInsta} />
           </div>
-          {posts.length === 0 ? (
+          {isInsta ? (
+            <InstaFeed posts={mappedPosts} />
+          ) : posts.length === 0 ? (
             <p className="bc-card bc-animate-in p-10 text-center text-bc-brown">
               Nenhum recado ainda. Seja o primeiro! 🐾
             </p>
@@ -91,9 +108,7 @@ export default async function FeedPage() {
                 key={post.id}
                 animationDelay={i < 6 ? `bc-stagger-${Math.min(i + 2, 5)}` : undefined}
                 post={{
-                  ...post,
-                  createdAt: post.createdAt.toISOString(),
-                  likedByMe: post.likes.length > 0,
+                  ...mappedPosts[i],
                 }}
               />
             ))

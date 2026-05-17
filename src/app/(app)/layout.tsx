@@ -13,7 +13,11 @@ export default async function AppLayout({
 
   return (
     <>
-      <NavBar user={user} />
+      <NavBar
+        user={user}
+        pusherKey={process.env.NEXT_PUBLIC_PUSHER_KEY ?? null}
+        pusherCluster={process.env.NEXT_PUBLIC_PUSHER_CLUSTER ?? null}
+      />
       {children}
       <ViewModeSwitcher currentMode={user.viewMode} />
     </>

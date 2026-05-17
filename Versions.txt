@@ -3,7 +3,7 @@
 ================================================================================
 
 Última atualização: 2026-05-17
-Versão atual do pacote (package.json): 0.7.0
+Versão atual do pacote (package.json): 0.8.0
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
   Sempre que o programa for melhorado, atualize ESTE arquivo:
@@ -126,7 +126,7 @@ DogReputationLevel (10 personalidades ativas):
   BORDER_COLLIE, BASSET_HOUND, CHOW_CHOW
 
 ================================================================================
-  5. FUNCIONALIDADES ATUAIS (v0.7.0)
+  5. FUNCIONALIDADES ATUAIS (v0.8.0)
 ================================================================================
 
 [OK] Cadastro e login
@@ -143,18 +143,19 @@ DogReputationLevel (10 personalidades ativas):
 [OK] Notificações (sino na NavBar; voto, amizade, petisco)
 [OK] PWA: manifest + service worker (instalar no celular)
 [OK] ViewModeSwitcher (patinha) — preferência de modo salva no usuário
+[OK] Upload de avatar e fotos de post (Uploadthing) + componente BcImage (Next/Image)
+[OK] Modo Insta: grade de fotos no /feed + publicar com imagem
+[OK] Notificações em tempo real via Pusher (fallback polling 45s)
+[OK] Loja de cosméticos do pet (/cachorro) — comprar e equipar com CarameloCoins
 [OK] Design: animações CSS, cards hover, landing redesenhada, menu mobile
 [OK] API /api/health
 [OK] Deploy Docker + Gitea
 
 [PENDENTE — ROADMAP]
-  - Modo Insta (grade de fotos) + upload (Uploadthing/Cloudinary)
   - Modo Reels
   - Chats e grupos em tempo real
   - Chamadas de voz/vídeo e reuniões (WebRTC / LiveKit)
-  - Upload de foto de avatar
-  - Notificações em tempo real (Pusher / Socket.io)
-  - Itens cosméticos para o pet (loja com CarameloCoins)
+  - Blur-up placeholder nas imagens (next/image blurDataURL)
 
 ================================================================================
   6. PERSONALIDADES CANINAS (v0.5.0)
@@ -206,6 +207,9 @@ API:
   GET|PATCH /api/notifications
   GET|PATCH /api/users/me  (perfil + viewMode)
   GET  /api/users/search?q=
+  GET|POST /api/uploadthing
+  POST /api/pusher/auth
+  POST /api/pet/cosmetics  (buy|equip|unequip)
 
 ================================================================================
   8. VARIÁVEIS DE AMBIENTE
@@ -214,6 +218,9 @@ API:
 DATABASE_URL     — PostgreSQL (obrigatório em runtime)
 COOKIE_SECURE    — "true" com HTTPS; "false" em HTTP local (docker-compose)
 NODE_ENV         — production no Docker
+UPLOADTHING_TOKEN — token do dashboard Uploadthing (upload avatar/fotos)
+NEXT_PUBLIC_PUSHER_KEY / NEXT_PUBLIC_PUSHER_CLUSTER — cliente Pusher
+PUSHER_APP_ID / PUSHER_KEY / PUSHER_SECRET — servidor Pusher (mesmo KEY do público)
 
 Arquivo exemplo: .env.example
 
@@ -233,6 +240,33 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v0.8.0 — 2026-05-17
+------------------------------------------------------------------------------
+  MÍDIA (Uploadthing):
+  + Upload de avatar em /configuracoes (endpoint avatar)
+  + Fotos em recados e modo Insta (endpoint postImage)
+  + BcImage — wrapper do next/image (utfs.io)
+  + next.config.ts remotePatterns para Uploadthing
+
+  TEMPO REAL (Pusher):
+  + lib/pusher-server.ts — push ao criar notificação
+  + POST /api/pusher/auth — canal privado por usuário
+  + NotificationBell: ● ao vivo com Pusher; fallback polling sem env
+
+  MODO INSTA:
+  + VIEW_MODES: Insta disponível
+  + Feed alterna: grade InstaFeed + CreatePostForm com anexo de foto
+  + Posts com imageUrl no feed clássico (FeedPost)
+
+  COSMÉTICOS DO PET:
+  + Pet: ownedCosmetics, equippedHat/Collar/Accessory
+  + lib/pet-cosmetics.ts — 8 itens na loja
+  + POST /api/pet/cosmetics + PetCosmeticShop em /cachorro
+
+  * Migração media_cosmetics
+  * package.json: 0.7.0 → 0.8.0
 
 ------------------------------------------------------------------------------
 v0.7.0 — 2026-05-17

@@ -102,6 +102,6 @@ export const REPUTATION_LEVELS = REPUTATION_PERSONALITIES;
 
 export const VIEW_MODES = [
   { id: "FEED", label: "Feed", description: "Estilo comunidade (Orkut)", available: true },
-  { id: "INSTA", label: "Insta", description: "Grade de fotos", available: false },
+  { id: "INSTA", label: "Insta", description: "Grade de fotos", available: true },
   { id: "REELS", label: "Reels", description: "Vídeos curtos", available: false },
 ] as const;

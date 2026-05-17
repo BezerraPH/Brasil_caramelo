@@ -38,10 +38,14 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { content } = postSchema.parse(body);
+    const { content, imageUrl } = postSchema.parse(body);
 
     const post = await prisma.post.create({
-      data: { content, authorId: user.id },
+      data: {
+        content: content?.trim() ?? "",
+        imageUrl: imageUrl ?? null,
+        authorId: user.id,
+      },
       include: {
         author: {
           select: { id: true, name: true, username: true, avatarUrl: true },

@@ -7,7 +7,9 @@ import { LogoutButton } from "./LogoutButton";
 import { NotificationBell } from "./NotificationBell";
 
 type NavBarProps = {
-  user: { name: string; username: string };
+  user: { id: string; name: string; username: string };
+  pusherKey?: string | null;
+  pusherCluster?: string | null;
 };
 
 const LINKS = [
@@ -18,7 +20,7 @@ const LINKS = [
   { href: "/cachorro", label: "Cachorro", icon: "🐕" },
 ] as const;
 
-export function NavBar({ user }: NavBarProps) {
+export function NavBar({ user, pusherKey, pusherCluster }: NavBarProps) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -73,7 +75,11 @@ export function NavBar({ user }: NavBarProps) {
         </nav>
 
         <div className="flex items-center gap-2">
-          <NotificationBell />
+          <NotificationBell
+            userId={user.id}
+            pusherKey={pusherKey}
+            pusherCluster={pusherCluster}
+          />
           <span className="hidden max-w-[90px] truncate text-xs text-bc-brown md:inline">
             @{user.username}
           </span>

@@ -157,7 +157,7 @@ export default async function ProfilePage({ params }: PageProps) {
           </h1>
           <p className="text-bc-brown">@{profile.username}</p>
           {profile.bio && (
-            <p className="mt-3 text-sm leading-relaxed text-gray-700">
+            <p className="mt-3 text-sm leading-relaxed text-bc-brown">
               {profile.bio}
             </p>
           )}

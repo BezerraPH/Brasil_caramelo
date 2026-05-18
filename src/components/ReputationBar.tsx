@@ -28,7 +28,7 @@ export function ReputationBar({ summary }: ReputationBarProps) {
           <div className="min-w-0 flex-1">
             <p className="text-xl font-bold text-bc-blue">{d.breed}</p>
             <p className="mt-1 text-sm text-bc-brown">{d.about}</p>
-            <p className="mt-2 rounded-lg bg-bc-blue/5 px-3 py-2 text-sm italic text-gray-700">
+            <p className="mt-2 rounded-lg bg-bc-blue/5 px-3 py-2 text-sm italic text-bc-brown">
               &ldquo;{d.vibe}&rdquo;
             </p>
           </div>

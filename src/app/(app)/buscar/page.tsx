@@ -169,7 +169,7 @@ function BuscarContent() {
                   <p className="font-semibold text-bc-blue">{u.name}</p>
                   <p className="text-sm text-bc-brown">@{u.username}</p>
                   {u.bio && (
-                    <p className="mt-1 line-clamp-2 text-xs text-gray-600">
+                    <p className="mt-1 line-clamp-2 text-xs text-bc-brown/80">
                       {u.bio}
                     </p>
                   )}

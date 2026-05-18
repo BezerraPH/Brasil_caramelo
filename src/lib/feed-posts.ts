@@ -5,6 +5,14 @@ import { applyPetDecay, petAvatarStatus, type PetAvatarStatus } from "./pet";
 
 export const FEED_PAGE_SIZE = 12;
 
+export type FeedFilterMode = "all" | "friends" | "video";
+
+export function parseFeedFilter(filter?: string | null): FeedFilterMode {
+  if (filter === "friends") return "friends";
+  if (filter === "video") return "video";
+  return "all";
+}
+
 const authorSelect = {
   id: true,
   name: true,
@@ -81,7 +89,11 @@ function mapAuthorPet(
 export async function fetchFeedPage(
   viewerId: string,
   cursor?: string | null,
-  options?: { includeShadowbanned?: boolean; friendsOnly?: boolean },
+  options?: {
+    includeShadowbanned?: boolean;
+    friendsOnly?: boolean;
+    videosOnly?: boolean;
+  },
 ) {
   const take = FEED_PAGE_SIZE + 1;
 
@@ -101,6 +113,7 @@ export async function fetchFeedPage(
     where: {
       communityLevel: null,
       ...(authorFilter ? { author: authorFilter } : {}),
+      ...(options?.videosOnly ? { videoUrl: { not: null } } : {}),
     },
     orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     take,

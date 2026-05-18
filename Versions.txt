@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-17 (v2.2.0-alpha)
-Versão atual do pacote (package.json): 2.2.0-alpha.0
+Última atualização: 2026-05-17 (v2.2.1-alpha)
+Versão atual do pacote (package.json): 2.2.1-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
@@ -130,7 +130,7 @@ DogReputationLevel (10 personalidades ativas):
   BORDER_COLLIE, BASSET_HOUND, CHOW_CHOW
 
 ================================================================================
-  5. FUNCIONALIDADES ATUAIS (v2.2.0-alpha)
+  5. FUNCIONALIDADES ATUAIS (v2.2.1-alpha)
 ================================================================================
 
 [OK] Cadastro e login
@@ -192,7 +192,7 @@ DogReputationLevel (10 personalidades ativas):
 [OK] Redirect pós-login com ?next= (rotas protegidas)
 [OK] Navegação unificada (lib/nav.ts, destaque em casinhas aninhadas)
 [OK] Banner de fome do pet no feed + copiar link do perfil
-[OK] Feed “Só matilha” (?filter=friends) — recados só de amigos
+[OK] Feed filtros: Todos | Matilha (?filter=friends) | Vídeos (?filter=video)
 [OK] Notificações com ícone por tipo + marcar lida ao clicar + hora relativa
 [OK] Rate limit em login, cadastro, premium e curtidas
 [OK] API storage/stats sem expor caminho do disco
@@ -253,7 +253,7 @@ Páginas:
 API:
   POST /api/auth/register | login | logout
   GET  /api/health
-  GET|POST /api/posts  (?cursor= scroll infinito)
+  GET|POST /api/posts  (?cursor= scroll infinito; ?filter=friends|video)
   GET  /api/posts/search?q= | ?tag=
   PATCH|DELETE /api/posts/[id]
   POST /api/posts/[id]/like  (body: { reaction })
@@ -322,6 +322,26 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v2.2.1-alpha.0 — 2026-05-17 (auditoria: feed vídeos, segurança, polish)
+------------------------------------------------------------------------------
+  FEED:
+  + Filtro “Vídeos” no feed (?filter=video) — FeedFilterTabs com 3 abas
+  + parseFeedFilter + videosOnly em lib/feed-posts.ts
+  + FeedInfinite: empty states por filtro (todos / matilha / vídeos)
+
+  SEGURANÇA:
+  + POST /api/battles/finalize — rate limit 6/min por usuário/IP
+  + PremiumActivate: códigos demo só em dev ou NEXT_PUBLIC_SHOW_PREMIUM_DEMO=true
+
+  DESIGN / UX:
+  + text-gray-* → tokens bc-brown no perfil, busca, InstaFeed, reputação
+  + Cinelar vazio — empty state animado com link pro feed
+  + 404 — AppVersionBadge no rodapé
+  + PetDailyNavDot — bolinha dourada na nav mobile quando bônus diário disponível
+
+  * package.json: 2.2.0-alpha.0 → 2.2.1-alpha.0
 
 ------------------------------------------------------------------------------
 v2.2.0-alpha.0 — 2026-05-17 (versão no app + estágio Alpha)

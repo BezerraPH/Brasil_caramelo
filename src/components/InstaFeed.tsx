@@ -110,7 +110,7 @@ function InstaTile({ post, delay }: { post: InstaPost; delay: number }) {
               {post.content && (
                 <PostContent
                   content={post.content}
-                  className="mb-3 text-sm text-gray-800"
+                  className="mb-3 text-sm text-bc-brown"
                 />
               )}
               <button

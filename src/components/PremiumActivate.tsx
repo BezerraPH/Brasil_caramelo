@@ -3,6 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+const showDemoCodes =
+  process.env.NODE_ENV === "development" ||
+  process.env.NEXT_PUBLIC_SHOW_PREMIUM_DEMO === "true";
+
 export function PremiumActivate() {
   const [code, setCode] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
@@ -29,7 +33,7 @@ export function PremiumActivate() {
     <div className="bc-card border-bc-gold/30 p-6">
       <input
         className="bc-input mb-3"
-        placeholder="Código (ex: PEDIGREE)"
+        placeholder="Código Pedigree"
         value={code}
         onChange={(e) => setCode(e.target.value)}
       />
@@ -42,9 +46,11 @@ export function PremiumActivate() {
         {loading ? "Ativando…" : "Ativar Pedigree"}
       </button>
       {msg && <p className="mt-3 text-center text-sm text-bc-green">{msg}</p>}
-      <p className="mt-3 text-center text-[10px] text-bc-brown">
-        Demo: PEDIGREE, CARAMELO2026 ou MATILHA
-      </p>
+      {showDemoCodes && (
+        <p className="mt-3 text-center text-[10px] text-bc-brown/80">
+          Demo (dev): PEDIGREE, CARAMELO2026 ou MATILHA
+        </p>
+      )}
     </div>
   );
 }

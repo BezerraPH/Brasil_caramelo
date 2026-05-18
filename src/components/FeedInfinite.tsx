@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { FeedFilterMode } from "@/lib/feed-posts";
 import { FeedPost } from "./FeedPost";
 
 export type FeedPostItem = {
@@ -27,7 +28,7 @@ type FeedInfiniteProps = {
   initialPosts: FeedPostItem[];
   initialCursor: string | null;
   currentUserId: string;
-  feedFilter?: "all" | "friends";
+  feedFilter?: FeedFilterMode;
 };
 
 export function FeedInfinite({
@@ -74,10 +75,29 @@ export function FeedInfinite({
   }, [cursor, loadMore]);
 
   if (posts.length === 0) {
+    const emptyCopy: Record<FeedFilterMode, { title: string; hint: string }> = {
+      all: {
+        title: "Nenhum recado ainda",
+        hint: "Seja o primeiro a latir na matilha! 🐾",
+      },
+      friends: {
+        title: "Matilha em silêncio",
+        hint: "Adicione amigos ou aguarde recados de quem você segue.",
+      },
+      video: {
+        title: "Nenhum vídeo no feed",
+        hint: "Publique um Cinelar no modo vídeo ou troque o filtro.",
+      },
+    };
+    const copy = emptyCopy[feedFilter];
     return (
-      <p className="bc-card bc-animate-in p-10 text-center text-bc-brown">
-        Nenhum recado ainda. Seja o primeiro! 🐾
-      </p>
+      <div className="bc-card bc-animate-in p-10 text-center">
+        <p className="text-4xl" aria-hidden>
+          {feedFilter === "video" ? "🎬" : "🐾"}
+        </p>
+        <p className="mt-3 font-semibold text-bc-blue">{copy.title}</p>
+        <p className="mt-2 text-sm text-bc-brown">{copy.hint}</p>
+      </div>
     );
   }
 

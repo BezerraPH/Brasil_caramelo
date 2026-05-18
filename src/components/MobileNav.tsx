@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MOBILE_NAV, isNavActive } from "@/lib/nav";
+import { PetDailyNavDot } from "./PetDailyNavDot";
 
 export function MobileNav() {
   const pathname = usePathname();
@@ -23,8 +24,9 @@ export function MobileNav() {
                   active ? "bc-nav-link-active" : "text-bc-brown hover:text-bc-blue"
                 }`}
               >
-                <span className="text-lg" aria-hidden>
+                <span className="relative text-lg" aria-hidden>
                   {tab.icon}
+                  {tab.href === "/cachorro" && <PetDailyNavDot />}
                 </span>
                 {tab.label}
               </Link>

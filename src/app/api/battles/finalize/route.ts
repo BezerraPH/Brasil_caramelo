@@ -1,11 +1,25 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import {
+  checkRateLimit,
+  getClientIp,
+  rateLimitKey,
+} from "@/lib/rate-limit";
 
-export async function POST() {
+export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+  }
+
+  const ip = getClientIp(request);
+  const key = rateLimitKey(user.id, ip);
+  if (!checkRateLimit(key, 6, 60_000, "battle-finalize")) {
+    return NextResponse.json(
+      { error: "Muitas finalizações em pouco tempo. Aguarde um minuto." },
+      { status: 429 },
+    );
   }
 
   const now = new Date();

@@ -4,6 +4,7 @@ import { checkAndUnlockAchievements, unlockAchievement } from "@/lib/achievement
 import {
   attachSavedFlags,
   fetchFeedPage,
+  parseFeedFilter,
 } from "@/lib/feed-posts";
 import { notifyMentions } from "@/lib/notify-mentions";
 import { prisma } from "@/lib/prisma";
@@ -22,10 +23,11 @@ export async function GET(request: Request) {
 
   const params = new URL(request.url).searchParams;
   const cursor = params.get("cursor");
-  const friendsOnly = params.get("filter") === "friends";
+  const mode = parseFeedFilter(params.get("filter"));
 
   const { posts, nextCursor } = await fetchFeedPage(user.id, cursor, {
-    friendsOnly,
+    friendsOnly: mode === "friends",
+    videosOnly: mode === "video",
   });
   const withSaved = await attachSavedFlags(user.id, posts);
 

@@ -20,7 +20,11 @@ import { getCurrentUser } from "@/lib/auth";
 import { finalizeExpiredBattles } from "@/lib/battles";
 import { purgeExpiredStories } from "@/lib/cleanup";
 import { getActiveFlashEvent } from "@/lib/events";
-import { attachSavedFlags, fetchFeedPage } from "@/lib/feed-posts";
+import {
+  attachSavedFlags,
+  fetchFeedPage,
+  parseFeedFilter,
+} from "@/lib/feed-posts";
 import { prisma } from "@/lib/prisma";
 import { applyPetDecay, petAvatarStatus } from "@/lib/pet";
 
@@ -33,12 +37,13 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
   if (!user) return null;
 
   const { filter } = await searchParams;
-  const friendsOnly = filter === "friends";
+  const feedFilter = parseFeedFilter(filter);
 
   await Promise.all([finalizeExpiredBattles(), purgeExpiredStories()]);
 
   const { posts: feedPosts, nextCursor } = await fetchFeedPage(user.id, null, {
-    friendsOnly,
+    friendsOnly: feedFilter === "friends",
+    videosOnly: feedFilter === "video",
   });
   const mappedPosts = await attachSavedFlags(user.id, feedPosts);
 
@@ -206,7 +211,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
               initialPosts={mappedPosts}
               initialCursor={nextCursor}
               currentUserId={user.id}
-              feedFilter={friendsOnly ? "friends" : "all"}
+              feedFilter={feedFilter}
             />
           )}
         </section>

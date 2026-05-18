@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AppVersionBadge } from "@/components/AppVersionBadge";
 
 export default function NotFound() {
   return (
@@ -17,6 +18,9 @@ export default function NotFound() {
           Página inicial
         </Link>
       </div>
+      <p className="mt-10">
+        <AppVersionBadge />
+      </p>
     </main>
   );
 }

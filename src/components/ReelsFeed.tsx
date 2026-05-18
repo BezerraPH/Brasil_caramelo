@@ -31,9 +31,21 @@ export function ReelsFeed({ posts, currentUserId }: ReelsFeedProps) {
 
   if (withVideo.length === 0) {
     return (
-      <p className="bc-card mx-4 p-10 text-center text-bc-brown md:mx-auto md:max-w-md">
-        Nenhum Cinelar ainda. Publique um vídeo curto! 🎬
-      </p>
+      <div className="bc-card bc-animate-in mx-4 p-10 text-center md:mx-auto md:max-w-md">
+        <p className="bc-animate-float text-5xl" aria-hidden>
+          🎬
+        </p>
+        <p className="mt-4 font-semibold text-bc-blue">Cinelar vazio</p>
+        <p className="mt-2 text-sm text-bc-brown">
+          Publique um vídeo curto no feed ou peça pra matilha latir em vídeo.
+        </p>
+        <Link
+          href="/feed"
+          className="bc-btn-primary mt-6 inline-block text-sm"
+        >
+          Voltar aos recados
+        </Link>
+      </div>
     );
   }
 

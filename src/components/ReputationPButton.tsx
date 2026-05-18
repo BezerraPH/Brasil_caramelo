@@ -98,7 +98,7 @@ export function ReputationPButton({ toUserId, myLevel }: ReputationPButtonProps)
                     <span className="font-semibold text-bc-blue">{p.breed}</span>
                   </div>
                   <p className="mt-0.5 text-[11px] text-bc-brown">{p.about}</p>
-                  <p className="text-[10px] italic text-gray-500">
+                  <p className="text-[10px] italic text-bc-brown/70">
                     &ldquo;{p.vibe}&rdquo;
                   </p>
                 </button>

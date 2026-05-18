@@ -5,9 +5,12 @@ import { PersonalityProfileCard } from "@/components/PersonalityProfileCard";
 import { PetYardVisit } from "@/components/PetYardVisit";
 import { ReputationBar } from "@/components/ReputationBar";
 import { ReputationPButton } from "@/components/ReputationPButton";
+import { AchievementBadges } from "@/components/AchievementBadges";
 import { FeedPost } from "@/components/FeedPost";
 import { UserAvatar } from "@/components/UserAvatar";
+import { checkAndUnlockAchievements } from "@/lib/achievements";
 import { getCurrentUser } from "@/lib/auth";
+import { areFriends } from "@/lib/friendship";
 import { getPersonalityTheme } from "@/lib/personality-theme";
 import { prisma } from "@/lib/prisma";
 import { summarizeReputation } from "@/lib/reputation";
@@ -31,6 +34,8 @@ export default async function ProfilePage({ params }: PageProps) {
 
   if (!profile) notFound();
 
+  void checkAndUnlockAchievements(profile.id);
+
   const myReputation = await prisma.reputation.findUnique({
     where: {
       fromUserId_toUserId: {
@@ -44,6 +49,8 @@ export default async function ProfilePage({ params }: PageProps) {
     profile.reputationsReceived.map((r) => r.level),
   );
   const isOwnProfile = profile.id === viewer.id;
+  const isFriend =
+    !isOwnProfile && (await areFriends(viewer.id, profile.id));
   const theme = getPersonalityTheme(summary.dominant?.level);
 
   const recentPosts = await prisma.post.findMany({
@@ -119,6 +126,14 @@ export default async function ProfilePage({ params }: PageProps) {
                   Editar perfil
                 </Link>
               )}
+              {isFriend && (
+                <Link
+                  href={`/mensagens?with=${profile.username}`}
+                  className="bc-btn-primary text-sm"
+                >
+                  💬 Mensagem
+                </Link>
+              )}
               {summary.dominant && (
                 <span
                   className="rounded-full px-3 py-1 text-xs font-semibold text-white"
@@ -158,6 +173,8 @@ export default async function ProfilePage({ params }: PageProps) {
           </section>
 
           {!isOwnProfile && <PetYardVisit ownerUserId={profile.id} />}
+
+          <AchievementBadges userId={profile.id} />
 
           {profilePosts.length > 0 && (
             <section className="mt-8 space-y-4 border-t border-bc-blue/10 pt-6">

@@ -1,4 +1,9 @@
 import Pusher from "pusher";
+import { chatChannelName, type TypingPayload } from "./chat-constants";
+import { roomChannelName } from "./casinha-rooms-constants";
+import { GLOBAL_CHANNEL } from "./pusher-constants";
+
+export { GLOBAL_CHANNEL, chatChannelName, roomChannelName };
 
 let pusher: Pusher | null = null;
 
@@ -30,9 +35,71 @@ export function userChannelName(userId: string) {
   return `private-user-${userId}`;
 }
 
-import { GLOBAL_CHANNEL } from "./pusher-constants";
+export async function pushChatMessage(
+  recipientUserId: string,
+  conversationId: string,
+  payload: {
+    id: string;
+    content: string;
+    attachmentUrl?: string | null;
+    attachmentMime?: string | null;
+    senderId: string;
+    senderName: string;
+    createdAt: string;
+  },
+) {
+  const server = getPusherServer();
+  if (!server) return;
 
-export { GLOBAL_CHANNEL };
+  const preview =
+    payload.content.trim() ||
+    (payload.attachmentUrl ? "📎 Anexo" : "Nova mensagem");
+
+  await Promise.all([
+    server.trigger(chatChannelName(conversationId), "message", payload),
+    server.trigger(userChannelName(recipientUserId), "chat-inbox", {
+      conversationId,
+      preview: preview.slice(0, 80),
+      senderName: payload.senderName,
+    }),
+  ]);
+}
+
+export async function pushRoomMessage(
+  roomId: string,
+  payload: {
+    id: string;
+    content: string;
+    attachmentUrl?: string | null;
+    attachmentMime?: string | null;
+    senderId: string;
+    senderName: string;
+    senderUsername: string;
+    createdAt: string;
+  },
+) {
+  const server = getPusherServer();
+  if (!server) return;
+  await server.trigger(roomChannelName(roomId), "message", payload);
+}
+
+export async function pushTyping(
+  channel: string,
+  data: TypingPayload,
+) {
+  const server = getPusherServer();
+  if (!server) return;
+  await server.trigger(channel, "typing", data);
+}
+
+export async function pushCallSignal(
+  targetUserId: string,
+  payload: Record<string, unknown>,
+) {
+  const server = getPusherServer();
+  if (!server) return;
+  await server.trigger(userChannelName(targetUserId), "call-signal", payload);
+}
 
 export async function pushNotificationEvent(
   userId: string,

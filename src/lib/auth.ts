@@ -64,6 +64,7 @@ export async function getCurrentUser() {
           viewMode: true,
           isPremium: true,
           premiumUntil: true,
+          shadowbanned: true,
           createdAt: true,
         },
       },

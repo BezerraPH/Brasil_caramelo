@@ -51,6 +51,18 @@ export function petMood(pet: PetStats): {
   return { label: "Precisa de carinho", emoji: "😢", color: "#8b5e3c" };
 }
 
+export type PetAvatarStatus = "happy" | "ok" | "hungry" | "starving";
+
+/** Status visual no avatar do feed (efeito Tamagotchi coletivo). */
+export function petAvatarStatus(pet: PetStats): PetAvatarStatus {
+  const p = applyPetDecay(pet);
+  if (p.hunger < 25) return "starving";
+  if (p.hunger < 45) return "hungry";
+  const avg = (p.hunger + p.happiness + p.energy) / 3;
+  if (avg >= 70) return "happy";
+  return "ok";
+}
+
 export type CareAction = "feed" | "play" | "rest";
 
 export function applyCare(pet: PetStats, action: CareAction): PetStats {

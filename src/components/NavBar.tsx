@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { LogoutButton } from "./LogoutButton";
+import { ChatUnreadBadge } from "./ChatUnreadBadge";
 import { NotificationBell } from "./NotificationBell";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -15,6 +16,7 @@ type NavBarProps = {
 
 const LINKS = [
   { href: "/feed", label: "Feed", icon: "📰" },
+  { href: "/mensagens", label: "Chat", icon: "💬" },
   { href: "/explorar", label: "Explorar", icon: "🧭" },
   { href: "/casinhas", label: "Casinhas", icon: "🏠" },
   { href: "/ranking", label: "Matilha", icon: "🏆" },
@@ -76,6 +78,22 @@ export function NavBar({ user, pusherKey, pusherCluster }: NavBarProps) {
         </nav>
 
         <div className="flex items-center gap-2">
+          <Link
+            href="/mensagens"
+            className={`relative rounded-lg p-2 transition hover:bg-bc-blue/10 ${
+              pathname.startsWith("/mensagens")
+                ? "bg-bc-green/15 text-bc-green"
+                : "text-bc-blue"
+            }`}
+            aria-label="Mensagens"
+          >
+            💬
+            <ChatUnreadBadge
+              userId={user.id}
+              pusherKey={pusherKey}
+              pusherCluster={pusherCluster}
+            />
+          </Link>
           <ThemeToggle />
           <NotificationBell
             userId={user.id}

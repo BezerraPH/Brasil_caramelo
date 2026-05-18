@@ -51,6 +51,26 @@ enum NotificationType {
   STORY_NEW
   POST_LIKE
   POST_COMMENT
+  POST_MENTION
+  POST_REACTION
+  CHAT_MESSAGE
+  ROOM_MESSAGE
+  INCOMING_CALL
+}
+
+enum ReactionType {
+  HEART
+  AUAU
+  GROWL
+  WHINE
+}
+
+enum CallStatus {
+  RINGING
+  ACTIVE
+  ENDED
+  MISSED
+  DECLINED
 }
 
 model User {
@@ -85,6 +105,15 @@ model User {
   battleVotes         PetBattleVote[]
   storyViews          StoryView[]
   savedPosts          SavedPost[]
+  postReports         PostReport[]    @relation("PostReporter")
+  achievements        UserAchievement[]
+  shadowbanned        Boolean         @default(false)
+  conversationsAsA    Conversation[]  @relation("ConversationA")
+  conversationsAsB    Conversation[]  @relation("ConversationB")
+  messagesSent        Message[]
+  roomMessages        CasinhaRoomMessage[]
+  callsMade           CallSession[]   @relation("CallsMade")
+  callsReceived       CallSession[]   @relation("CallsReceived")
 }
 
 model Session {
@@ -111,9 +140,11 @@ model Post {
   comments       Comment[]
   likes          Like[]
   savedBy        SavedPost[]
+  reports        PostReport[]
 
   @@index([authorId, createdAt])
   @@index([communityLevel, createdAt])
+  @@index([createdAt, id])
 }
 
 model Comment {
@@ -129,14 +160,38 @@ model Comment {
 }
 
 model Like {
-  id        String   @id @default(cuid())
+  id        String       @id @default(cuid())
   postId    String
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  post      Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reaction  ReactionType @default(HEART)
+  createdAt DateTime     @default(now())
 
   @@unique([postId, userId])
+}
+
+model PostReport {
+  id         String   @id @default(cuid())
+  postId     String
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  reporterId String
+  reporter   User     @relation("PostReporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([postId, reporterId])
+  @@index([postId])
+}
+
+model UserAchievement {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key        String
+  unlockedAt DateTime @default(now())
+
+  @@unique([userId, key])
+  @@index([userId])
 }
 
 model Reputation {
@@ -184,6 +239,7 @@ model Pet {
   equippedAccessory String?
   lastCareAt        DateTime  @default(now())
   lastDailyClaim    DateTime?
+  dailyStreak       Int       @default(0)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 }
@@ -279,6 +335,81 @@ model PetBattle {
   votes           PetBattleVote[]
 
   @@index([status, endsAt])
+}
+
+model Conversation {
+  id             String    @id @default(cuid())
+  participantAId String
+  participantA   User      @relation("ConversationA", fields: [participantAId], references: [id], onDelete: Cascade)
+  participantBId String
+  participantB   User      @relation("ConversationB", fields: [participantBId], references: [id], onDelete: Cascade)
+  lastMessageAt  DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+  messages       Message[]
+
+  @@unique([participantAId, participantBId])
+  @@index([participantAId, lastMessageAt])
+  @@index([participantBId, lastMessageAt])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  content        String       @default("")
+  attachmentUrl  String?
+  attachmentMime String?
+  readAt         DateTime?
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+  @@index([conversationId, readAt])
+}
+
+model CasinhaRoom {
+  id             String               @id @default(cuid())
+  slug           String               @unique
+  communityLevel DogReputationLevel
+  name           String
+  emoji          String
+  lastMessageAt  DateTime             @default(now())
+  createdAt      DateTime             @default(now())
+  messages       CasinhaRoomMessage[]
+
+  @@index([lastMessageAt])
+}
+
+model CasinhaRoomMessage {
+  id             String      @id @default(cuid())
+  roomId         String
+  room           CasinhaRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User        @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  content        String      @default("")
+  attachmentUrl  String?
+  attachmentMime String?
+  createdAt      DateTime    @default(now())
+
+  @@index([roomId, createdAt])
+}
+
+model CallSession {
+  id             String     @id @default(cuid())
+  callerId       String
+  caller         User       @relation("CallsMade", fields: [callerId], references: [id], onDelete: Cascade)
+  calleeId       String
+  callee         User       @relation("CallsReceived", fields: [calleeId], references: [id], onDelete: Cascade)
+  conversationId String?
+  status         CallStatus @default(RINGING)
+  offerSdp       String?
+  answerSdp      String?
+  endedAt        DateTime?
+  createdAt      DateTime   @default(now())
+
+  @@index([calleeId, status, createdAt])
+  @@index([callerId, status])
 }
 
 model PetBattleVote {

@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import {
+  checkRateLimit,
+  getClientIp,
+  rateLimitKey,
+} from "@/lib/rate-limit";
+import {
   deleteMediaByUrl,
   ensureUploadDirWritable,
   saveUploadedFile,
@@ -13,12 +18,22 @@ const KINDS = new Set<UploadKind>([
   "postImage",
   "postVideo",
   "story",
+  "chatAttachment",
 ]);
 
 export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+  }
+
+  const ip = getClientIp(request);
+  const key = rateLimitKey(user.id, ip);
+  if (!checkRateLimit(key, 15, 60_000, "upload")) {
+    return NextResponse.json(
+      { error: "Muitos uploads. Aguarde um minuto." },
+      { status: 429 },
+    );
   }
 
   const writable = await ensureUploadDirWritable();

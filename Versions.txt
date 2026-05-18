@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-17 (v1.5.0)
-Versão atual do pacote (package.json): 1.5.0
+Última atualização: 2026-05-17 (v1.8.0)
+Versão atual do pacote (package.json): 1.8.0
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
   Sempre que o programa for melhorado, atualize ESTE arquivo:
@@ -169,10 +169,23 @@ DogReputationLevel (10 personalidades ativas):
 [OK] Painel de armazenamento em /configuracoes
 [OK] API /api/health + /api/storage/stats
 [OK] Deploy Docker + Gitea (volume uploads_data)
+[OK] Otimização de imagens no upload (Sharp → WebP, max 1200px)
+[OK] Feed com scroll infinito (cursor Prisma + FeedInfinite)
+[OK] Humor do pet no avatar do feed (borda + ícone de fome)
+[OK] Conquistas automáticas no perfil (missão, batalhas, casinha)
+[OK] Rate limiting em posts, upload e denúncias (lru-cache)
+[OK] Denúncia de posts + shadowban leve após 5 reports
+[OK] Menções @usuario com notificação
+[OK] Reações caninas (Auau!, Rosnado, Chorinho)
+[OK] Chat em tempo real (/mensagens) — só amigos, Pusher, leitura e badge
+[OK] Salas de chat por casinha (10 salas, /mensagens?tab=rooms)
+[OK] Indicador “digitando…” (DM e salas via Pusher)
+[OK] Anexos no chat (imagem/PDF, Sharp no upload)
+[OK] Chamadas WebRTC P2P entre amigos (vídeo/áudio, STUN Google)
 
 [PENDENTE]
-  - Chats e grupos em tempo real
-  - Chamadas WebRTC / LiveKit
+  - TURN server para WebRTC atrás de NAT restrito
+  - LiveKit / salas com muitos participantes
   - Filtro de conteúdo com IA (moderação de imagens)
   - Pagamento real Pedigree (Stripe/Pix)
   - Anúncios geolocalizados de pet shops
@@ -211,6 +224,7 @@ Páginas:
   /amigos              — amizades
   /buscar              — buscar pessoas, recados e hashtags
   /notificacoes        — histórico de notificações
+  /mensagens           — chat DM + salas de casinha (?tab=rooms&room=slug)
   /cachorro            — jogo do pet
   /ranking             — top 10 semanal por personalidade
   /casinhas            — lista de comunidades
@@ -224,10 +238,12 @@ Páginas:
 API:
   POST /api/auth/register | login | logout
   GET  /api/health
-  GET|POST /api/posts
+  GET|POST /api/posts  (?cursor= scroll infinito)
   GET  /api/posts/search?q= | ?tag=
   PATCH|DELETE /api/posts/[id]
-  POST /api/posts/[id]/like
+  POST /api/posts/[id]/like  (body: { reaction })
+  POST /api/posts/[id]/report
+  GET  /api/achievements?userId=
   GET|POST /api/posts/[id]/comments
   POST /api/reputation
   GET|POST /api/friends
@@ -248,6 +264,10 @@ API:
   POST /api/pet/cosmetics  (buy|equip|unequip)
   GET|POST /api/stories
   DELETE /api/stories/[id]
+  GET|POST /api/chats
+  GET /api/chats/unread
+  GET|POST /api/chats/[id]/messages
+  PATCH /api/chats/[id]/read
   GET|POST /api/events
   GET|POST /api/battles  (criar|votar)
   POST /api/battles/finalize
@@ -262,6 +282,7 @@ DATABASE_URL     — PostgreSQL (obrigatório em runtime)
 COOKIE_SECURE    — "true" com HTTPS; "false" em HTTP local (docker-compose)
 NODE_ENV         — production no Docker
 UPLOAD_DIR — pasta de mídia no servidor (padrão: ./data/uploads)
+  Imagens convertidas para WebP (Sharp) no upload, exceto GIF animado
 NEXT_PUBLIC_PUSHER_KEY / NEXT_PUBLIC_PUSHER_CLUSTER — cliente Pusher
 PUSHER_APP_ID / PUSHER_KEY / PUSHER_SECRET — servidor Pusher (mesmo KEY do público)
 EVENT_ADMIN_SECRET — iniciar rolezinho sem ser Pedigree
@@ -286,6 +307,85 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v1.8.0 — 2026-05-17 (salas, typing, anexos, WebRTC)
+------------------------------------------------------------------------------
+  SALAS DE CASINHA:
+  + Modelos CasinhaRoom e CasinhaRoomMessage (1 sala por casinha)
+  + GET /api/rooms — lista salas com última mensagem
+  + GET|POST /api/rooms/[slug]/messages — histórico + enviar (anexos)
+  + POST /api/rooms/[slug]/typing
+  + Pusher: private-room-{roomId}
+  + ChatApp: abas Privado | Salas, ?tab=rooms&room=slug
+  + Link “Sala de chat” em /casinha/[slug]
+
+  CHAT DM (MELHORIAS):
+  + POST /api/chats/[id]/typing — indicador “digitando…”
+  + Anexos em DM (attachmentUrl/Mime no Message)
+  + ChatComposer (📎 upload) + ChatMessageBubble (imagem/PDF)
+  + useRealtimeChat (substitui use-chat-pusher no ChatApp)
+
+  CHAMADAS WEBRTC:
+  + CallSession no Prisma + POST /api/calls/signal
+  + invite, offer, answer, ice, hangup, decline (só amigos)
+  + useWebRTCCall + WebRTCCallOverlay (vídeo local/remoto)
+  + Sinalização via Pusher call-signal no canal do usuário
+
+  UPLOAD / MODERAÇÃO:
+  + kind chatAttachment no POST /api/upload (imagens + PDF)
+  + Shadowban bloqueia post em salas
+
+  MIGRAÇÃO:
+  + 20260521120000_v18_chat_rooms_calls
+
+  * package.json: 1.7.0 → 1.8.0
+
+------------------------------------------------------------------------------
+v1.7.0 — 2026-05-17 (chat em tempo real)
+------------------------------------------------------------------------------
+  CHAT DM (TEMPO REAL):
+  + Modelos Conversation e Message no Prisma
+  + /mensagens — lista + painel (layout responsivo, bolhas animadas)
+  + GET|POST /api/chats — listar e iniciar conversa (só amigos aceitos)
+  + GET|POST /api/chats/[id]/messages — histórico com cursor + enviar
+  + PATCH /api/chats/[id]/read — marcar como lidas
+  + Pusher: canal private-chat-{id} + evento chat-inbox no usuário
+  + Auth Pusher estendida para canais de conversa
+  + Notificação CHAT_MESSAGE + badge de não lidas na NavBar
+  + Links: perfil de amigo, lista /amigos, Explorar, MobileNav
+
+  RATE LIMIT:
+  + Mensagens: 40/min por usuário
+
+  SEM PUSHER:
+  + Chat funciona via HTTP; tempo real requer NEXT_PUBLIC_PUSHER_* no .env
+
+------------------------------------------------------------------------------
+v1.6.0 — 2026-05-17 (UX, performance, gamificação e moderação)
+------------------------------------------------------------------------------
+  PERFORMANCE:
+  + Sharp no POST /api/upload — resize max 1200px, WebP (JPEG/PNG)
+  + Feed com paginação por cursor (GET /api/posts?cursor=)
+  + FeedInfinite — scroll infinito sem inflar o DOM de uma vez
+
+  GAMIFICAÇÃO:
+  + petAvatarStatus no feed (borda vermelha/laranja, ícones 🦴/🍖)
+  + Conquistas automáticas + badges no perfil
+  + dailyStreak no pet (missão diária consecutiva)
+
+  MODERAÇÃO:
+  + Rate limit: posts (20/min), upload (15/min), denúncias (10/min)
+  + POST /api/posts/[id]/report + shadowban após 5 denúncias
+  + Posts de shadowbanned somem do feed global (perfil mantém)
+
+  MICRO-INTERAÇÕES:
+  + Menções @usuario → POST_MENTION
+  + Reações: HEART, AUAU, GROWL, WHINE (ReactionPicker)
+  + Migração: ReactionType, PostReport, UserAchievement, shadowbanned
+
+  DEPENDÊNCIAS:
+  + sharp, lru-cache
 
 ------------------------------------------------------------------------------
 v1.5.0 — 2026-05-17 (hashtags, busca, edição e notificações)

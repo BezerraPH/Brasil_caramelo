@@ -57,7 +57,7 @@ export default async function HomePage() {
         </div>
 
         <p className="bc-animate-in bc-stagger-4 mt-12 text-center text-xs text-bc-brown/80">
-          v1.5.0 — Hashtags, busca e notificações 🐾
+          v1.7.0 — Chat em tempo real com a matilha 🐾
         </p>
       </div>
     </main>

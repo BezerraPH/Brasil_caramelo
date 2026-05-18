@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CreatePostForm } from "@/components/CreatePostForm";
 import { FeedPost } from "@/components/FeedPost";
@@ -47,6 +48,12 @@ export default async function CasinhaPage({ params }: PageProps) {
         </h1>
         <p className="text-bc-brown">{casinha.tagline}</p>
         <p className="mt-2 text-sm text-bc-blue/90">{casinha.rules}</p>
+        <Link
+          href={`/mensagens?tab=rooms&room=${casinha.slug}`}
+          className="bc-btn-primary mt-4 inline-flex items-center gap-2"
+        >
+          💬 Sala de chat ao vivo
+        </Link>
       </header>
 
       <CreatePostForm communityLevel={casinha.level} />

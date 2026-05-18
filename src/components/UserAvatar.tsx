@@ -1,3 +1,4 @@
+import type { PetAvatarStatus } from "@/lib/pet";
 import { BcImage } from "./BcImage";
 import { PremiumBadge } from "./PremiumBadge";
 
@@ -6,6 +7,7 @@ type UserAvatarProps = {
   avatarUrl?: string | null;
   size?: "sm" | "md" | "lg";
   isPremium?: boolean;
+  petStatus?: PetAvatarStatus | null;
 };
 
 const sizes = {
@@ -14,14 +16,26 @@ const sizes = {
   lg: { class: "h-24 w-24 text-4xl", px: 96 },
 };
 
+const petRings: Record<PetAvatarStatus, string> = {
+  happy: "ring-2 ring-bc-green/50 ring-offset-1",
+  ok: "",
+  hungry: "ring-2 ring-orange-400 ring-offset-1",
+  starving: "ring-2 ring-red-500 ring-offset-1",
+};
+
 export function UserAvatar({
   name,
   avatarUrl,
   size = "sm",
   isPremium,
+  petStatus,
 }: UserAvatarProps) {
   const { class: sizeClass, px } = sizes[size];
-  const ring = isPremium ? "ring-2 ring-bc-gold ring-offset-1" : "";
+  const ring = isPremium
+    ? "ring-2 ring-bc-gold ring-offset-1"
+    : petStatus
+      ? petRings[petStatus]
+      : "";
 
   const inner = avatarUrl ? (
     <div className={`relative ${sizeClass} overflow-hidden rounded-full`}>
@@ -45,6 +59,24 @@ export function UserAvatar({
   return (
     <div className={`relative shrink-0 rounded-full ${ring}`}>
       {inner}
+      {petStatus === "starving" && (
+        <span
+          className="absolute -left-0.5 -top-0.5 text-xs"
+          title="Pet com fome — visite o quintal!"
+          aria-hidden
+        >
+          🦴
+        </span>
+      )}
+      {petStatus === "hungry" && (
+        <span
+          className="absolute -right-0.5 -top-0.5 text-[10px]"
+          title="Pet precisando de carinho"
+          aria-hidden
+        >
+          🍖
+        </span>
+      )}
       {isPremium && (
         <span className="absolute -bottom-0.5 -right-0.5">
           <PremiumBadge compact />

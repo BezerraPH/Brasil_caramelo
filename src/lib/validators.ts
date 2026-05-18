@@ -48,6 +48,35 @@ export const editPostSchema = z.object({
   content: z.string().min(1).max(2000),
 });
 
+export const chatMessageSchema = z
+  .object({
+    content: z.string().max(2000).optional(),
+    attachmentUrl: mediaUrlSchema.optional(),
+    attachmentMime: z.string().max(120).optional(),
+  })
+  .refine(
+    (d) => (d.content?.trim().length ?? 0) > 0 || d.attachmentUrl,
+    { message: "Envie texto ou anexo." },
+  );
+
+export const callSignalSchema = z.object({
+  callId: z.string().optional(),
+  targetUserId: z.string().optional(),
+  type: z.enum(["invite", "offer", "answer", "ice", "hangup", "decline"]),
+  sdp: z.string().optional(),
+  candidate: z
+    .object({
+      candidate: z.string(),
+      sdpMid: z.string().nullable().optional(),
+      sdpMLineIndex: z.number().nullable().optional(),
+    })
+    .optional(),
+});
+
+export const startChatSchema = z.object({
+  username: z.string().min(3).max(30),
+});
+
 export const commentSchema = z.object({
   content: z.string().min(1).max(500),
 });

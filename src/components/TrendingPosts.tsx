@@ -9,6 +9,7 @@ export async function TrendingPosts() {
     where: {
       communityLevel: null,
       createdAt: { gte: since },
+      author: { shadowbanned: false },
     },
     orderBy: { likes: { _count: "desc" } },
     take: 5,

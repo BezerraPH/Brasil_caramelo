@@ -1,3 +1,4 @@
+import { checkAndUnlockAchievements } from "./achievements";
 import { prisma } from "./prisma";
 
 export async function finalizeExpiredBattles() {
@@ -30,6 +31,7 @@ export async function finalizeExpiredBattles() {
         },
       });
     }
+    void checkAndUnlockAchievements(winnerId);
   }
 
   return expired.length;

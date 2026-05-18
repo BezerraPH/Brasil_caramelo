@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkAndUnlockAchievements } from "@/lib/achievements";
 import { getCurrentUser } from "@/lib/auth";
 import { applyPetDecay } from "@/lib/pet";
 import { prisma } from "@/lib/prisma";
@@ -12,6 +13,12 @@ function isSameUtcDay(a: Date, b: Date) {
     a.getUTCMonth() === b.getUTCMonth() &&
     a.getUTCDate() === b.getUTCDate()
   );
+}
+
+function isYesterdayUtc(last: Date, now: Date) {
+  const y = new Date(now);
+  y.setUTCDate(y.getUTCDate() - 1);
+  return isSameUtcDay(last, y);
 }
 
 export async function POST() {
@@ -33,6 +40,11 @@ export async function POST() {
     );
   }
 
+  let dailyStreak = 1;
+  if (pet.lastDailyClaim && isYesterdayUtc(pet.lastDailyClaim, now)) {
+    dailyStreak = pet.dailyStreak + 1;
+  }
+
   const decayed = applyPetDecay(pet);
   const experience = decayed.experience + DAILY_XP;
   const leveled = experience >= 100;
@@ -43,16 +55,20 @@ export async function POST() {
       experience: leveled ? experience - 100 : experience,
       level: leveled ? decayed.level + 1 : decayed.level,
       lastDailyClaim: now,
+      dailyStreak,
       hunger: decayed.hunger,
       happiness: Math.min(100, decayed.happiness + 5),
       energy: decayed.energy,
     },
   });
 
+  void checkAndUnlockAchievements(user.id);
+
   return NextResponse.json({
     ok: true,
     reward: { coins: DAILY_COINS, xp: DAILY_XP },
     pet: updated,
+    dailyStreak,
   });
 }
 
@@ -64,9 +80,9 @@ export async function GET() {
 
   const pet = await prisma.pet.findUnique({ where: { userId: user.id } });
   if (!pet?.lastDailyClaim) {
-    return NextResponse.json({ canClaim: true });
+    return NextResponse.json({ canClaim: true, dailyStreak: pet?.dailyStreak ?? 0 });
   }
 
   const canClaim = !isSameUtcDay(pet.lastDailyClaim, new Date());
-  return NextResponse.json({ canClaim });
+  return NextResponse.json({ canClaim, dailyStreak: pet.dailyStreak });
 }

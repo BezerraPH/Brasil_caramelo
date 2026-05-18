@@ -411,6 +411,111 @@ body {
   @apply text-bc-green/90;
 }
 
+.bc-page-header {
+  animation: bc-fade-in-up 0.45s ease-out both;
+}
+
+.bc-feed-sentinel {
+  min-height: 2rem;
+}
+
+/* Chat */
+.bc-chat-grid {
+  @apply grid min-h-[min(70vh,560px)] gap-4 md:grid-cols-[minmax(240px,300px)_1fr];
+}
+
+.bc-chat-list {
+  @apply max-h-[min(70vh,560px)] md:min-h-0;
+}
+
+.bc-chat-list-item:hover {
+  @apply bg-bc-green/8;
+}
+
+.bc-chat-list-item--active {
+  @apply bg-bc-green/12 border-l-4 border-bc-green;
+}
+
+.bc-chat-panel {
+  @apply min-h-[min(60vh,480px)] md:min-h-[min(70vh,560px)];
+}
+
+.bc-chat-messages {
+  scroll-behavior: smooth;
+}
+
+.bc-chat-bubble {
+  @apply rounded-2xl shadow-sm;
+  animation: bc-chat-pop 0.25s ease-out both;
+}
+
+.bc-chat-bubble--mine {
+  @apply rounded-br-md bg-bc-green text-white;
+}
+
+.bc-chat-bubble--theirs {
+  @apply rounded-bl-md border border-bc-blue/12 bg-bc-white text-foreground;
+}
+
+@keyframes bc-chat-pop {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.bc-chat-tabs {
+  @apply flex flex-wrap gap-2;
+}
+
+.bc-chat-tab {
+  @apply rounded-xl border-2 border-bc-blue/15 px-4 py-2 text-sm font-semibold text-bc-blue transition;
+}
+
+.bc-chat-tab:hover {
+  @apply border-bc-green/40 bg-bc-green/8;
+}
+
+.bc-chat-tab--active {
+  @apply border-bc-green bg-bc-green/15 text-bc-green shadow-sm;
+}
+
+.bc-typing-indicator {
+  animation: bc-fade-in-up 0.2s ease-out both;
+}
+
+.bc-typing-dots::after {
+  content: "";
+  animation: bc-typing-dots 1.2s steps(4, end) infinite;
+}
+
+@keyframes bc-typing-dots {
+  0% {
+    content: "";
+  }
+  25% {
+    content: ".";
+  }
+  50% {
+    content: "..";
+  }
+  75% {
+    content: "...";
+  }
+}
+
+.bc-call-overlay {
+  animation: bc-fade-in 0.3s ease-out both;
+}
+
+.bc-call-videos video {
+  box-shadow: 0 8px 32px rgb(0 0 0 / 0.45);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bc-animate-in,
   .bc-animate-in-up,

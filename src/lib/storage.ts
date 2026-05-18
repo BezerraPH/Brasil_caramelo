@@ -2,8 +2,14 @@ import { randomUUID } from "crypto";
 import { mkdir, writeFile, access, readdir, stat, unlink } from "fs/promises";
 import { constants } from "fs";
 import path from "path";
+import { optimizeImageBuffer } from "./image-optimize";
 
-export type UploadKind = "avatar" | "postImage" | "postVideo" | "story";
+export type UploadKind =
+  | "avatar"
+  | "postImage"
+  | "postVideo"
+  | "story"
+  | "chatAttachment";
 
 const MIME_EXT: Record<string, string> = {
   "image/jpeg": ".jpg",
@@ -41,6 +47,16 @@ const LIMITS: Record<
       "video/mp4",
       "video/webm",
       "video/quicktime",
+    ]),
+  },
+  chatAttachment: {
+    maxBytes: 8 * 1024 * 1024,
+    mimes: new Set([
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+      "application/pdf",
     ]),
   },
 };
@@ -168,20 +184,36 @@ export async function saveUploadedFile(
     );
   }
 
-  const ext = MIME_EXT[file.type];
+  let mime = file.type;
+  let ext = MIME_EXT[file.type];
   if (!ext) throw new Error("Extensão não suportada.");
+
+  let buffer: Buffer = Buffer.from(await file.arrayBuffer());
+
+  const shouldOptimize =
+    kind === "avatar" ||
+    kind === "postImage" ||
+    kind === "story" ||
+    kind === "chatAttachment";
+  if (shouldOptimize && mime !== "image/gif") {
+    const optimized = await optimizeImageBuffer(buffer, mime);
+    if (optimized) {
+      buffer = Buffer.from(optimized.buffer);
+      mime = optimized.mime;
+      ext = optimized.ext;
+    }
+  }
 
   const relativePath = `${userId}/${randomUUID()}${ext}`;
   const absolutePath = resolveSafePath(relativePath);
   if (!absolutePath) throw new Error("Caminho inválido.");
 
   await mkdir(path.dirname(absolutePath), { recursive: true });
-  const buffer = Buffer.from(await file.arrayBuffer());
   await writeFile(absolutePath, buffer);
 
   return {
     url: publicMediaUrl(relativePath),
     relativePath,
-    mime: file.type,
+    mime,
   };
 }

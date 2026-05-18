@@ -153,16 +153,25 @@ export default function AmigosPage() {
               <ul className="grid gap-2 sm:grid-cols-2">
                 {friends.map((f) => (
                   <li key={f.id}>
-                    <Link
-                      href={`/perfil/${f.username}`}
-                      className="flex items-center gap-3 rounded-xl p-2 transition hover:bg-bc-green/5"
-                    >
-                      <UserAvatar name={f.name} avatarUrl={f.avatarUrl} />
-                      <div>
-                        <p className="font-medium text-bc-blue">{f.name}</p>
-                        <p className="text-xs text-bc-brown">@{f.username}</p>
-                      </div>
-                    </Link>
+                    <div className="flex items-center justify-between gap-2 rounded-xl p-2 transition hover:bg-bc-green/5">
+                      <Link
+                        href={`/perfil/${f.username}`}
+                        className="flex min-w-0 flex-1 items-center gap-3"
+                      >
+                        <UserAvatar name={f.name} avatarUrl={f.avatarUrl} />
+                        <div>
+                          <p className="font-medium text-bc-blue">{f.name}</p>
+                          <p className="text-xs text-bc-brown">@{f.username}</p>
+                        </div>
+                      </Link>
+                      <Link
+                        href={`/mensagens?with=${f.username}`}
+                        className="bc-btn-ghost shrink-0 text-sm"
+                        title="Enviar mensagem"
+                      >
+                        💬
+                      </Link>
+                    </div>
                   </li>
                 ))}
               </ul>

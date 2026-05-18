@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import type { PetAvatarStatus } from "@/lib/pet";
 import { BcImage } from "./BcImage";
 import { CommentSection } from "./CommentSection";
 import { DeletePostButton } from "./DeletePostButton";
 import { EditPostButton } from "./EditPostButton";
 import { PostContent } from "./PostContent";
+import { ReactionPicker } from "./ReactionPicker";
+import { ReportPostButton } from "./ReportPostButton";
 import { SavePostButton } from "./SavePostButton";
 import { SharePostButton } from "./SharePostButton";
 import { UserAvatar } from "./UserAvatar";
@@ -25,10 +27,13 @@ type FeedPostProps = {
       name: string;
       username: string;
       avatarUrl: string | null;
+      isPremium?: boolean;
+      petStatus?: PetAvatarStatus | null;
     };
     _count: { likes: number; comments: number };
   };
   currentUserId?: string;
+  myReaction?: string | null;
   animationDelay?: string;
   savedByMe?: boolean;
 };
@@ -36,27 +41,12 @@ type FeedPostProps = {
 export function FeedPost({
   post,
   currentUserId,
+  myReaction,
   animationDelay,
   savedByMe,
 }: FeedPostProps) {
-  const [liked, setLiked] = useState(post.likedByMe);
-  const [likeCount, setLikeCount] = useState(post._count.likes);
-  const [likeAnim, setLikeAnim] = useState(false);
   const router = useRouter();
   const isOwn = currentUserId === post.author.id;
-
-  async function toggleLike() {
-    const res = await fetch(`/api/posts/${post.id}/like`, { method: "POST" });
-    if (!res.ok) return;
-    const data = await res.json();
-    setLiked(data.liked);
-    setLikeCount((c) => (data.liked ? c + 1 : c - 1));
-    if (data.liked) {
-      setLikeAnim(true);
-      setTimeout(() => setLikeAnim(false), 400);
-    }
-    router.refresh();
-  }
 
   const date = new Date(post.createdAt).toLocaleString("pt-BR", {
     day: "2-digit",
@@ -72,7 +62,12 @@ export function FeedPost({
     >
       <header className="mb-3 flex items-center gap-3">
         <Link href={`/perfil/${post.author.username}`}>
-          <UserAvatar name={post.author.name} avatarUrl={post.author.avatarUrl} />
+          <UserAvatar
+            name={post.author.name}
+            avatarUrl={post.author.avatarUrl}
+            isPremium={post.author.isPremium}
+            petStatus={post.author.petStatus}
+          />
         </Link>
         <div className="min-w-0 flex-1">
           <Link
@@ -110,19 +105,15 @@ export function FeedPost({
       {post.content && <PostContent content={post.content} />}
       <footer className="mt-4 border-t border-bc-blue/10 pt-3">
         <div className="flex flex-wrap items-center gap-1">
-          <button
-            type="button"
-            onClick={toggleLike}
-            className={`bc-ripple inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium transition ${
-              liked
-                ? "bg-bc-green/15 text-bc-green"
-                : "text-bc-brown hover:bg-bc-brown/10 hover:text-bc-green"
-            } ${likeAnim ? "bc-animate-pop" : ""}`}
-          >
-            {liked ? "❤️" : "🤍"} Legal ({likeCount})
-          </button>
+          <ReactionPicker
+            postId={post.id}
+            initialReaction={myReaction ?? (post.likedByMe ? "HEART" : null)}
+            initialCount={post._count.likes}
+            onUpdate={() => router.refresh()}
+          />
           <SavePostButton postId={post.id} initialSaved={savedByMe} />
           <SharePostButton postId={post.id} />
+          {!isOwn && <ReportPostButton postId={post.id} />}
           {isOwn && (post.content || post.imageUrl || post.videoUrl) && (
             <EditPostButton
               postId={post.id}

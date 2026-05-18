@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { prisma } from "./prisma";
+import { resolvePremiumStatus } from "./premium";
 import { SESSION_COOKIE } from "./session-cookie";
 
 export { SESSION_COOKIE };
@@ -78,7 +79,7 @@ export async function getCurrentUser() {
     return null;
   }
 
-  return session.user;
+  return resolvePremiumStatus(session.user);
 }
 
 export async function requireUser() {

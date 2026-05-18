@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import { mkdir, writeFile, access, readdir, stat, unlink } from "fs/promises";
 import { constants } from "fs";
 import path from "path";
-import { optimizeImageBuffer } from "./image-optimize";
+import { generateBlurDataUrl, optimizeImageBuffer } from "./image-optimize";
 
 export type UploadKind =
   | "avatar"
@@ -84,6 +84,7 @@ export async function deleteMediaByUrl(url: string | null | undefined): Promise<
   if (!absolute) return;
   try {
     await unlink(absolute);
+    await unlink(`${absolute}.blur`).catch(() => {});
   } catch {
     /* arquivo já removido ou inexistente */
   }
@@ -210,6 +211,13 @@ export async function saveUploadedFile(
 
   await mkdir(path.dirname(absolutePath), { recursive: true });
   await writeFile(absolutePath, buffer);
+
+  if (mime.startsWith("image/") && mime !== "image/gif") {
+    const blur = await generateBlurDataUrl(buffer);
+    if (blur) {
+      await writeFile(`${absolutePath}.blur`, blur, "utf8");
+    }
+  }
 
   return {
     url: publicMediaUrl(relativePath),

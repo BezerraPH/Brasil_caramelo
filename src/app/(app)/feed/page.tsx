@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CreatePostForm } from "@/components/CreatePostForm";
+import { FeedFilterTabs } from "@/components/FeedFilterTabs";
 import { FeedInfinite } from "@/components/FeedInfinite";
 import { FeedRefreshButton } from "@/components/FeedRefreshButton";
 import { FlashEventBanner } from "@/components/FlashEventBanner";
@@ -11,6 +12,7 @@ import { StoriesBar } from "@/components/StoriesBar";
 import { PostScrollOnLoad } from "@/components/PostScrollOnLoad";
 import { RecentActivity } from "@/components/RecentActivity";
 import { TrendingPosts } from "@/components/TrendingPosts";
+import { PetCareBanner } from "@/components/PetCareBanner";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
 import { Suspense } from "react";
 import { UserAvatar } from "@/components/UserAvatar";
@@ -22,13 +24,22 @@ import { attachSavedFlags, fetchFeedPage } from "@/lib/feed-posts";
 import { prisma } from "@/lib/prisma";
 import { applyPetDecay, petAvatarStatus } from "@/lib/pet";
 
-export default async function FeedPage() {
+type FeedPageProps = {
+  searchParams: Promise<{ filter?: string }>;
+};
+
+export default async function FeedPage({ searchParams }: FeedPageProps) {
   const user = await getCurrentUser();
   if (!user) return null;
 
+  const { filter } = await searchParams;
+  const friendsOnly = filter === "friends";
+
   await Promise.all([finalizeExpiredBattles(), purgeExpiredStories()]);
 
-  const { posts: feedPosts, nextCursor } = await fetchFeedPage(user.id, null);
+  const { posts: feedPosts, nextCursor } = await fetchFeedPage(user.id, null, {
+    friendsOnly,
+  });
   const mappedPosts = await attachSavedFlags(user.id, feedPosts);
 
   const [friendCount, pendingFriends, flashEvent, viewerPet] =
@@ -77,6 +88,10 @@ export default async function FeedPage() {
 
   return (
     <PageContainer className={isReels ? "!max-w-lg !px-2" : ""}>
+      {viewerPetStatus &&
+        (viewerPetStatus === "hungry" || viewerPetStatus === "starving") && (
+          <PetCareBanner status={viewerPetStatus} />
+        )}
       <div
         className={
           isReels ? "space-y-3" : "grid gap-6 lg:grid-cols-[240px_1fr_260px]"
@@ -164,6 +179,12 @@ export default async function FeedPage() {
 
           {!isReels && <StoriesBar currentUserId={user.id} />}
 
+          {!isReels && !isInsta && (
+            <Suspense fallback={null}>
+              <FeedFilterTabs />
+            </Suspense>
+          )}
+
           <div className="bc-animate-in bc-stagger-1">
             <CreatePostForm instaMode={isInsta} reelsMode={isReels} />
           </div>
@@ -185,6 +206,7 @@ export default async function FeedPage() {
               initialPosts={mappedPosts}
               initialCursor={nextCursor}
               currentUserId={user.id}
+              feedFilter={friendsOnly ? "friends" : "all"}
             />
           )}
         </section>

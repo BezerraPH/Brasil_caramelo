@@ -22,8 +22,11 @@ export async function GET(request: Request) {
 
   const params = new URL(request.url).searchParams;
   const cursor = params.get("cursor");
+  const friendsOnly = params.get("filter") === "friends";
 
-  const { posts, nextCursor } = await fetchFeedPage(user.id, cursor);
+  const { posts, nextCursor } = await fetchFeedPage(user.id, cursor, {
+    friendsOnly,
+  });
   const withSaved = await attachSavedFlags(user.id, posts);
 
   return NextResponse.json({ posts: withSaved, nextCursor });

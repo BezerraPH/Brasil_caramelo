@@ -86,7 +86,9 @@ export function WebRTCCallOverlay({
       </div>
 
       <p className="mt-6 max-w-md text-center text-xs text-white/40">
-        Vídeo P2P via WebRTC (STUN Google). Funciona melhor entre amigos na mesma rede ou com TURN em produção.
+        Vídeo P2P via WebRTC (STUN
+        {process.env.NEXT_PUBLIC_TURN_URL ? " + TURN configurado" : ""}). Na
+        mesma Wi‑Fi costuma funcionar; fora da rede configure TURN no .env.
       </p>
     </div>
   );

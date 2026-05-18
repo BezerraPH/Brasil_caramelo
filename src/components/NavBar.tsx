@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { DESKTOP_NAV, isNavActive, navLinkClass } from "@/lib/nav";
 import { LogoutButton } from "./LogoutButton";
 import { ChatUnreadBadge } from "./ChatUnreadBadge";
 import { NotificationBell } from "./NotificationBell";
@@ -13,15 +14,6 @@ type NavBarProps = {
   pusherKey?: string | null;
   pusherCluster?: string | null;
 };
-
-const LINKS = [
-  { href: "/feed", label: "Feed", icon: "📰" },
-  { href: "/mensagens", label: "Chat", icon: "💬" },
-  { href: "/explorar", label: "Explorar", icon: "🧭" },
-  { href: "/casinhas", label: "Casinhas", icon: "🏠" },
-  { href: "/ranking", label: "Matilha", icon: "🏆" },
-  { href: "/rolezinho", label: "Eventos", icon: "🎉" },
-] as const;
 
 export function NavBar({ user, pusherKey, pusherCluster }: NavBarProps) {
   const pathname = usePathname();
@@ -43,36 +35,31 @@ export function NavBar({ user, pusherKey, pusherCluster }: NavBarProps) {
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
-          {LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-                pathname === link.href
-                  ? "bg-bc-green/15 text-bc-green"
-                  : "text-bc-brown hover:bg-bc-blue/10 hover:text-bc-blue"
-              }`}
-            >
-              <span className="mr-1" aria-hidden>
-                {link.icon}
-              </span>
-              {link.label}
-            </Link>
-          ))}
+          {DESKTOP_NAV.map((link) => {
+            const active = isNavActive(pathname, link);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${navLinkClass(active)}`}
+              >
+                <span className="mr-1" aria-hidden>
+                  {link.icon}
+                </span>
+                {link.label}
+              </Link>
+            );
+          })}
           <Link
             href={`/perfil/${user.username}`}
-            className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-              pathname === `/perfil/${user.username}`
-                ? "bg-bc-blue/15 text-bc-blue"
-                : "text-bc-blue hover:bg-bc-blue/10"
-            }`}
+            className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${navLinkClass(
+              pathname === `/perfil/${user.username}` ||
+                pathname.startsWith(`/perfil/${user.username}/`),
+            )}`}
           >
             Perfil
           </Link>
-          <Link
-            href="/configuracoes"
-            className="bc-btn-ghost hidden lg:inline"
-          >
+          <Link href="/configuracoes" className="bc-btn-ghost hidden lg:inline">
             Editar
           </Link>
         </nav>
@@ -80,11 +67,9 @@ export function NavBar({ user, pusherKey, pusherCluster }: NavBarProps) {
         <div className="flex items-center gap-2">
           <Link
             href="/mensagens"
-            className={`relative rounded-lg p-2 transition hover:bg-bc-blue/10 ${
-              pathname.startsWith("/mensagens")
-                ? "bg-bc-green/15 text-bc-green"
-                : "text-bc-blue"
-            }`}
+            className={`relative rounded-lg p-2 transition hover:bg-bc-blue/10 ${navLinkClass(
+              pathname.startsWith("/mensagens"),
+            )}`}
             aria-label="Mensagens"
           >
             💬
@@ -118,19 +103,32 @@ export function NavBar({ user, pusherKey, pusherCluster }: NavBarProps) {
       </div>
 
       {menuOpen && (
-        <nav className="bc-menu-enter border-t border-bc-blue/10 bg-bc-white px-4 py-3 md:hidden">
+        <nav className="bc-menu-enter border-t border-bc-blue/10 bg-bc-white px-4 py-3 md:hidden dark:bg-[var(--background)]">
           <ul className="space-y-1">
-            {LINKS.map((link) => (
+            {DESKTOP_NAV.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
                   onClick={() => setMenuOpen(false)}
-                  className="block rounded-lg px-3 py-2 text-sm font-medium text-bc-blue hover:bg-bc-green/10"
+                  className={`block rounded-lg px-3 py-2 text-sm font-medium ${navLinkClass(
+                    isNavActive(pathname, link),
+                  )}`}
                 >
                   {link.icon} {link.label}
                 </Link>
               </li>
             ))}
+            <li>
+              <Link
+                href="/mensagens"
+                onClick={() => setMenuOpen(false)}
+                className={`block rounded-lg px-3 py-2 text-sm font-medium ${navLinkClass(
+                  pathname.startsWith("/mensagens"),
+                )}`}
+              >
+                💬 Mensagens
+              </Link>
+            </li>
             <li>
               <Link
                 href={`/perfil/${user.username}`}

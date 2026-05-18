@@ -326,6 +326,13 @@ body {
     linear-gradient(180deg, #f8fbfa 0%, var(--background) 100%);
 }
 
+html.dark .bc-hero-bg {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(45, 139, 87, 0.12), transparent),
+    radial-gradient(ellipse 60% 40% at 100% 50%, rgba(27, 108, 168, 0.08), transparent),
+    linear-gradient(180deg, #0f1412 0%, var(--background) 100%);
+}
+
 .bc-pattern-dots {
   background-image: radial-gradient(circle, rgba(27, 108, 168, 0.08) 1px, transparent 1px);
   background-size: 20px 20px;
@@ -388,23 +395,9 @@ body {
   animation: bc-shimmer 4s linear infinite;
 }
 
-.bc-skeleton {
-  @apply bg-bc-blue/10;
-}
-
 .bc-skeleton-pulse .bc-skeleton,
 .bc-card.bc-skeleton-pulse {
   animation: bc-skeleton-pulse 1.2s ease-in-out infinite;
-}
-
-@keyframes bc-skeleton-pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.45;
-  }
 }
 
 .bc-hashtag:hover {
@@ -514,6 +507,42 @@ body {
 
 .bc-call-videos video {
   box-shadow: 0 8px 32px rgb(0 0 0 / 0.45);
+}
+
+.bc-image-wrap {
+  background: color-mix(in srgb, var(--bc-blue) 6%, transparent);
+}
+
+.bc-image-blur {
+  filter: blur(12px);
+  opacity: 0.85;
+}
+
+.bc-image-fade {
+  opacity: 0;
+  transition: opacity 0.35s ease-out;
+}
+
+.bc-image-fade--loaded {
+  opacity: 1;
+}
+
+/* Tema Pedigree (usuários premium) */
+.bc-pedigree-user .bc-glass {
+  border-color: color-mix(in srgb, var(--bc-gold) 35%, transparent);
+}
+
+.bc-pedigree-user .bc-btn-primary {
+  background: linear-gradient(
+    135deg,
+    var(--bc-gold) 0%,
+    var(--bc-caramel) 55%,
+    var(--bc-green) 100%
+  );
+}
+
+.bc-pedigree-user header.bc-glass {
+  box-shadow: 0 2px 16px color-mix(in srgb, var(--bc-gold) 18%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {

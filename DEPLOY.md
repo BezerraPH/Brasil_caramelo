@@ -1,23 +1,49 @@
-# Deploy no Ubuntu (192.168.1.4)
+# Deploy no Ubuntu (rede local)
+
+Servidor de referência: **192.168.1.4** (LAN) ou nome local **brasilcaramelo.com** — veja [DNS-LOCAL.md](./DNS-LOCAL.md).
 
 ## Pré-requisitos
 
-- Docker e Docker Compose instalados no servidor
-- Portas **3000** (app) e **5432** (Postgres, opcional externamente) liberadas no firewall
+- Docker e Docker Compose
+- Portas **3000** (app) e, opcionalmente, **80** (nginx) liberadas
 
 ## Passos
 
-1. Copie o projeto para o servidor (git clone, scp, etc.).
+1. Copie o projeto para o servidor.
 
-2. Na pasta do projeto:
+2. Configure o ambiente:
 
 ```bash
 cp .env.example .env
+```
+
+Edite `.env` — exemplo com DNS na LAN:
+
+```env
+APP_URL=http://brasilcaramelo.com:3000
+NEXT_PUBLIC_APP_URL=http://brasilcaramelo.com:3000
+COOKIE_SECURE=false
+# Pusher, OPENAI_API_KEY, etc.
+```
+
+3. Deploy:
+
+```bash
 chmod +x scripts/deploy-ubuntu.sh
 ./scripts/deploy-ubuntu.sh
 ```
 
-3. Acesse no navegador: `http://192.168.1.4:3000`
+4. Acesse:
+
+| Modo | URL |
+|------|-----|
+| IP | http://192.168.1.4:3000 |
+| DNS local (hosts/roteador) | http://brasilcaramelo.com:3000 |
+| nginx (porta 80) | http://brasilcaramelo.com |
+
+## DNS local (`brasilcaramelo.com`)
+
+Guia completo: **[DNS-LOCAL.md](./DNS-LOCAL.md)** — hosts no Windows, DNS no roteador, dnsmasq e nginx sem `:3000`.
 
 ## Desenvolvimento local (Windows)
 
@@ -30,32 +56,28 @@ npm run db:deploy
 npm run dev
 ```
 
-> O build Docker usa `npm ci --ignore-scripts` porque o schema só existe após copiar os arquivos do projeto.
+## Stack atual (v1.9)
 
-## Roadmap técnico
-
-| Fase | Recursos |
+| Área | Recursos |
 |------|----------|
-| **1 (atual)** | Modo Feed, perfis, reputação canina, recados |
-| **2** | Jogo do cachorro (`Pet` no banco), customização diária |
-| **3** | Chats e grupos (WebSocket + Redis) |
-| **4** | Chamadas voz/vídeo e reuniões (WebRTC / LiveKit) |
-| **5** | Modo Insta (grade) e Reels (vídeo curto) |
+| Social | Feed, Insta, Cinelar, stories, casinhas, hashtags |
+| Pet | Jogo, quintal, cosméticos, Pedigree |
+| Chat | DM, salas, typing, anexos, WebRTC |
+| Infra | Docker, upload local, Pusher opcional, DNS local |
 
-## Credenciais padrão do Docker
+## Credenciais Docker (padrão)
 
-- Postgres: usuário `caramelo`, senha `caramelo_secret`, banco `brasil_caramelo`
-- Altere em produção no `docker-compose.yml` e no `DATABASE_URL`.
+- Postgres: `caramelo` / `caramelo_secret` / `brasil_caramelo`
+- Altere em produção no `docker-compose.yml`.
 
-## Git com interface (Gitea)
-
-Seu servidor está adequado (Ubuntu 26.04, 14 GB RAM, Docker ok).
+## Git (Gitea)
 
 ```bash
 chmod +x scripts/setup-gitea.sh
 ./scripts/setup-gitea.sh
 ```
 
-Depois acesse **http://192.168.1.4:3001** (ou **http://100.94.55.27:3001** via Tailscale).
+- LAN: http://192.168.1.4:3001  
+- Tailscale: http://100.94.55.27:3001  
 
-Passo a passo completo (desktop → servidor): **`deploy/gitea/README.md`**
+Detalhes: `deploy/gitea/README.md`

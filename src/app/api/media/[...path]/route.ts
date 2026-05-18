@@ -4,7 +4,7 @@ import { mimeFromPath, resolveSafePath } from "@/lib/storage";
 
 type RouteContext = { params: Promise<{ path: string[] }> };
 
-export async function GET(_request: Request, context: RouteContext) {
+export async function GET(request: Request, context: RouteContext) {
   const { path: segments } = await context.params;
   const relativePath = segments.join("/");
 
@@ -17,8 +17,19 @@ export async function GET(_request: Request, context: RouteContext) {
     return new NextResponse(null, { status: 404 });
   }
 
+  const isBlur = new URL(request.url).searchParams.get("blur") === "1";
+
   try {
-    const data = await readFile(absolute);
+    const filePath = isBlur ? `${absolute}.blur` : absolute;
+    const data = await readFile(filePath);
+    if (isBlur) {
+      return new NextResponse(data, {
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "Cache-Control": "public, max-age=31536000, immutable",
+        },
+      });
+    }
     return new NextResponse(data, {
       headers: {
         "Content-Type": mimeFromPath(absolute),

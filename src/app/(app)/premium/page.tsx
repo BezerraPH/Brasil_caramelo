@@ -34,8 +34,11 @@ export default async function PremiumPage() {
         <li>★ Selo dourado no perfil</li>
         <li>🪙 +{Math.round((PREMIUM_PERKS.coinBonus - 1) * 100)}% moedas ao cuidar do pet</li>
         <li>🎉 Iniciar rolezinhos flash</li>
-        <li>🦴 +{PREMIUM_PERKS.treatLimitBonus} petiscos extras por dia (em breve)</li>
-        <li>🎨 Temas exclusivos (em breve)</li>
+        <li>
+          🦴 +{PREMIUM_PERKS.treatLimitBonus} petiscos extras por dia (total{" "}
+          {10 + PREMIUM_PERKS.treatLimitBonus}/dia por amigo)
+        </li>
+        <li>🎨 Tema dourado Pedigree na interface</li>
       </ul>
 
       <section className="bc-card mt-6 p-5">

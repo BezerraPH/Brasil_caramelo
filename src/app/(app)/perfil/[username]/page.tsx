@@ -6,6 +6,7 @@ import { PetYardVisit } from "@/components/PetYardVisit";
 import { ReputationBar } from "@/components/ReputationBar";
 import { ReputationPButton } from "@/components/ReputationPButton";
 import { AchievementBadges } from "@/components/AchievementBadges";
+import { CopyProfileLink } from "@/components/CopyProfileLink";
 import { FeedPost } from "@/components/FeedPost";
 import { UserAvatar } from "@/components/UserAvatar";
 import { checkAndUnlockAchievements } from "@/lib/achievements";
@@ -122,9 +123,12 @@ export default async function ProfilePage({ params }: PageProps) {
             </div>
             <div className="flex flex-wrap gap-2">
               {isOwnProfile && (
-                <Link href="/configuracoes" className="bc-btn-secondary text-sm">
-                  Editar perfil
-                </Link>
+                <>
+                  <Link href="/configuracoes" className="bc-btn-secondary text-sm">
+                    Editar perfil
+                  </Link>
+                  <CopyProfileLink username={profile.username} />
+                </>
               )}
               {isFriend && (
                 <Link

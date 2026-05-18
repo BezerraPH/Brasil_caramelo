@@ -1,11 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { buildIceServers } from "@/lib/webrtc-ice";
 import type { CallSignalPayload } from "./use-realtime-chat";
-
-const ICE_SERVERS: RTCConfiguration = {
-  iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-};
 
 async function postSignal(body: Record<string, unknown>) {
   const res = await fetch("/api/calls/signal", {
@@ -76,7 +73,7 @@ export function useWebRTCCall(currentUserId: string) {
     const stream = localStreamRef.current ??
       (await navigator.mediaDevices.getUserMedia({ audio: true, video: true }));
     localStreamRef.current = stream;
-    const pc = new RTCPeerConnection(ICE_SERVERS);
+    const pc = new RTCPeerConnection(buildIceServers());
     stream.getTracks().forEach((t) => pc.addTrack(t, stream));
     pc.ontrack = () => setStatus("Conectado");
     pc.onicecandidate = (ev) => {

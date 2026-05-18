@@ -5,9 +5,8 @@ import { areFriends, countMutualTreats } from "@/lib/friendship";
 import { createNotification } from "@/lib/notifications";
 import { applyPetDecay, applyTreat, petMood } from "@/lib/pet";
 import { prisma } from "@/lib/prisma";
+import { treatsPerDayForUser } from "@/lib/pet-treats";
 import { petTreatSchema } from "@/lib/validators";
-
-const TREATS_PER_DAY = 10;
 const CLOSE_FRIENDS_TREATS = 5;
 
 export async function POST(request: Request) {
@@ -50,9 +49,14 @@ export async function POST(request: Request) {
         createdAt: { gte: since },
       },
     });
-    if (todayCount >= TREATS_PER_DAY) {
+    const limit = treatsPerDayForUser(user.isPremium);
+    if (todayCount >= limit) {
       return NextResponse.json(
-        { error: "Limite de petiscos de hoje para este cachorro." },
+        {
+          error: user.isPremium
+            ? `Limite Pedigree de ${limit} petiscos/dia para este cachorro.`
+            : "Limite de petiscos de hoje para este cachorro.",
+        },
         { status: 429 },
       );
     }

@@ -27,12 +27,14 @@ type FeedInfiniteProps = {
   initialPosts: FeedPostItem[];
   initialCursor: string | null;
   currentUserId: string;
+  feedFilter?: "all" | "friends";
 };
 
 export function FeedInfinite({
   initialPosts,
   initialCursor,
   currentUserId,
+  feedFilter = "all",
 }: FeedInfiniteProps) {
   const [posts, setPosts] = useState(initialPosts);
   const [cursor, setCursor] = useState(initialCursor);
@@ -43,8 +45,10 @@ export function FeedInfinite({
     if (!cursor || loading) return;
     setLoading(true);
     try {
+      const filterQ =
+        feedFilter === "friends" ? "&filter=friends" : "";
       const res = await fetch(
-        `/api/posts?cursor=${encodeURIComponent(cursor)}`,
+        `/api/posts?cursor=${encodeURIComponent(cursor)}${filterQ}`,
       );
       const data = await res.json();
       if (!res.ok) return;
@@ -53,7 +57,7 @@ export function FeedInfinite({
     } finally {
       setLoading(false);
     }
-  }, [cursor, loading]);
+  }, [cursor, loading, feedFilter]);
 
   useEffect(() => {
     const el = sentinelRef.current;

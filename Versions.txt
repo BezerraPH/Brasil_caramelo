@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-17 (v1.8.0)
-Versão atual do pacote (package.json): 1.8.0
+Última atualização: 2026-05-17 (v2.1.0)
+Versão atual do pacote (package.json): 2.1.0
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
   Sempre que o programa for melhorado, atualize ESTE arquivo:
@@ -35,8 +35,10 @@ Identidade visual (cores):
 Servidor de referência do usuário:
   - Ubuntu 26.04 LTS (ntek-servidor)
   - IP LAN: 192.168.1.4
+  - DNS local (opcional): brasilcaramelo.com → 192.168.1.4 (ver DNS-LOCAL.md)
+  - App: http://brasilcaramelo.com:3000 ou http://192.168.1.4:3000
+  - Com nginx: http://brasilcaramelo.com (porta 80)
   - Tailscale: 100.94.55.27
-  - App: http://192.168.1.4:3000
   - Gitea (Git): http://192.168.1.4:3001 (SSH Git na porta 2222)
 
 ================================================================================
@@ -126,7 +128,7 @@ DogReputationLevel (10 personalidades ativas):
   BORDER_COLLIE, BASSET_HOUND, CHOW_CHOW
 
 ================================================================================
-  5. FUNCIONALIDADES ATUAIS (v0.9.0)
+  5. FUNCIONALIDADES ATUAIS (v2.1.0)
 ================================================================================
 
 [OK] Cadastro e login
@@ -181,15 +183,24 @@ DogReputationLevel (10 personalidades ativas):
 [OK] Salas de chat por casinha (10 salas, /mensagens?tab=rooms)
 [OK] Indicador “digitando…” (DM e salas via Pusher)
 [OK] Anexos no chat (imagem/PDF, Sharp no upload)
-[OK] Chamadas WebRTC P2P entre amigos (vídeo/áudio, STUN Google)
+[OK] Chamadas WebRTC P2P entre amigos (vídeo/áudio, STUN + TURN opcional via .env)
+[OK] DNS local na LAN (brasilcaramelo.com) — guia DNS-LOCAL.md + nginx
+[OK] Pedigree: +5 petiscos/dia, tema dourado, expiração automática
+[OK] Blur-up em imagens locais (LQIP no upload + fade no BcImage)
+[OK] Redirect pós-login com ?next= (rotas protegidas)
+[OK] Navegação unificada (lib/nav.ts, destaque em casinhas aninhadas)
+[OK] Banner de fome do pet no feed + copiar link do perfil
+[OK] Feed “Só matilha” (?filter=friends) — recados só de amigos
+[OK] Notificações com ícone por tipo + marcar lida ao clicar + hora relativa
+[OK] Rate limit em login, cadastro, premium e curtidas
+[OK] API storage/stats sem expor caminho do disco
 
 [PENDENTE]
-  - TURN server para WebRTC atrás de NAT restrito
+  - TURN gerenciado (coturn) no mesmo servidor, se NAT for restrito
   - LiveKit / salas com muitos participantes
   - Filtro de conteúdo com IA (moderação de imagens)
   - Pagamento real Pedigree (Stripe/Pix)
   - Anúncios geolocalizados de pet shops
-  - Blur-up nas imagens (next/image)
 
 ================================================================================
   6. PERSONALIDADES CANINAS (v0.5.0)
@@ -307,6 +318,79 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v2.1.0 — 2026-05-17 (segurança, notificações, feed matilha)
+------------------------------------------------------------------------------
+  SEGURANÇA:
+  + Rate limit: login (20/15min IP), cadastro (8/h IP), premium (10/h), curtidas (60/min)
+  + GET /api/storage/stats sem uploadDir absoluto na resposta
+
+  NOTIFICAÇÕES:
+  + lib/notification-ui.ts — ícone por tipo + hora relativa
+  + NotificationRow compartilhado (sino + /notificacoes)
+  + Marcar lida ao abrir link no sino (otimista)
+
+  FEED:
+  + Filtro “Todos | Só matilha” (FeedFilterTabs, getFriendIds, ?filter=friends)
+  + FeedInfinite repassa filtro na paginação
+
+  DESIGN:
+  + bc-page-header em configurações e ranking
+  + CSS .bc-skeleton duplicado removido
+  + StoragePanel sem path do servidor
+
+  * package.json: 2.0.0 → 2.1.0
+
+------------------------------------------------------------------------------
+v2.0.0 — 2026-05-17 (polish, blur-up, premium fix, UX)
+------------------------------------------------------------------------------
+  CORREÇÕES:
+  + Pedigree expira quando premiumUntil passa (lib/premium.ts + getCurrentUser)
+  + Login respeita ?next= sem open redirect (lib/safe-redirect.ts, AuthForm)
+  + GET /api/health não expõe mais caminho do disco (uploadDir)
+
+  IMAGENS:
+  + Blur LQIP no upload (generateBlurDataUrl + arquivo .blur)
+  + GET /api/media/...?blur=1 — placeholder
+  + BcImage client: skeleton + blur + fade-in
+
+  UX / DESIGN:
+  + lib/nav.ts — NavBar e MobileNav com rotas ativas corretas (/casinha/*)
+  + AuthForm com bc-input / bc-btn-primary e dark mode
+  + PetCareBanner no feed (pet faminto)
+  + CopyProfileLink no próprio perfil
+  + Landing dark mode no hero; grid v2.0
+  + CSS .bc-image-fade, html.dark .bc-hero-bg
+
+  * package.json: 1.9.0 → 2.0.0
+
+------------------------------------------------------------------------------
+v1.9.0 — 2026-05-17 (DNS local, Pedigree, TURN, docs)
+------------------------------------------------------------------------------
+  DNS / REDE LOCAL:
+  + DNS-LOCAL.md — hosts Windows, roteador, dnsmasq, Tailscale
+  + deploy/nginx/brasilcaramelo.conf — proxy porta 80 (sem :3000)
+  + scripts/hosts-snippet.txt
+  + APP_URL / NEXT_PUBLIC_APP_URL no .env e docker-compose
+  + lib/app-url.ts — URL base para links futuros
+  + DEPLOY.md atualizado (stack v1.9, tabela de URLs)
+
+  PEDIGREE (perks reais):
+  + treatsPerDayForUser — 15/dia para premium (10 base + 5 bônus)
+  + Tema .bc-pedigree-user (gradiente dourado na NavBar/botões)
+  + Página /premium descreve perks ativos
+
+  WEBRTC:
+  + lib/webrtc-ice.ts — STUN Google + TURN opcional (NEXT_PUBLIC_TURN_*)
+  + Build Docker passa ARGs NEXT_PUBLIC_* no build
+
+  LIMPEZA / UX:
+  - Removido use-chat-pusher.ts (código morto)
+  + RoadmapPanel alinhado ao produto (chat/WebRTC em “Já no ar”)
+  + Landing v1.9.0
+
+  * package.json: 1.8.0 → 1.9.0
 
 ------------------------------------------------------------------------------
 v1.8.0 — 2026-05-17 (salas, typing, anexos, WebRTC)

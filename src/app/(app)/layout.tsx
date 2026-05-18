@@ -15,6 +15,7 @@ export default async function AppLayout({
   if (!user) redirect("/entrar");
 
   return (
+    <div className={user.isPremium ? "bc-pedigree-user" : undefined}>
     <ToastProvider>
       <GlobalLiveListener
         pusherKey={process.env.NEXT_PUBLIC_PUSHER_KEY ?? null}
@@ -29,5 +30,6 @@ export default async function AppLayout({
       <MobileNav />
       <ViewModeSwitcher currentMode={user.viewMode} />
     </ToastProvider>
+    </div>
   );
 }

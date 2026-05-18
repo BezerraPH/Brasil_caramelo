@@ -1,4 +1,5 @@
 import type { Prisma } from "@/generated/prisma/client";
+import { getFriendIds } from "./friendship";
 import { prisma } from "./prisma";
 import { applyPetDecay, petAvatarStatus, type PetAvatarStatus } from "./pet";
 
@@ -80,16 +81,26 @@ function mapAuthorPet(
 export async function fetchFeedPage(
   viewerId: string,
   cursor?: string | null,
-  options?: { includeShadowbanned?: boolean },
+  options?: { includeShadowbanned?: boolean; friendsOnly?: boolean },
 ) {
   const take = FEED_PAGE_SIZE + 1;
+
+  let authorFilter: Prisma.PostWhereInput["author"] = options?.includeShadowbanned
+    ? undefined
+    : { shadowbanned: false };
+
+  if (options?.friendsOnly) {
+    const friendIds = await getFriendIds(viewerId);
+    authorFilter = {
+      ...(typeof authorFilter === "object" ? authorFilter : {}),
+      id: { in: friendIds },
+    };
+  }
 
   const rows = await prisma.post.findMany({
     where: {
       communityLevel: null,
-      ...(options?.includeShadowbanned
-        ? {}
-        : { author: { shadowbanned: false } }),
+      ...(authorFilter ? { author: authorFilter } : {}),
     },
     orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     take,

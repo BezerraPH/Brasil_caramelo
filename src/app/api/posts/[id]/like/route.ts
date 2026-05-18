@@ -3,6 +3,11 @@ import type { ReactionType } from "@/generated/prisma/enums";
 import { getCurrentUser } from "@/lib/auth";
 import { createNotification } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
+import {
+  checkRateLimit,
+  getClientIp,
+  rateLimitKey,
+} from "@/lib/rate-limit";
 import { reactionEmoji } from "@/lib/reactions";
 import { z } from "zod";
 
@@ -17,6 +22,15 @@ export async function POST(
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+  }
+
+  const ip = getClientIp(request);
+  const key = rateLimitKey(user.id, ip);
+  if (!checkRateLimit(key, 60, 60_000, "like")) {
+    return NextResponse.json(
+      { error: "Muitas reações. Aguarde um momento." },
+      { status: 429 },
+    );
   }
 
   const { id: postId } = await params;

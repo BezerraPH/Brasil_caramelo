@@ -3,6 +3,11 @@ import { getCurrentUser } from "@/lib/auth";
 import { validationMessage } from "@/lib/api-error";
 import { createNotification } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
+import {
+  checkRateLimit,
+  getClientIp,
+  rateLimitKey,
+} from "@/lib/rate-limit";
 import { commentSchema } from "@/lib/validators";
 
 export async function GET(
@@ -41,6 +46,15 @@ export async function POST(
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+  }
+
+  const ip = getClientIp(request);
+  const key = rateLimitKey(user.id, ip);
+  if (!checkRateLimit(key, 30, 60_000, "comments")) {
+    return NextResponse.json(
+      { error: "Muitos comentários. Aguarde um momento." },
+      { status: 429 },
+    );
   }
 
   const { id: postId } = await params;

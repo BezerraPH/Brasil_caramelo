@@ -1,15 +1,17 @@
 import { VIEW_MODES } from "@/lib/constants";
 
 const DONE = [
+  { icon: "💬", title: "Chat DM + salas de casinha" },
+  { icon: "📹", title: "Chamadas WebRTC" },
   { icon: "🎬", title: "Cinelar estilo TikTok" },
   { icon: "🌙", title: "Modo escuro" },
-  { icon: "💾", title: "Mídia no servidor" },
-  { icon: "🔔", title: "Notif. de curtida/comentário" },
+  { icon: "🔔", title: "Notificações ao vivo" },
 ];
 
 const FUTURE = [
-  { icon: "💬", title: "Chats em tempo real", phase: "Fase 3" },
-  { icon: "📹", title: "Chamadas WebRTC", phase: "Fase 4" },
+  { icon: "🌐", title: "TURN / chamadas fora da LAN", phase: "Configure .env" },
+  { icon: "🏪", title: "Pet shops parceiros", phase: "Premium" },
+  { icon: "💳", title: "Pagamento Pedigree (Pix)", phase: "Integração" },
 ];
 
 export function RoadmapPanel() {
@@ -30,10 +32,10 @@ export function RoadmapPanel() {
       </section>
 
       <section className="bc-card p-4">
-        <h2 className="mb-3 font-bold text-bc-blue">v1.4</h2>
+        <h2 className="mb-3 font-bold text-bc-blue">Já no ar</h2>
         <ul className="space-y-2 text-sm text-bc-brown">
           {DONE.map((f) => (
-            <li key={f.title} className="flex gap-2">
+            <li key={f.title} className="flex gap-2 bc-animate-in">
               <span>{f.icon}</span>
               <span>{f.title}</span>
             </li>

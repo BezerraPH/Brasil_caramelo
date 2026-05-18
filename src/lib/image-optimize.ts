@@ -28,3 +28,17 @@ export async function optimizeImageBuffer(
     return null;
   }
 }
+
+/** Miniatura ~20px para blur-up (LQIP). */
+export async function generateBlurDataUrl(buffer: Buffer): Promise<string | null> {
+  try {
+    const tiny = await sharp(buffer)
+      .rotate()
+      .resize(20, 20, { fit: "inside" })
+      .webp({ quality: 40 })
+      .toBuffer();
+    return `data:image/webp;base64,${tiny.toString("base64")}`;
+  } catch {
+    return null;
+  }
+}

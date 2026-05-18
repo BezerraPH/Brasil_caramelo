@@ -1,0 +1,8 @@
+# Cole no arquivo hosts (Windows: C:\Windows\System32\drivers\etc\hosts)
+# Linux/macOS: /etc/hosts
+# Troque 192.168.1.4 pelo IP do seu servidor na rede
+
+192.168.1.4    brasilcaramelo.com
+192.168.1.4    www.brasilcaramelo.com
+
+# Depois acesse: http://brasilcaramelo.com:3000

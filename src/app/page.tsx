@@ -40,10 +40,10 @@ export default async function HomePage() {
 
         <div className="bc-animate-in bc-stagger-3 mt-16 grid w-full max-w-3xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
+            { icon: "💬", title: "Chat & Salas", desc: "DM, casinhas e chamadas" },
             { icon: "📰", title: "Feed & Casinhas", desc: "10 tocas por raça" },
             { icon: "🎬", title: "Cinelar", desc: "Shorts com autoplay" },
-            { icon: "⭕", title: "Stories 24h", desc: "FOMO canino" },
-            { icon: "⚔️", title: "Batalhas", desc: "Votação ao vivo" },
+            { icon: "🐕", title: "Pet virtual", desc: "Cuidados e moedas" },
           ].map((f) => (
             <div
               key={f.title}
@@ -57,7 +57,7 @@ export default async function HomePage() {
         </div>
 
         <p className="bc-animate-in bc-stagger-4 mt-12 text-center text-xs text-bc-brown/80">
-          v1.7.0 — Chat em tempo real com a matilha 🐾
+          v2.1.0 — A melhor rede social da matilha 🐾
         </p>
       </div>
     </main>

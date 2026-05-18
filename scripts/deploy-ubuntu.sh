@@ -11,5 +11,10 @@ echo "==> Aplicando migrações..."
 docker compose exec app npx prisma migrate deploy
 
 echo ""
-echo "Pronto! Acesse: http://$(hostname -I | awk '{print $1}'):3000"
-echo "Ou na rede local: http://192.168.1.4:3000"
+IP=$(hostname -I | awk '{print $1}')
+echo "Pronto!"
+echo "  IP:    http://${IP}:3000"
+echo "  DNS:   http://brasilcaramelo.com:3000  (após configurar hosts/DNS — ver DNS-LOCAL.md)"
+if grep -q '^APP_URL=' .env 2>/dev/null; then
+  echo "  APP_URL no .env: $(grep '^APP_URL=' .env | cut -d= -f2- | tr -d '"')"
+fi

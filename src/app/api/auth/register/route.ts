@@ -3,9 +3,23 @@ import { NextResponse } from "next/server";
 import { createSession } from "@/lib/auth";
 import { validationMessage } from "@/lib/api-error";
 import { prisma } from "@/lib/prisma";
+import {
+  checkRateLimit,
+  getClientIp,
+  rateLimitKey,
+} from "@/lib/rate-limit";
 import { registerSchema } from "@/lib/validators";
 
 export async function POST(request: Request) {
+  const ip = getClientIp(request);
+  const key = rateLimitKey(null, ip);
+  if (!checkRateLimit(key, 8, 60 * 60_000, "auth-register")) {
+    return NextResponse.json(
+      { error: "Muitas contas criadas deste IP. Tente mais tarde." },
+      { status: 429 },
+    );
+  }
+
   try {
     const body = await request.json();
     const parsed = registerSchema.parse(body);

@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { safeRedirectPath } from "@/lib/safe-redirect";
 
 type AuthFormProps = {
   mode: "login" | "register";
@@ -10,6 +11,7 @@ type AuthFormProps = {
 
 export function AuthForm({ mode }: AuthFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -42,7 +44,8 @@ export function AuthForm({ mode }: AuthFormProps) {
         setError(data.error ?? "Algo deu errado.");
         return;
       }
-      router.push("/feed");
+      const next = safeRedirectPath(searchParams.get("next"));
+      router.push(next);
       router.refresh();
     } catch {
       setError("Erro de conexão.");
@@ -54,7 +57,7 @@ export function AuthForm({ mode }: AuthFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bc-card w-full max-w-md space-y-4 p-8 shadow-lg"
+      className="bc-card bc-animate-in w-full max-w-md space-y-4 p-8 shadow-lg"
     >
       <h1 className="text-center text-2xl font-bold text-bc-blue">
         {mode === "login" ? "Entrar" : "Criar conta"}
@@ -76,7 +79,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       <Field label="Senha" name="password" type="password" required />
 
       {error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">
           {error}
         </p>
       )}
@@ -84,7 +87,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-lg bg-bc-blue py-3 font-semibold text-white transition hover:bg-bc-blue/90 disabled:opacity-50"
+        className="bc-btn-primary w-full py-3 disabled:opacity-50"
       >
         {loading ? "Aguarde…" : mode === "login" ? "Entrar" : "Cadastrar"}
       </button>
@@ -93,14 +96,20 @@ export function AuthForm({ mode }: AuthFormProps) {
         {mode === "login" ? (
           <>
             Novo por aqui?{" "}
-            <Link href="/cadastro" className="font-medium text-bc-green hover:underline">
+            <Link
+              href="/cadastro"
+              className="font-medium text-bc-green hover:underline"
+            >
               Criar conta
             </Link>
           </>
         ) : (
           <>
             Já tem conta?{" "}
-            <Link href="/entrar" className="font-medium text-bc-green hover:underline">
+            <Link
+              href="/entrar"
+              className="font-medium text-bc-green hover:underline"
+            >
               Entrar
             </Link>
           </>
@@ -125,7 +134,10 @@ function Field({
 }) {
   return (
     <div>
-      <label htmlFor={name} className="mb-1 block text-sm font-medium text-bc-blue">
+      <label
+        htmlFor={name}
+        className="mb-1 block text-sm font-medium text-bc-blue"
+      >
         {label}
       </label>
       <input
@@ -133,7 +145,7 @@ function Field({
         name={name}
         type={type}
         required={required}
-        className="w-full rounded-lg border border-bc-brown/30 px-3 py-2 text-sm focus:border-bc-green focus:outline-none focus:ring-2 focus:ring-bc-green/30"
+        className="bc-input w-full"
       />
       {hint && <p className="mt-1 text-xs text-bc-brown/70">{hint}</p>}
     </div>

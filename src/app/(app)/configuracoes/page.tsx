@@ -19,7 +19,7 @@ export default async function SettingsPage() {
 
   return (
     <PageContainer narrow>
-      <div className="mb-6">
+      <header className="bc-page-header bc-animate-in mb-6">
         <Link
           href={`/perfil/${user.username}`}
           className="text-sm text-bc-blue hover:underline"
@@ -30,7 +30,7 @@ export default async function SettingsPage() {
         <p className="text-sm text-bc-brown">
           Atualize como você aparece no Brasil Caramelo.
         </p>
-      </div>
+      </header>
 
       <StoragePanel />
       <AvatarUpload name={full.name} avatarUrl={full.avatarUrl} />

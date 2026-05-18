@@ -4,7 +4,6 @@ import {
   ensureUploadDirWritable,
   formatBytes,
   getStorageStats,
-  getUploadRoot,
 } from "@/lib/storage";
 
 export async function GET() {
@@ -17,7 +16,6 @@ export async function GET() {
   if (!writable) {
     return NextResponse.json({
       ready: false,
-      uploadDir: getUploadRoot(),
       files: 0,
       bytes: 0,
       formatted: "0 B",
@@ -27,7 +25,6 @@ export async function GET() {
   const { files, bytes } = await getStorageStats();
   return NextResponse.json({
     ready: true,
-    uploadDir: getUploadRoot(),
     files,
     bytes,
     formatted: formatBytes(bytes),

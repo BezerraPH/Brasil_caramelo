@@ -9,7 +9,7 @@ export default async function RankingPage() {
 
   return (
     <PageContainer>
-      <header className="mb-8 text-center">
+      <header className="bc-page-header bc-animate-in mb-8 text-center">
         <h1 className="text-3xl font-bold text-bc-blue">Ranking da Matilha</h1>
         <p className="mt-2 text-bc-brown">
           Top 10 da semana em cada personalidade — quem mais recebeu votos

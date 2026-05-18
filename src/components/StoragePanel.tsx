@@ -7,7 +7,6 @@ type Stats = {
   ready: boolean;
   files: number;
   formatted: string;
-  uploadDir: string;
 };
 
 export function StoragePanel() {
@@ -21,13 +20,19 @@ export function StoragePanel() {
 
   useAsyncEffect(load, [load]);
 
-  if (!stats) return null;
+  if (!stats) {
+    return (
+      <section className="bc-card mb-6 p-5">
+        <div className="bc-skeleton h-20 rounded-xl" aria-hidden />
+      </section>
+    );
+  }
 
   return (
-    <section className="bc-card mb-6 p-5">
+    <section className="bc-card bc-animate-in mb-6 p-5">
       <h2 className="font-semibold text-bc-blue">💾 Armazenamento local</h2>
       <p className="mt-1 text-xs text-bc-brown">
-        Fotos e vídeos ficam no seu servidor Ubuntu — sem nuvem de terceiros.
+        Fotos e vídeos ficam no seu servidor — sem nuvem de terceiros.
       </p>
       <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
         <div className="rounded-lg bg-bc-green/10 px-3 py-2">
@@ -41,12 +46,9 @@ export function StoragePanel() {
       </dl>
       {!stats.ready && (
         <p className="mt-2 text-xs text-amber-700">
-          Pasta indisponível. Verifique UPLOAD_DIR e permissões.
+          Pasta indisponível. Verifique UPLOAD_DIR e permissões no servidor.
         </p>
       )}
-      <p className="mt-2 truncate text-[10px] text-bc-brown/70" title={stats.uploadDir}>
-        {stats.uploadDir}
-      </p>
     </section>
   );
 }

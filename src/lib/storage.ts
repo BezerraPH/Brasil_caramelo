@@ -115,6 +115,8 @@ export function mimeFromPath(filePath: string): string {
     ".mp4": "video/mp4",
     ".webm": "video/webm",
     ".mov": "video/quicktime",
+    ".m3u8": "application/vnd.apple.mpegurl",
+    ".ts": "video/mp2t",
   };
   return map[ext] ?? "application/octet-stream";
 }

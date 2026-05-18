@@ -3,6 +3,7 @@
 import type { DogReputationLevel } from "@/generated/prisma/enums";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useOfflinePostSubmit } from "./OfflinePostBanner";
 import { AiCaptionButton } from "./AiCaptionButton";
 import { LocalMediaUpload } from "./LocalMediaUpload";
 import { BcImage } from "./BcImage";
@@ -21,9 +22,12 @@ export function CreatePostForm({
   const [content, setContent] = useState("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [videoHlsUrl, setVideoHlsUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [queued, setQueued] = useState(false);
   const router = useRouter();
+  const submitPost = useOfflinePostSubmit();
 
   const hasMedia = Boolean(imageUrl || videoUrl);
 
@@ -33,24 +37,26 @@ export function CreatePostForm({
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/posts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          content: content.trim() || undefined,
+      const result = await submitPost(
+        {
+          content: content.trim(),
           imageUrl: imageUrl ?? undefined,
           videoUrl: videoUrl ?? undefined,
+          videoHlsUrl: videoHlsUrl ?? undefined,
           communityLevel,
-        }),
-      });
-      const data = await res.json();
-      if (res.ok) {
+        },
+        (msg) => setError(msg),
+      );
+      if (result === "ok" || result === "queued") {
         setContent("");
         setImageUrl(null);
         setVideoUrl(null);
-        router.refresh();
-      } else {
-        setError(data.error ?? "Não foi possível publicar.");
+        setVideoHlsUrl(null);
+        setQueued(result === "queued");
+        if (result === "ok") router.refresh();
+      }
+      if (result === "error") {
+        /* mensagem em setError */
       }
     } finally {
       setLoading(false);
@@ -149,6 +155,11 @@ export function CreatePostForm({
         </button>
       </div>
 
+      {queued && (
+        <p className="mt-2 text-xs text-bc-caramel">
+          Recado na fila offline — será enviado quando a rede voltar.
+        </p>
+      )}
       {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
     </form>
   );

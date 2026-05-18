@@ -5,6 +5,7 @@ import { useAsyncEffect } from "@/hooks/use-async-effect";
 import { getEquippedDisplay } from "@/lib/pet-cosmetics";
 import { PetCosmeticShop } from "./PetCosmeticShop";
 import { PetDailyBonus } from "./PetDailyBonus";
+import { PetFetchSkill } from "./PetFetchSkill";
 
 type PetData = {
   id: string;
@@ -91,6 +92,7 @@ export function PetGame() {
   return (
     <div className="bc-animate-in-up space-y-6">
       <PetDailyBonus onClaimed={load} />
+      <PetFetchSkill onDone={load} />
       <div className="bc-card overflow-hidden p-0">
         <div className="bg-gradient-to-br from-bc-blue/20 via-bc-green/15 to-bc-caramel/25 px-6 py-10 text-center">
           <div

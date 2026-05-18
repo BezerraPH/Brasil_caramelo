@@ -134,7 +134,10 @@ model Post {
   content        String
   imageUrl       String?
   videoUrl       String?
+  videoHlsUrl    String?
   communityLevel DogReputationLevel?
+  boostedUntil   DateTime?
+  boostPriority  Int                 @default(0)
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
   comments       Comment[]
@@ -145,6 +148,7 @@ model Post {
   @@index([authorId, createdAt])
   @@index([communityLevel, createdAt])
   @@index([createdAt, id])
+  @@index([boostPriority, createdAt])
 }
 
 model Comment {
@@ -239,6 +243,7 @@ model Pet {
   equippedAccessory String?
   lastCareAt        DateTime  @default(now())
   lastDailyClaim    DateTime?
+  lastFetchAt       DateTime?
   dailyStreak       Int       @default(0)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
@@ -410,6 +415,25 @@ model CallSession {
 
   @@index([calleeId, status, createdAt])
   @@index([callerId, status])
+}
+
+model MatilhaTrend {
+  tag       String   @id
+  count     Int
+  updatedAt DateTime @updatedAt
+}
+
+model FederationPeer {
+  id         String    @id @default(cuid())
+  ownerId    String
+  name       String
+  baseUrl    String
+  secret     String
+  lastSyncAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@unique([ownerId, baseUrl])
+  @@index([ownerId])
 }
 
 model PetBattleVote {

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CreatePostForm } from "@/components/CreatePostForm";
+import { OfflinePostBanner } from "@/components/OfflinePostBanner";
 import { FeedFilterTabs } from "@/components/FeedFilterTabs";
 import { FeedInfinite } from "@/components/FeedInfinite";
 import { FeedRefreshButton } from "@/components/FeedRefreshButton";
@@ -171,6 +172,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
             <FeedRefreshButton />
           </header>
 
+          {!isReels && <OfflinePostBanner />}
           {!isReels && <WelcomeBanner />}
 
           {!isReels && flashEvent && (

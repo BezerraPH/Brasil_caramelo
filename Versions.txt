@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-17 (v2.2.1-alpha)
-Versão atual do pacote (package.json): 2.2.1-alpha.0
+Última atualização: 2026-05-17 (v2.3.0-alpha)
+Versão atual do pacote (package.json): 2.3.0-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
@@ -130,7 +130,7 @@ DogReputationLevel (10 personalidades ativas):
   BORDER_COLLIE, BASSET_HOUND, CHOW_CHOW
 
 ================================================================================
-  5. FUNCIONALIDADES ATUAIS (v2.2.1-alpha)
+  5. FUNCIONALIDADES ATUAIS (v2.3.0-alpha)
 ================================================================================
 
 [OK] Cadastro e login
@@ -193,6 +193,12 @@ DogReputationLevel (10 personalidades ativas):
 [OK] Navegação unificada (lib/nav.ts, destaque em casinhas aninhadas)
 [OK] Banner de fome do pet no feed + copiar link do perfil
 [OK] Feed filtros: Todos | Matilha (?filter=friends) | Vídeos (?filter=video)
+[OK] PWA offline — fila de recados IndexedDB + SW v2 cache de mídia
+[OK] Impulsionar recado (CarameloCoins) + pet “buscar na matilha”
+[OK] Trending hashtags em /explorar + cron /api/cron/trending
+[OK] Caramelo-Sync (peers LAN) em /configuracoes
+[OK] Moderação local (Cão de Guarda) + vídeo Range/HLS opcional
+[OK] Pedigree PIX stub (/api/premium/checkout)
 [OK] Notificações com ícone por tipo + marcar lida ao clicar + hora relativa
 [OK] Rate limit em login, cadastro, premium e curtidas
 [OK] API storage/stats sem expor caminho do disco
@@ -322,6 +328,37 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v2.3.0-alpha.0 — 2026-05-17 (crescimento: PWA, trending, economia, vídeo)
+------------------------------------------------------------------------------
+  PWA / CACHE:
+  + Service Worker v2 — cache de mídia (/api/media), shell v2
+  + Fila offline IndexedDB + banner + sync ao voltar online
+  + Prefetch da próxima mídia no feed (use-feed-prefetch)
+  + GET /api/media com Range (206) para vídeos
+
+  PRODUTO / ECONOMIA:
+  + Impulsionar recado — 80 CarameloCoins, 2h no topo (boostPriority)
+  + Pet “Buscar na matilha” — memória/coins/XP 1x/dia (POST /api/pet/fetch)
+  + Trending da matilha — MatilhaTrend + nuvem em /explorar
+  + POST /api/cron/trending (CRON_SECRET)
+
+  MODERAÇÃO / IA:
+  + Cão de Guarda local — blocklist texto + heurística imagem (Sharp)
+  + OPENAI_API_KEY opcional na moderação de upload
+
+  VÍDEO / INFRA:
+  + HLS opcional via ffmpeg (FFMPEG_PATH) no upload
+  + videoHlsUrl no Post; COTURN.md e VIDEO-STREAMING.md
+
+  FEDERAÇÃO / PAGAMENTO:
+  + FederationPeer + painel em /configuracoes (Caramelo-Sync LAN)
+  + GET/POST /api/federation/peers, sync, export
+  + Pedigree PIX stub (PEDIGREE_PIX_KEY) + webhook alpha
+
+  * package.json: 2.2.1-alpha.0 → 2.3.0-alpha.0
+  * Migração: 20260522120000_v23_growth
 
 ------------------------------------------------------------------------------
 v2.2.1-alpha.0 — 2026-05-17 (auditoria: feed vídeos, segurança, polish)

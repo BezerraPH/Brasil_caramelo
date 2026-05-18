@@ -1,0 +1,73 @@
+import { execFile } from "child_process";
+import { access } from "fs/promises";
+import path from "path";
+import { promisify } from "util";
+
+const exec = promisify(execFile);
+
+/**
+ * Transcodificação opcional via ffmpeg (FFMPEG_PATH ou ffmpeg no PATH).
+ * Gera HLS básico em subpasta {basename}_hls/playlist.m3u8
+ */
+export async function maybeTranscodeToHls(
+  absoluteVideoPath: string,
+  mediaRelativePath: string,
+): Promise<string | null> {
+  const ffmpeg =
+    process.env.FFMPEG_PATH?.trim() ||
+    (process.platform === "win32" ? "ffmpeg.exe" : "ffmpeg");
+
+  try {
+    await access(absoluteVideoPath);
+  } catch {
+    return null;
+  }
+
+  const dir = path.dirname(absoluteVideoPath);
+  const base = path.basename(absoluteVideoPath, path.extname(absoluteVideoPath));
+  const outDir = path.join(dir, `${base}_hls`);
+  const playlist = path.join(outDir, "playlist.m3u8");
+
+  try {
+    await access(playlist);
+    const rel = path.dirname(mediaRelativePath);
+    return `/api/media/${rel}/${base}_hls/playlist.m3u8`;
+  } catch {
+    /* gerar */
+  }
+
+  try {
+    await exec(
+      ffmpeg,
+      [
+        "-y",
+        "-i",
+        absoluteVideoPath,
+        "-vf",
+        "scale=-2:720",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "veryfast",
+        "-crf",
+        "28",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "128k",
+        "-hls_time",
+        "4",
+        "-hls_playlist_type",
+        "vod",
+        "-hls_segment_filename",
+        path.join(outDir, "seg_%03d.ts"),
+        playlist,
+      ],
+      { timeout: 120_000 },
+    );
+    const rel = path.dirname(mediaRelativePath);
+    return `/api/media/${rel}/${base}_hls/playlist.m3u8`;
+  } catch {
+    return null;
+  }
+}

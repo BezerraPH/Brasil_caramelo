@@ -1,5 +1,6 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { getFriendIds } from "./friendship";
+import { expirePostBoosts } from "./post-boost";
 import { prisma } from "./prisma";
 import { applyPetDecay, petAvatarStatus, type PetAvatarStatus } from "./pet";
 
@@ -96,6 +97,7 @@ export async function fetchFeedPage(
   },
 ) {
   const take = FEED_PAGE_SIZE + 1;
+  await expirePostBoosts();
 
   let authorFilter: Prisma.PostWhereInput["author"] = options?.includeShadowbanned
     ? undefined
@@ -137,6 +139,8 @@ export async function fetchFeedPage(
     content: p.content,
     imageUrl: p.imageUrl,
     videoUrl: p.videoUrl,
+    videoHlsUrl: p.videoHlsUrl,
+    boostedUntil: p.boostedUntil?.toISOString() ?? null,
     createdAt: p.createdAt.toISOString(),
     author: mapAuthorPet(p.author),
     _count: p._count,

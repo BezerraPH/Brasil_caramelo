@@ -71,6 +71,7 @@ export default async function CasinhaPage({ params }: PageProps) {
               post={{
                 ...post,
                 createdAt: post.createdAt.toISOString(),
+                boostedUntil: post.boostedUntil?.toISOString() ?? null,
                 likedByMe: post.likes.length > 0,
               }}
             />

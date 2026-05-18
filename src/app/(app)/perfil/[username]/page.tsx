@@ -75,6 +75,7 @@ export default async function ProfilePage({ params }: PageProps) {
   const profilePosts = recentPosts.map((p) => ({
     ...p,
     createdAt: p.createdAt.toISOString(),
+    boostedUntil: p.boostedUntil?.toISOString() ?? null,
     likedByMe: p.likes.length > 0,
   }));
 

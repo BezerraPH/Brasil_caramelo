@@ -11,6 +11,7 @@ import { PostContent } from "./PostContent";
 import { ReactionPicker } from "./ReactionPicker";
 import { ReportPostButton } from "./ReportPostButton";
 import { SavePostButton } from "./SavePostButton";
+import { PostBoostButton } from "./PostBoostButton";
 import { SharePostButton } from "./SharePostButton";
 import { UserAvatar } from "./UserAvatar";
 
@@ -20,6 +21,8 @@ type FeedPostProps = {
     content: string;
     imageUrl?: string | null;
     videoUrl?: string | null;
+    videoHlsUrl?: string | null;
+    boostedUntil?: string | null;
     createdAt: string;
     likedByMe: boolean;
     author: {
@@ -80,14 +83,21 @@ export function FeedPost({
             @{post.author.username} · {date}
           </p>
         </div>
+        {isOwn && (
+          <PostBoostButton
+            postId={post.id}
+            boostedUntil={post.boostedUntil ?? null}
+          />
+        )}
       </header>
       {post.videoUrl && (
         <div className="relative mb-3 aspect-video max-h-96 w-full overflow-hidden rounded-xl bg-black shadow-inner">
           <video
-            src={post.videoUrl}
+            src={post.videoHlsUrl ?? post.videoUrl}
             className="h-full w-full object-cover"
             controls
             playsInline
+            preload="metadata"
           />
         </div>
       )}

@@ -6,6 +6,7 @@ import {
   fetchFeedPage,
   parseFeedFilter,
 } from "@/lib/feed-posts";
+import { moderateText } from "@/lib/content-moderation";
 import { notifyMentions } from "@/lib/notify-mentions";
 import { prisma } from "@/lib/prisma";
 import {
@@ -51,15 +52,21 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { content, imageUrl, videoUrl, communityLevel } =
+    const { content, imageUrl, videoUrl, videoHlsUrl, communityLevel } =
       postSchema.parse(body);
 
     const text = content?.trim() ?? "";
+    const mod = moderateText(text);
+    if (!mod.ok) {
+      return NextResponse.json({ error: mod.reason }, { status: 400 });
+    }
+
     const post = await prisma.post.create({
       data: {
         content: text,
         imageUrl: imageUrl ?? null,
         videoUrl: videoUrl ?? null,
+        videoHlsUrl: videoHlsUrl ?? null,
         communityLevel: communityLevel ?? null,
         authorId: user.id,
       },

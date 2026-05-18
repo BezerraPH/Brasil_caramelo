@@ -31,6 +31,7 @@ export const postSchema = z
     content: z.string().max(2000).optional(),
     imageUrl: mediaUrlSchema.optional(),
     videoUrl: mediaUrlSchema.optional(),
+    videoHlsUrl: mediaUrlSchema.optional(),
     communityLevel: z.enum(DOG_REPUTATION_LEVELS).optional(),
   })
   .refine(

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { FeedFilterMode } from "@/lib/feed-posts";
+import { useFeedPrefetch } from "@/hooks/use-feed-prefetch";
 import { FeedPost } from "./FeedPost";
 
 export type FeedPostItem = {
@@ -9,6 +10,8 @@ export type FeedPostItem = {
   content: string;
   imageUrl?: string | null;
   videoUrl?: string | null;
+  videoHlsUrl?: string | null;
+  boostedUntil?: string | null;
   createdAt: string;
   likedByMe: boolean;
   myReaction: string | null;
@@ -41,6 +44,7 @@ export function FeedInfinite({
   const [cursor, setCursor] = useState(initialCursor);
   const [loading, setLoading] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
+  useFeedPrefetch(posts, 0);
 
   const loadMore = useCallback(async () => {
     if (!cursor || loading) return;

@@ -2,13 +2,15 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-17 (v2.1.0)
-Versão atual do pacote (package.json): 2.1.0
+Última atualização: 2026-05-17 (v2.2.0-alpha)
+Versão atual do pacote (package.json): 2.2.0-alpha.0
+Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
   Sempre que o programa for melhorado, atualize ESTE arquivo:
   - Ajuste "Versão atual" e a data no topo
-  - Incremente a versão em package.json (semver: major.minor.patch)
+  - Incremente a versão em package.json (semver; em alpha use 2.x.x-alpha.N)
+  - Mantenha RELEASE_STAGE em src/lib/app-version.ts alinhado ao estágio real
   - Adicione uma nova seção em "HISTÓRICO DE VERSÕES" com o que mudou
   - Atualize "FUNCIONALIDADES ATUAIS" e "ROADMAP" se necessário
 
@@ -18,7 +20,7 @@ INSTRUÇÃO PARA DESENVOLVEDORES / IA:
 
 Nome: Brasil Caramelo
 Tipo: Rede social brasileira com múltiplos "modos" de apresentação
-Estado: MVP em desenvolvimento ativo (Fase 1 + reputação avançada)
+Estado: ALPHA — MVP em desenvolvimento ativo (recursos mudam sem aviso de breaking)
 
 Conceito:
   Uma rede social que pode se apresentar de várias formas — começando pelo
@@ -128,7 +130,7 @@ DogReputationLevel (10 personalidades ativas):
   BORDER_COLLIE, BASSET_HOUND, CHOW_CHOW
 
 ================================================================================
-  5. FUNCIONALIDADES ATUAIS (v2.1.0)
+  5. FUNCIONALIDADES ATUAIS (v2.2.0-alpha)
 ================================================================================
 
 [OK] Cadastro e login
@@ -194,6 +196,8 @@ DogReputationLevel (10 personalidades ativas):
 [OK] Notificações com ícone por tipo + marcar lida ao clicar + hora relativa
 [OK] Rate limit em login, cadastro, premium e curtidas
 [OK] API storage/stats sem expor caminho do disco
+[OK] Versão visível no app (v2.2.0-alpha) — NavBar, rodapé, mobile, landing, config
+[OK] Estágio Alpha documentado (lib/app-version.ts, GET /api/version, /api/health)
 
 [PENDENTE]
   - TURN gerenciado (coturn) no mesmo servidor, se NAT for restrito
@@ -318,6 +322,27 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v2.2.0-alpha.0 — 2026-05-17 (versão no app + estágio Alpha)
+------------------------------------------------------------------------------
+  VERSÃO NO APP:
+  + lib/app-version.ts — RELEASE_STAGE=alpha, getVersionDisplay() → v2.2.0-alpha
+  + AppVersionBadge, AppVersionFooter, AppVersionMobileStrip
+  + AlphaNoticeBanner (dismissível) no layout autenticado
+  + AppAboutCard em /configuracoes
+  + GET /api/version — { display, package, stage }
+  + /api/health inclui version e stage
+  + NavBar (desktop lg), Explorar, landing com badge Alpha
+
+  SEGURANÇA:
+  + Rate limit em votos de personalidade (30/min)
+
+  NOTA SEMVER:
+  + package.json: 2.2.0-alpha.0 (ainda em ALPHA, não é 2.2.0 estável)
+  + Próximo estável: RELEASE_STAGE=stable e versão 2.2.0 sem sufixo alpha
+
+  * package.json: 2.1.0 → 2.2.0-alpha.0
 
 ------------------------------------------------------------------------------
 v2.1.0 — 2026-05-17 (segurança, notificações, feed matilha)

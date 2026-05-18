@@ -3,12 +3,26 @@ import { getCurrentUser } from "@/lib/auth";
 import { REPUTATION_BY_LEVEL } from "@/lib/constants";
 import { createNotification } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
+import {
+  checkRateLimit,
+  getClientIp,
+  rateLimitKey,
+} from "@/lib/rate-limit";
 import { reputationSchema } from "@/lib/validators";
 
 export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+  }
+
+  const ip = getClientIp(request);
+  const key = rateLimitKey(user.id, ip);
+  if (!checkRateLimit(key, 30, 60_000, "reputation")) {
+    return NextResponse.json(
+      { error: "Muitos votos de personalidade. Aguarde um momento." },
+      { status: 429 },
+    );
   }
 
   try {

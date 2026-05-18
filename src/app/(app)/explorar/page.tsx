@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AppVersionBadge } from "@/components/AppVersionBadge";
 import { PageContainer } from "@/components/PageContainer";
 import { getCurrentUser } from "@/lib/auth";
 import { CASINHAS } from "@/lib/casinhas";
@@ -27,6 +28,9 @@ export default async function ExplorarPage() {
       <header className="mb-8 text-center bc-animate-in">
         <h1 className="text-3xl font-bold text-bc-blue">Explorar</h1>
         <p className="mt-2 text-bc-brown">Tudo que o Brasil Caramelo oferece</p>
+        <p className="mt-3 flex justify-center">
+          <AppVersionBadge showStage />
+        </p>
       </header>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

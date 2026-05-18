@@ -7,6 +7,7 @@ import { DESKTOP_NAV, isNavActive, navLinkClass } from "@/lib/nav";
 import { LogoutButton } from "./LogoutButton";
 import { ChatUnreadBadge } from "./ChatUnreadBadge";
 import { NotificationBell } from "./NotificationBell";
+import { AppVersionBadge } from "./AppVersionBadge";
 import { ThemeToggle } from "./ThemeToggle";
 
 type NavBarProps = {
@@ -29,8 +30,13 @@ export function NavBar({ user, pusherKey, pusherCluster }: NavBarProps) {
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-bc-caramel/50 to-bc-green/30 text-lg shadow-sm">
             🐕
           </span>
-          <span className="hidden font-bold text-bc-blue sm:inline">
-            Brasil <span className="text-bc-brown">Caramelo</span>
+          <span className="hidden sm:inline">
+            <span className="font-bold text-bc-blue">
+              Brasil <span className="text-bc-brown">Caramelo</span>
+            </span>
+            <span className="mt-0.5 hidden lg:block">
+              <AppVersionBadge showStage className="opacity-90" />
+            </span>
           </span>
         </Link>
 

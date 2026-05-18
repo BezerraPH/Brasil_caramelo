@@ -117,6 +117,25 @@ body {
   @apply bg-bc-green/15 text-bc-green shadow-inner;
 }
 
+.bc-alpha-tag {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--bc-caramel) 35%, transparent),
+    color-mix(in srgb, var(--bc-gold) 25%, transparent)
+  );
+  color: var(--bc-brown);
+  letter-spacing: 0.06em;
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--bc-caramel) 25%, transparent);
+}
+
+.bc-alpha-notice {
+  animation: bc-fade-in-up 0.35s ease-out both;
+}
+
+.bc-app-footer {
+  animation: bc-fade-in 0.4s ease-out both;
+}
+
 .bc-reels-snap {
   scroll-snap-type: y mandatory;
   scroll-behavior: smooth;

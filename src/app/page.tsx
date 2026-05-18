@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AppVersionBadge } from "@/components/AppVersionBadge";
 import { getCurrentUser } from "@/lib/auth";
+import { getVersionLong } from "@/lib/app-version";
 
 export default async function HomePage() {
   const user = await getCurrentUser();
@@ -23,6 +25,9 @@ export default async function HomePage() {
           <p className="mx-auto mt-4 max-w-lg text-lg text-bc-brown">
             Feed, Insta, Cinelar, stories, casinhas e batalhas de fofura — a
             rede social que late em comunidade.
+          </p>
+          <p className="mt-4 flex justify-center">
+            <AppVersionBadge showStage className="text-sm" />
           </p>
         </div>
 
@@ -57,7 +62,7 @@ export default async function HomePage() {
         </div>
 
         <p className="bc-animate-in bc-stagger-4 mt-12 text-center text-xs text-bc-brown/80">
-          v2.1.0 — A melhor rede social da matilha 🐾
+          {getVersionLong()} — em desenvolvimento ativo 🐾
         </p>
       </div>
     </main>

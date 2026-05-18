@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AppAboutCard } from "@/components/AppAboutCard";
 import { AvatarUpload } from "@/components/AvatarUpload";
 import { StoragePanel } from "@/components/StoragePanel";
 import { EditProfileForm } from "@/components/EditProfileForm";
@@ -35,6 +36,8 @@ export default async function SettingsPage() {
       <StoragePanel />
       <AvatarUpload name={full.name} avatarUrl={full.avatarUrl} />
       <EditProfileForm user={full} />
+
+      <AppAboutCard />
 
       <p className="mt-4 text-center text-xs text-bc-brown/70">
         E-mail da conta: {full.email}

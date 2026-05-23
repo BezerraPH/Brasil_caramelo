@@ -6,7 +6,8 @@ Rede social brasileira **100% self-hosted** — um `docker-compose.yml` sobe tud
 
 ```bash
 cd ~/brasil_caramelo
-./scripts/deploy-ubuntu.sh
+./scripts/deploy-brasil-caramelo.sh --mode tailscale   # recomendado no celular
+# ou: ./scripts/deploy-ubuntu.sh
 ```
 
 Ou: `cp .env.example .env` → `docker compose up -d --build`
@@ -27,7 +28,7 @@ Ou: `cp .env.example .env` → `docker compose up -d --build`
 
 Tudo em um único guia: **[CONFIGURACAO.md](./CONFIGURACAO.md)** (deploy, `.env`, HTTPS, Tailscale, túnel, DNS, diagnóstico, testes).
 
-Histórico de versões: [Versions.txt](./Versions.txt).
+Índice: [docs/README.md](./docs/README.md) · Changelog: [Versions.txt](./Versions.txt)
 
 ## Dev local (Windows)
 

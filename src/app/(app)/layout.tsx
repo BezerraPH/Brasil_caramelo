@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { AlphaNoticeBanner } from "@/components/AlphaNoticeBanner";
+import { MatilhaConnectionBanner } from "@/components/MatilhaConnectionBanner";
 import { AppVersionFooter } from "@/components/AppVersionFooter";
 import { AppVersionMobileStrip } from "@/components/AppVersionMobileStrip";
 import { CallProvider } from "@/components/CallProvider";
@@ -32,6 +33,7 @@ export default async function AppLayout({
         pusherCluster={process.env.NEXT_PUBLIC_PUSHER_CLUSTER ?? null}
       />
       <AlphaNoticeBanner />
+      <MatilhaConnectionBanner />
       <NavBar
         user={user}
         pusherKey={process.env.NEXT_PUBLIC_PUSHER_KEY ?? null}
@@ -40,7 +42,11 @@ export default async function AppLayout({
       {children}
       <AppVersionFooter />
       <AppVersionMobileStrip />
-      <MobileNav />
+      <MobileNav
+        userId={user.id}
+        pusherKey={process.env.NEXT_PUBLIC_PUSHER_KEY ?? null}
+        pusherCluster={process.env.NEXT_PUBLIC_PUSHER_CLUSTER ?? null}
+      />
       <ViewModeSwitcher currentMode={user.viewMode} />
       <ScrollToTop />
       </CallProvider>

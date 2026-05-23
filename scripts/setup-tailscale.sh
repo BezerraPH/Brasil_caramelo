@@ -110,11 +110,24 @@ bc_apply_tailscale_env() {
     fi
   done
 
+  local lan_ip="192.168.1.4"
+  if grep -q '^BC_LAN_IP=' .env 2>/dev/null; then
+    local old_lan
+    old_lan="$(grep '^BC_LAN_IP=' .env | head -1 | cut -d= -f2-)"
+    if [[ "$old_lan" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]] && [[ "$old_lan" != 100.* ]]; then
+      lan_ip="$old_lan"
+    fi
+  fi
+  if grep -q '^BC_LAN_IP=' .env; then
+    sed -i "s|^BC_LAN_IP=.*|BC_LAN_IP=${lan_ip}|" .env
+  else
+    echo "BC_LAN_IP=${lan_ip}" >> .env
+  fi
   if [ -n "$ts_ip" ]; then
-    if grep -q '^BC_LAN_IP=' .env; then
-      sed -i "s|^BC_LAN_IP=.*|BC_LAN_IP=${ts_ip}|" .env
+    if grep -q '^BC_TAILSCALE_IP=' .env; then
+      sed -i "s|^BC_TAILSCALE_IP=.*|BC_TAILSCALE_IP=${ts_ip}|" .env
     else
-      echo "BC_LAN_IP=${ts_ip}" >> .env
+      echo "BC_TAILSCALE_IP=${ts_ip}" >> .env
     fi
     if grep -q '^NEXT_PUBLIC_TURN_URL=' .env; then
       sed -i "s|^NEXT_PUBLIC_TURN_URL=.*|NEXT_PUBLIC_TURN_URL=turn:${ts_ip}:3478|" .env

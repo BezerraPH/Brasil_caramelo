@@ -14,3 +14,12 @@ auth-session|Salas casinha|GET|/api/rooms|200|
 auth-session|Genealogia pet|GET|/api/pet/genealogy|200|
 auth-session|LiveKit token pitbull|GET|/api/livekit/token?room=pitbull|200|token
 auth-session|Calls invite inválido|POST|/api/calls/signal|400|
+auth-session|Conexão matilha|GET|/api/matilha/connection|200|mode
+auth-session|Achievements|GET|/api/achievements|200|
+auth-session|Amigos|GET|/api/friends|200|
+auth-session|Salvos|GET|/api/saved|200|
+auth-session|Pet daily status|GET|/api/pet/daily|200|canClaim
+auth-session|Batalhas|GET|/api/battles|200|
+auth-session|Reputação|GET|/api/reputation|200|
+auth-session|Premium|GET|/api/premium|200|
+auth-session|Storage|GET|/api/storage/stats|200|

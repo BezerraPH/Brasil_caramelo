@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AppAboutCard } from "@/components/AppAboutCard";
+import { ShareMatilhaLink } from "@/components/ShareMatilhaLink";
 import { GuardDogAssistant } from "@/components/GuardDogAssistant";
 import { FederationPanel } from "@/components/FederationPanel";
 import { AvatarUpload } from "@/components/AvatarUpload";
@@ -35,6 +36,7 @@ export default async function SettingsPage() {
         </p>
       </header>
 
+      <ShareMatilhaLink className="mb-6" />
       <StoragePanel />
       <AvatarUpload name={full.name} avatarUrl={full.avatarUrl} />
       <EditProfileForm user={full} />

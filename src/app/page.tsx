@@ -35,11 +35,15 @@ export default async function HomePage() {
         <div className="bc-animate-in bc-stagger-2 mt-10 flex flex-wrap justify-center gap-4">
           <Link
             href="/cadastro"
-            className="bc-btn-primary px-8 py-3 text-base shadow-lg"
+            className="bc-btn-primary bc-cta-pulse px-8 py-3 text-base shadow-lg"
           >
             Criar conta grátis
           </Link>
-          <Link href="/entrar" className="bc-btn-secondary px-8 py-3 text-base">
+          <Link
+            href="/entrar"
+            className="bc-btn-secondary bc-cta-pulse px-8 py-3 text-base"
+            style={{ animationDelay: "0.08s" }}
+          >
             Já tenho conta
           </Link>
         </div>
@@ -53,7 +57,7 @@ export default async function HomePage() {
             { icon: "🎬", title: "Cinelar", desc: "Shorts com autoplay" },
             { icon: "🐕", title: "Pet virtual", desc: "DNA, moedas e loja" },
             { icon: "⚖️", title: "Tribunal", desc: "Mediação da matilha" },
-            { icon: "🎙️", title: "Latidos", desc: "Áudio ao vivo LAN" },
+            { icon: "🎙️", title: "Latidos", desc: "Áudio ao vivo (HTTPS)" },
           ].map((f, i) => (
             <div
               key={f.title}

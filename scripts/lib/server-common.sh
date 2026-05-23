@@ -83,16 +83,22 @@ bc_load_smoke_urls() {
     local vhost="${BC_HOST}"
     if bc_host_resolves "$vhost"; then
       SMOKE_BASE="${app_url%/}"
+      if [[ "$vhost" == *".ts.net" ]]; then
+        SMOKE_CURL_EXTRA=(-k)
+      fi
+    elif [[ "$vhost" == *".ts.net" ]] && bc_port_in_use 8780 | grep -q .; then
+      SMOKE_BASE="http://127.0.0.1:8780"
+      SMOKE_NOTE="(Tailscale — smoke via nginx :8780; clientes usam ${app_url})"
     else
       SMOKE_BASE="https://127.0.0.1"
       SMOKE_CURL_EXTRA=(-k -H "Host: ${vhost}")
-      SMOKE_NOTE="(servidor sem DNS para ${vhost} — testes via 127.0.0.1 + Host; rode setup-https-lan.sh ou adicione /etc/hosts)"
+      SMOKE_NOTE="(sem DNS para ${vhost} — 127.0.0.1 + Host; ou rode setup-https-lan.sh)"
     fi
   elif bc_host_resolves "$BC_HOST"; then
     SMOKE_BASE="http://${BC_HOST}:${APP_PORT}"
   else
     SMOKE_BASE="http://127.0.0.1:${APP_PORT}"
-    SMOKE_NOTE="(hostname ${BC_HOST} não resolve neste servidor — testes via 127.0.0.1:${APP_PORT})"
+    SMOKE_NOTE="(hostname ${BC_HOST} não resolve — testes via 127.0.0.1:${APP_PORT})"
   fi
 }
 

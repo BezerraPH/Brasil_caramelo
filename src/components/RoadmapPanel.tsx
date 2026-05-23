@@ -10,15 +10,16 @@ const DONE = [
   { icon: "🧬", title: "DNA Caramelo (cruzamento)" },
   { icon: "⚖️", title: "Tribunal do Cão (jurados + coins)" },
   { icon: "🛡️", title: "Cão de Guarda IA" },
-  { icon: "🎙️", title: "Latidos ao Vivo (LiveKit)" },
+  { icon: "🎙️", title: "Latidos ao Vivo (LiveKit + Tailscale)" },
+  { icon: "🔒", title: "HTTPS / Tailscale / mkcert (CONFIGURACAO.md)" },
   { icon: "🌳", title: "Árvore genealógica DNA" },
   { icon: "🏪", title: "Cupons pet shop regional" },
 ];
 
 const FUTURE = [
-  { icon: "🌐", title: "TURN / coturn no servidor", phase: "Ver CONFIGURACAO.md" },
   { icon: "💳", title: "Pagamento Pedigree (Pix real)", phase: "Integração" },
   { icon: "🏪", title: "Pet shops geolocalizados", phase: "Parceiros reais" },
+  { icon: "📱", title: "App nativo (PWA melhorado)", phase: "Planejado" },
 ];
 
 export function RoadmapPanel() {

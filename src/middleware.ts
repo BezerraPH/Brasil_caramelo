@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { SESSION_COOKIE } from "@/lib/session-cookie";
 
 const PROTECTED =
-  /^\/(feed|perfil|configuracoes|amigos|buscar|cachorro|ranking|casinhas|casinha|rolezinho|batalha|premium|explorar|salvos|notificacoes|mensagens)(\/|$)/;
+  /^\/(feed|perfil|configuracoes|amigos|buscar|cachorro|ranking|casinhas|casinha|rolezinho|batalha|premium|explorar|salvos|notificacoes|mensagens|latidos|tribunal)(\/|$)/;
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -42,5 +42,8 @@ export const config = {
     "/salvos",
     "/notificacoes",
     "/mensagens",
+    "/latidos",
+    "/latidos/:path*",
+    "/tribunal",
   ],
 };

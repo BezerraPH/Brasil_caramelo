@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-23 (v2.4.9-alpha)
-Versão atual do pacote (package.json): 2.4.9-alpha.0
+Última atualização: 2026-05-22 (v2.9.0-alpha)
+Versão atual do pacote (package.json): 2.9.0-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
@@ -433,7 +433,7 @@ LIVEKIT_API_KEY / LIVEKIT_API_SECRET — token de salas (servidor)
 NEXT_PUBLIC_PET_SHOP_REGION — região para cupons demo (Recife, Caruaru)
 
 Arquivo exemplo: .env.example
-Guia LiveKit: LIVEKIT.md
+Guia completo: CONFIGURACAO.md
 
 ================================================================================
   9. FLUXO DE TRABALHO (GIT)
@@ -451,6 +451,116 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v2.9.0-alpha.0 — 2026-05-22 (stack status, auth UX, notificações mobile)
+------------------------------------------------------------------------------
+  APP / UX:
+  + MatilhaServiceStatus — pills Soketi/LiveKit/TURN/Ollama no Explorar
+  + NotificationUnreadDot — badge no “Mais” (mobile)
+  + AuthForm — logo, versão, fundo bc-auth-page (entrar/cadastro)
+  + InstaFeed — alt nas fotos, toast ao falhar curtida
+  + MatilhaConnectionBanner — animação bc-connection-banner
+
+  DEPLOY:
+  + deploy-brasil-caramelo.sh — manutenção inicial via cron após migrate
+
+  TESTES:
+  + smoke: pet-shop/redeem, premium/checkout, stories/view, pet/treat
+  + smoke auth: reputation, premium, storage
+
+  * package.json: 2.8.0-alpha.0 → 2.9.0-alpha.0
+
+------------------------------------------------------------------------------
+v2.8.0-alpha.0 — 2026-05-22 (bônus diário feed, atalhos mobile, deploy --full)
+------------------------------------------------------------------------------
+  APP / UX:
+  + PetDailyClaimBanner — resgatar bônus diário direto no feed
+  + FeedQuickDock — atalhos horizontais no celular (buscar, alertas, casas…)
+  + MobileNav — badge de mensagens não lidas no Chat
+  + WelcomeBanner atualizado v2.8; PetDailyNavDot some após resgate
+
+  ORGANIZAÇÃO:
+  + docs/ESTRUTURA.md — mapa de pastas do projeto
+
+  SCRIPTS / TESTES:
+  + deploy-brasil-caramelo.sh --full (smoke + audit)
+  + setup-env.sh gera CRON_SECRET se vazio (openssl)
+  + smoke: pet/daily, federation/export, battles/finalize, logout, stack
+
+  * package.json: 2.7.0-alpha.0 → 2.8.0-alpha.0
+
+------------------------------------------------------------------------------
+v2.7.0-alpha.0 — 2026-05-22 (feed UX, cron maintenance, smoke, mobile nav)
+------------------------------------------------------------------------------
+  APP / UX:
+  + NotificationPeek — prévia de notificações na sidebar do feed
+  + FeedInfinite — erro visível + botão “Tentar de novo”
+  + RoadmapPanel movido do feed para Explorar
+  + MobileNav — Latidos direto na barra; “Mais” = Explorar + casinhas
+  + Removidos wrappers deprecated (FeedMatilhaSidebar, MatilhaStatsStrip)
+
+  API / OPS:
+  + POST /api/cron/maintenance — batalhas, stories, trending (CRON_SECRET)
+  + Feed não roda mais finalize/purge em cada GET (use cron)
+  + scripts/cron-maintenance.example
+
+  TESTES:
+  + smoke: friends, users/search, reputation, premium, pusher, federation/sync,
+    caption, cron maintenance/trending 401, middleware salvos/notificacoes/…
+  + smoke auth: friends, saved
+  + deploy-brasil-caramelo.sh --smoke
+
+  DOCS:
+  + CONFIGURACAO.md §14 manutenção cron
+
+  * package.json: 2.6.0-alpha.0 → 2.7.0-alpha.0
+
+------------------------------------------------------------------------------
+v2.6.0-alpha.0 — 2026-05-22 (deploy unificado, UX conexão, smoke, auditoria)
+------------------------------------------------------------------------------
+  DEPLOY / SCRIPTS:
+  + deploy-brasil-caramelo.sh — --mode http|https|tailscale, --audit, --force-env
+  + deploy-ubuntu.sh — alias com mesmas opções
+  + scripts/README.md — índice de todos os scripts operacionais
+  + server-audit.sh — detecta modo (Tailscale / HTTPS LAN / HTTP) + tailscale serve
+
+  APP / UX:
+  + MatilhaConnectionChip — modo de conexão no Explorar
+  + ShareMatilhaLink — copiar link da matilha em Configurações
+  + globals.css — hub tiles, chip de conexão, animação pulse
+
+  TESTES:
+  + smoke-tests.list — middleware configuracoes, amigos, ranking, casinhas, premium
+
+  DOCS:
+  + CONFIGURACAO.md §1 — atalhos deploy-brasil-caramelo
+  + README.md — deploy Tailscale recomendado
+
+  * package.json: 2.5.0-alpha.0 → 2.6.0-alpha.0
+
+------------------------------------------------------------------------------
+v2.5.0-alpha.0 — 2026-05-23 (Tailscale, docs únicas, conexão, smoke)
+------------------------------------------------------------------------------
+  INFRA / SCRIPTS:
+  + setup-tailscale.sh — BC_HOST só hostname, node_ip LiveKit automático, BC_TAILSCALE_IP
+  + setup-https-lan.sh — aviso se tailscale serve ativo (não misturar modos)
+  + server-common — smoke via :8780 em .ts.net; BC_HOST sem URL inválida
+  + middleware — /latidos e /tribunal protegidos
+  + smoke-tests expandidos (connection, achievements, federation, batalhas…)
+  + server-smoke — probe :8780 + tailscale serve
+
+  APP:
+  + GET /api/matilha/connection — dicas HTTPS/Tailscale/LiveKit
+  + MatilhaConnectionBanner — aviso contexto seguro no layout
+  + RoadmapPanel — TURN marcado como feito; HTTPS/Tailscale em “Já no ar”
+  + MobileNav 11px; landing Latidos “HTTPS”
+
+  DOCS:
+  + CONFIGURACAO.md — guia único (DEPLOY, LIVEKIT, DNS-LOCAL, TESTE removidos)
+  + docs/README.md — índice da documentação
+
+  * package.json: 2.4.9-alpha.0 → 2.5.0-alpha.0
 
 ------------------------------------------------------------------------------
 v2.4.9-alpha.0 — 2026-05-23 (celular HTTPS, CallProvider, Latidos mobile)

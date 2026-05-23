@@ -45,21 +45,31 @@ export function FeedInfinite({
   const [posts, setPosts] = useState(initialPosts);
   const [cursor, setCursor] = useState(initialCursor);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   useFeedPrefetch(posts, 0);
 
   const loadMore = useCallback(async () => {
     if (!cursor || loading) return;
     setLoading(true);
+    setLoadError(null);
     try {
       const filterQ = feedFilterQueryParam(feedFilter);
       const res = await fetch(
         `/api/posts?cursor=${encodeURIComponent(cursor)}${filterQ}`,
       );
-      const data = await res.json();
-      if (!res.ok) return;
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setLoadError(
+          (data as { error?: string }).error ??
+            "Não foi possível carregar mais recados.",
+        );
+        return;
+      }
       setPosts((prev) => [...prev, ...(data.posts as FeedPostItem[])]);
       setCursor(data.nextCursor ?? null);
+    } catch {
+      setLoadError("Falha de rede ao carregar recados.");
     } finally {
       setLoading(false);
     }
@@ -125,13 +135,25 @@ export function FeedInfinite({
       ))}
       <div
         ref={sentinelRef}
-        className="flex justify-center py-4"
-        aria-hidden={!cursor}
+        className="flex flex-col items-center gap-2 py-4"
+        aria-hidden={!cursor && !loadError}
       >
+        {loadError && (
+          <div className="bc-feed-error w-full max-w-md p-3 text-center">
+            <p className="text-sm text-bc-brown">{loadError}</p>
+            <button
+              type="button"
+              onClick={() => void loadMore()}
+              className="bc-btn bc-share-btn mt-2 px-4 py-1.5 text-xs"
+            >
+              Tentar de novo
+            </button>
+          </div>
+        )}
         {loading && (
           <span className="bc-skeleton h-8 w-32 rounded-full" />
         )}
-        {!cursor && posts.length > 0 && (
+        {!cursor && !loadError && posts.length > 0 && (
           <p className="text-xs text-bc-brown">Fim dos recados 🐾</p>
         )}
       </div>

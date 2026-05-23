@@ -3,10 +3,22 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MOBILE_NAV, isNavActive } from "@/lib/nav";
+import { ChatUnreadBadge } from "./ChatUnreadBadge";
 import { PetDailyNavDot } from "./PetDailyNavDot";
+import { NotificationUnreadDot } from "./NotificationUnreadDot";
 import { TribunalOpenDot } from "./TribunalOpenDot";
 
-export function MobileNav() {
+type MobileNavProps = {
+  userId: string;
+  pusherKey?: string | null;
+  pusherCluster?: string | null;
+};
+
+export function MobileNav({
+  userId,
+  pusherKey,
+  pusherCluster,
+}: MobileNavProps) {
   const pathname = usePathname();
 
   return (
@@ -21,14 +33,26 @@ export function MobileNav() {
             <li key={tab.href}>
               <Link
                 href={tab.href}
-                className={`flex flex-col items-center gap-0.5 rounded-xl px-2 py-1.5 text-[10px] font-semibold transition ${
+                className={`flex flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 text-[11px] font-semibold transition ${
                   active ? "bc-nav-link-active" : "text-bc-brown hover:text-bc-blue"
                 }`}
               >
                 <span className="relative text-lg" aria-hidden>
                   {tab.icon}
+                  {tab.href === "/mensagens" && (
+                    <ChatUnreadBadge
+                      userId={userId}
+                      pusherKey={pusherKey}
+                      pusherCluster={pusherCluster}
+                    />
+                  )}
                   {tab.href === "/cachorro" && <PetDailyNavDot />}
-                  {tab.href === "/explorar" && <TribunalOpenDot />}
+                  {tab.href === "/explorar" && (
+                    <>
+                      <NotificationUnreadDot />
+                      <TribunalOpenDot />
+                    </>
+                  )}
                 </span>
                 {tab.label}
               </Link>

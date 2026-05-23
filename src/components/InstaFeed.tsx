@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { BcImage } from "./BcImage";
+import { useToast } from "./ToastProvider";
 import { CommentSection } from "./CommentSection";
 import { PostContent } from "./PostContent";
 import { UserAvatar } from "./UserAvatar";
@@ -47,13 +48,17 @@ export function InstaFeed({ posts }: InstaFeedProps) {
 }
 
 function InstaTile({ post, delay }: { post: InstaPost; delay: number }) {
+  const toast = useToast();
   const [open, setOpen] = useState(false);
   const [liked, setLiked] = useState(post.likedByMe);
   const [likeCount, setLikeCount] = useState(post._count.likes);
 
   async function toggleLike() {
     const res = await fetch(`/api/posts/${post.id}/like`, { method: "POST" });
-    if (!res.ok) return;
+    if (!res.ok) {
+      toast("Não foi possível curtir.");
+      return;
+    }
     const data = await res.json();
     setLiked(data.liked);
     setLikeCount((c) => (data.liked ? c + 1 : c - 1));
@@ -69,7 +74,7 @@ function InstaTile({ post, delay }: { post: InstaPost; delay: number }) {
         {post.imageUrl && (
           <BcImage
             src={post.imageUrl}
-            alt=""
+            alt={`Foto de ${post.author.name}`}
             fill
             sizes="(max-width:640px) 50vw, 33vw"
             className="object-cover transition hover:scale-105"

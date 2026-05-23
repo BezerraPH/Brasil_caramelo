@@ -3,25 +3,25 @@ import { CreatePostForm } from "@/components/CreatePostForm";
 import { OfflinePostBanner } from "@/components/OfflinePostBanner";
 import { FeedFilterTabs } from "@/components/FeedFilterTabs";
 import { FeedInfinite } from "@/components/FeedInfinite";
-import { FeedMatilhaSidebar } from "@/components/FeedMatilhaSidebar";
+import { MatilhaStatsCards } from "@/components/MatilhaStatsCards";
+import { NotificationPeek } from "@/components/NotificationPeek";
 import { FeedTrendingTags } from "@/components/FeedTrendingTags";
 import { FeedRefreshButton } from "@/components/FeedRefreshButton";
 import { FlashEventBanner } from "@/components/FlashEventBanner";
 import { InstaFeed } from "@/components/InstaFeed";
 import { PageContainer } from "@/components/PageContainer";
 import { ReelsFeed } from "@/components/ReelsFeed";
-import { RoadmapPanel } from "@/components/RoadmapPanel";
 import { StoriesBar } from "@/components/StoriesBar";
 import { PostScrollOnLoad } from "@/components/PostScrollOnLoad";
 import { RecentActivity } from "@/components/RecentActivity";
 import { TrendingPosts } from "@/components/TrendingPosts";
 import { PetCareBanner } from "@/components/PetCareBanner";
+import { FeedQuickDock } from "@/components/FeedQuickDock";
+import { PetDailyClaimBanner } from "@/components/PetDailyClaimBanner";
 import { WelcomeBanner } from "@/components/WelcomeBanner";
 import { Suspense } from "react";
 import { UserAvatar } from "@/components/UserAvatar";
 import { getCurrentUser } from "@/lib/auth";
-import { finalizeExpiredBattles } from "@/lib/battles";
-import { purgeExpiredStories } from "@/lib/cleanup";
 import { getActiveFlashEvent } from "@/lib/events";
 import {
   attachSavedFlags,
@@ -42,8 +42,6 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
 
   const { filter, post: highlightPostId } = await searchParams;
   const feedFilter = parseFeedFilter(filter);
-
-  await Promise.all([finalizeExpiredBattles(), purgeExpiredStories()]);
 
   const { posts: feedPosts, nextCursor } = await fetchFeedPage(user.id, null, {
     friendsOnly: feedFilter === "friends",
@@ -206,8 +204,10 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
             </div>
           </header>
 
+          {!isReels && <FeedQuickDock />}
           {!isReels && <OfflinePostBanner />}
           {!isReels && <WelcomeBanner />}
+          {!isReels && <PetDailyClaimBanner />}
 
           {!isReels && flashEvent && (
             <FlashEventBanner
@@ -256,11 +256,11 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
         {!isReels && (
           <aside className="hidden lg:block">
             <div className="bc-animate-in bc-stagger-2 space-y-4">
-              <FeedMatilhaSidebar />
+              <MatilhaStatsCards layout="sidebar" />
+              <NotificationPeek userId={user.id} />
               <FeedTrendingTags />
               <RecentActivity userId={user.id} />
               <TrendingPosts />
-              <RoadmapPanel />
               <Link
                 href="/premium"
                 className="bc-card block p-4 text-center transition hover:border-bc-gold/40"

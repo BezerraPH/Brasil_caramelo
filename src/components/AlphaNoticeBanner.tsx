@@ -5,7 +5,7 @@ import { useAsyncEffect } from "@/hooks/use-async-effect";
 import { getVersionDisplay } from "@/lib/app-version";
 import { AppVersionBadge } from "./AppVersionBadge";
 
-const STORAGE_KEY = "bc_alpha_notice_v220";
+const STORAGE_KEY = "bc_alpha_notice_v270";
 
 export function AlphaNoticeBanner() {
   const [visible, setVisible] = useState(false);

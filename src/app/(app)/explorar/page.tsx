@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { AppVersionBadge } from "@/components/AppVersionBadge";
+import { MatilhaConnectionChip } from "@/components/MatilhaConnectionChip";
 import { FederationFeed } from "@/components/FederationFeed";
+import { RoadmapPanel } from "@/components/RoadmapPanel";
 import { FederationSyncButton } from "@/components/FederationSyncButton";
 import { MatilhaHealthPanel } from "@/components/MatilhaHealthPanel";
+import { MatilhaServiceStatus } from "@/components/MatilhaServiceStatus";
 import { MatilhaStatsCards } from "@/components/MatilhaStatsCards";
 import { PageContainer } from "@/components/PageContainer";
 import { TrendingCloud } from "@/components/TrendingCloud";
@@ -41,14 +44,17 @@ export default async function ExplorarPage() {
           Explorar
         </h1>
         <p className="mt-2 text-bc-brown">Tudo que o Brasil Caramelo oferece</p>
-        <p className="mt-3 flex justify-center">
+        <p className="mt-3 flex flex-wrap items-center justify-center gap-2">
           <AppVersionBadge showStage />
+          <MatilhaConnectionChip />
         </p>
       </header>
 
       <MatilhaStatsCards />
 
       <MatilhaHealthPanel />
+
+      <MatilhaServiceStatus />
 
       <section className="bc-card bc-animate-in mb-8 p-5">
         <h2 className="font-bold text-bc-blue">🌐 Caramelo-Sync (LAN)</h2>
@@ -104,6 +110,13 @@ export default async function ExplorarPage() {
             </Link>
           ))}
         </div>
+      </section>
+
+      <section className="mt-8">
+        <h2 className="mb-4 text-center text-lg font-bold text-bc-blue">
+          Roadmap da matilha
+        </h2>
+        <RoadmapPanel />
       </section>
 
       <FederationFeed />

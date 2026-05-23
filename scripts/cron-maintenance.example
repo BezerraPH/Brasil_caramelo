@@ -1,0 +1,9 @@
+# Manutenção periódica — exemplo de cron (Ubuntu)
+# Requer CRON_SECRET no .env (mesmo valor usado em /api/cron/trending e /api/cron/maintenance)
+#
+# Edite: crontab -e
+#
+# A cada hora (batalhas expiradas, stories, trending):
+# 0 * * * * cd /home/SEU_USUARIO/brasil_caramelo && source .env 2>/dev/null; curl -fsS -X POST -H "x-cron-secret: $CRON_SECRET" "http://127.0.0.1:3000/api/cron/maintenance" >> /var/log/bc-maintenance.log 2>&1
+#
+# Com HTTPS/nginx na mesma máquina, use o APP_URL interno ou 127.0.0.1:3000 (app Docker).

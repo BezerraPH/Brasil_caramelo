@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { safeRedirectPath } from "@/lib/safe-redirect";
+import { AppVersionBadge } from "./AppVersionBadge";
 
 type AuthFormProps = {
   mode: "login" | "register";
@@ -55,67 +56,80 @@ export function AuthForm({ mode }: AuthFormProps) {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bc-card bc-animate-in w-full max-w-md space-y-4 p-8 shadow-lg"
-    >
-      <h1 className="text-center text-2xl font-bold text-bc-blue">
-        {mode === "login" ? "Entrar" : "Criar conta"}
-      </h1>
-
-      {mode === "register" && (
-        <>
-          <Field label="Nome" name="name" required />
-          <Field
-            label="Usuário"
-            name="username"
-            required
-            hint="só letras minúsculas, números e _"
-          />
-        </>
-      )}
-
-      <Field label="E-mail" name="email" type="email" required />
-      <Field label="Senha" name="password" type="password" required />
-
-      {error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">
-          {error}
+    <div className="bc-auth-shell bc-animate-in-up w-full max-w-md">
+      <div className="mb-6 text-center">
+        <span className="bc-auth-logo" aria-hidden>
+          🐕
+        </span>
+        <p className="mt-3 flex justify-center">
+          <AppVersionBadge showStage />
         </p>
-      )}
-
-      <button
-        type="submit"
-        disabled={loading}
-        className="bc-btn-primary w-full py-3 disabled:opacity-50"
+      </div>
+      <form
+        onSubmit={handleSubmit}
+        className="bc-card w-full space-y-4 p-8 shadow-lg"
       >
-        {loading ? "Aguarde…" : mode === "login" ? "Entrar" : "Cadastrar"}
-      </button>
+        <h1 className="text-center text-2xl font-bold text-bc-blue">
+          {mode === "login" ? "Entrar" : "Criar conta"}
+        </h1>
 
-      <p className="text-center text-sm text-bc-brown">
-        {mode === "login" ? (
+        {mode === "register" && (
           <>
-            Novo por aqui?{" "}
-            <Link
-              href="/cadastro"
-              className="font-medium text-bc-green hover:underline"
-            >
-              Criar conta
-            </Link>
-          </>
-        ) : (
-          <>
-            Já tem conta?{" "}
-            <Link
-              href="/entrar"
-              className="font-medium text-bc-green hover:underline"
-            >
-              Entrar
-            </Link>
+            <Field label="Nome" name="name" required />
+            <Field
+              label="Usuário"
+              name="username"
+              required
+              hint="só letras minúsculas, números e _"
+            />
           </>
         )}
-      </p>
-    </form>
+
+        <Field label="E-mail" name="email" type="email" required />
+        <Field label="Senha" name="password" type="password" required />
+
+        {error && (
+          <p
+            className="bc-auth-error rounded-lg px-3 py-2 text-sm"
+            role="alert"
+          >
+            {error}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="bc-btn-primary w-full py-3 disabled:opacity-50"
+        >
+          {loading ? "Aguarde…" : mode === "login" ? "Entrar" : "Cadastrar"}
+        </button>
+
+        <p className="text-center text-sm text-bc-brown">
+          {mode === "login" ? (
+            <>
+              Novo por aqui?{" "}
+              <Link
+                href="/cadastro"
+                className="font-medium text-bc-green hover:underline"
+              >
+                Criar conta
+              </Link>
+            </>
+          ) : (
+            <>
+              Já tem conta?{" "}
+              <Link
+                href="/entrar"
+                className="font-medium text-bc-green hover:underline"
+              >
+                Entrar
+              </Link>
+            </>
+          )}
+        </p>
+      </form>
+    </div>
   );
 }
 

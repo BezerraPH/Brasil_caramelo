@@ -47,7 +47,18 @@ docker compose up -d --build
 docker compose exec app npx prisma migrate deploy
 ```
 
-Atalho: `./scripts/deploy-ubuntu.sh`
+Atalhos de deploy:
+
+```bash
+./scripts/deploy-brasil-caramelo.sh                    # HTTP LAN
+./scripts/deploy-brasil-caramelo.sh --mode tailscale   # Tailscale (celular)
+./scripts/deploy-brasil-caramelo.sh --mode https       # mkcert na LAN
+./scripts/deploy-brasil-caramelo.sh --audit            # + auditoria rápida
+./scripts/deploy-brasil-caramelo.sh --smoke            # + smoke tests HTTP
+./scripts/deploy-brasil-caramelo.sh --full             # smoke + auditoria (recomendado pós-deploy)
+```
+
+Alias: `./scripts/deploy-ubuntu.sh` (mesmas opções). Índice dos scripts: `scripts/README.md`.
 
 Acesso inicial: **http://SEU_IP:3000** (ex.: `http://192.168.1.4:3000`).
 
@@ -61,18 +72,23 @@ Acesso inicial: **http://SEU_IP:3000** (ex.: `http://192.168.1.4:3000`).
 brasil_caramelo/
   docker-compose.yml       ← stack completa (não use outro compose)
   .env                     ← você cria a partir de .env.example
-  CONFIGURACAO.md          ← este guia
+  CONFIGURACAO.md          ← este guia (tutorial único)
+  docs/ESTRUTURA.md        ← mapa de pastas do código
   deploy/
     livekit/livekit.yaml   ← node_ip deve bater com o modo de acesso
     nginx/                 ← configs nginx (LAN, túnel, tailscale)
   scripts/
+    README.md              ← índice de todos os scripts
     setup-env.sh           ← gera .env com IP
-    deploy-ubuntu.sh       ← deploy completo
+    deploy-brasil-caramelo.sh ← deploy completo (--mode http|https|tailscale)
+    deploy-ubuntu.sh       ← alias do deploy acima
     setup-https-lan.sh     ← HTTPS mkcert na LAN
     setup-tailscale.sh     ← Tailscale + serve
     setup-cloudflare-tunnel.sh
     server-audit.sh          ← auditoria + smoke
     server-smoke.sh
+    cron-maintenance.example  ← cron horário (batalhas, stories, trending)
+    cron-backup.example
 ```
 
 ---
@@ -190,6 +206,8 @@ Convive com outros containers no mesmo host (Gitea 3001, Nextcloud 8080, Portain
 ---
 
 ## 5. Escolher modo de acesso
+
+> **Use um modo por vez.** Não rode `setup-https-lan.sh` depois de `setup-tailscale.sh --serve` (o `.env` volta para `brasilcaramelo.com` e o celular via Tailscale quebra). Escolha C **ou** B e faça `docker compose up -d --build`.
 
 O nome **`brasilcaramelo.com` não precisa existir na internet** — era só apelido local (hosts + mkcert). Pode ignorar se usar Tailscale ou túnel.
 
@@ -541,6 +559,26 @@ chmod +x scripts/backup-matilha.sh
 
 Agendamento: `scripts/cron-backup.example`.
 
+### Manutenção automática (recomendado)
+
+O feed **não** executa mais limpeza pesada a cada carregamento. Use cron no servidor:
+
+```bash
+# .env — defina CRON_SECRET (string longa aleatória)
+CRON_SECRET=sua_chave_secreta_aqui
+```
+
+```bash
+curl -fsS -X POST "http://127.0.0.1:3000/api/cron/maintenance" \
+  -H "x-cron-secret: SUA_CRON_SECRET"
+```
+
+Resposta esperada: `{"ok":true,"battlesFinalized":...,"storiesPurged":...,"trendsRefreshed":...}`
+
+Agendamento horário: `scripts/cron-maintenance.example` (junto com backup em `cron-backup.example`).
+
+O deploy (`deploy-brasil-caramelo.sh`) tenta rodar a manutenção inicial automaticamente se `CRON_SECRET` estiver definido.
+
 ---
 
 ## 15. Testes manuais
@@ -587,10 +625,14 @@ git reset --hard origin/main
 
 Com `ffmpeg` no container (já incluso), após publicar vídeo o servidor pode gerar `playlist.m3u8`. Opcional no `.env`: `FFMPEG_PATH=/usr/bin/ffmpeg`.
 
-Cron de trending (se usar):
+Cron (com `CRON_SECRET` no `.env`):
 
 ```bash
-curl -X POST http://localhost:3000/api/cron/trending -H "Authorization: Bearer SEU_CRON_SECRET"
+# Trending apenas
+curl -X POST http://127.0.0.1:3000/api/cron/trending -H "Authorization: Bearer SEU_CRON_SECRET"
+
+# Manutenção completa (batalhas + stories + trending) — preferível
+curl -X POST http://127.0.0.1:3000/api/cron/maintenance -H "x-cron-secret: SEU_CRON_SECRET"
 ```
 
 ---

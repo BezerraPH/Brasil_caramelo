@@ -33,8 +33,25 @@ middleware|Buscar exige sessão|GET|/buscar|307,302|
 middleware|Cachorro exige sessão|GET|/cachorro|307,302|
 middleware|Tribunal página|GET|/tribunal|307,302|
 middleware|Latidos página|GET|/latidos|307,302|
+middleware|Mensagens exige sessão|GET|/mensagens|307,302|
+middleware|Explorar exige sessão|GET|/explorar|307,302|
+middleware|Configurações exige sessão|GET|/configuracoes|307,302|
+middleware|Amigos exige sessão|GET|/amigos|307,302|
+middleware|Ranking exige sessão|GET|/ranking|307,302|
+middleware|Casinhas exige sessão|GET|/casinhas|307,302|
+middleware|Premium exige sessão|GET|/premium|307,302|
+middleware|Salvos exige sessão|GET|/salvos|307,302|
+middleware|Notificações exige sessão|GET|/notificacoes|307,302|
+middleware|Rolezinho exige sessão|GET|/rolezinho|307,302|
+middleware|Batalha exige sessão|GET|/batalha|307,302|
+
+public-api|Conexão matilha|GET|/api/matilha/connection|200|secureRecommended
+public-api|Cadastro rejeita vazio|POST|/api/auth/register|400|
+public-api|Cron maintenance sem secret|POST|/api/cron/maintenance|401|
+public-api|Cron trending sem secret|POST|/api/cron/trending|401|
 
 auth-guard|Feed recados|GET|/api/posts|401|
+auth-guard|Achievements|GET|/api/achievements|401|
 auth-guard|Trending tags|GET|/api/trending|401|
 auth-guard|Busca suggest|GET|/api/search/suggest?q=ca|401|
 auth-guard|Busca recados|GET|/api/posts/search?q=teste|401|
@@ -54,7 +71,36 @@ auth-guard|Upload|POST|/api/upload|401|
 
 auth-guard|Calls sinal|POST|/api/calls/signal|401|
 auth-guard|LiveKit token sala|GET|/api/livekit/token?room=pitbull|401|
+auth-guard|Batalhas|GET|/api/battles|401|
+auth-guard|Eventos|GET|/api/events|401|
+auth-guard|Storage stats|GET|/api/storage/stats|401|
+auth-guard|Federação peers|GET|/api/federation/peers|401|
 
+auth-guard|Chats não lidos|GET|/api/chats/unread|401|
+auth-guard|Amigos|GET|/api/friends|401|
+auth-guard|Busca usuários|GET|/api/users/search?q=ca|401|
+auth-guard|Reputação|GET|/api/reputation|401|
+auth-guard|Premium status|GET|/api/premium|401|
+auth-guard|Cupons pet shop|GET|/api/pet-shop/coupons|401|
+auth-guard|Pusher auth|POST|/api/pusher/auth|401|
+auth-guard|Federação sync|POST|/api/federation/sync|401|
+auth-guard|Legenda IA|POST|/api/ai/caption|401|
+auth-guard|Pet daily|GET|/api/pet/daily|401|
+auth-guard|Federação export|POST|/api/federation/export|401|
+auth-guard|Batalhas finalize|POST|/api/battles/finalize|401|
+public-api|Logout|POST|/api/auth/logout|200|ok
+public-api|Conexão stack|GET|/api/matilha/connection|200|stack
+
+auth-guard|Pet shop resgate|POST|/api/pet-shop/redeem|401|
+auth-guard|Premium checkout|POST|/api/premium/checkout|401|
+auth-guard|Stories view|POST|/api/stories/view|401|
+auth-guard|Pet treat|POST|/api/pet/treat|401|
+
+# v2.9.0 — service status explorar, auth polish, pet-shop, deploy maintenance
+# v2.8.0 — pet daily, federation export, logout, --full deploy
+# v2.7.0 — cron maintenance, friends, middleware páginas, register
+# v2.6.0 — middleware amigos/ranking/casinhas/configuracoes/premium
+# v2.5.0 — connection, middleware, achievements
 # v2.4.6 — suggest
 # v2.4.7 — pulse landing (testada via public-page Landing + health)
 # v2.4.7 — moderação DM (auth-guard chats/rooms cobre rotas; lógica exige login manual)

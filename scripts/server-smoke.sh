@@ -127,6 +127,13 @@ probe_tcp "127.0.0.1" 5432 "PostgreSQL (localhost)"
 probe_tcp "127.0.0.1" 443 "nginx HTTPS"
 probe_tcp "127.0.0.1" 7443 "LiveKit WSS"
 probe_tcp "127.0.0.1" 6443 "Soketi WSS"
+if bc_port_in_use 8780 | grep -q .; then
+  probe_tcp "127.0.0.1" 8780 "nginx origem única (Tailscale/túnel)"
+fi
+if command -v tailscale >/dev/null 2>&1 && tailscale serve status 2>/dev/null | grep -q proxy; then
+  printf '  [OK]   %-28s tailscale serve ativo\n' "Tailscale HTTPS"
+  PASS=$((PASS + 1))
+fi
 
 if command -v ss >/dev/null 2>&1; then
   if ss -uln 2>/dev/null | grep -qE ':(50000|50001|50100)[[:space:]]'; then

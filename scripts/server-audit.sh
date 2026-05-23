@@ -121,6 +121,25 @@ if [ "$CS_VAL" = false ] && [[ "$(bc_safe_env APP_URL)" == https://* ]]; then
   bc_warn "HTTPS no APP_URL mas COOKIE_SECURE não é true — login pode falhar"
 fi
 
+printf '\nModo de acesso detectado:\n'
+APP_URL_RAW="$(bc_safe_env_raw APP_URL)"
+if [[ "$APP_URL_RAW" == *".ts.net"* ]]; then
+  bc_ok "Tailscale (${BC_HOST}) — ideal para celular com app Tailscale"
+elif [[ "$APP_URL_RAW" == https://* ]]; then
+  bc_ok "HTTPS LAN (${BC_HOST}) — instale rootCA no celular se necessário"
+else
+  bc_warn "HTTP LAN — microfone, Latidos e chamadas no celular exigem HTTPS"
+  printf '         Recomendado: sudo bash scripts/setup-tailscale.sh --serve\n'
+  printf '         Alternativa: sudo bash scripts/setup-https-lan.sh\n'
+fi
+if command -v tailscale >/dev/null 2>&1; then
+  if tailscale serve status 2>/dev/null | grep -q 'https://'; then
+    bc_ok "tailscale serve ativo"
+  elif [[ "$APP_URL_RAW" == *".ts.net"* ]]; then
+    bc_warn "BC_HOST é .ts.net mas tailscale serve não parece ativo — rode setup-tailscale.sh --serve"
+  fi
+fi
+
 # ── 4. Docker ────────────────────────────────────────────────────────────────
 bc_section "4. Docker Compose"
 if command -v docker >/dev/null 2>&1; then

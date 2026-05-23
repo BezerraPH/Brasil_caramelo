@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
 
 /** Indicador na nav mobile quando o bônus diário do pet está disponível. */
@@ -14,6 +14,12 @@ export function PetDailyNavDot() {
   }, []);
 
   useAsyncEffect(check, [check]);
+
+  useEffect(() => {
+    const hide = () => setVisible(false);
+    window.addEventListener("bc-pet-daily-claimed", hide);
+    return () => window.removeEventListener("bc-pet-daily-claimed", hide);
+  }, []);
 
   if (!visible) return null;
 

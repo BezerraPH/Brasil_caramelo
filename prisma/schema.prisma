@@ -528,7 +528,6 @@ model PostTribunalCase {
   status      TribunalCaseStatus @default(OPEN)
   votesKeep   Int                @default(0)
   votesRemove Int                @default(0)
-  adoptedAt   DateTime?
   createdAt   DateTime           @default(now())
   resolvedAt  DateTime?
   votes       TribunalVote[]

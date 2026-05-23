@@ -114,6 +114,11 @@ model User {
   roomMessages        CasinhaRoomMessage[]
   callsMade           CallSession[]   @relation("CallsMade")
   callsReceived       CallSession[]   @relation("CallsReceived")
+  breedingSent        PetBreedingRequest[] @relation("BreedingFrom")
+  breedingReceived    PetBreedingRequest[] @relation("BreedingTo")
+  petOffspring        PetOffspring[]
+  tribunalVotes       TribunalVote[]
+  couponRedemptions   PetShopRedemption[]
 }
 
 model Session {
@@ -144,6 +149,8 @@ model Post {
   likes          Like[]
   savedBy        SavedPost[]
   reports        PostReport[]
+  tribunalCase   PostTribunalCase?
+  tribunalHidden Boolean            @default(false)
 
   @@index([authorId, createdAt])
   @@index([communityLevel, createdAt])
@@ -463,4 +470,100 @@ model PetBattleVote {
   createdAt DateTime @default(now())
 
   @@unique([battleId, userId])
+}
+
+enum BreedingRequestStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum TribunalCaseStatus {
+  OPEN
+  KEEP
+  REMOVED
+}
+
+enum TribunalVoteChoice {
+  KEEP
+  REMOVE
+}
+
+model PetBreedingRequest {
+  id         String                @id @default(cuid())
+  fromUserId String
+  fromUser   User                  @relation("BreedingFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUserId   String
+  toUser     User                  @relation("BreedingTo", fields: [toUserId], references: [id], onDelete: Cascade)
+  status     BreedingRequestStatus @default(PENDING)
+  createdAt  DateTime              @default(now())
+  updatedAt  DateTime              @updatedAt
+
+  @@index([toUserId, status])
+  @@index([fromUserId, status])
+}
+
+model PetOffspring {
+  id              String             @id @default(cuid())
+  ownerId         String
+  owner           User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  parentAUserId   String
+  parentBUserId   String
+  dnaLevel        DogReputationLevel
+  color           String
+  name            String             @default("Filhote")
+  createdAt       DateTime           @default(now())
+
+  @@index([ownerId, createdAt])
+}
+
+model PostTribunalCase {
+  id          String             @id @default(cuid())
+  postId      String             @unique
+  post        Post               @relation(fields: [postId], references: [id], onDelete: Cascade)
+  status      TribunalCaseStatus @default(OPEN)
+  votesKeep   Int                @default(0)
+  votesRemove Int                @default(0)
+  createdAt   DateTime           @default(now())
+  resolvedAt  DateTime?
+  votes       TribunalVote[]
+
+  @@index([status, createdAt])
+}
+
+model TribunalVote {
+  id      String             @id @default(cuid())
+  caseId  String
+  case    PostTribunalCase   @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  jurorId String
+  juror   User               @relation(fields: [jurorId], references: [id], onDelete: Cascade)
+  choice  TribunalVoteChoice
+  createdAt DateTime         @default(now())
+
+  @@unique([caseId, jurorId])
+}
+
+model PetShopCoupon {
+  id       String   @id @default(cuid())
+  region   String
+  shopName String
+  title    String
+  code     String   @unique
+  coinCost Int
+  active   Boolean  @default(true)
+  redemptions PetShopRedemption[]
+
+  @@index([region, active])
+}
+
+model PetShopRedemption {
+  id        String        @id @default(cuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  couponId  String
+  coupon    PetShopCoupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  qrToken   String        @unique
+  createdAt DateTime      @default(now())
+
+  @@unique([userId, couponId])
 }

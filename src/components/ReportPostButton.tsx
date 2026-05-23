@@ -14,7 +14,16 @@ export function ReportPostButton({ postId }: { postId: string }) {
       const res = await fetch(`/api/posts/${postId}/report`, { method: "POST" });
       const data = await res.json();
       if (res.ok) {
-        toast(data.alreadyReported ? "Você já denunciou este recado." : "Denúncia registrada. Obrigado.");
+        if (data.tribunalOpened) {
+          toast(
+            "Denúncia registrada. O Tribunal do Cão foi aberto para este recado.",
+            "achievement",
+          );
+        } else {
+          toast(
+            data.alreadyReported ? "Você já denunciou este recado." : "Denúncia registrada. Obrigado.",
+          );
+        }
       } else {
         toast(data.error ?? "Não foi possível denunciar.");
       }

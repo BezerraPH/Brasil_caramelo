@@ -22,6 +22,7 @@ export async function GET(request: Request) {
       where: {
         content: { contains: `#${tag}`, mode: "insensitive" },
         author: { shadowbanned: false },
+        tribunalHidden: false,
       },
       orderBy: { createdAt: "desc" },
       take: 30,
@@ -54,6 +55,7 @@ export async function GET(request: Request) {
   const posts = await prisma.post.findMany({
     where: {
       author: { shadowbanned: false },
+      tribunalHidden: false,
       OR: [
         { content: { contains: q, mode: "insensitive" } },
         { author: { username: { contains: q, mode: "insensitive" } } },

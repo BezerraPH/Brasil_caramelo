@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-22 (v2.3.5-alpha)
-Versão atual do pacote (package.json): 2.3.5-alpha.0
+Última atualização: 2026-05-22 (v2.3.7-alpha)
+Versão atual do pacote (package.json): 2.3.7-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
@@ -130,7 +130,7 @@ DogReputationLevel (10 personalidades ativas):
   BORDER_COLLIE, BASSET_HOUND, CHOW_CHOW
 
 ================================================================================
-  5. FUNCIONALIDADES ATUAIS (v2.3.5-alpha)
+  5. FUNCIONALIDADES ATUAIS (v2.3.7-alpha)
 ================================================================================
 
 [OK] Cadastro e login
@@ -225,15 +225,25 @@ DogReputationLevel (10 personalidades ativas):
 [OK] Batalha de pets — cards VS, barras animadas, título pulsante
 [OK] Insta: tiles interativos + modal com sombra
 [OK] WelcomeBanner v14 (HLS + moderação)
-[OK] Versão visível no app (v2.3.5-alpha) — NavBar, rodapé, mobile, landing, config
+[OK] DNA Caramelo — cruzamento de pets entre amigos + filhotes + conquista Criador
+[OK] Tribunal do Cão — mediação gamificada (jurados Border Collie / Poodle)
+[OK] Cão de Guarda Pro — chatbot IA em /configuracoes (OPENAI opcional)
+[OK] Pet Shop — cupons regionais resgatáveis com CarameloCoins + QR token
+[OK] Latidos ao Vivo — salas de áudio LiveKit por casinha (/latidos, /latidos/[slug])
+[OK] GET /api/livekit/token — JWT + conquista LATIDOS_FIRST
+[OK] Cão de Guarda Pro — RAG com contexto real (pet, recados, tribunal, conquistas)
+[OK] Busca exclui recados tribunalHidden (hashtag e texto)
+[OK] Denúncia com toast quando Tribunal do Cão é aberto
+[OK] LIVEKIT.md + vars LiveKit no docker-compose e Dockerfile
+[OK] WelcomeBanner v16 + animações bc-latidos-bar na sala ao vivo
+[OK] Versão visível no app (v2.3.7-alpha) — NavBar, rodapé, mobile, landing, config
 [OK] Estágio Alpha documentado (lib/app-version.ts, GET /api/version, /api/health)
 
 [PENDENTE]
   - TURN gerenciado (coturn) no mesmo servidor, se NAT for restrito
-  - LiveKit / salas com muitos participantes
-  - Filtro de conteúdo com IA (moderação de imagens — heurística local + OpenAI opcional; IA dedicada pendente)
+  - LiveKit self-hosted na LAN (Cloud funciona; doc em LIVEKIT.md)
   - Pagamento real Pedigree (Stripe/Pix)
-  - Anúncios geolocalizados de pet shops (stub regional em /premium; integração real pendente)
+  - Anúncios geolocalizados de pet shops (cupons demo Recife/Caruaru; parceiros reais pendente)
 
 ================================================================================
   6. PERSONALIDADES CANINAS (v0.5.0)
@@ -278,6 +288,9 @@ Páginas:
   /premium             — assinatura Pedigree
   /explorar            — hub de funcionalidades
   /salvos              — recados favoritos
+  /latidos             — salas de áudio ao vivo (LiveKit)
+  /latidos/[slug]      — entrar na sala da casinha
+  /tribunal            — Tribunal do Cão
 
 API:
   POST /api/auth/register | login | logout
@@ -317,6 +330,13 @@ API:
   POST /api/battles/finalize
   POST /api/ai/caption
   POST /api/premium
+  GET  /api/livekit/token?room=
+  GET|POST /api/tribunal
+  POST /api/tribunal/[id]/vote
+  POST /api/ai/guard-dog
+  GET|POST /api/pet/breed
+  GET|POST /api/pet-shop/coupons
+  POST /api/pet-shop/redeem
 
 ================================================================================
   8. VARIÁVEIS DE AMBIENTE
@@ -332,8 +352,12 @@ PUSHER_APP_ID / PUSHER_KEY / PUSHER_SECRET — servidor Pusher (mesmo KEY do pú
 EVENT_ADMIN_SECRET — iniciar rolezinho sem ser Pedigree
 OPENAI_API_KEY — legendas IA (opcional)
 PREMIUM_CODE — código extra Pedigree
+NEXT_PUBLIC_LIVEKIT_URL — WebSocket LiveKit (público)
+LIVEKIT_API_KEY / LIVEKIT_API_SECRET — token de salas (servidor)
+NEXT_PUBLIC_PET_SHOP_REGION — região para cupons demo (Recife, Caruaru)
 
 Arquivo exemplo: .env.example
+Guia LiveKit: LIVEKIT.md
 
 ================================================================================
   9. FLUXO DE TRABALHO (GIT)
@@ -351,6 +375,58 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v2.3.7-alpha.0 — 2026-05-22 (LiveKit, Guarda RAG, fixes busca/denúncia)
+------------------------------------------------------------------------------
+  LATIDOS AO VIVO:
+  + livekit-client + livekit-server-sdk
+  + lib/livekit.ts — token JWT, sala bc-latidos-{slug}
+  + GET /api/livekit/token?room=slug
+  + LatidosRoomClient — conectar, ouvir, mic mudo, lista de participantes
+  + /latidos/[slug] — sala por casinha
+  + LatidosAoVivoPanel — botão "Entrar na sala"
+  + Conquista LATIDOS_FIRST
+  + LIVEKIT.md + vars no docker-compose e Dockerfile
+
+  CÃO DE GUARDA PRO:
+  + lib/guard-dog-context.ts — RAG (pet, posts, boosts, tribunal, conquistas)
+  + askGuardDog retorna aiPowered + ragUsed
+  + GuardDogAssistant — badge de contexto da matilha
+
+  CORREÇÕES:
+  + Busca (/api/posts/search) filtra tribunalHidden: false
+  + ReportPostButton — toast dourado quando tribunalOpened
+  + Regras do Guarda alinhadas a BOOST_COST_COINS (80)
+
+  DESIGN:
+  + CSS bc-latidos-bar, bc-latidos-live, bc-latidos-join-btn
+  + WelcomeBanner v16, RoadmapPanel atualizado
+
+  * package.json: 2.3.6-alpha.0 → 2.3.7-alpha.0
+
+------------------------------------------------------------------------------
+v2.3.6-alpha.0 — 2026-05-22 (DNA, Tribunal, Guarda IA, cupons, Latidos)
+------------------------------------------------------------------------------
+  PET / GENÉTICA:
+  + DNA Caramelo — cruzamento entre amigos (PetBreedingRequest, PetOffspring)
+  + Algoritmo computeOffspringDna (personalidade dominante + cor mesclada)
+  + Conquista BREEDER_5 (Criador da Matilha — 5 filhotes)
+  + API /api/pet/breed (GET/POST/PATCH)
+
+  TRIBUNAL DO CÃO:
+  + 3+ denúncias por recado abrem PostTribunalCase
+  + Jurados Border Collie ou Poodle votam KEEP/REMOVE
+  + Recados removidos: tribunalHidden (sumem do feed)
+  + Página /tribunal + conquista TRIBUNAL_JUROR
+
+  IA / ECONOMIA:
+  + Cão de Guarda Pro — POST /api/ai/guard-dog (contexto do pet + regras)
+  + Pet Shop cupons — resgate com CarameloCoins + QR token (Recife/Caruaru demo)
+  + Latidos ao Vivo — preview /latidos (10 casinhas; LiveKit futuro)
+
+  * package.json: 2.3.5-alpha.0 → 2.3.6-alpha.0
+  * Migração: 20260524120000_v236_breeding_tribunal_shop
 
 ------------------------------------------------------------------------------
 v2.3.5-alpha.0 — 2026-05-22 (hls.js, moderação imagem, batalha polish)

@@ -386,6 +386,92 @@ body {
   box-shadow: 0 24px 48px color-mix(in srgb, var(--bc-blue) 20%, transparent);
 }
 
+.bc-dna-panel {
+  border-color: color-mix(in srgb, var(--bc-caramel) 25%, transparent);
+}
+
+.bc-dna-offspring {
+  transition: transform 0.2s ease;
+}
+
+.bc-dna-offspring:hover {
+  transform: translateY(-2px);
+}
+
+.bc-tribunal-header {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--bc-blue) 8%, var(--bc-white)),
+    color-mix(in srgb, var(--bc-caramel) 6%, var(--bc-white))
+  );
+}
+
+.bc-tribunal-case {
+  border-left: 3px solid color-mix(in srgb, var(--bc-caramel) 50%, transparent);
+}
+
+.bc-guard-dog-panel {
+  border-color: color-mix(in srgb, var(--bc-blue) 20%, transparent);
+}
+
+.bc-guard-dog-reply {
+  border-left: 3px solid var(--bc-green);
+}
+
+.bc-coupon-card {
+  transition: box-shadow 0.2s ease;
+}
+
+.bc-coupon-card:hover {
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--bc-green) 15%, transparent);
+}
+
+.bc-latidos-header {
+  border-color: color-mix(in srgb, var(--bc-blue) 20%, transparent);
+}
+
+.bc-latidos-room {
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.bc-latidos-room:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--bc-green) 30%, transparent);
+}
+
+.bc-latidos-join-btn {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.bc-latidos-join-btn:hover {
+  transform: scale(1.02);
+}
+
+.bc-latidos-live {
+  border-color: color-mix(in srgb, var(--bc-green) 25%, transparent);
+}
+
+.bc-latidos-bar {
+  display: block;
+  width: 4px;
+  height: 24px;
+  border-radius: 2px;
+  background: var(--bc-green);
+  animation: bc-latidos-pulse 0.8s ease-in-out infinite;
+}
+
+@keyframes bc-latidos-pulse {
+  0%,
+  100% {
+    transform: scaleY(0.4);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
 .bc-page-header {
   @apply border-b border-bc-blue/10 pb-4;
 }

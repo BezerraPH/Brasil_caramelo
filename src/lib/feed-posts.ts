@@ -114,6 +114,7 @@ export async function fetchFeedPage(
   const rows = await prisma.post.findMany({
     where: {
       communityLevel: null,
+      tribunalHidden: false,
       ...(authorFilter ? { author: authorFilter } : {}),
       ...(options?.videosOnly ? { videoUrl: { not: null } } : {}),
     },

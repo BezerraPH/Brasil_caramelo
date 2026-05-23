@@ -22,6 +22,8 @@ const HUB = [
   { href: "/buscar", icon: "🔍", title: "Buscar", desc: "Pessoas, recados e #tags" },
   { href: "/notificacoes", icon: "🔔", title: "Notificações", desc: "Tudo da matilha" },
   { href: "/salvos", icon: "🔖", title: "Salvos", desc: "Recados favoritos" },
+  { href: "/latidos", icon: "🎙️", title: "Latidos ao Vivo", desc: "Salas de áudio por casinha" },
+  { href: "/tribunal", icon: "⚖️", title: "Tribunal do Cão", desc: "Mediação gamificada" },
   { href: "/premium", icon: "👑", title: "Pedigree", desc: "Apoiar o projeto" },
 ];
 

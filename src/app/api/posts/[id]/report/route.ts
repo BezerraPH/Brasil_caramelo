@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { maybeOpenTribunalCase } from "@/lib/tribunal";
 import { evaluateShadowban } from "@/lib/shadowban";
 import {
   checkRateLimit,
@@ -50,6 +51,7 @@ export async function POST(
   }
 
   await evaluateShadowban(post.authorId);
+  const tribunalOpened = await maybeOpenTribunalCase(postId);
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, tribunalOpened });
 }

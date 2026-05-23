@@ -1,7 +1,28 @@
 import { PageContainer } from "@/components/PageContainer";
+import { PetBreedingPanel } from "@/components/PetBreedingPanel";
 import { PetGame } from "@/components/PetGame";
+import { getCurrentUser } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
-export default function CachorroPage() {
+export default async function CachorroPage() {
+  const user = await getCurrentUser();
+  if (!user) return null;
+
+  const friendships = await prisma.friendship.findMany({
+    where: {
+      status: "ACCEPTED",
+      OR: [{ requesterId: user.id }, { addresseeId: user.id }],
+    },
+    include: {
+      requester: { select: { id: true, name: true, username: true } },
+      addressee: { select: { id: true, name: true, username: true } },
+    },
+  });
+
+  const friends = friendships.map((f) =>
+    f.requesterId === user.id ? f.addressee : f.requester,
+  );
+
   return (
     <PageContainer narrow>
       <header className="bc-animate-in mb-6 text-center">
@@ -11,6 +32,7 @@ export default function CachorroPage() {
         </p>
       </header>
       <PetGame />
+      <PetBreedingPanel friends={friends} />
     </PageContainer>
   );
 }

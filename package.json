@@ -1,6 +1,6 @@
 {
   "name": "brasil_caramelo",
-  "version": "2.3.5-alpha.0",
+  "version": "2.3.7-alpha.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -17,6 +17,8 @@
     "dotenv": "^17.4.2",
     "hls.js": "^1.6.16",
     "jose": "^6.2.3",
+    "livekit-client": "^2.19.0",
+    "livekit-server-sdk": "^2.15.3",
     "lru-cache": "^11.3.6",
     "next": "16.2.6",
     "pg": "^8.20.0",

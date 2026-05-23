@@ -7,15 +7,17 @@ const DONE = [
   { icon: "🌐", title: "Caramelo-Sync (federação LAN)" },
   { icon: "🌙", title: "Modo escuro" },
   { icon: "🔔", title: "Notificações ao vivo" },
-  { icon: "🏆", title: "Conquistas com toast" },
+  { icon: "🧬", title: "DNA Caramelo (cruzamento)" },
+  { icon: "⚖️", title: "Tribunal do Cão" },
+  { icon: "🛡️", title: "Cão de Guarda IA" },
+  { icon: "🎙️", title: "Latidos ao Vivo (LiveKit)" },
+  { icon: "🏪", title: "Cupons pet shop regional" },
 ];
 
 const FUTURE = [
   { icon: "🌐", title: "TURN / coturn no servidor", phase: "Ver COTURN.md" },
-  { icon: "🎥", title: "LiveKit — salas grandes", phase: "Roadmap" },
-  { icon: "🛡️", title: "Moderação IA de imagens", phase: "Em estudo" },
   { icon: "💳", title: "Pagamento Pedigree (Pix real)", phase: "Integração" },
-  { icon: "🏪", title: "Pet shops geolocalizados", phase: "Stub em /premium" },
+  { icon: "🏪", title: "Pet shops geolocalizados", phase: "Parceiros reais" },
 ];
 
 export function RoadmapPanel() {

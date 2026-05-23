@@ -1,6 +1,6 @@
 import { PageContainer } from "@/components/PageContainer";
 import { PedigreePaymentCard } from "@/components/PedigreePaymentCard";
-import { PetShopLocalBanner } from "@/components/PetShopLocalBanner";
+import { PetShopCoupons } from "@/components/PetShopCoupons";
 import { PremiumActivate } from "@/components/PremiumActivate";
 import { PREMIUM_PERKS } from "@/lib/constants";
 import { getCurrentUser } from "@/lib/auth";
@@ -35,7 +35,7 @@ export default async function PremiumPage() {
         </>
       )}
 
-      <PetShopLocalBanner region={process.env.NEXT_PUBLIC_PET_SHOP_REGION} />
+      <PetShopCoupons region={process.env.NEXT_PUBLIC_PET_SHOP_REGION} />
 
       <ul className="bc-card mt-6 space-y-3 p-6 text-sm">
         <li>★ Selo dourado no perfil</li>

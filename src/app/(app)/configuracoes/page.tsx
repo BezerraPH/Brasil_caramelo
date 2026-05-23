@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AppAboutCard } from "@/components/AppAboutCard";
+import { GuardDogAssistant } from "@/components/GuardDogAssistant";
 import { FederationPanel } from "@/components/FederationPanel";
 import { AvatarUpload } from "@/components/AvatarUpload";
 import { StoragePanel } from "@/components/StoragePanel";
@@ -39,6 +40,7 @@ export default async function SettingsPage() {
       <EditProfileForm user={full} />
 
       <FederationPanel />
+      <GuardDogAssistant />
       <AppAboutCard />
 
       <p className="mt-4 text-center text-xs text-bc-brown/70">

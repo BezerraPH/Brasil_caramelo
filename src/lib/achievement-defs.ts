@@ -35,6 +35,24 @@ export const ACHIEVEMENTS = {
     emoji: "🌐",
     desc: "Sincronizou recados de outro servidor",
   },
+  BREEDER_5: {
+    key: "BREEDER_5",
+    title: "Criador da Matilha",
+    emoji: "🧬",
+    desc: "Gerou 5 filhotes via DNA Caramelo",
+  },
+  TRIBUNAL_JUROR: {
+    key: "TRIBUNAL_JUROR",
+    title: "Juiz da Matilha",
+    emoji: "⚖️",
+    desc: "Votou no Tribunal do Cão pela primeira vez",
+  },
+  LATIDOS_FIRST: {
+    key: "LATIDOS_FIRST",
+    title: "Voz da matilha",
+    emoji: "🎙️",
+    desc: "Entrou em uma sala Latidos ao Vivo",
+  },
 } as const;
 
 export type AchievementKey = keyof typeof ACHIEVEMENTS;

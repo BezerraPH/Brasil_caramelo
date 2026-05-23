@@ -38,10 +38,12 @@ export function WebRTCCallOverlay({
   return (
     <div className="bc-call-overlay fixed inset-0 z-[80] flex flex-col items-center justify-center bg-black/92 p-4 bc-animate-in">
       <p className="bc-shimmer-text text-xl font-bold">
-        {mode === "incoming" ? "Chamada recebida" : "Chamando"}
+        {mode === "incoming" ? "📞 Chamada recebida" : "📹 Chamando"}
       </p>
-      <p className="mt-1 text-white">{peerName}</p>
-      <p className="mt-2 text-sm text-white/60">{status}</p>
+      <p className="mt-1 text-lg text-white">{peerName}</p>
+      <p className="bc-call-ring mt-2 rounded-full px-4 py-1 text-sm text-white/70">
+        {status}
+      </p>
 
       <div className="bc-call-videos mt-6 grid w-full max-w-2xl grid-cols-1 gap-3 sm:grid-cols-2">
         <div>

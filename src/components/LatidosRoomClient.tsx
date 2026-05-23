@@ -6,12 +6,14 @@ import {
   Room,
   RoomEvent,
   Track,
+  type DisconnectReason,
   type RemoteParticipant,
   type RemoteTrack,
   type RemoteTrackPublication,
 } from "livekit-client";
 import type { CasinhaConfig } from "@/lib/casinhas";
 import { formatAchievementToast, type AchievementKey } from "@/lib/achievement-defs";
+import { livekitDisconnectMessage } from "@/lib/livekit-errors";
 import { useToast } from "./ToastProvider";
 
 type Props = {
@@ -31,6 +33,7 @@ export function LatidosRoomClient({ casinha }: Props) {
 
   const [status, setStatus] = useState<"idle" | "connecting" | "connected" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
+  const [disconnectHint, setDisconnectHint] = useState<string | null>(null);
   const [micOn, setMicOn] = useState(false);
   const [speakers, setSpeakers] = useState<Speaker[]>([]);
 
@@ -98,6 +101,7 @@ export function LatidosRoomClient({ casinha }: Props) {
 
     setStatus("connecting");
     setError(null);
+    setDisconnectHint(null);
 
     try {
       const res = await fetch(
@@ -140,8 +144,9 @@ export function LatidosRoomClient({ casinha }: Props) {
       room.on(RoomEvent.TrackUnsubscribed, (track: RemoteTrack) => {
         track.detach().forEach((el) => el.remove());
       });
-      room.on(RoomEvent.Disconnected, () => {
-        setStatus("idle");
+      room.on(RoomEvent.Disconnected, (reason?: DisconnectReason) => {
+        setStatus("error");
+        setDisconnectHint(livekitDisconnectMessage(reason));
         setMicOn(false);
       });
 
@@ -226,10 +231,23 @@ export function LatidosRoomClient({ casinha }: Props) {
 
       {(status === "connected" || status === "error") && (
         <section className="bc-card bc-latidos-live bc-animate-in p-5">
-          {status === "error" && error && (
-            <p className="mb-3 rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-800">
-              {error}
-            </p>
+          {status === "error" && (error || disconnectHint) && (
+            <div className="bc-latidos-error mb-4 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-900 bc-animate-in">
+              <p>{error ?? disconnectHint}</p>
+              <button
+                type="button"
+                onClick={() => void join()}
+                className="bc-btn-secondary mt-3 text-xs"
+              >
+                🔄 Tentar de novo
+              </button>
+              <Link
+                href="/latidos"
+                className="mt-2 block text-xs text-bc-green hover:underline"
+              >
+                ← Voltar às salas
+              </Link>
+            </div>
           )}
 
           {status === "connected" && (

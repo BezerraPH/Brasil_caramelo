@@ -52,6 +52,7 @@ services:
       - --listening-port=3478
       - --realm=brasilcaramelo.local
       - --user=${TURN_USERNAME:-caramelo}:${TURN_PASSWORD:-caramelo_turn_secret}
+      - --external-ip=${BC_HOST:-192.168.1.4}
       - --lt-cred-mech
       - --fingerprint
       - --no-cli

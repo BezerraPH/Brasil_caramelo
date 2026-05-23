@@ -129,7 +129,7 @@ LIVEKIT_API_KEY=caramelo_livekit_key
 LIVEKIT_API_SECRET=caramelo_livekit_secret_change_me
 ```
 
-Altere o secret em `deploy/livekit/livekit.yaml` também.
+Altere o secret em `deploy/livekit/livekit.yaml` também. O campo **`node_ip`** deve ser o mesmo IP LAN do `BC_HOST` (ex.: `192.168.1.4`), com `use_external_ip: true`, para o WebRTC anunciar o IP correto na LAN.
 
 ### 5. Opcional
 
@@ -170,8 +170,9 @@ Rebuild após mudar.
 |----------|---------|
 | Login não persiste | `COOKIE_SECURE=false` |
 | Chat sem tempo real | Verifique se `soketi` está up: `docker compose ps` |
-| Latidos não conecta | `livekit` up + `NEXT_PUBLIC_LIVEKIT_URL` com IP LAN |
-| Mud（ídeo falha fora da Wi‑Fi | coturn up + vars TURN |
+| Latidos não conecta | `livekit` up + `NEXT_PUBLIC_LIVEKIT_URL` com IP LAN; em `deploy/livekit/livekit.yaml` use `use_external_ip: true` e `node_ip` = `BC_HOST`; libere **UDP 50000–50100** no firewall do servidor **e do PC/celular** (Windows Defender costuma bloquear) |
+| Vídeo chamada 409 | Chamada travada no banco — expira sozinha após 3 min (v2.4.8) ou encerre manualmente no Postgres |
+| Vídeo falha fora da Wi‑Fi | coturn up + `--external-ip` = `BC_HOST` + vars TURN no `.env` |
 | Mudou `.env` e nada mudou | `docker compose up -d --build` |
 
 ---

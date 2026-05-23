@@ -834,8 +834,26 @@ html.dark .bc-hero-bg {
   }
 }
 
+.bc-latidos-error {
+  animation: bc-fade-in 0.35s ease-out both;
+}
+
 .bc-call-overlay {
   animation: bc-fade-in 0.3s ease-out both;
+}
+
+.bc-call-ring {
+  animation: bc-call-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes bc-call-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(45 139 87 / 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgb(45 139 87 / 0);
+  }
 }
 
 .bc-call-videos video {

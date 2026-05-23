@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
+import { expireStaleCallsForUsers } from "@/lib/call-sessions";
 import { areFriends } from "@/lib/friendship";
 import { createNotification } from "@/lib/notifications";
 import { pushCallSignal } from "@/lib/pusher-server";
@@ -42,6 +43,8 @@ export async function POST(request: Request) {
           { status: 403 },
         );
       }
+
+      await expireStaleCallsForUsers(user.id, body.targetUserId);
 
       const active = await prisma.callSession.findFirst({
         where: {

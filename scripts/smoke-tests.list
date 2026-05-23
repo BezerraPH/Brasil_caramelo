@@ -52,6 +52,10 @@ auth-guard|Stats matilha|GET|/api/matilha/stats|401|
 auth-guard|Cão de Guarda|POST|/api/ai/guard-dog|401|
 auth-guard|Upload|POST|/api/upload|401|
 
+auth-guard|Calls sinal|POST|/api/calls/signal|401|
+auth-guard|LiveKit token sala|GET|/api/livekit/token?room=pitbull|401|
+
 # v2.4.6 — suggest
 # v2.4.7 — pulse landing (testada via public-page Landing + health)
 # v2.4.7 — moderação DM (auth-guard chats/rooms cobre rotas; lógica exige login manual)
+# v2.4.8 — calls signal auth-guard; livekit token com room query

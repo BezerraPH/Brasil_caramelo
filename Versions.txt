@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-22 (v2.4.7-alpha)
-Versão atual do pacote (package.json): 2.4.7-alpha.0
+Última atualização: 2026-05-22 (v2.4.8-alpha)
+Versão atual do pacote (package.json): 2.4.8-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
@@ -131,7 +131,7 @@ DogReputationLevel (10 personalidades ativas):
   BORDER_COLLIE, BASSET_HOUND, CHOW_CHOW
 
 ================================================================================
-  5. FUNCIONALIDADES ATUAIS (v2.4.7-alpha)
+  5. FUNCIONALIDADES ATUAIS (v2.4.8-alpha)
 ================================================================================
 
 [OK] Cadastro e login
@@ -299,6 +299,10 @@ DogReputationLevel (10 personalidades ativas):
 [OK] Genealogia — stats asOwner/asParent/total na API e painel
 [OK] SharePostButton — link canônico feedPostPath
 [OK] Landing — 6 tiles (Tribunal, Latidos, DNA) + bc-feature-tile
+[OK] WelcomeBanner v25 (WebRTC + LiveKit v2.4.8)
+[OK] Chamadas WebRTC — expira sessões travadas (3 min), atender exige gesto do usuário
+[OK] LiveKit Latidos — node_ip externo, mensagens de erro por DisconnectReason
+[OK] Smoke tests expandidos — LiveKit token, chats, rooms, genealogy, UDP 50000, calls
 [OK] WelcomeBanner v24 (novidades v2.4.7)
 
 [PENDENTE]
@@ -443,6 +447,33 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v2.4.8-alpha.0 — 2026-05-22 (WebRTC estável, LiveKit LAN, smoke expandido)
+------------------------------------------------------------------------------
+  WEBRTC / CHAMADAS:
+  + lib/call-sessions.ts — expireStaleCallsForUsers (RINGING/ACTIVE > 3 min)
+  + POST /api/calls/signal — limpa chamadas stale antes do check 409
+  + use-webrtc-call — atender só após toque; bindRemoteStream com todos os tracks
+  + overlayModeRef evita race entre invite e offer automático
+
+  LIVEKIT / LATIDOS:
+  + deploy/livekit/livekit.yaml — use_external_ip + node_ip (BC_HOST)
+  + coturn --external-ip no docker-compose
+  + lib/livekit-errors.ts — hints por DisconnectReason (timeout UDP/firewall)
+  + LatidosRoomClient — retry + voltar às salas em erro
+
+  UX / DESIGN:
+  + WebRTCCallOverlay — bc-call-ring, ícones, status pulsante
+  + bc-latidos-error CSS; WelcomeBanner v25
+
+  OPS / TESTES:
+  + server-smoke.sh — LiveKit 7881 TCP, probe UDP 50000, auth expandido
+  + smoke-tests.list — auth-guard calls + livekit token com room
+  + smoke-tests-auth.list — chats, rooms, genealogy, livekit pitbull, calls 400
+  + CONFIGURACAO.md — firewall UDP + node_ip + chamadas 409
+
+  * package.json: 2.4.7-alpha.0 → 2.4.8-alpha.0
 
 ------------------------------------------------------------------------------
 v2.4.7-alpha.0 — 2026-05-22 (pulse landing, moderação DM, comentários seguros)

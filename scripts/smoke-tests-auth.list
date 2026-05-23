@@ -9,3 +9,8 @@ auth-session|Suggest busca|GET|/api/search/suggest?q=ca|200|
 auth-session|Pet|GET|/api/pet|200|
 auth-session|Notificações|GET|/api/notifications|200|
 auth-session|Stats matilha|GET|/api/matilha/stats|200|
+auth-session|Chats DM|GET|/api/chats|200|
+auth-session|Salas casinha|GET|/api/rooms|200|
+auth-session|Genealogia pet|GET|/api/pet/genealogy|200|
+auth-session|LiveKit token pitbull|GET|/api/livekit/token?room=pitbull|200|token
+auth-session|Calls invite inválido|POST|/api/calls/signal|400|

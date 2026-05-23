@@ -137,8 +137,22 @@ printf '\n── Infraestrutura (portas TCP) ──\n'
 probe_tcp "$BC_HOST" "$APP_PORT" "App Next.js"
 probe_tcp "$BC_HOST" 6001 "Soketi"
 probe_tcp "$BC_HOST" 7880 "LiveKit"
+probe_tcp "$BC_HOST" 7881 "LiveKit RTC TCP"
 probe_tcp "$BC_HOST" 3478 "coturn TURN"
 probe_tcp "127.0.0.1" 5432 "PostgreSQL (localhost)"
+
+if command -v nc >/dev/null 2>&1; then
+  if nc -u -z -w 2 "$BC_HOST" 50000 2>/dev/null; then
+    printf '  [OK]   %-28s %s:%s (UDP)\n' "LiveKit mídia UDP" "$BC_HOST" "50000"
+    PASS=$((PASS + 1))
+  else
+    printf '  [SKIP] %-28s UDP %s:50000 (sem resposta — verifique firewall)\n' "LiveKit mídia UDP" "$BC_HOST"
+    SKIP=$((SKIP + 1))
+  fi
+else
+  printf '  [SKIP] %-28s nc ausente\n' "LiveKit mídia UDP"
+  SKIP=$((SKIP + 1))
+fi
 
 PUSHER_HOST="$(safe_env PUSHER_HOST)"
 if [ "$PUSHER_HOST" = "soketi" ] && command -v docker >/dev/null 2>&1; then

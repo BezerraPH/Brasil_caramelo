@@ -3,7 +3,7 @@
 ================================================================================
 
 Última atualização: 2026-05-22 (v2.9.0-alpha)
-Versão atual do pacote (package.json): 2.9.1-alpha.0
+Versão atual do pacote (package.json): 2.9.2-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
@@ -451,6 +451,21 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v2.9.2-alpha.0 — 2026-05-22 (smoke 100%, APIs reputation/premium GET, git sync)
+------------------------------------------------------------------------------
+  FIX API (smoke 7 FAIL → 0):
+  + POST /api/auth/register — corpo vazio retorna 400 (não 500)
+  + GET /api/reputation — status da matilha (401 sem login)
+  + GET /api/premium — isPremium / premiumUntil
+  + POST /api/federation/export — corpo vazio → 401
+  + smoke: premium/checkout usa GET (rota real)
+
+  OPS:
+  + scripts/sync-from-git.sh — git pull sem conflito no deploy script
+
+  * package.json: 2.9.1-alpha.0 → 2.9.2-alpha.0
 
 ------------------------------------------------------------------------------
 v2.9.1-alpha.0 — 2026-05-22 (hotfix deploy --full + CRON_SECRET)

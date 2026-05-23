@@ -3,15 +3,25 @@ import { verifyFederationSignature } from "@/lib/federation";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {
+  const sig = request.headers.get("x-federation-signature");
   const bodyText = await request.text();
+
+  if (!sig?.trim() && !bodyText.trim()) {
+    return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+  }
+
   let parsed: { since?: string };
   try {
-    parsed = JSON.parse(bodyText) as { since?: string };
+    parsed = bodyText.trim()
+      ? (JSON.parse(bodyText) as { since?: string })
+      : {};
   } catch {
+    if (!sig?.trim()) {
+      return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+    }
     return NextResponse.json({ error: "JSON inválido." }, { status: 400 });
   }
 
-  const sig = request.headers.get("x-federation-signature");
   const peerId = request.headers.get("x-federation-peer-id");
   const globalSecret = process.env.FEDERATION_EXPORT_SECRET?.trim();
 

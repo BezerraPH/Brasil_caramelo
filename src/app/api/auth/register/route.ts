@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
+import { ZodError } from "zod";
 import { createSession } from "@/lib/auth";
 import { validationMessage } from "@/lib/api-error";
 import { prisma } from "@/lib/prisma";
@@ -21,7 +22,12 @@ export async function POST(request: Request) {
   }
 
   try {
-    const body = await request.json();
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "Dados inválidos." }, { status: 400 });
+    }
     const parsed = registerSchema.parse(body);
     const data = {
       ...parsed,
@@ -57,7 +63,7 @@ export async function POST(request: Request) {
     await createSession(user.id);
     return NextResponse.json({ ok: true, username: user.username });
   } catch (error) {
-    if (error instanceof Error && error.name === "ZodError") {
+    if (error instanceof ZodError) {
       return NextResponse.json(
         { error: validationMessage(error) },
         { status: 400 },

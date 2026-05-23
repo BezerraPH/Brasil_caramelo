@@ -92,7 +92,7 @@ public-api|Logout|POST|/api/auth/logout|200|ok
 public-api|Conexão stack|GET|/api/matilha/connection|200|stack
 
 auth-guard|Pet shop resgate|POST|/api/pet-shop/redeem|401|
-auth-guard|Premium checkout|POST|/api/premium/checkout|401|
+auth-guard|Premium checkout|GET|/api/premium/checkout|401|
 auth-guard|Stories view|POST|/api/stories/view|401|
 auth-guard|Pet treat|POST|/api/pet/treat|401|
 

@@ -10,6 +10,19 @@ import {
 } from "@/lib/rate-limit";
 import { reputationSchema } from "@/lib/validators";
 
+export async function GET() {
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+  }
+
+  const receivedVotes = await prisma.reputation.count({
+    where: { toUserId: user.id },
+  });
+
+  return NextResponse.json({ ok: true, receivedVotes });
+}
+
 export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) {

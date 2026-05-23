@@ -510,6 +510,8 @@ Se `brasilcaramelo.com` não resolve no servidor: `bash scripts/setup-https-lan.
 | Domínio “não existe” | Normal — use Tailscale ou hosts local |
 | `Argumento desconhecido: --full` | `git pull` (correção no script) ou use `--smoke --audit` juntos |
 | `CRON_SECRET=` vazio | `bash scripts/ensure-cron-secret.sh` e `docker compose up -d --build` |
+| `git pull` bloqueado em deploy script | `bash scripts/sync-from-git.sh` ou `git checkout -- scripts/deploy-brasil-caramelo.sh && git pull` |
+| Smoke FAIL em register/reputation/premium | `git pull` (v2.9.2+) e `docker compose up -d --build` |
 
 ---
 

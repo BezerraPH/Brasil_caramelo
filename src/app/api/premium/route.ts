@@ -14,6 +14,23 @@ const activateSchema = z.object({
 
 const DEMO_CODES = ["PEDIGREE", "CARAMELO2026", "MATILHA"];
 
+export async function GET() {
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+  }
+
+  const row = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: { isPremium: true, premiumUntil: true },
+  });
+
+  return NextResponse.json({
+    isPremium: row?.isPremium ?? false,
+    premiumUntil: row?.premiumUntil?.toISOString() ?? null,
+  });
+}
+
 export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) {

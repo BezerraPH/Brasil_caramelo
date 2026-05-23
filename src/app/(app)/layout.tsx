@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { AlphaNoticeBanner } from "@/components/AlphaNoticeBanner";
 import { AppVersionFooter } from "@/components/AppVersionFooter";
 import { AppVersionMobileStrip } from "@/components/AppVersionMobileStrip";
+import { CallProvider } from "@/components/CallProvider";
 import { GlobalLiveListener } from "@/components/GlobalLiveListener";
 import { MobileNav } from "@/components/MobileNav";
 import { NavBar } from "@/components/NavBar";
@@ -21,6 +22,11 @@ export default async function AppLayout({
   return (
     <div className={user.isPremium ? "bc-pedigree-user" : undefined}>
     <ToastProvider>
+      <CallProvider
+        userId={user.id}
+        pusherKey={process.env.NEXT_PUBLIC_PUSHER_KEY ?? null}
+        pusherCluster={process.env.NEXT_PUBLIC_PUSHER_CLUSTER ?? null}
+      >
       <GlobalLiveListener
         pusherKey={process.env.NEXT_PUBLIC_PUSHER_KEY ?? null}
         pusherCluster={process.env.NEXT_PUBLIC_PUSHER_CLUSTER ?? null}
@@ -37,6 +43,7 @@ export default async function AppLayout({
       <MobileNav />
       <ViewModeSwitcher currentMode={user.viewMode} />
       <ScrollToTop />
+      </CallProvider>
     </ToastProvider>
     </div>
   );

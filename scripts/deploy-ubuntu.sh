@@ -12,6 +12,9 @@ fi
 echo "==> Subindo stack completa (app, db, soketi, coturn, livekit)..."
 docker compose up -d --build
 
+echo "==> Recarregando LiveKit e coturn (livekit.yaml / external-ip)..."
+docker compose restart livekit coturn
+
 echo "==> Aplicando migrações..."
 docker compose exec app npx prisma migrate deploy
 

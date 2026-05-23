@@ -1,10 +1,10 @@
-# Ajuste node_ip para o IP LAN do servidor (mesmo valor de BC_HOST no .env).
+# node_ip = BC_HOST na LAN. use_external_ip: false evita anunciar IP público (177.x) na rede local.
 port: 7880
 rtc:
   tcp_port: 7881
   port_range_start: 50000
   port_range_end: 50100
-  use_external_ip: true
+  use_external_ip: false
   node_ip: 192.168.1.4
 keys:
   caramelo_livekit_key: caramelo_livekit_secret_change_me

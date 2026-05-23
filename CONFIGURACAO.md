@@ -129,7 +129,64 @@ LIVEKIT_API_KEY=caramelo_livekit_key
 LIVEKIT_API_SECRET=caramelo_livekit_secret_change_me
 ```
 
-Altere o secret em `deploy/livekit/livekit.yaml` também. O campo **`node_ip`** deve ser o mesmo IP LAN do `BC_HOST` (ex.: `192.168.1.4`), com `use_external_ip: true`, para o WebRTC anunciar o IP correto na LAN.
+Altere o secret em `deploy/livekit/livekit.yaml` também. O campo **`node_ip`** deve ser o mesmo IP LAN do `BC_HOST` (ex.: `192.168.1.4`), com **`use_external_ip: false`** em rede local (evita anunciar IP público 177.x). Após editar: `docker compose restart livekit`.
+
+### 4.1 HTTPS no celular (obrigatório para microfone e chamadas)
+
+Navegadores no **Android/iOS bloqueiam microfone e câmera em HTTP** (`http://192.168.1.4:3000`).
+
+**Passo a passo rápido (servidor Ubuntu):**
+
+```bash
+cd ~/brasil_caramelo
+sudo apt install mkcert libnss3-tools nginx
+mkcert -install
+mkcert brasilcaramelo.com 192.168.1.4
+bash scripts/setup-https-lan.sh
+docker compose up -d --build
+docker compose restart livekit coturn
+```
+
+**No seu PC (Windows), como Administrador** — edite `C:\Windows\System32\drivers\etc\hosts`:
+
+```
+192.168.1.4    brasilcaramelo.com
+192.168.1.4    www.brasilcaramelo.com
+```
+
+Instale a CA do mkcert no Windows (senão o navegador recusa HTTPS):
+
+```bash
+# No servidor, veja o caminho:
+mkcert -CAROOT
+# Copie rootCA.pem para o PC e: duplo clique → Instalar certificado →
+# Autoridades de certificação raiz confiáveis → Local do computador
+```
+
+Acesse: **https://brasilcaramelo.com** (sem `:3000`).
+
+**Por que `brasilcaramelo.com` “não pega” sem isso?**
+
+| Problema | Solução |
+|----------|---------|
+| Nome não resolve | Arquivo **hosts** no PC/celular ou DNS no roteador |
+| Página não abre | Rode `bash scripts/setup-https-lan.sh` (nginx na 443) |
+| Aviso de certificado | Instale `rootCA.pem` do mkcert no aparelho |
+| Só funciona `:3000` | Normal em HTTP antigo — use HTTPS na 443 |
+
+Variáveis após o script:
+
+```env
+APP_URL=https://brasilcaramelo.com
+NEXT_PUBLIC_APP_URL=https://brasilcaramelo.com
+COOKIE_SECURE=true
+NEXT_PUBLIC_LIVEKIT_URL=wss://brasilcaramelo.com:7443
+NEXT_PUBLIC_PUSHER_HOST=brasilcaramelo.com
+NEXT_PUBLIC_PUSHER_PORT=6443
+NEXT_PUBLIC_PUSHER_USE_TLS=true
+```
+
+No celular, instale o certificado raiz do mkcert (`rootCA.pem`). Veja também `DNS-LOCAL.md` e `deploy/nginx/brasilcaramelo-https.example.conf`.
 
 ### 5. Opcional
 
@@ -170,9 +227,11 @@ Rebuild após mudar.
 |----------|---------|
 | Login não persiste | `COOKIE_SECURE=false` |
 | Chat sem tempo real | Verifique se `soketi` está up: `docker compose ps` |
-| Latidos não conecta | `livekit` up + `NEXT_PUBLIC_LIVEKIT_URL` com IP LAN; em `deploy/livekit/livekit.yaml` use `use_external_ip: true` e `node_ip` = `BC_HOST`; libere **UDP 50000–50100** no firewall do servidor **e do PC/celular** (Windows Defender costuma bloquear) |
-| Vídeo chamada 409 | Chamada travada no banco — expira sozinha após 3 min (v2.4.8) ou encerre manualmente no Postgres |
-| Vídeo falha fora da Wi‑Fi | coturn up + `--external-ip` = `BC_HOST` + vars TURN no `.env` |
+| Latidos não conecta | `livekit` up + `node_ip` = `BC_HOST` + `use_external_ip: false`; `docker compose restart livekit` |
+| Microfone no celular não funciona | **HTTP no celular bloqueia mídia** — use HTTPS (seção 4.1) |
+| Não atende chamada no celular | Mesmo: HTTPS + estar logado (CallProvider escuta em qualquer página) |
+| Vídeo chamada 409 | Chamada travada — expira após 3 min ou limpe no Postgres |
+| Vídeo falha fora da Wi‑Fi | coturn + TURN no `.env` |
 | Mudou `.env` e nada mudou | `docker compose up -d --build` |
 
 ---
@@ -181,6 +240,7 @@ Rebuild após mudar.
 
 ```bash
 docker compose ps              # status dos 5 serviços
+docker compose restart livekit coturn   # após mudar livekit.yaml ou TURN
 docker compose logs app        # logs do site
 docker compose logs soketi
 docker compose restart app

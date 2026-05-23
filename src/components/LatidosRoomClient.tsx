@@ -14,6 +14,11 @@ import {
 import type { CasinhaConfig } from "@/lib/casinhas";
 import { formatAchievementToast, type AchievementKey } from "@/lib/achievement-defs";
 import { livekitDisconnectMessage } from "@/lib/livekit-errors";
+import {
+  canUseMediaDevices,
+  mediaDevicesBlockedReason,
+} from "@/lib/media-devices";
+import { buildIceServers } from "@/lib/webrtc-ice";
 import { useToast } from "./ToastProvider";
 
 type Props = {
@@ -24,48 +29,82 @@ type Speaker = {
   id: string;
   name: string;
   isLocal: boolean;
+  micLive: boolean;
 };
+
+async function playAudioElement(el: HTMLAudioElement) {
+  el.setAttribute("playsinline", "true");
+  el.autoplay = true;
+  el.volume = 1;
+  try {
+    await el.play();
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export function LatidosRoomClient({ casinha }: Props) {
   const toast = useToast();
   const roomRef = useRef<Room | null>(null);
   const audioEls = useRef<Map<string, HTMLAudioElement>>(new Map());
+  const audioSinkRef = useRef<HTMLDivElement>(null);
 
   const [status, setStatus] = useState<"idle" | "connecting" | "connected" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
   const [disconnectHint, setDisconnectHint] = useState<string | null>(null);
   const [micOn, setMicOn] = useState(false);
+  const [micError, setMicError] = useState<string | null>(null);
+  const [needsAudioTap, setNeedsAudioTap] = useState(false);
   const [speakers, setSpeakers] = useState<Speaker[]>([]);
 
   const livekitConfigured = Boolean(process.env.NEXT_PUBLIC_LIVEKIT_URL?.trim());
+  const mediaBlocked = mediaDevicesBlockedReason();
 
   const refreshSpeakers = useCallback((room: Room) => {
     const list: Speaker[] = [];
     const local = room.localParticipant;
     if (local) {
+      const micPub = local.getTrackPublication(Track.Source.Microphone);
       list.push({
         id: local.identity,
         name: local.name || local.identity,
         isLocal: true,
+        micLive: Boolean(micPub && !micPub.isMuted && micPub.track),
       });
     }
     room.remoteParticipants.forEach((p: RemoteParticipant) => {
+      const micPub = p.getTrackPublication(Track.Source.Microphone);
       list.push({
         id: p.identity,
         name: p.name || p.identity,
         isLocal: false,
+        micLive: Boolean(micPub && !micPub.isMuted && micPub.track),
       });
     });
     setSpeakers(list);
   }, []);
 
-  const attachAudio = useCallback((track: RemoteTrack, participantId: string) => {
-    if (track.kind !== Track.Kind.Audio) return;
-    const el = track.attach();
-    el.dataset.participant = participantId;
-    audioEls.current.set(`${participantId}-${track.sid}`, el);
-    document.body.appendChild(el);
-  }, []);
+  const attachAudio = useCallback(
+    async (track: RemoteTrack, participantId: string) => {
+      if (track.kind !== Track.Kind.Audio) return;
+      const key = `${participantId}-${track.sid}`;
+      if (audioEls.current.has(key)) return;
+
+      const el = track.attach() as HTMLAudioElement;
+      el.dataset.participant = participantId;
+      el.className = "bc-latidos-remote-audio";
+      audioEls.current.set(key, el);
+
+      const sink = audioSinkRef.current;
+      if (sink) sink.appendChild(el);
+      else document.body.appendChild(el);
+
+      const played = await playAudioElement(el);
+      if (!played) setNeedsAudioTap(true);
+    },
+    [],
+  );
 
   const detachAllAudio = useCallback(() => {
     audioEls.current.forEach((el) => {
@@ -73,6 +112,15 @@ export function LatidosRoomClient({ casinha }: Props) {
       el.remove();
     });
     audioEls.current.clear();
+  }, []);
+
+  const unlockAudio = useCallback(async () => {
+    let ok = true;
+    for (const el of audioEls.current.values()) {
+      const played = await playAudioElement(el);
+      if (!played) ok = false;
+    }
+    setNeedsAudioTap(!ok);
   }, []);
 
   const disconnect = useCallback(async () => {
@@ -84,6 +132,7 @@ export function LatidosRoomClient({ casinha }: Props) {
     }
     setStatus("idle");
     setMicOn(false);
+    setMicError(null);
     setSpeakers([]);
   }, [detachAllAudio]);
 
@@ -102,6 +151,7 @@ export function LatidosRoomClient({ casinha }: Props) {
     setStatus("connecting");
     setError(null);
     setDisconnectHint(null);
+    setMicError(null);
 
     try {
       const res = await fetch(
@@ -125,11 +175,20 @@ export function LatidosRoomClient({ casinha }: Props) {
       const room = new Room({
         adaptiveStream: true,
         dynacast: true,
+        audioCaptureDefaults: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
       });
       roomRef.current = room;
 
       room.on(RoomEvent.ParticipantConnected, () => refreshSpeakers(room));
       room.on(RoomEvent.ParticipantDisconnected, () => refreshSpeakers(room));
+      room.on(RoomEvent.LocalTrackPublished, () => refreshSpeakers(room));
+      room.on(RoomEvent.LocalTrackUnpublished, () => refreshSpeakers(room));
+      room.on(RoomEvent.TrackMuted, () => refreshSpeakers(room));
+      room.on(RoomEvent.TrackUnmuted, () => refreshSpeakers(room));
       room.on(
         RoomEvent.TrackSubscribed,
         (
@@ -137,7 +196,7 @@ export function LatidosRoomClient({ casinha }: Props) {
           _pub: RemoteTrackPublication,
           participant: RemoteParticipant,
         ) => {
-          attachAudio(track, participant.identity);
+          void attachAudio(track, participant.identity);
           refreshSpeakers(room);
         },
       );
@@ -150,7 +209,9 @@ export function LatidosRoomClient({ casinha }: Props) {
         setMicOn(false);
       });
 
-      await room.connect(data.url, data.token);
+      await room.connect(data.url, data.token, {
+        rtcConfig: buildIceServers(),
+      });
       await room.localParticipant.setMicrophoneEnabled(false);
 
       setStatus("connected");
@@ -166,9 +227,26 @@ export function LatidosRoomClient({ casinha }: Props) {
   async function toggleMic() {
     const room = roomRef.current;
     if (!room || status !== "connected") return;
+
     const next = !micOn;
-    await room.localParticipant.setMicrophoneEnabled(next);
-    setMicOn(next);
+    setMicError(null);
+
+    if (next && !canUseMediaDevices()) {
+      setMicError(mediaBlocked ?? "Microfone indisponível neste navegador.");
+      return;
+    }
+
+    try {
+      await room.localParticipant.setMicrophoneEnabled(next);
+      setMicOn(next);
+      refreshSpeakers(room);
+    } catch (e) {
+      setMicError(
+        e instanceof Error
+          ? e.message
+          : "Não foi possível usar o microfone. Verifique permissões.",
+      );
+    }
   }
 
   return (
@@ -186,6 +264,15 @@ export function LatidosRoomClient({ casinha }: Props) {
           Sala de áudio ao vivo — latidos e papo da matilha
         </p>
       </section>
+
+      {mediaBlocked && status !== "connected" && (
+        <div className="bc-card border-amber-400/30 bg-amber-500/10 p-4 text-sm text-amber-950">
+          <p className="font-medium">📱 Celular em HTTP</p>
+          <p className="mt-1 text-xs">{mediaBlocked}</p>
+        </div>
+      )}
+
+      <div ref={audioSinkRef} className="sr-only" aria-hidden />
 
       {status === "idle" && (
         <div className="bc-latidos-room bc-card bc-animate-in-up p-6 text-center">
@@ -252,11 +339,21 @@ export function LatidosRoomClient({ casinha }: Props) {
 
           {status === "connected" && (
             <>
+              {needsAudioTap && (
+                <button
+                  type="button"
+                  onClick={() => void unlockAudio()}
+                  className="bc-btn-primary mb-4 w-full text-sm"
+                >
+                  🔊 Tocar áudio da sala
+                </button>
+              )}
+
               <div className="bc-latidos-wave mb-4 flex justify-center gap-1">
                 {[0, 1, 2, 3, 4].map((i) => (
                   <span
                     key={i}
-                    className="bc-latidos-bar"
+                    className={`bc-latidos-bar ${micOn ? "bc-latidos-bar--hot" : ""}`}
                     style={{ animationDelay: `${i * 0.12}s` }}
                   />
                 ))}
@@ -272,10 +369,11 @@ export function LatidosRoomClient({ casinha }: Props) {
                     key={s.id}
                     className="flex items-center gap-2 rounded-lg bg-bc-blue/5 px-3 py-2 text-sm"
                   >
-                    <span>{s.isLocal ? "🎤" : "👂"}</span>
+                    <span>{s.micLive ? "🎤" : s.isLocal ? "🔇" : "👂"}</span>
                     <span className="font-medium text-bc-blue">
                       {s.name}
                       {s.isLocal ? " (você)" : ""}
+                      {s.micLive ? " · falando" : ""}
                     </span>
                   </li>
                 ))}
@@ -286,10 +384,17 @@ export function LatidosRoomClient({ casinha }: Props) {
                 )}
               </ul>
 
+              {micError && (
+                <p className="mt-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-800">
+                  {micError}
+                </p>
+              )}
+
               <div className="mt-6 flex flex-wrap justify-center gap-3">
                 <button
                   type="button"
                   onClick={() => void toggleMic()}
+                  disabled={Boolean(mediaBlocked)}
                   className={micOn ? "bc-btn-primary" : "bc-btn-secondary"}
                 >
                   {micOn ? "🔇 Mutar" : "🎙️ Ativar microfone"}

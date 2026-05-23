@@ -58,4 +58,4 @@ auth-guard|LiveKit token sala|GET|/api/livekit/token?room=pitbull|401|
 # v2.4.6 — suggest
 # v2.4.7 — pulse landing (testada via public-page Landing + health)
 # v2.4.7 — moderação DM (auth-guard chats/rooms cobre rotas; lógica exige login manual)
-# v2.4.8 — calls signal auth-guard; livekit token com room query
+# v2.4.9 — media-devices (client); HTTPS doc em CONFIGURACAO

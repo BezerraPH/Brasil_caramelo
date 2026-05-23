@@ -4,11 +4,11 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
+import { useCall } from "@/components/CallProvider";
 import {
   useRealtimeChat,
   type RealtimeMessagePayload,
 } from "@/hooks/use-realtime-chat";
-import { useWebRTCCall } from "@/hooks/use-webrtc-call";
 import type { TypingPayload } from "@/lib/chat-constants";
 import { ChatComposer } from "./ChatComposer";
 import {
@@ -17,7 +17,6 @@ import {
 } from "./ChatMessageBubble";
 import { TurnHintBanner } from "./TurnHintBanner";
 import { UserAvatar } from "./UserAvatar";
-import { WebRTCCallOverlay } from "./WebRTCCallOverlay";
 
 type Peer = {
   id: string;
@@ -110,16 +109,7 @@ export function ChatApp({
   const activeConv = conversations.find((c) => c.id === activeConvId);
   const panelOpen = mode === "dm" ? Boolean(activeConvId) : Boolean(roomSlug);
 
-  const {
-    overlay: callOverlay,
-    status: callStatus,
-    startCall,
-    acceptCall,
-    decline,
-    hangup,
-    handleSignal,
-    attachStream,
-  } = useWebRTCCall(currentUser.id);
+  const { startCall } = useCall();
 
   const loadList = useCallback(async () => {
     const res = await fetch("/api/chats");
@@ -300,7 +290,6 @@ export function ChatApp({
     onRoomMessage: mode === "rooms" ? onRoomMessage : undefined,
     onInboxUpdate: loadList,
     onTyping: handleTyping,
-    onCallSignal: handleSignal,
   });
 
   async function startChat(e: React.FormEvent) {
@@ -586,18 +575,6 @@ export function ChatApp({
           )}
         </section>
       </div>
-
-      {callOverlay && (
-        <WebRTCCallOverlay
-          mode={callOverlay.mode}
-          peerName={callOverlay.peer.name}
-          status={callStatus}
-          onHangup={() => void hangup()}
-          onAccept={() => void acceptCall()}
-          onDecline={() => void decline()}
-          attachStream={attachStream}
-        />
-      )}
     </div>
   );
 }

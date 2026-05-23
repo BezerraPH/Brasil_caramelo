@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
 
-const KEY = "bc_welcome_dismissed_v25";
+const KEY = "bc_welcome_dismissed_v26";
 
 export function WelcomeBanner() {
   const [visible, setVisible] = useState(false);
@@ -27,10 +27,10 @@ export function WelcomeBanner() {
     <div className="bc-card bc-animate-in mb-4 border-bc-blue/30 bg-gradient-to-r from-bc-blue/10 via-bc-green/10 to-bc-caramel/10 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="font-bold text-bc-blue">📞 Novidades v2.4.8!</p>
+          <p className="font-bold text-bc-blue">📱 Novidades v2.4.9!</p>
           <p className="mt-1 text-xs text-bc-brown">
-            Latidos e chamadas WebRTC mais estáveis: IP externo no LiveKit/coturn,
-            expiração de chamadas travadas, atender só após toque e dicas de firewall UDP.
+            Chamadas em qualquer tela (CallProvider), aviso de HTTPS no celular,
+            Latidos com botão “Tocar áudio” e LiveKit só com IP da LAN.
           </p>
         </div>
         <button

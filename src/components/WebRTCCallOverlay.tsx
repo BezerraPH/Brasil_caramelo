@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import {
+  canUseMediaDevices,
+  mediaDevicesBlockedReason,
+} from "@/lib/media-devices";
 
 type WebRTCCallOverlayProps = {
   mode: "outgoing" | "incoming";
@@ -26,6 +30,7 @@ export function WebRTCCallOverlay({
 }: WebRTCCallOverlayProps) {
   const localRef = useRef<HTMLVideoElement>(null);
   const remoteRef = useRef<HTMLVideoElement>(null);
+  const mediaBlocked = mediaDevicesBlockedReason();
 
   useEffect(() => {
     void attachStream(localRef.current, remoteRef.current);
@@ -36,14 +41,20 @@ export function WebRTCCallOverlay({
   }, [attachStream, status]);
 
   return (
-    <div className="bc-call-overlay fixed inset-0 z-[80] flex flex-col items-center justify-center bg-black/92 p-4 bc-animate-in">
+    <div className="bc-call-overlay fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/95 p-4 pb-28 bc-animate-in md:pb-4">
       <p className="bc-shimmer-text text-xl font-bold">
         {mode === "incoming" ? "📞 Chamada recebida" : "📹 Chamando"}
       </p>
       <p className="mt-1 text-lg text-white">{peerName}</p>
-      <p className="bc-call-ring mt-2 rounded-full px-4 py-1 text-sm text-white/70">
+      <p className="bc-call-ring mt-2 max-w-sm rounded-full px-4 py-1 text-center text-sm text-white/70">
         {status}
       </p>
+
+      {mediaBlocked && (
+        <p className="mt-3 max-w-md rounded-lg border border-amber-400/40 bg-amber-500/15 px-3 py-2 text-center text-xs text-amber-100">
+          {mediaBlocked}
+        </p>
+      )}
 
       <div className="bc-call-videos mt-6 grid w-full max-w-2xl grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
@@ -67,13 +78,22 @@ export function WebRTCCallOverlay({
         </div>
       </div>
 
-      <div className="mt-6 flex flex-wrap justify-center gap-3">
+      <div className="mt-6 flex w-full max-w-md flex-wrap justify-center gap-3">
         {mode === "incoming" && (
           <>
-            <button type="button" onClick={onAccept} className="bc-btn-primary px-8">
+            <button
+              type="button"
+              onClick={onAccept}
+              disabled={!canUseMediaDevices()}
+              className="bc-btn-primary min-h-12 min-w-[140px] px-8 text-base"
+            >
               Atender
             </button>
-            <button type="button" onClick={onDecline} className="bc-btn-secondary">
+            <button
+              type="button"
+              onClick={onDecline}
+              className="bc-btn-secondary min-h-12 min-w-[120px] text-base"
+            >
               Recusar
             </button>
           </>
@@ -81,16 +101,16 @@ export function WebRTCCallOverlay({
         <button
           type="button"
           onClick={onHangup}
-          className="rounded-xl bg-red-600 px-6 py-2.5 font-semibold text-white shadow-lg transition hover:bg-red-700"
+          className="min-h-12 min-w-[120px] rounded-xl bg-red-600 px-6 py-2.5 text-base font-semibold text-white shadow-lg transition hover:bg-red-700"
         >
           Desligar
         </button>
       </div>
 
       <p className="mt-6 max-w-md text-center text-xs text-white/40">
-        Vídeo P2P via WebRTC (STUN
-        {process.env.NEXT_PUBLIC_TURN_URL ? " + TURN configurado" : ""}). Na
-        mesma Wi‑Fi costuma funcionar; fora da rede configure TURN no .env.
+        Chamada P2P (STUN
+        {process.env.NEXT_PUBLIC_TURN_URL ? " + TURN" : ""}). Celular em HTTP
+        não atende sem HTTPS — veja CONFIGURACAO.md.
       </p>
     </div>
   );

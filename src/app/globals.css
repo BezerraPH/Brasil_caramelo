@@ -478,6 +478,11 @@ body {
   animation: bc-latidos-pulse 0.8s ease-in-out infinite;
 }
 
+.bc-latidos-bar--hot {
+  background: var(--bc-caramel);
+  animation-duration: 0.45s;
+}
+
 @keyframes bc-latidos-pulse {
   0%,
   100% {

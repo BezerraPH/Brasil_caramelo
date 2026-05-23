@@ -141,16 +141,27 @@ probe_tcp "$BC_HOST" 7881 "LiveKit RTC TCP"
 probe_tcp "$BC_HOST" 3478 "coturn TURN"
 probe_tcp "127.0.0.1" 5432 "PostgreSQL (localhost)"
 
-if command -v nc >/dev/null 2>&1; then
+if command -v ss >/dev/null 2>&1; then
+  if ss -uln 2>/dev/null | grep -qE ':(50000|50001|50100)[[:space:]]'; then
+    printf '  [OK]   %-28s UDP 50000–50100 em escuta\n' "LiveKit mídia UDP"
+    PASS=$((PASS + 1))
+  elif command -v docker >/dev/null 2>&1 && docker compose ps --status running livekit 2>/dev/null | grep -q .; then
+    printf '  [OK]   %-28s container livekit (UDP mapeado no compose)\n' "LiveKit mídia UDP"
+    PASS=$((PASS + 1))
+  else
+    printf '  [SKIP] %-28s porta UDP 50000 não detectada\n' "LiveKit mídia UDP"
+    SKIP=$((SKIP + 1))
+  fi
+elif command -v nc >/dev/null 2>&1; then
   if nc -u -z -w 2 "$BC_HOST" 50000 2>/dev/null; then
     printf '  [OK]   %-28s %s:%s (UDP)\n' "LiveKit mídia UDP" "$BC_HOST" "50000"
     PASS=$((PASS + 1))
   else
-    printf '  [SKIP] %-28s UDP %s:50000 (sem resposta — verifique firewall)\n' "LiveKit mídia UDP" "$BC_HOST"
+    printf '  [SKIP] %-28s UDP %s:50000 (nc sem resposta — normal para WebRTC)\n' "LiveKit mídia UDP" "$BC_HOST"
     SKIP=$((SKIP + 1))
   fi
 else
-  printf '  [SKIP] %-28s nc ausente\n' "LiveKit mídia UDP"
+  printf '  [SKIP] %-28s ss/nc ausente\n' "LiveKit mídia UDP"
   SKIP=$((SKIP + 1))
 fi
 

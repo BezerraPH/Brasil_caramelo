@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-22 (v2.4.8-alpha)
-Versão atual do pacote (package.json): 2.4.8-alpha.0
+Última atualização: 2026-05-23 (v2.4.9-alpha)
+Versão atual do pacote (package.json): 2.4.9-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
@@ -131,7 +131,7 @@ DogReputationLevel (10 personalidades ativas):
   BORDER_COLLIE, BASSET_HOUND, CHOW_CHOW
 
 ================================================================================
-  5. FUNCIONALIDADES ATUAIS (v2.4.8-alpha)
+  5. FUNCIONALIDADES ATUAIS (v2.4.9-alpha)
 ================================================================================
 
 [OK] Cadastro e login
@@ -299,6 +299,11 @@ DogReputationLevel (10 personalidades ativas):
 [OK] Genealogia — stats asOwner/asParent/total na API e painel
 [OK] SharePostButton — link canônico feedPostPath
 [OK] Landing — 6 tiles (Tribunal, Latidos, DNA) + bc-feature-tile
+[OK] WelcomeBanner v26 (HTTPS celular + CallProvider global)
+[OK] CallProvider — atender chamada em qualquer página autenticada (Pusher global)
+[OK] lib/media-devices.ts — contexto seguro, erros PT, vibração ao receber chamada
+[OK] Latidos — ICE/TURN no connect, “Tocar áudio”, indicador quem está falando
+[OK] LiveKit LAN — use_external_ip: false + node_ip; nginx HTTPS exemplo (mkcert)
 [OK] WelcomeBanner v25 (WebRTC + LiveKit v2.4.8)
 [OK] Chamadas WebRTC — expira sessões travadas (3 min), atender exige gesto do usuário
 [OK] LiveKit Latidos — node_ip externo, mensagens de erro por DisconnectReason
@@ -447,6 +452,28 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v2.4.9-alpha.0 — 2026-05-23 (celular HTTPS, CallProvider, Latidos mobile)
+------------------------------------------------------------------------------
+  CHAMADAS WebRTC:
+  + CallProvider no layout — escuta call-signal em qualquer rota (feed, explorar…)
+  + WebRTCCallOverlay z-100, botões grandes, aviso HTTP/HTTPS no celular
+  + vibrateIncomingCall + requestUserMedia com erros em português
+
+  LATIDOS / LIVEKIT:
+  + livekit.yaml — use_external_ip: false (só IP LAN, sem 177.x público)
+  + LatidosRoomClient — rtcConfig TURN/STUN, play() remoto, “Tocar áudio”
+  + Banner HTTP bloqueia microfone no celular; micError ao ativar
+  + Indicador “falando” por participante
+
+  DOCS / OPS:
+  + CONFIGURACAO.md § 4.1 HTTPS celular (mkcert)
+  + deploy/nginx/brasilcaramelo-https.example.conf
+  + LIVEKIT.md atualizado; server-smoke.sh chmod + probe UDP via ss
+  + deploy-ubuntu.sh restart livekit/coturn
+
+  * package.json: 2.4.8-alpha.0 → 2.4.9-alpha.0
 
 ------------------------------------------------------------------------------
 v2.4.8-alpha.0 — 2026-05-22 (WebRTC estável, LiveKit LAN, smoke expandido)

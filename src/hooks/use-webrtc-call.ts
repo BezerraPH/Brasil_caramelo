@@ -1,6 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  requestUserMedia,
+  vibrateIncomingCall,
+} from "@/lib/media-devices";
 import { buildIceServers } from "@/lib/webrtc-ice";
 import type { CallSignalPayload } from "./use-realtime-chat";
 
@@ -24,6 +28,7 @@ function bindRemoteStream(
     .filter((t): t is MediaStreamTrack => Boolean(t));
   if (tracks.length === 0) return;
   remoteEl.srcObject = new MediaStream(tracks);
+  void remoteEl.play().catch(() => undefined);
 }
 
 export function useWebRTCCall(currentUserId: string) {
@@ -70,6 +75,7 @@ export function useWebRTCCall(currentUserId: string) {
       if (remoteEl) remoteVideoRef.current = remoteEl;
       if (localStreamRef.current && localEl) {
         localEl.srcObject = localStreamRef.current;
+        void localEl.play().catch(() => undefined);
       }
       const pc = pcRef.current;
       if (pc && remoteEl) {
@@ -83,7 +89,7 @@ export function useWebRTCCall(currentUserId: string) {
     if (pcRef.current) return pcRef.current;
     const stream =
       localStreamRef.current ??
-      (await navigator.mediaDevices.getUserMedia({ audio: true, video: true }));
+      (await requestUserMedia({ audio: true, video: true }));
     localStreamRef.current = stream;
     const pc = new RTCPeerConnection(buildIceServers());
     stream.getTracks().forEach((t) => pc.addTrack(t, stream));
@@ -143,8 +149,8 @@ export function useWebRTCCall(currentUserId: string) {
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
         await postSignal({ callId: data.callId, type: "offer", sdp: offer.sdp });
-      } catch {
-        setStatus("Permita câmera e microfone para ligar.");
+      } catch (e) {
+        setStatus(e instanceof Error ? e.message : "Permita câmera e microfone para ligar.");
       }
     },
     [ensurePc],
@@ -161,8 +167,8 @@ export function useWebRTCCall(currentUserId: string) {
         await ensurePc();
         setStatus("Aguardando sinal do chamador…");
       }
-    } catch {
-      setStatus("Permita câmera e microfone para atender.");
+    } catch (e) {
+      setStatus(e instanceof Error ? e.message : "Permita câmera e microfone para atender.");
     }
   }, [answerPendingOffer, ensurePc]);
 
@@ -171,6 +177,7 @@ export function useWebRTCCall(currentUserId: string) {
       if (data.fromUserId === currentUserId) return;
 
       if (data.type === "invite" && data.callId && data.fromUserId) {
+        vibrateIncomingCall();
         setOverlay({
           mode: "incoming",
           peer: {
@@ -206,8 +213,8 @@ export function useWebRTCCall(currentUserId: string) {
             sdp: answer.sdp,
           });
           setStatus("Conectado");
-        } catch {
-          setStatus("Erro ao processar chamada.");
+        } catch (e) {
+          setStatus(e instanceof Error ? e.message : "Erro ao processar chamada.");
         }
         return;
       }

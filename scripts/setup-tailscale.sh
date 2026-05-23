@@ -97,7 +97,12 @@ bc_apply_tailscale_env() {
   fi
   touch .env
 
-  for key in BC_HOST APP_URL NEXT_PUBLIC_APP_URL; do
+  if grep -q '^BC_HOST=' .env; then
+    sed -i "s|^BC_HOST=.*|BC_HOST=${host}|" .env
+  else
+    echo "BC_HOST=${host}" >> .env
+  fi
+  for key in APP_URL NEXT_PUBLIC_APP_URL; do
     if grep -q "^${key}=" .env; then
       sed -i "s|^${key}=.*|${key}=${base}|" .env
     else
@@ -149,12 +154,16 @@ bc_apply_tailscale_env() {
     fi
   done
 
+  if [ -n "$ts_ip" ] && [ -f "$ROOT/deploy/livekit/livekit.yaml" ]; then
+    if grep -q 'node_ip:' "$ROOT/deploy/livekit/livekit.yaml"; then
+      sed -i "s|node_ip:.*|node_ip: ${ts_ip}|" "$ROOT/deploy/livekit/livekit.yaml"
+      echo "OK: deploy/livekit/livekit.yaml → node_ip: ${ts_ip}"
+    fi
+  fi
+
   echo ""
-  echo "==> LiveKit: ajuste node_ip em deploy/livekit/livekit.yaml para o IP Tailscale:"
-  echo "    rtc.node_ip: ${ts_ip:-<tailscale ip -4>}"
-  echo "    Depois: docker compose restart livekit coturn"
-  echo ""
-  echo "==> Rebuild obrigatório:"
+  echo "==> Depois:"
+  echo "    docker compose restart livekit coturn"
   echo "    docker compose up -d --build"
   echo ""
 }

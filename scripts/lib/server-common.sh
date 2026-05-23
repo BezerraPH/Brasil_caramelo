@@ -46,10 +46,18 @@ bc_lan_ip() {
   echo "192.168.1.4"
 }
 
+bc_hostname_clean() {
+  local raw="$1"
+  echo "$raw" | sed -E 's#^https?://##; s#/.*##; s#:.*##'
+}
+
 bc_load_host() {
-  BC_HOST="$(bc_safe_env BC_HOST)"
-  if [ "$BC_HOST" = "(vazio ou ausente)" ] || [ "$BC_HOST" = "(sem .env)" ]; then
+  local raw
+  raw="$(bc_safe_env_raw BC_HOST)"
+  if [ -z "$raw" ]; then
     BC_HOST="192.168.1.4"
+  else
+    BC_HOST="$(bc_hostname_clean "$raw")"
   fi
   BC_LAN_IP="$(bc_lan_ip)"
   APP_PORT="${APP_PORT:-3000}"

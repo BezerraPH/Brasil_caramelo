@@ -24,6 +24,14 @@ if [ ! -f "$CERT_PEM" ] || [ ! -f "$KEY_PEM" ]; then
   exit 1
 fi
 
+if command -v tailscale >/dev/null 2>&1 && tailscale serve status 2>/dev/null | grep -qE 'https://|proxy'; then
+  echo ""
+  echo "AVISO: tailscale serve está ativo. Este script configura modo LAN (mkcert/brasilcaramelo.com)."
+  echo "       Se você usa Tailscale no celular, rode: sudo bash scripts/setup-tailscale.sh --serve"
+  echo "       (não misture os dois modos no .env)"
+  echo ""
+fi
+
 echo "==> Pacotes (nginx, libnss3-tools)..."
 sudo apt-get update -qq
 sudo apt-get install -y nginx libnss3-tools

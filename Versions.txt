@@ -495,10 +495,10 @@ v2.4.8-alpha.0 — 2026-05-22 (WebRTC estável, LiveKit LAN, smoke expandido)
   + bc-latidos-error CSS; WelcomeBanner v25
 
   OPS / TESTES:
-  + server-smoke.sh — LiveKit 7881 TCP, probe UDP 50000, auth expandido
-  + smoke-tests.list — auth-guard calls + livekit token com room
-  + smoke-tests-auth.list — chats, rooms, genealogy, livekit pitbull, calls 400
-  + CONFIGURACAO.md — firewall UDP + node_ip + chamadas 409
+  + scripts/server-audit.sh — auditoria unificada (sistema, portas, nginx, HTTPS, logs, smoke)
+  + scripts/lib/server-common.sh — funções compartilhadas
+  + server-report.sh → alias de server-audit.sh
+  + setup-https-lan.sh — detecta porta 80 ocupada, systemctl start nginx
 
   * package.json: 2.4.7-alpha.0 → 2.4.8-alpha.0
 

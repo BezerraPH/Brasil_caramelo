@@ -239,9 +239,18 @@ Rebuild após mudar.
 ## Comandos úteis
 
 ```bash
-docker compose ps              # status dos 5 serviços
+# Auditoria completa (substitui server-report + smoke + diagnóstico HTTPS)
+bash scripts/server-audit.sh
+bash scripts/server-audit.sh --quick        # sem logs longos / smoke
+bash scripts/server-audit.sh --smoke-only   # só testes HTTP
+
+docker compose ps
 docker compose restart livekit coturn   # após mudar livekit.yaml ou TURN
-docker compose logs app        # logs do site
+docker compose logs app
+bash scripts/setup-https-lan.sh           # HTTPS (pula :80 se ocupada)
+sudo ss -tlnp | grep ':80'              # quem usa a porta 80
+sudo systemctl start nginx
+```
 docker compose logs soketi
 docker compose restart app
 docker compose down            # parar tudo

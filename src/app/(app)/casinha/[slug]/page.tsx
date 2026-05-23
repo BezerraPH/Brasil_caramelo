@@ -7,6 +7,7 @@ import { PageContainer } from "@/components/PageContainer";
 import { CASINHA_BY_SLUG } from "@/lib/casinhas";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { VISIBLE_AUTHOR_WHERE, VISIBLE_POST_WHERE } from "@/lib/visible-posts";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -19,7 +20,11 @@ export default async function CasinhaPage({ params }: PageProps) {
   if (!user) return null;
 
   const posts = await prisma.post.findMany({
-    where: { communityLevel: casinha.level },
+    where: {
+      communityLevel: casinha.level,
+      ...VISIBLE_POST_WHERE,
+      author: VISIBLE_AUTHOR_WHERE,
+    },
     orderBy: { createdAt: "desc" },
     take: 40,
     include: {
@@ -49,12 +54,20 @@ export default async function CasinhaPage({ params }: PageProps) {
         </h1>
         <p className="text-bc-brown">{casinha.tagline}</p>
         <p className="mt-2 text-sm text-bc-blue/90">{casinha.rules}</p>
-        <Link
-          href={`/mensagens?tab=rooms&room=${casinha.slug}`}
-          className="bc-btn-primary mt-4 inline-flex items-center gap-2"
-        >
-          💬 Sala de chat ao vivo
-        </Link>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link
+            href={`/mensagens?tab=rooms&room=${casinha.slug}`}
+            className="bc-btn-primary inline-flex items-center gap-2"
+          >
+            💬 Chat da casinha
+          </Link>
+          <Link
+            href={`/latidos/${casinha.slug}`}
+            className="bc-btn-secondary bc-latidos-join-btn inline-flex items-center gap-2"
+          >
+            🎙️ Latidos ao vivo
+          </Link>
+        </div>
       </header>
 
       <CreatePostForm communityLevel={casinha.level} />

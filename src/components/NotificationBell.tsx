@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import Pusher from "pusher-js";
 import { useCallback, useEffect, useState } from "react";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
+import {
+  createPusherClient,
+  isPusherClientConfigured,
+} from "@/lib/pusher-client";
 import {
   NotificationRow,
   type NotificationRowData,
@@ -36,15 +39,16 @@ export function NotificationBell({
   useAsyncEffect(load, [load]);
 
   useEffect(() => {
-    if (!pusherKey || !pusherCluster) {
+    if (!isPusherClientConfigured(pusherKey, pusherCluster)) {
       const t = setInterval(load, 45000);
       return () => clearInterval(t);
     }
 
-    const pusher = new Pusher(pusherKey, {
-      cluster: pusherCluster,
-      authEndpoint: "/api/pusher/auth",
-    });
+    const pusher = createPusherClient(pusherKey!, pusherCluster ?? "");
+    if (!pusher) {
+      const t = setInterval(load, 45000);
+      return () => clearInterval(t);
+    }
 
     const channel = pusher.subscribe(`private-user-${userId}`);
     channel.bind("notification", () => {

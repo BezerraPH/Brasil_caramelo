@@ -1,8 +1,11 @@
-/** ICE servers para WebRTC (client-safe via NEXT_PUBLIC_*). */
+/** ICE servers para WebRTC — só servidores que você configurar (coturn no seu Ubuntu). */
 export function buildIceServers(): RTCConfiguration {
-  const servers: RTCIceServer[] = [
-    { urls: "stun:stun.l.google.com:19302" },
-  ];
+  const servers: RTCIceServer[] = [];
+
+  const stunUrl = process.env.NEXT_PUBLIC_STUN_URL?.trim();
+  if (stunUrl) {
+    servers.push({ urls: stunUrl });
+  }
 
   const turnUrl = process.env.NEXT_PUBLIC_TURN_URL?.trim();
   if (turnUrl) {

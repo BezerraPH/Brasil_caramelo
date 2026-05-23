@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-22 (v2.3.7-alpha)
-Versão atual do pacote (package.json): 2.3.7-alpha.0
+Última atualização: 2026-05-22 (v2.4.0-alpha)
+Versão atual do pacote (package.json): 2.4.0-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
@@ -13,6 +13,7 @@ INSTRUÇÃO PARA DESENVOLVEDORES / IA:
   - Mantenha RELEASE_STAGE em src/lib/app-version.ts alinhado ao estágio real
   - Adicione uma nova seção em "HISTÓRICO DE VERSÕES" com o que mudou
   - Atualize "FUNCIONALIDADES ATUAIS" e "ROADMAP" se necessário
+  - Configuração do servidor: CONFIGURACAO.md (não duplicar aqui)
 
 ================================================================================
   1. VISÃO GERAL
@@ -130,7 +131,7 @@ DogReputationLevel (10 personalidades ativas):
   BORDER_COLLIE, BASSET_HOUND, CHOW_CHOW
 
 ================================================================================
-  5. FUNCIONALIDADES ATUAIS (v2.3.7-alpha)
+  5. FUNCIONALIDADES ATUAIS (v2.3.8-alpha)
 ================================================================================
 
 [OK] Cadastro e login
@@ -236,14 +237,25 @@ DogReputationLevel (10 personalidades ativas):
 [OK] Denúncia com toast quando Tribunal do Cão é aberto
 [OK] LIVEKIT.md + vars LiveKit no docker-compose e Dockerfile
 [OK] WelcomeBanner v16 + animações bc-latidos-bar na sala ao vivo
-[OK] Versão visível no app (v2.3.7-alpha) — NavBar, rodapé, mobile, landing, config
+[OK] Filtro global tribunalHidden — feed, casinha, perfil, trending, salvos, busca
+[OK] Tribunal v2 — abas Abertos / Histórico / Meus recados + link ao recado + toast de erro
+[OK] Notificações TRIBUNAL_CASE, PET_BREED_REQUEST, PET_BREED_ACCEPTED
+[OK] Nav desktop Latidos + mobile Explorar inclui /latidos e /tribunal
+[OK] DNA — pedidos enviados na UI + aplicar cor do filhote ao pet (POST /api/pet/offspring/[id]/adopt)
+[OK] Atalhos Latidos e Tribunal na sidebar do feed + Latidos na casinha
+[OK] Cão de Guarda — resposta local sem vazar dump RAG
+[OK] Versão visível no app (v2.3.8-alpha) — NavBar, rodapé, mobile, landing, config
 [OK] Estágio Alpha documentado (lib/app-version.ts, GET /api/version, /api/health)
 
 [PENDENTE]
-  - TURN gerenciado (coturn) no mesmo servidor, se NAT for restrito
-  - LiveKit self-hosted na LAN (Cloud funciona; doc em LIVEKIT.md)
-  - Pagamento real Pedigree (Stripe/Pix)
-  - Anúncios geolocalizados de pet shops (cupons demo Recife/Caruaru; parceiros reais pendente)
+  - Pagamento real Pedigree (Pix) — stub local; sem gateway externo ainda
+  - Pet shops parceiros reais (cupons demo Recife/Caruaru já existem)
+  - nginx + HTTPS na LAN (opcional; HTTP funciona hoje)
+
+[SELF-HOSTED — CONFIGURACAO.md]
+  Um único docker-compose.yml: app + db + soketi + coturn + livekit
+  deploy/ — livekit.yaml, nginx, gitea (opcional)
+  Sem OpenAI, Pusher cloud ou LiveKit cloud
 
 ================================================================================
   6. PERSONALIDADES CANINAS (v0.5.0)
@@ -375,6 +387,71 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v2.4.0-alpha.0 — 2026-05-22 (compose unificado self-hosted)
+------------------------------------------------------------------------------
+  INFRA:
+  + docker-compose.yml único — app, db, soketi, coturn, livekit (rede bc)
+  + Removido docker-compose.selfhosted.yml e env.minimal.example
+  + .env.example unificado com BC_HOST
+  + scripts/setup-env.sh — gera .env com IP detectado
+  + scripts/deploy-ubuntu.sh — sobe stack completa
+  + deploy/README.md — índice da pasta deploy
+  + Dockerfile: ffmpeg para HLS no container
+  + Defaults no compose — funciona sem .env (BC_HOST=192.168.1.4)
+
+  DOCS:
+  + CONFIGURACAO, DEPLOY, README, LIVEKIT, COTURN simplificados
+
+  * package.json: 2.3.9-alpha.0 → 2.4.0-alpha.0
+
+------------------------------------------------------------------------------
+v2.3.9-alpha.0 — 2026-05-22 (self-hosted: docs, Soketi, compose extras)
+------------------------------------------------------------------------------
+  POLÍTICA:
+  + App pensado para rodar só no servidor Ubuntu — sem dependência de nuvem
+  + CONFIGURACAO.md — guia completo do .env em português
+  + env.minimal.example — copiar e colar para LAN
+
+  INFRA SELF-HOSTED:
+  + docker-compose.selfhosted.yml — Soketi, coturn, LiveKit
+  + deploy/livekit/livekit.yaml — chaves locais
+  + Soketi no código (pusher-client.ts, pusher-server.ts) — substitui Pusher cloud
+  + WebRTC sem STUN Google — só NEXT_PUBLIC_STUN_URL / TURN local
+  + docker-compose: env_file .env, vars PUSHER_HOST, STUN, rebuild NEXT_PUBLIC_*
+
+  DOCS:
+  + README, DEPLOY, LIVEKIT, COTURN reescritos para servidor próprio
+  + .env.example reorganizado (obrigatório / self-hosted / externo)
+
+  * package.json: 2.3.8-alpha.0 → 2.3.9-alpha.0
+
+------------------------------------------------------------------------------
+v2.3.8-alpha.0 — 2026-05-22 (Tribunal global, notificações, DNA jogável)
+------------------------------------------------------------------------------
+  CORREÇÕES CRÍTICAS:
+  + lib/visible-posts.ts — tribunalHidden em casinha, perfil, trending, salvos
+  + Busca unificada com VISIBLE_POST_WHERE + VISIBLE_AUTHOR_WHERE
+  + TrendingPosts link para recado no feed (#post-id)
+
+  TRIBUNAL:
+  + Abas Abertos / Histórico / Meus recados (GET /api/tribunal?tab=)
+  + Toast ao falhar voto; notificação ao autor quando caso abre e quando removido
+  + notifyTribunalOpened — jurados Border Collie / Poodle
+
+  NOTIFICAÇÕES:
+  + Enum TRIBUNAL_CASE, PET_BREED_REQUEST, PET_BREED_ACCEPTED
+  + Migração 20260525120000_v238_notifications_tribunal_breed
+
+  DNA / NAV / UX:
+  + PetBreedingPanel — pedidos enviados (outgoing)
+  + POST /api/pet/offspring/[id]/adopt — cor do filhote no pet
+  + Nav Latidos (desktop); mobile Explorar + /latidos /tribunal
+  + Sidebar feed + casinha com link Latidos ao vivo
+  + WelcomeBanner v17; CSS tribunal-tabs; premium hint região cupons
+
+  * package.json: 2.3.7-alpha.0 → 2.3.8-alpha.0
 
 ------------------------------------------------------------------------------
 v2.3.7-alpha.0 — 2026-05-22 (LiveKit, Guarda RAG, fixes busca/denúncia)

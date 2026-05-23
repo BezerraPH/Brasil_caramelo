@@ -1,9 +1,12 @@
 "use client";
 
-import Pusher from "pusher-js";
 import { useEffect, useRef } from "react";
 import { chatChannelName, type TypingPayload } from "@/lib/chat-constants";
 import { roomChannelName } from "@/lib/casinha-rooms-constants";
+import {
+  createPusherClient,
+  isPusherClientConfigured,
+} from "@/lib/pusher-client";
 
 export type RealtimeMessagePayload = {
   id: string;
@@ -65,12 +68,10 @@ export function useRealtimeChat({
   });
 
   useEffect(() => {
-    if (!pusherKey || !pusherCluster) return;
+    if (!isPusherClientConfigured(pusherKey, pusherCluster)) return;
 
-    const pusher = new Pusher(pusherKey, {
-      cluster: pusherCluster,
-      authEndpoint: "/api/pusher/auth",
-    });
+    const pusher = createPusherClient(pusherKey!, pusherCluster ?? "");
+    if (!pusher) return;
 
     const userChannel = pusher.subscribe(`private-user-${userId}`);
     userChannel.bind("chat-inbox", () => inboxRef.current?.());
@@ -78,7 +79,7 @@ export function useRealtimeChat({
       callRef.current?.(data);
     });
 
-    let dmChannel: ReturnType<Pusher["subscribe"]> | null = null;
+    let dmChannel: ReturnType<typeof pusher.subscribe> | null = null;
     if (conversationId) {
       dmChannel = pusher.subscribe(chatChannelName(conversationId));
       dmChannel.bind("message", (data: RealtimeMessagePayload) => {
@@ -89,7 +90,7 @@ export function useRealtimeChat({
       });
     }
 
-    let roomChannel: ReturnType<Pusher["subscribe"]> | null = null;
+    let roomChannel: ReturnType<typeof pusher.subscribe> | null = null;
     if (roomId) {
       roomChannel = pusher.subscribe(roomChannelName(roomId));
       roomChannel.bind("message", (data: RealtimeMessagePayload) => {

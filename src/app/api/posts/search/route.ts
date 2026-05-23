@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { VISIBLE_AUTHOR_WHERE, VISIBLE_POST_WHERE } from "@/lib/visible-posts";
 
 export async function GET(request: Request) {
   const user = await getCurrentUser();
@@ -21,8 +22,8 @@ export async function GET(request: Request) {
     const posts = await prisma.post.findMany({
       where: {
         content: { contains: `#${tag}`, mode: "insensitive" },
-        author: { shadowbanned: false },
-        tribunalHidden: false,
+        ...VISIBLE_POST_WHERE,
+        author: VISIBLE_AUTHOR_WHERE,
       },
       orderBy: { createdAt: "desc" },
       take: 30,
@@ -54,8 +55,8 @@ export async function GET(request: Request) {
 
   const posts = await prisma.post.findMany({
     where: {
-      author: { shadowbanned: false },
-      tribunalHidden: false,
+      ...VISIBLE_POST_WHERE,
+      author: VISIBLE_AUTHOR_WHERE,
       OR: [
         { content: { contains: q, mode: "insensitive" } },
         { author: { username: { contains: q, mode: "insensitive" } } },

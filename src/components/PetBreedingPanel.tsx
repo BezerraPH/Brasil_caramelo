@@ -23,9 +23,15 @@ type Incoming = {
   fromUser: { id: string; name: string; username: string };
 };
 
+type Outgoing = {
+  id: string;
+  toUser: { id: string; name: string; username: string };
+};
+
 export function PetBreedingPanel({ friends }: { friends: Friend[] }) {
   const toast = useToast();
   const [incoming, setIncoming] = useState<Incoming[]>([]);
+  const [outgoing, setOutgoing] = useState<Outgoing[]>([]);
   const [offspring, setOffspring] = useState<Offspring[]>([]);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
@@ -35,6 +41,7 @@ export function PetBreedingPanel({ friends }: { friends: Friend[] }) {
     const data = await res.json();
     if (res.ok) {
       setIncoming(data.incoming ?? []);
+      setOutgoing(data.outgoing ?? []);
       setOffspring(data.offspring ?? []);
     }
   }, []);
@@ -75,6 +82,19 @@ export function PetBreedingPanel({ friends }: { friends: Friend[] }) {
     } else setMsg(data.error ?? "Erro.");
   }
 
+  async function adoptColor(offspringId: string) {
+    setLoading(true);
+    const res = await fetch(`/api/pet/offspring/${offspringId}/adopt`, {
+      method: "POST",
+    });
+    const data = await res.json();
+    setLoading(false);
+    if (res.ok) {
+      setMsg(`Cor do pet atualizada para ${data.color}!`);
+      toast("DNA aplicado ao seu pet 🧬", "achievement");
+    } else setMsg(data.error ?? "Erro.");
+  }
+
   return (
     <section className="bc-card bc-dna-panel p-5">
       <h2 className="font-bold text-bc-blue">🧬 DNA Caramelo</h2>
@@ -82,6 +102,20 @@ export function PetBreedingPanel({ friends }: { friends: Friend[] }) {
         Cruze seu pet com um amigo — filhote herda personalidades dominantes dos
         pais.
       </p>
+
+      {outgoing.length > 0 && (
+        <ul className="mt-4 space-y-2">
+          <p className="text-xs font-semibold text-bc-brown">Pedidos enviados</p>
+          {outgoing.map((r) => (
+            <li
+              key={r.id}
+              className="rounded-lg border border-bc-blue/15 bg-bc-blue/5 px-3 py-2 text-sm text-bc-brown"
+            >
+              Aguardando <strong>{r.toUser.name}</strong> aceitar o cruzamento
+            </li>
+          ))}
+        </ul>
+      )}
 
       {incoming.length > 0 && (
         <ul className="mt-4 space-y-2">
@@ -156,11 +190,19 @@ export function PetBreedingPanel({ friends }: { friends: Friend[] }) {
                   >
                     {breed.emoji}
                   </span>
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-bc-blue">
                       {o.name}
                     </p>
                     <p className="text-[10px] text-bc-brown">{breed.breed}</p>
+                    <button
+                      type="button"
+                      disabled={loading}
+                      onClick={() => void adoptColor(o.id)}
+                      className="bc-btn-ghost mt-1 text-[10px]"
+                    >
+                      Aplicar cor ao meu pet
+                    </button>
                   </div>
                 </li>
               );

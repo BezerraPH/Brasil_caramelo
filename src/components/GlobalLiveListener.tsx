@@ -1,9 +1,12 @@
 "use client";
 
-import Pusher from "pusher-js";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { GLOBAL_CHANNEL } from "@/lib/pusher-constants";
+import {
+  createPublicPusherClient,
+  isPusherClientConfigured,
+} from "@/lib/pusher-client";
 
 type GlobalLiveListenerProps = {
   pusherKey?: string | null;
@@ -17,9 +20,11 @@ export function GlobalLiveListener({
   const router = useRouter();
 
   useEffect(() => {
-    if (!pusherKey || !pusherCluster) return;
+    if (!isPusherClientConfigured(pusherKey, pusherCluster)) return;
 
-    const pusher = new Pusher(pusherKey, { cluster: pusherCluster });
+    const pusher = createPublicPusherClient(pusherKey!, pusherCluster ?? "");
+    if (!pusher) return;
+
     const channel = pusher.subscribe(GLOBAL_CHANNEL);
 
     channel.bind("flash-event", () => router.refresh());

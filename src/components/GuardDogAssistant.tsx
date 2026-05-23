@@ -58,7 +58,7 @@ export function GuardDogAssistant() {
           )}
           {!aiPowered && (
             <span className="mt-2 block text-[10px] text-bc-brown/70">
-              Modo local — configure OPENAI_API_KEY para respostas com IA.
+              Modo local — respostas com regras da matilha (sem IA externa).
             </span>
           )}
         </p>

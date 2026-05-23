@@ -8,25 +8,45 @@ export { GLOBAL_CHANNEL, chatChannelName, roomChannelName };
 let pusher: Pusher | null = null;
 
 export function isPusherEnabled() {
-  return Boolean(
+  const base =
     process.env.PUSHER_APP_ID &&
-      process.env.PUSHER_KEY &&
-      process.env.PUSHER_SECRET &&
-      process.env.NEXT_PUBLIC_PUSHER_KEY &&
-      process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
+    process.env.PUSHER_KEY &&
+    process.env.PUSHER_SECRET &&
+    process.env.NEXT_PUBLIC_PUSHER_KEY;
+
+  if (!base) return false;
+
+  return Boolean(
+    process.env.NEXT_PUBLIC_PUSHER_HOST?.trim() ||
+      process.env.NEXT_PUBLIC_PUSHER_CLUSTER?.trim(),
   );
+}
+
+function buildServerOptions(): ConstructorParameters<typeof Pusher>[0] {
+  const host = process.env.PUSHER_HOST?.trim();
+  if (host) {
+    return {
+      appId: process.env.PUSHER_APP_ID!,
+      key: process.env.PUSHER_KEY!,
+      secret: process.env.PUSHER_SECRET!,
+      host,
+      port: String(process.env.PUSHER_PORT || "6001"),
+      useTLS: process.env.PUSHER_USE_TLS === "true",
+    };
+  }
+  return {
+    appId: process.env.PUSHER_APP_ID!,
+    key: process.env.PUSHER_KEY!,
+    secret: process.env.PUSHER_SECRET!,
+    cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+    useTLS: true,
+  };
 }
 
 export function getPusherServer() {
   if (!isPusherEnabled()) return null;
   if (!pusher) {
-    pusher = new Pusher({
-      appId: process.env.PUSHER_APP_ID!,
-      key: process.env.PUSHER_KEY!,
-      secret: process.env.PUSHER_SECRET!,
-      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
-      useTLS: true,
-    });
+    pusher = new Pusher(buildServerOptions());
   }
   return pusher;
 }

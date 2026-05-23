@@ -33,7 +33,7 @@ export async function askGuardDog(
 
   if (!key) {
     return {
-      answer: `Auau! Contexto da matilha:\n${ragContext}\n\nSobre "${trimmed}": configure OPENAI_API_KEY para respostas com IA, ou veja /tribunal e Versions.txt.`,
+      answer: `Auau! Sobre "${trimmed}": veja /tribunal, /latidos e DNA em /cachorro. O Cão de Guarda usa regras locais da matilha — sem serviços externos.`,
       aiPowered: false,
       ragUsed: true,
     };

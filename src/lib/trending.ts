@@ -1,4 +1,5 @@
 import { prisma } from "./prisma";
+import { VISIBLE_AUTHOR_WHERE, VISIBLE_POST_WHERE } from "./visible-posts";
 
 const HASHTAG = /#([\p{L}\p{N}_]{2,40})/gu;
 const WORD = /\b([\p{L}]{4,24})\b/gu;
@@ -33,7 +34,8 @@ export async function refreshMatilhaTrends(): Promise<number> {
     where: {
       createdAt: { gte: since },
       communityLevel: null,
-      author: { shadowbanned: false },
+      ...VISIBLE_POST_WHERE,
+      author: VISIBLE_AUTHOR_WHERE,
     },
     select: { content: true },
     take: 2000,

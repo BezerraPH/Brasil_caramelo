@@ -2,6 +2,7 @@ import type { Prisma } from "@/generated/prisma/client";
 import { getFriendIds } from "./friendship";
 import { expirePostBoosts } from "./post-boost";
 import { prisma } from "./prisma";
+import { VISIBLE_AUTHOR_WHERE, VISIBLE_POST_WHERE } from "./visible-posts";
 import { applyPetDecay, petAvatarStatus, type PetAvatarStatus } from "./pet";
 
 export const FEED_PAGE_SIZE = 12;
@@ -101,7 +102,7 @@ export async function fetchFeedPage(
 
   let authorFilter: Prisma.PostWhereInput["author"] = options?.includeShadowbanned
     ? undefined
-    : { shadowbanned: false };
+    : VISIBLE_AUTHOR_WHERE;
 
   if (options?.friendsOnly) {
     const friendIds = await getFriendIds(viewerId);
@@ -114,7 +115,7 @@ export async function fetchFeedPage(
   const rows = await prisma.post.findMany({
     where: {
       communityLevel: null,
-      tribunalHidden: false,
+      ...VISIBLE_POST_WHERE,
       ...(authorFilter ? { author: authorFilter } : {}),
       ...(options?.videosOnly ? { videoUrl: { not: null } } : {}),
     },

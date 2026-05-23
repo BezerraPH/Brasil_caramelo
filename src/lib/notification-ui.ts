@@ -16,6 +16,9 @@ export function notificationIcon(type: NotificationType): string {
     CHAT_MESSAGE: "💬",
     ROOM_MESSAGE: "🏠",
     INCOMING_CALL: "📹",
+    TRIBUNAL_CASE: "⚖️",
+    PET_BREED_REQUEST: "🧬",
+    PET_BREED_ACCEPTED: "🧬",
   };
   return map[type] ?? "🔔";
 }

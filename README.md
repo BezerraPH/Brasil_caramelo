@@ -1,16 +1,39 @@
 # Brasil Caramelo
 
-Rede social brasileira em **alpha** — feed, Insta, Cinelar, stories, casinhas, chat, WebRTC e jogo do pet.
+Rede social brasileira **100% self-hosted** — um `docker-compose.yml` sobe tudo no seu Ubuntu.
 
-**Versão:** ver `package.json` e badge no app (`v2.3.5-alpha`).
+## Subir no servidor
 
-## Requisitos
+```bash
+cd ~/brasil_caramelo
+./scripts/deploy-ubuntu.sh
+```
 
-- Node.js 20+
-- PostgreSQL 16
-- (Opcional) ffmpeg, coturn, Pusher, OpenAI (moderação de imagens)
+Ou: `cp .env.example .env` → `docker compose up -d --build`
 
-## Desenvolvimento local
+## Stack (5 containers)
+
+| Serviço | Porta |
+|---------|-------|
+| App (Next.js) | 3000 |
+| PostgreSQL | 5432 |
+| Soketi (tempo real) | 6001 |
+| coturn (WebRTC) | 3478 |
+| LiveKit (Latidos) | 7880 |
+
+**Sem serviços externos** (OpenAI, Pusher cloud, etc.).
+
+## Documentação
+
+| Arquivo | Conteúdo |
+|---------|----------|
+| **[CONFIGURACAO.md](./CONFIGURACAO.md)** | Guia do `.env` |
+| [DEPLOY.md](./DEPLOY.md) | Deploy Ubuntu |
+| [deploy/README.md](./deploy/README.md) | Arquivos de infra |
+| [DNS-LOCAL.md](./DNS-LOCAL.md) | DNS na LAN |
+| [Versions.txt](./Versions.txt) | Histórico |
+
+## Dev local (Windows)
 
 ```bash
 cp .env.example .env
@@ -19,33 +42,4 @@ npx prisma migrate dev
 npm run dev
 ```
 
-Abra [http://localhost:3000](http://localhost:3000).
-
-## Produção (Docker)
-
-```bash
-npx prisma migrate deploy
-docker compose up -d --build
-```
-
-## Documentação
-
-| Arquivo | Conteúdo |
-|---------|----------|
-| `Versions.txt` | Histórico completo e funcionalidades |
-| `DEPLOY.md` | Deploy no servidor |
-| `DNS-LOCAL.md` | DNS `brasilcaramelo.com` na LAN |
-| `COTURN.md` | WebRTC / TURN |
-| `VIDEO-STREAMING.md` | HLS, hls.js, Range, cron trending |
-
-## Scripts
-
-- `npm run dev` — desenvolvimento
-- `npm run build` — build de produção
-- `npm run lint` — ESLint
-- `npm run db:migrate` — migrações (dev)
-- `npm run db:deploy` — migrações (prod)
-
-## Stack
-
-Next.js 16 · React 19 · Prisma 7 · PostgreSQL · Tailwind 4 · hls.js · Pusher (opcional)
+Para produção na LAN, use Docker no Ubuntu.

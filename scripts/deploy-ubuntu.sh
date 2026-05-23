@@ -1,20 +1,26 @@
 #!/bin/bash
-# Deploy no Ubuntu (ex.: 192.168.1.4)
+# Deploy completo self-hosted — Ubuntu (192.168.1.4)
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-echo "==> Subindo PostgreSQL e app..."
+if [ ! -f .env ]; then
+  echo "==> Criando .env a partir do exemplo..."
+  bash scripts/setup-env.sh
+fi
+
+echo "==> Subindo stack completa (app, db, soketi, coturn, livekit)..."
 docker compose up -d --build
 
 echo "==> Aplicando migrações..."
 docker compose exec app npx prisma migrate deploy
 
 echo ""
-IP=$(hostname -I | awk '{print $1}')
-echo "Pronto!"
-echo "  IP:    http://${IP}:3000"
-echo "  DNS:   http://brasilcaramelo.com:3000  (após configurar hosts/DNS — ver DNS-LOCAL.md)"
-if grep -q '^APP_URL=' .env 2>/dev/null; then
-  echo "  APP_URL no .env: $(grep '^APP_URL=' .env | cut -d= -f2- | tr -d '"')"
-fi
+IP=$(grep '^BC_HOST=' .env 2>/dev/null | cut -d= -f2- | tr -d '"' || hostname -I | awk '{print $1}')
+echo "Pronto! Brasil Caramelo self-hosted:"
+echo "  App:     http://${IP}:3000"
+echo "  Soketi:  ws://${IP}:6001  (chat ao vivo)"
+echo "  LiveKit: ws://${IP}:7880  (Latidos ao Vivo)"
+echo "  TURN:    turn:${IP}:3478  (chamadas vídeo)"
+echo ""
+echo "Guia: CONFIGURACAO.md"

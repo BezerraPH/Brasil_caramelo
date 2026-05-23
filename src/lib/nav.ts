@@ -15,6 +15,12 @@ export const DESKTOP_NAV: NavItem[] = [
     icon: "🏠",
     matchPrefixes: ["/casinha"],
   },
+  {
+    href: "/latidos",
+    label: "Latidos",
+    icon: "🎙️",
+    matchPrefixes: ["/latidos"],
+  },
   { href: "/ranking", label: "Matilha", icon: "🏆" },
   { href: "/rolezinho", label: "Eventos", icon: "🎉" },
 ];
@@ -34,6 +40,8 @@ export const MOBILE_NAV: NavItem[] = [
       "/premium",
       "/rolezinho",
       "/salvos",
+      "/latidos",
+      "/tribunal",
     ],
   },
   {

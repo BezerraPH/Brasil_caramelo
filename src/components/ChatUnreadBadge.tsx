@@ -1,8 +1,11 @@
 "use client";
 
-import Pusher from "pusher-js";
 import { useCallback, useEffect, useState } from "react";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
+import {
+  createPusherClient,
+  isPusherClientConfigured,
+} from "@/lib/pusher-client";
 
 export function ChatUnreadBadge({
   pusherKey,
@@ -26,15 +29,16 @@ export function ChatUnreadBadge({
   useAsyncEffect(load, [load]);
 
   useEffect(() => {
-    if (!pusherKey || !pusherCluster) {
+    if (!isPusherClientConfigured(pusherKey, pusherCluster)) {
       const t = setInterval(load, 60_000);
       return () => clearInterval(t);
     }
 
-    const pusher = new Pusher(pusherKey, {
-      cluster: pusherCluster,
-      authEndpoint: "/api/pusher/auth",
-    });
+    const pusher = createPusherClient(pusherKey!, pusherCluster ?? "");
+    if (!pusher) {
+      const t = setInterval(load, 60_000);
+      return () => clearInterval(t);
+    }
     const channel = pusher.subscribe(`private-user-${userId}`);
     channel.bind("chat-inbox", () => {
       load();

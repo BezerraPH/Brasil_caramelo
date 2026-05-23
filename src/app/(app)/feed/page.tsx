@@ -155,6 +155,18 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
               >
                 ⚔️ Batalha de pets
               </Link>
+              <Link
+                href="/latidos"
+                className="mt-2 block rounded-lg bg-bc-green/10 px-2 py-2 text-xs font-medium text-bc-green hover:bg-bc-green/15"
+              >
+                🎙️ Latidos ao vivo
+              </Link>
+              <Link
+                href="/tribunal"
+                className="mt-2 block rounded-lg bg-bc-blue/10 px-2 py-2 text-xs font-medium text-bc-blue hover:bg-bc-blue/15"
+              >
+                ⚖️ Tribunal do Cão
+              </Link>
             </section>
           </aside>
         )}

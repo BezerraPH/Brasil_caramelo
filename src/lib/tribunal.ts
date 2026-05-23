@@ -18,12 +18,15 @@ export async function maybeOpenTribunalCase(postId: string): Promise<boolean> {
   await prisma.postTribunalCase.create({
     data: { postId },
   });
+  const { notifyTribunalOpened } = await import("./tribunal-notify");
+  void notifyTribunalOpened(postId);
   return true;
 }
 
 export async function resolveTribunalCaseIfReady(caseId: string): Promise<void> {
   const tribunalCase = await prisma.postTribunalCase.findUnique({
     where: { id: caseId },
+    include: { post: { select: { authorId: true } } },
   });
   if (!tribunalCase || tribunalCase.status !== "OPEN") return;
 
@@ -47,4 +50,14 @@ export async function resolveTribunalCaseIfReady(caseId: string): Promise<void> 
         ]
       : []),
   ]);
+
+  if (removeWins) {
+    const { createNotification } = await import("./notifications");
+    await createNotification(
+      tribunalCase.post.authorId,
+      "TRIBUNAL_CASE",
+      "⚖️ O Tribunal do Cão removeu seu recado da matilha.",
+      "/tribunal",
+    );
+  }
 }

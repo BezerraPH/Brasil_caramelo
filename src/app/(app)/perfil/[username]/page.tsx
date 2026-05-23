@@ -14,6 +14,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { areFriends } from "@/lib/friendship";
 import { getPersonalityTheme } from "@/lib/personality-theme";
 import { prisma } from "@/lib/prisma";
+import { VISIBLE_POST_WHERE } from "@/lib/visible-posts";
 import { summarizeReputation } from "@/lib/reputation";
 
 type PageProps = {
@@ -55,7 +56,7 @@ export default async function ProfilePage({ params }: PageProps) {
   const theme = getPersonalityTheme(summary.dominant?.level);
 
   const recentPosts = await prisma.post.findMany({
-    where: { authorId: profile.id, communityLevel: null },
+    where: { authorId: profile.id, communityLevel: null, ...VISIBLE_POST_WHERE },
     orderBy: { createdAt: "desc" },
     take: 5,
     include: {

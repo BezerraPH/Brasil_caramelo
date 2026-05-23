@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { VISIBLE_POST_WHERE } from "@/lib/visible-posts";
 import { z } from "zod";
 
 const saveSchema = z.object({ postId: z.string().min(1) });
@@ -12,7 +13,10 @@ export async function GET() {
   }
 
   const saved = await prisma.savedPost.findMany({
-    where: { userId: user.id },
+    where: {
+      userId: user.id,
+      post: VISIBLE_POST_WHERE,
+    },
     orderBy: { createdAt: "desc" },
     take: 50,
     include: {

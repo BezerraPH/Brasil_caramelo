@@ -36,6 +36,13 @@ export default async function PremiumPage() {
       )}
 
       <PetShopCoupons region={process.env.NEXT_PUBLIC_PET_SHOP_REGION} />
+      {!process.env.NEXT_PUBLIC_PET_SHOP_REGION?.trim() && (
+        <p className="bc-card mt-4 p-4 text-center text-xs text-bc-brown">
+          Cupons regionais: defina{" "}
+          <code className="text-[10px]">NEXT_PUBLIC_PET_SHOP_REGION</code> (ex.:
+          Recife ou Caruaru) no servidor.
+        </p>
+      )}
 
       <ul className="bc-card mt-6 space-y-3 p-6 text-sm">
         <li>★ Selo dourado no perfil</li>

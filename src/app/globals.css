@@ -426,6 +426,24 @@ body {
   box-shadow: 0 4px 16px color-mix(in srgb, var(--bc-green) 15%, transparent);
 }
 
+.bc-coupon-qr {
+  animation: bc-animate-in 0.3s ease;
+  word-break: break-all;
+}
+
+.bc-tribunal-tabs .bc-btn-primary,
+.bc-tribunal-tabs .bc-btn-secondary {
+  min-width: 5.5rem;
+}
+
+.bc-tribunal-case {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bc-tribunal-case:hover {
+  border-color: color-mix(in srgb, var(--bc-blue) 25%, transparent);
+}
+
 .bc-latidos-header {
   border-color: color-mix(in srgb, var(--bc-blue) 20%, transparent);
 }

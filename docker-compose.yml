@@ -1,3 +1,8 @@
+# Brasil Caramelo — stack self-hosted completa
+# Um único comando: docker compose up -d --build
+
+name: brasil_caramelo
+
 services:
   db:
     image: postgres:16-alpine
@@ -15,45 +20,124 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - bc
+
+  soketi:
+    image: quay.io/soketi/soketi:latest-16-alpine
+    restart: unless-stopped
+    environment:
+      SOKETI_DEFAULT_APP_ID: ${PUSHER_APP_ID:-brasil-caramelo}
+      SOKETI_DEFAULT_APP_KEY: ${PUSHER_KEY:-caramelo_key_local}
+      SOKETI_DEFAULT_APP_SECRET: ${PUSHER_SECRET:-caramelo_secret_local}
+      SOKETI_DEBUG: "0"
+    ports:
+      - "6001:6001"
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    networks:
+      - bc
+
+  coturn:
+    image: coturn/coturn:latest
+    restart: unless-stopped
+    ports:
+      - "3478:3478/tcp"
+      - "3478:3478/udp"
+    command:
+      - -n
+      - --log-file=stdout
+      - --listening-port=3478
+      - --realm=brasilcaramelo.local
+      - --user=${TURN_USERNAME:-caramelo}:${TURN_PASSWORD:-caramelo_turn_secret}
+      - --lt-cred-mech
+      - --fingerprint
+      - --no-cli
+    networks:
+      - bc
+
+  livekit:
+    image: livekit/livekit-server:latest
+    restart: unless-stopped
+    command: --config /etc/livekit.yaml
+    ports:
+      - "7880:7880/tcp"
+      - "7881:7881/tcp"
+      - "7882:7882/udp"
+    volumes:
+      - ./deploy/livekit/livekit.yaml:/etc/livekit.yaml:ro
+    networks:
+      - bc
 
   app:
     build:
       context: .
       args:
-        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
-        NEXT_PUBLIC_TURN_URL: ${NEXT_PUBLIC_TURN_URL:-}
-        NEXT_PUBLIC_TURN_USERNAME: ${NEXT_PUBLIC_TURN_USERNAME:-}
-        NEXT_PUBLIC_TURN_CREDENTIAL: ${NEXT_PUBLIC_TURN_CREDENTIAL:-}
-        NEXT_PUBLIC_LIVEKIT_URL: ${NEXT_PUBLIC_LIVEKIT_URL:-}
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://${BC_HOST:-192.168.1.4}:3000}
+        NEXT_PUBLIC_STUN_URL: ${NEXT_PUBLIC_STUN_URL:-stun:${BC_HOST:-192.168.1.4}:3478}
+        NEXT_PUBLIC_TURN_URL: ${NEXT_PUBLIC_TURN_URL:-turn:${BC_HOST:-192.168.1.4}:3478}
+        NEXT_PUBLIC_TURN_USERNAME: ${NEXT_PUBLIC_TURN_USERNAME:-caramelo}
+        NEXT_PUBLIC_TURN_CREDENTIAL: ${NEXT_PUBLIC_TURN_CREDENTIAL:-caramelo_turn_secret}
+        NEXT_PUBLIC_LIVEKIT_URL: ${NEXT_PUBLIC_LIVEKIT_URL:-ws://${BC_HOST:-192.168.1.4}:7880}
+        NEXT_PUBLIC_PUSHER_HOST: ${NEXT_PUBLIC_PUSHER_HOST:-${BC_HOST:-192.168.1.4}}
+        NEXT_PUBLIC_PUSHER_PORT: ${NEXT_PUBLIC_PUSHER_PORT:-6001}
+        NEXT_PUBLIC_PUSHER_KEY: ${NEXT_PUBLIC_PUSHER_KEY:-caramelo_key_local}
+        NEXT_PUBLIC_PUSHER_USE_TLS: ${NEXT_PUBLIC_PUSHER_USE_TLS:-false}
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       DATABASE_URL: postgresql://caramelo:caramelo_secret@db:5432/brasil_caramelo
       NODE_ENV: production
-      COOKIE_SECURE: "false"
-      APP_URL: ${APP_URL:-http://localhost:3000}
-      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      BC_HOST: ${BC_HOST:-192.168.1.4}
+      APP_URL: ${APP_URL:-http://${BC_HOST:-192.168.1.4}:3000}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://${BC_HOST:-192.168.1.4}:3000}
       UPLOAD_DIR: /app/data/uploads
-      NEXT_PUBLIC_TURN_URL: ${NEXT_PUBLIC_TURN_URL:-}
-      NEXT_PUBLIC_TURN_USERNAME: ${NEXT_PUBLIC_TURN_USERNAME:-}
-      NEXT_PUBLIC_TURN_CREDENTIAL: ${NEXT_PUBLIC_TURN_CREDENTIAL:-}
-      NEXT_PUBLIC_LIVEKIT_URL: ${NEXT_PUBLIC_LIVEKIT_URL:-}
-      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY:-}
-      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET:-}
-      NEXT_PUBLIC_PUSHER_KEY: ${NEXT_PUBLIC_PUSHER_KEY:-}
-      NEXT_PUBLIC_PUSHER_CLUSTER: ${NEXT_PUBLIC_PUSHER_CLUSTER:-us2}
-      PUSHER_APP_ID: ${PUSHER_APP_ID:-}
-      PUSHER_KEY: ${PUSHER_KEY:-}
-      PUSHER_SECRET: ${PUSHER_SECRET:-}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      FFMPEG_PATH: ${FFMPEG_PATH:-/usr/bin/ffmpeg}
+      PUSHER_APP_ID: ${PUSHER_APP_ID:-brasil-caramelo}
+      PUSHER_KEY: ${PUSHER_KEY:-caramelo_key_local}
+      PUSHER_SECRET: ${PUSHER_SECRET:-caramelo_secret_local}
+      PUSHER_HOST: ${PUSHER_HOST:-soketi}
+      PUSHER_PORT: ${PUSHER_PORT:-6001}
+      PUSHER_USE_TLS: ${PUSHER_USE_TLS:-false}
+      NEXT_PUBLIC_PUSHER_KEY: ${NEXT_PUBLIC_PUSHER_KEY:-caramelo_key_local}
+      NEXT_PUBLIC_PUSHER_HOST: ${NEXT_PUBLIC_PUSHER_HOST:-${BC_HOST:-192.168.1.4}}
+      NEXT_PUBLIC_PUSHER_PORT: ${NEXT_PUBLIC_PUSHER_PORT:-6001}
+      NEXT_PUBLIC_PUSHER_USE_TLS: ${NEXT_PUBLIC_PUSHER_USE_TLS:-false}
+      NEXT_PUBLIC_PUSHER_CLUSTER: ${NEXT_PUBLIC_PUSHER_CLUSTER:-}
+      NEXT_PUBLIC_STUN_URL: ${NEXT_PUBLIC_STUN_URL:-stun:${BC_HOST:-192.168.1.4}:3478}
+      NEXT_PUBLIC_TURN_URL: ${NEXT_PUBLIC_TURN_URL:-turn:${BC_HOST:-192.168.1.4}:3478}
+      NEXT_PUBLIC_TURN_USERNAME: ${NEXT_PUBLIC_TURN_USERNAME:-caramelo}
+      NEXT_PUBLIC_TURN_CREDENTIAL: ${NEXT_PUBLIC_TURN_CREDENTIAL:-caramelo_turn_secret}
+      NEXT_PUBLIC_LIVEKIT_URL: ${NEXT_PUBLIC_LIVEKIT_URL:-ws://${BC_HOST:-192.168.1.4}:7880}
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY:-caramelo_livekit_key}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET:-caramelo_livekit_secret_change_me}
+      NEXT_PUBLIC_PET_SHOP_REGION: ${NEXT_PUBLIC_PET_SHOP_REGION:-Recife}
+      PREMIUM_CODE: ${PREMIUM_CODE:-MATILHA2026}
       EVENT_ADMIN_SECRET: ${EVENT_ADMIN_SECRET:-}
-      PREMIUM_CODE: ${PREMIUM_CODE:-}
+      FEDERATION_EXPORT_SECRET: ${FEDERATION_EXPORT_SECRET:-}
+      CRON_SECRET: ${CRON_SECRET:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
     volumes:
       - uploads_data:/app/data/uploads
     depends_on:
       db:
         condition: service_healthy
+      soketi:
+        condition: service_started
+      livekit:
+        condition: service_started
+      coturn:
+        condition: service_started
+    networks:
+      - bc
+
+networks:
+  bc:
+    driver: bridge
 
 volumes:
   pgdata:

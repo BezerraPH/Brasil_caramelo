@@ -3,6 +3,7 @@ import { z } from "zod";
 import { unlockAchievement } from "@/lib/achievements";
 import { getCurrentUser } from "@/lib/auth";
 import { areFriends } from "@/lib/friendship";
+import { createNotification } from "@/lib/notifications";
 import {
   computeOffspringDna,
   getUserDominantLevel,
@@ -86,6 +87,17 @@ export async function POST(request: Request) {
     const req = await prisma.petBreedingRequest.create({
       data: { fromUserId: user.id, toUserId: friendUserId },
     });
+
+    const fromUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { name: true },
+    });
+    await createNotification(
+      friendUserId,
+      "PET_BREED_REQUEST",
+      `🧬 ${fromUser?.name ?? "Um amigo"} quer cruzar pets (DNA Caramelo).`,
+      "/cachorro",
+    );
 
     return NextResponse.json({ request: req });
   } catch {
@@ -186,6 +198,17 @@ export async function PATCH(request: Request) {
         if (ownerId === user.id) newAchievements.push("BREEDER_5");
       }
     }
+
+    const accepter = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { name: true },
+    });
+    await createNotification(
+      breeding.fromUserId,
+      "PET_BREED_ACCEPTED",
+      `🧬 ${accepter?.name ?? "Seu amigo"} aceitou o cruzamento — filhotes nasceram!`,
+      "/cachorro",
+    );
 
     return NextResponse.json({
       ok: true,

@@ -11,6 +11,8 @@ const DONE = [
   { icon: "⚖️", title: "Tribunal do Cão" },
   { icon: "🛡️", title: "Cão de Guarda IA" },
   { icon: "🎙️", title: "Latidos ao Vivo (LiveKit)" },
+  { icon: "⚖️", title: "Tribunal do Cão (histórico)" },
+  { icon: "🧬", title: "DNA — cor do filhote no pet" },
   { icon: "🏪", title: "Cupons pet shop regional" },
 ];
 

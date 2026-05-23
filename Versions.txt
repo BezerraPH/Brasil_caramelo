@@ -38,7 +38,7 @@ Identidade visual (cores):
 Servidor de referência do usuário:
   - Ubuntu 26.04 LTS (ntek-servidor)
   - IP LAN: 192.168.1.4
-  - DNS local (opcional): brasilcaramelo.com → 192.168.1.4 (ver DNS-LOCAL.md)
+  - DNS local (opcional): brasilcaramelo.com → 192.168.1.4 (ver CONFIGURACAO.md § 10)
   - App: http://brasilcaramelo.com:3000 ou http://192.168.1.4:3000
   - Com nginx: http://brasilcaramelo.com (porta 80)
   - Tailscale: 100.94.55.27
@@ -107,8 +107,7 @@ brasil_caramelo/
   deploy/gitea/                — docker-compose do Gitea
   docker-compose.yml           — app + postgres
   Dockerfile
-  DEPLOY.md                    — deploy Ubuntu
-  TESTE.md                     — roteiro de testes
+  CONFIGURACAO.md              — guia único do servidor (deploy, HTTPS, Tailscale…)
   Versions.txt                 — ESTE ARQUIVO
 
 ================================================================================

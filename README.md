@@ -25,13 +25,9 @@ Ou: `cp .env.example .env` → `docker compose up -d --build`
 
 ## Documentação
 
-| Arquivo | Conteúdo |
-|---------|----------|
-| **[CONFIGURACAO.md](./CONFIGURACAO.md)** | Guia do `.env` |
-| [DEPLOY.md](./DEPLOY.md) | Deploy Ubuntu |
-| [deploy/README.md](./deploy/README.md) | Arquivos de infra |
-| [DNS-LOCAL.md](./DNS-LOCAL.md) | DNS na LAN |
-| [Versions.txt](./Versions.txt) | Histórico |
+Tudo em um único guia: **[CONFIGURACAO.md](./CONFIGURACAO.md)** (deploy, `.env`, HTTPS, Tailscale, túnel, DNS, diagnóstico, testes).
+
+Histórico de versões: [Versions.txt](./Versions.txt).
 
 ## Dev local (Windows)
 
@@ -42,4 +38,4 @@ npx prisma migrate dev
 npm run dev
 ```
 
-Para produção na LAN, use Docker no Ubuntu.
+Para produção na LAN ou Tailscale, use Docker no Ubuntu — ver **CONFIGURACAO.md**.

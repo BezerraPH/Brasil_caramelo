@@ -4,4 +4,4 @@ node_modules
 .env
 .env.local
 *.md
-!DEPLOY.md
+!CONFIGURACAO.md

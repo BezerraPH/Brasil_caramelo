@@ -19,7 +19,7 @@ export function LatidosAoVivoPanel() {
         {!livekitConfigured && (
           <p className="mt-3 rounded-lg bg-bc-caramel/10 px-3 py-2 text-xs text-bc-brown">
             Configure <code className="text-[10px]">NEXT_PUBLIC_LIVEKIT_URL</code>{" "}
-            no servidor para ativar salas ao vivo. Veja LIVEKIT.md. WebRTC 1:1 já
+            no servidor para ativar salas ao vivo. Veja CONFIGURACAO.md. WebRTC 1:1 já
             funciona em{" "}
             <Link href="/mensagens" className="text-bc-blue underline">
               Mensagens

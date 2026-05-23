@@ -16,7 +16,7 @@ const DONE = [
 ];
 
 const FUTURE = [
-  { icon: "🌐", title: "TURN / coturn no servidor", phase: "Ver COTURN.md" },
+  { icon: "🌐", title: "TURN / coturn no servidor", phase: "Ver CONFIGURACAO.md" },
   { icon: "💳", title: "Pagamento Pedigree (Pix real)", phase: "Integração" },
   { icon: "🏪", title: "Pet shops geolocalizados", phase: "Parceiros reais" },
 ];

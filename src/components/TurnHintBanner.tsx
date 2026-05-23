@@ -10,7 +10,7 @@ export function TurnHintBanner() {
       <p>
         <strong className="text-bc-blue">📡 Chamadas fora da LAN:</strong> sem
         servidor TURN configurado, vídeo/áudio pode falhar em redes diferentes.
-        Consulte <code className="text-[10px]">COTURN.md</code> no repositório ou
+        Consulte <code className="text-[10px]">CONFIGURACAO.md</code> no repositório ou
         configure{" "}
         <Link href="/configuracoes" className="font-medium text-bc-blue hover:underline">
           variáveis TURN

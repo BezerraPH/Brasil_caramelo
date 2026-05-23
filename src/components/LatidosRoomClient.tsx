@@ -281,7 +281,7 @@ export function LatidosRoomClient({ casinha }: Props) {
               <p className="text-sm text-bc-brown">
                 Configure{" "}
                 <code className="text-[10px]">NEXT_PUBLIC_LIVEKIT_URL</code> no
-                servidor. Veja LIVEKIT.md.
+                servidor. Veja CONFIGURACAO.md.
               </p>
               <Link href="/latidos" className="bc-btn-secondary mt-4 inline-block">
                 ← Voltar

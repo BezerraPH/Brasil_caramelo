@@ -1,66 +1,85 @@
-# Configuração — self-hosted (um compose, um .env)
+# Brasil Caramelo — guia completo do servidor
 
-O Brasil Caramelo roda **inteiro no seu Ubuntu**. Um arquivo `docker-compose.yml` sobe **app + banco + Soketi + coturn + LiveKit**.
+**Este é o único tutorial de deploy e operação do projeto.**  
+Todo o resto foi consolidado aqui (antes: DEPLOY, DNS-LOCAL, LIVEKIT, COTURN, TESTE, túneis separados).
+
+Conteúdo: deploy, `.env`, HTTPS, Tailscale, Cloudflare, DNS local, diagnóstico e problemas comuns.
+
+Stack: **um** `docker-compose.yml` + **um** `.env` → app, PostgreSQL, Soketi, coturn, LiveKit.
 
 ---
 
-## Início rápido (servidor)
+## Índice
+
+1. [Início rápido](#1-início-rápido)
+2. [Estrutura do projeto](#2-estrutura-do-projeto)
+3. [Variável `BC_HOST` e `.env`](#3-variável-bc_host-e-env)
+4. [Serviços Docker](#4-serviços-docker)
+5. [Escolher modo de acesso](#5-escolher-modo-de-acesso)
+6. [Modo A — HTTP na LAN (simples)](#6-modo-a--http-na-lan-simples)
+7. [Modo B — HTTPS na LAN (mkcert)](#7-modo-b--https-na-lan-mkcert)
+8. [Modo C — Tailscale (recomendado)](#8-modo-c--tailscale-recomendado)
+9. [Modo D — Cloudflare Tunnel](#9-modo-d--cloudflare-tunnel)
+10. [DNS local (`brasilcaramelo.com` sem registrar domínio)](#10-dns-local-brasilcaramelocom-sem-registrar-domínio)
+11. [Diagnóstico e smoke tests](#11-diagnóstico-e-smoke-tests)
+12. [Problemas comuns](#12-problemas-comuns)
+13. [Comandos úteis](#13-comandos-úteis)
+14. [Ollama e backup](#14-ollama-e-backup)
+15. [Testes manuais](#15-testes-manuais)
+16. [Vídeo HLS (opcional)](#16-vídeo-hls-opcional)
+17. [Histórico e Gitea](#17-histórico-e-gitea)
+
+---
+
+## 1. Início rápido
+
+No servidor Ubuntu (`ntek-servidor` ou similar):
 
 ```bash
 cd ~/brasil_caramelo
-git pull
+git pull origin main
 
-# Cria .env com o IP detectado (ex.: 192.168.1.4)
-chmod +x scripts/setup-env.sh scripts/deploy-ubuntu.sh
-./scripts/setup-env.sh
-
-# Ou manual: cp .env.example .env && nano .env
+chmod +x scripts/*.sh
+./scripts/setup-env.sh          # cria .env com IP detectado
+# ou: cp .env.example .env && nano .env
 
 docker compose up -d --build
 docker compose exec app npx prisma migrate deploy
 ```
 
-Atalho: `./scripts/deploy-ubuntu.sh` (faz tudo acima).
+Atalho: `./scripts/deploy-ubuntu.sh`
 
-Acesse: **http://192.168.1.4:3000** (troque pelo seu IP).
+Acesso inicial: **http://SEU_IP:3000** (ex.: `http://192.168.1.4:3000`).
 
-### Diagnóstico e smoke tests
-
-Conta dedicada + testes automáticos (sem expor senhas no Git):
-
-```bash
-chmod +x scripts/*.sh
-./scripts/setup-smoke-account.sh   # cria smoke_test no site (LAN)
-./scripts/server-smoke.sh            # testes HTTP (sem login + com login)
-./scripts/server-report.sh           # relatório completo para colar no chat
-```
-
-Variáveis opcionais no `.env`: `BC_SMOKE_EMAIL`, `BC_SMOKE_PASSWORD`, `BC_SMOKE_USERNAME`.
+**Microfone, Latidos e chamadas no celular exigem HTTPS** — escolha um modo na [seção 5](#5-escolher-modo-de-acesso).
 
 ---
 
-## Onde fica cada coisa
+## 2. Estrutura do projeto
 
 ```
 brasil_caramelo/
-  docker-compose.yml    ← stack completa (NÃO use outro compose)
-  .env                  ← você cria a partir de .env.example
-  .env.example          ← modelo com valores padrão
-  CONFIGURACAO.md       ← este guia
+  docker-compose.yml       ← stack completa (não use outro compose)
+  .env                     ← você cria a partir de .env.example
+  CONFIGURACAO.md          ← este guia
   deploy/
-    livekit/livekit.yaml
-    nginx/              ← opcional
-    gitea/              ← Git opcional (compose separado)
+    livekit/livekit.yaml   ← node_ip deve bater com o modo de acesso
+    nginx/                 ← configs nginx (LAN, túnel, tailscale)
   scripts/
-    setup-env.sh        ← gera .env com seu IP
-    deploy-ubuntu.sh    ← deploy completo
+    setup-env.sh           ← gera .env com IP
+    deploy-ubuntu.sh       ← deploy completo
+    setup-https-lan.sh     ← HTTPS mkcert na LAN
+    setup-tailscale.sh     ← Tailscale + serve
+    setup-cloudflare-tunnel.sh
+    server-audit.sh          ← auditoria + smoke
+    server-smoke.sh
 ```
 
 ---
 
-## Variável principal: `BC_HOST`
+## 3. Variável `BC_HOST` e `.env`
 
-É o **IP ou nome DNS** que celular e PC usam para chegar ao servidor.
+`BC_HOST` é o **hostname ou IP** que o navegador do celular/PC usa para falar com o servidor.
 
 ```env
 BC_HOST=192.168.1.4
@@ -72,47 +91,42 @@ Depois de mudar `BC_HOST` ou qualquer `NEXT_PUBLIC_*`:
 docker compose up -d --build
 ```
 
-O script `setup-env.sh` preenche `BC_HOST` e substitui `192.168.1.4` no resto do `.env`.
+### 3.1 App
 
----
-
-## O que cada serviço faz
-
-| Container | Porta | Precisa configurar? |
-|-----------|-------|---------------------|
-| **app** | 3000 | `APP_URL` / `NEXT_PUBLIC_APP_URL` |
-| **db** | 5432 | Já vem no compose (senha padrão) |
-| **soketi** | 6001 | Credenciais padrão no `.env.example` |
-| **coturn** | 3478 | Usuário/senha TURN no `.env` |
-| **livekit** | 7880 | Chaves em `.env` + `deploy/livekit/livekit.yaml` |
-
-**Sem `.env`:** o compose usa defaults com `BC_HOST=192.168.1.4`. Funciona se esse for seu IP.
-
----
-
-## `.env` — seções
-
-### 1. App (obrigatório)
-
-| Variável | Valor típico |
-|----------|--------------|
+| Variável | Valor típico (HTTP LAN) |
+|----------|-------------------------|
 | `BC_HOST` | `192.168.1.4` |
 | `APP_URL` | `http://192.168.1.4:3000` |
 | `NEXT_PUBLIC_APP_URL` | igual ao `APP_URL` |
-| `COOKIE_SECURE` | `false` (HTTP na LAN) |
-| `DATABASE_URL` | já correto para Docker (`@db:5432`) |
+| `COOKIE_SECURE` | `false` (HTTP) ou `true` (HTTPS) |
 
-### 2. Soketi (tempo real)
+### 3.2 Soketi (chat / tempo real)
 
 | Variável | Valor |
 |----------|-------|
-| `PUSHER_HOST` | `soketi` (nome Docker — **não mude**) |
-| `NEXT_PUBLIC_PUSHER_HOST` | `192.168.1.4` (IP do **celular/PC**) |
+| `PUSHER_HOST` | `soketi` (**nome Docker — não mude**) |
+| `NEXT_PUBLIC_PUSHER_HOST` | IP ou hostname que o **celular** enxerga |
 | `PUSHER_KEY` / `NEXT_PUBLIC_PUSHER_KEY` | `caramelo_key_local` |
 
 **Erro comum:** `NEXT_PUBLIC_PUSHER_HOST=localhost` — não funciona no celular.
 
-### 3. coturn (vídeo em /mensagens)
+Com HTTPS via nginx (portas 443 / 6443):
+
+```env
+NEXT_PUBLIC_PUSHER_HOST=brasilcaramelo.com
+NEXT_PUBLIC_PUSHER_PORT=6443
+NEXT_PUBLIC_PUSHER_USE_TLS=true
+```
+
+Com Tailscale / túnel (tudo na 443):
+
+```env
+NEXT_PUBLIC_PUSHER_HOST=ntek-servidor.sua-tailnet.ts.net
+NEXT_PUBLIC_PUSHER_PORT=443
+NEXT_PUBLIC_PUSHER_USE_TLS=true
+```
+
+### 3.3 coturn (vídeo em /mensagens)
 
 ```env
 NEXT_PUBLIC_STUN_URL=stun:192.168.1.4:3478
@@ -121,7 +135,9 @@ NEXT_PUBLIC_TURN_USERNAME=caramelo
 NEXT_PUBLIC_TURN_CREDENTIAL=caramelo_turn_secret
 ```
 
-### 4. LiveKit (Latidos em /latidos)
+No modo Tailscale, use o IP `100.x.x.x` (`tailscale ip -4`) em STUN/TURN.
+
+### 3.4 LiveKit (Latidos)
 
 ```env
 NEXT_PUBLIC_LIVEKIT_URL=ws://192.168.1.4:7880
@@ -129,57 +145,129 @@ LIVEKIT_API_KEY=caramelo_livekit_key
 LIVEKIT_API_SECRET=caramelo_livekit_secret_change_me
 ```
 
-Altere o secret em `deploy/livekit/livekit.yaml` também. O campo **`node_ip`** deve ser o mesmo IP LAN do `BC_HOST` (ex.: `192.168.1.4`), com **`use_external_ip: false`** em rede local (evita anunciar IP público 177.x). Após editar: `docker compose restart livekit`.
+Em `deploy/livekit/livekit.yaml`:
 
-### 4.1 HTTPS no celular (obrigatório para microfone e chamadas)
+```yaml
+rtc:
+  use_external_ip: false
+  node_ip: 192.168.1.4   # LAN — ou IP Tailscale no modo C
+```
 
-Navegadores no **Android/iOS bloqueiam microfone e câmera em HTTP** (`http://192.168.1.4:3000`).
+Altere o secret no yaml e no `.env`. Após editar: `docker compose restart livekit coturn`.
 
-**Passo a passo rápido (servidor Ubuntu):**
+Rotas no app: `/latidos` (lista) e `/latidos/[slug]` (sala).
+
+| Cenário chamada vídeo (coturn) | TURN necessário? |
+|--------------------------------|------------------|
+| Dois aparelhos na mesma Wi‑Fi | Em geral não |
+| Celular 4G ↔ Wi‑Fi | Sim |
+
+### 3.5 Opcional
+
+| Variável | Uso |
+|----------|-----|
+| `PREMIUM_CODE` | Pedigree |
+| `NEXT_PUBLIC_PET_SHOP_REGION` | `Recife` ou `Caruaru` |
+| `BC_SMOKE_EMAIL` / `BC_SMOKE_PASSWORD` | Conta para smoke tests |
+| `OLLAMA_BASE_URL` | IA local (seção 14) |
+
+`OPENAI_API_KEY` pode ficar vazio — moderação e Cão de Guarda usam Ollama local quando configurado.
+
+---
+
+## 4. Serviços Docker
+
+| Container | Porta | Função |
+|-----------|-------|--------|
+| **app** | 3000 | Next.js |
+| **db** | 5432 (localhost) | PostgreSQL |
+| **soketi** | 6001 | WebSocket / Pusher |
+| **coturn** | 3478 | TURN/STUN |
+| **livekit** | 7880–7881, UDP 50000–50100 | Latidos |
+
+Convive com outros containers no mesmo host (Gitea 3001, Nextcloud 8080, Portainer 8000, etc.) — portas diferentes, sem conflito.
+
+---
+
+## 5. Escolher modo de acesso
+
+O nome **`brasilcaramelo.com` não precisa existir na internet** — era só apelido local (hosts + mkcert). Pode ignorar se usar Tailscale ou túnel.
+
+| Modo | Config no celular | HTTPS | Latidos / microfone | Melhor para |
+|------|-------------------|-------|---------------------|-------------|
+| **A — HTTP LAN** | Nenhuma | Não | Não no celular | Teste rápido no PC |
+| **B — HTTPS LAN (mkcert)** | hosts + CA em cada aparelho | Sim | Sim na Wi‑Fi | Casa, sem Tailscale |
+| **C — Tailscale** | App Tailscale (1×) | Sim (`serve`) | **Sim** | **Você já usa Tailscale** |
+| **D — Cloudflare Tunnel** | Só abrir o link | Sim | Limitado (UDP) | Visitante sem Tailscale |
+
+**Recomendação:** se `tailscaled` já roda no servidor → [Modo C](#8-modo-c--tailscale-recomendado).
+
+---
+
+## 6. Modo A — HTTP na LAN (simples)
+
+```bash
+./scripts/setup-env.sh
+docker compose up -d --build
+```
+
+Acesse: `http://192.168.1.4:3000`
+
+- Login e feed funcionam.
+- **Celular:** microfone, Latidos e chamadas **não** funcionam de forma confiável (bloqueio de mídia em HTTP).
+
+---
+
+## 7. Modo B — HTTPS na LAN (mkcert)
+
+Navegadores no Android/iOS **bloqueiam microfone** em `http://192.168.1.4:3000`.
+
+### 7.1 Servidor
 
 ```bash
 cd ~/brasil_caramelo
 sudo apt install mkcert libnss3-tools nginx
 mkcert -install
 mkcert brasilcaramelo.com 192.168.1.4
-bash scripts/setup-https-lan.sh   # nginx + /etc/hosts no servidor (brasilcaramelo.com → IP LAN)
+
+bash scripts/setup-https-lan.sh
 docker compose up -d --build
 docker compose restart livekit coturn
-bash scripts/server-audit.sh      # smoke usa 127.0.0.1 se DNS local faltar
+bash scripts/server-audit.sh
 ```
 
-O script `setup-https-lan.sh` adiciona `192.168.1.4 brasilcaramelo.com` em `/etc/hosts` **do servidor** quando o nome ainda não resolve — evita falsos FAIL no `server-audit.sh`.
+O script:
 
-**No seu PC (Windows), como Administrador** — edite `C:\Windows\System32\drivers\etc\hosts`:
+- Copia certificados para `/etc/ssl/`
+- Configura nginx nas portas **443** (app), **6443** (Soketi), **7443** (LiveKit)
+- Adiciona `brasilcaramelo.com` em `/etc/hosts` do servidor se ainda não resolver
+- Ajusta `.env` (backup `.env.bak.https`)
+
+**Porta 80 ocupada (Apache/httpd):** o redirect HTTP→HTTPS é omitido. Acesse `https://` direto ou `bash scripts/setup-https-lan.sh --force-80`.
+
+### 7.2 PC Windows (administrador)
+
+Arquivo `C:\Windows\System32\drivers\etc\hosts`:
 
 ```
 192.168.1.4    brasilcaramelo.com
 192.168.1.4    www.brasilcaramelo.com
 ```
 
-Instale a CA do mkcert no Windows (senão o navegador recusa HTTPS):
+Instale a CA mkcert (senão o navegador recusa HTTPS):
 
 ```bash
-# No servidor, veja o caminho:
+# No servidor:
 mkcert -CAROOT
-# Copie rootCA.pem para o PC e: duplo clique → Instalar certificado →
-# Autoridades de certificação raiz confiáveis → Local do computador
+# Copie rootCA.pem para o PC → Instalar certificado →
+# Autoridades de certificação raiz confiáveis → Computador local
 ```
 
-Acesse: **https://brasilcaramelo.com** (sem `:3000`).
+### 7.3 Celular
 
-**Por que `brasilcaramelo.com` “não pega” sem isso?**
+Instale `rootCA.pem` no aparelho e use **`https://brasilcaramelo.com`** (sem `:3000`).
 
-| Problema | Solução |
-|----------|---------|
-| Nome não resolve | Arquivo **hosts** no PC/celular ou DNS no roteador |
-| Página não abre | Rode `bash scripts/setup-https-lan.sh` (nginx na 443) |
-| Aviso de certificado | Instale `rootCA.pem` do mkcert no aparelho |
-| Só funciona `:3000` | Normal em HTTP antigo — use HTTPS na 443 |
-| `server-audit` com 38 FAIL | Servidor sem DNS para `brasilcaramelo.com` — rode `setup-https-lan.sh` de novo ou `git pull` + audit (smoke testa via `127.0.0.1` + Host) |
-| Porta 80 ocupada (`httpd`) | Redirect HTTP→HTTPS omitido — acesse `https://` direto ou `setup-https-lan.sh --force-80` |
-
-Variáveis após o script:
+### 7.4 `.env` após o script
 
 ```env
 APP_URL=https://brasilcaramelo.com
@@ -191,88 +279,252 @@ NEXT_PUBLIC_PUSHER_PORT=6443
 NEXT_PUBLIC_PUSHER_USE_TLS=true
 ```
 
-No celular, instale o certificado raiz do mkcert (`rootCA.pem`). Veja também `DNS-LOCAL.md` e `deploy/nginx/brasilcaramelo-https.example.conf`.
-
-### 5. Opcional
-
-| Variável | Uso |
-|----------|-----|
-| `PREMIUM_CODE` | Código Pedigree |
-| `NEXT_PUBLIC_PET_SHOP_REGION` | `Recife` ou `Caruaru` |
-| `EVENT_ADMIN_SECRET` | Criar rolezinho flash |
-| `FFMPEG_PATH` | `/usr/bin/ffmpeg` (já no container) |
-
-### 6. Deixe vazio
-
-`OPENAI_API_KEY` — app usa moderação e Guarda **locais**.
+`livekit.yaml` → `node_ip: 192.168.1.4`
 
 ---
 
-## DNS local (opcional)
+## 8. Modo C — Tailscale (recomendado)
 
-Se usar `brasilcaramelo.com`, veja **DNS-LOCAL.md** e ajuste:
+Você já tem **Tailscale node agent** no servidor. Melhor que Cloudflare para Latidos (UDP WebRTC na tailnet).
 
-```env
-BC_HOST=brasilcaramelo.com
-APP_URL=http://brasilcaramelo.com:3000
-NEXT_PUBLIC_APP_URL=http://brasilcaramelo.com:3000
-NEXT_PUBLIC_PUSHER_HOST=brasilcaramelo.com
-NEXT_PUBLIC_STUN_URL=stun:brasilcaramelo.com:3478
-NEXT_PUBLIC_TURN_URL=turn:brasilcaramelo.com:3478
-NEXT_PUBLIC_LIVEKIT_URL=ws://brasilcaramelo.com:7880
+### 8.1 Passo a passo
+
+```bash
+cd ~/brasil_caramelo
+git pull origin main
+
+tailscale status
+tailscale ip -4
+
+bash scripts/setup-tailscale.sh
+sudo bash scripts/setup-tailscale.sh --serve
+
+nano deploy/livekit/livekit.yaml
+#   node_ip: 100.x.x.x    # mesmo de: tailscale ip -4
+#   use_external_ip: false
+
+docker compose restart livekit coturn
+docker compose up -d --build
+bash scripts/server-audit.sh
 ```
 
-Rebuild após mudar.
+No celular/PC: **Tailscale ligado** → abra `https://ntek-servidor.sua-tailnet.ts.net` (URL exata no output do script).
+
+Sem hosts, sem `rootCA.pem`, sem domínio registrado.
+
+### 8.2 Como funciona
+
+```text
+[Celular com Tailscale]
+        │  HTTPS (certificado tailnet)
+        ▼
+[tailscale serve :443]
+        │  http://127.0.0.1:8780
+        ▼
+[nginx — app + /app Soketi + /rtc LiveKit]
+        ▼
+[Docker: app, soketi, livekit, coturn]
+```
+
+### 8.3 URLs de referência
+
+| Situação | URL |
+|----------|-----|
+| Tailscale + serve | `https://ntek-servidor....ts.net` |
+| Só IP tailnet (sem serve) | `http://100.x.x.x:3000` (sem HTTPS → sem mic no celular) |
+| Gitea no mesmo servidor | `http://100.94.55.27:3001` (exemplo) |
+| LAN com mkcert | `https://brasilcaramelo.com` |
+
+Não misture modos B e C no `.env` sem `docker compose up -d --build`.
+
+### 8.4 Tailscale Funnel (público, opcional)
+
+Expõe na internet sem app Tailscale no visitante (cuidado):
+
+```bash
+sudo tailscale funnel --bg --https=443 http://127.0.0.1:8780
+```
+
+Para família na tailnet, **`tailscale serve`** basta.
+
+### 8.5 Voltar para LAN (mkcert)
+
+```bash
+bash scripts/setup-https-lan.sh
+# livekit.yaml → node_ip: 192.168.1.4
+docker compose up -d --build
+```
 
 ---
 
-## Problemas comuns
+## 9. Modo D — Cloudflare Tunnel
+
+Use só se precisar que **alguém sem Tailscale** abra o app. **Latidos/microfone** costumam falhar (UDP não passa pelo túnel).
+
+### 9.1 Quick Tunnel (grátis, sem domínio)
+
+```bash
+cd ~/brasil_caramelo
+bash scripts/setup-cloudflare-tunnel.sh
+
+# Outro terminal — deixe rodando:
+cloudflared tunnel --url http://127.0.0.1:8780
+
+# Copie a URL https://....trycloudflare.com
+bash scripts/setup-cloudflare-tunnel.sh --env-only https://SUA-URL.trycloudflare.com
+docker compose up -d --build
+```
+
+Background:
+
+```bash
+nohup cloudflared tunnel --url http://127.0.0.1:8780 >> /tmp/cloudflared-bc.log 2>&1 &
+grep -o 'https://[^ ]*trycloudflare.com' /tmp/cloudflared-bc.log | tail -1
+```
+
+A URL **muda** ao reiniciar. Para URL fixa: [Cloudflare Zero Trust](https://one.dash.cloudflare.com/) → Networks → Tunnels.
+
+### 9.2 Limitação LiveKit
+
+| Funciona | Pode falhar |
+|----------|-------------|
+| Site, login, feed, chat | Latidos / microfone (UDP) |
+
+Alternativas para mídia: Tailscale, portas no roteador, LiveKit Cloud.
+
+### 9.3 Voltar para outro modo
+
+```bash
+bash scripts/setup-https-lan.sh    # LAN
+# ou
+bash scripts/setup-tailscale.sh --serve
+docker compose up -d --build
+```
+
+---
+
+## 10. DNS local (`brasilcaramelo.com` sem registrar domínio)
+
+O nome só precisa **resolver na sua rede** para o IP do servidor.
+
+### 10.1 Arquivo hosts (por aparelho)
+
+**Windows** (Bloco de notas como administrador) — `C:\Windows\System32\drivers\etc\hosts`:
+
+```
+192.168.1.4    brasilcaramelo.com
+192.168.1.4    www.brasilcaramelo.com
+```
+
+**Linux/macOS:** `sudo nano /etc/hosts` — mesmas linhas.
+
+### 10.2 DNS no roteador (toda a Wi‑Fi)
+
+Registro local: `brasilcaramelo.com` → `192.168.1.4` (nome varia: TP-Link, Intelbras, Ubiquiti…).
+
+### 10.3 dnsmasq no servidor Ubuntu
+
+```bash
+sudo apt install dnsmasq
+```
+
+`/etc/dnsmasq.d/brasilcaramelo.conf`:
+
+```
+address=/brasilcaramelo.com/192.168.1.4
+address=/www.brasilcaramelo.com/192.168.1.4
+```
+
+```bash
+sudo systemctl restart dnsmasq
+```
+
+No roteador, DNS primário dos clientes = `192.168.1.4`.
+
+### 10.4 Tailscale (MagicDNS)
+
+Use o hostname `ntek-servidor....ts.net` — não precisa de `brasilcaramelo.com`. Ver [modo C](#8-modo-c--tailscale-recomendado).
+
+### 10.5 Resumo DNS
+
+| Método | Quem configura |
+|--------|----------------|
+| hosts | Cada PC/celular |
+| Roteador | Uma vez na rede |
+| dnsmasq | Servidor + roteador |
+| Tailscale MagicDNS | Admin Tailscale |
+
+---
+
+## 11. Diagnóstico e smoke tests
+
+```bash
+chmod +x scripts/*.sh
+
+./scripts/setup-smoke-account.sh   # conta smoke no banco
+bash scripts/server-audit.sh       # relatório completo
+bash scripts/server-audit.sh --quick
+bash scripts/server-audit.sh --smoke-only
+bash scripts/server-smoke.sh
+```
+
+Variáveis opcionais: `BC_SMOKE_EMAIL`, `BC_SMOKE_PASSWORD` no `.env`.
+
+**Auditoria OK esperada:** `WARN=0 FAIL=0`, smoke `57 OK` (com HTTPS e DNS/hosts corretos).
+
+Se `brasilcaramelo.com` não resolve no servidor: `bash scripts/setup-https-lan.sh` ou smoke usa `127.0.0.1` + header Host automaticamente.
+
+---
+
+## 12. Problemas comuns
 
 | Problema | Solução |
 |----------|---------|
-| Login não persiste | `COOKIE_SECURE=false` |
-| Chat sem tempo real | Verifique se `soketi` está up: `docker compose ps` |
-| Latidos não conecta | `livekit` up + `node_ip` = `BC_HOST` + `use_external_ip: false`; `docker compose restart livekit` |
-| Microfone no celular não funciona | **HTTP no celular bloqueia mídia** — use HTTPS (seção 4.1) |
-| Não atende chamada no celular | Mesmo: HTTPS + estar logado (CallProvider escuta em qualquer página) |
-| Vídeo chamada 409 | Chamada travada — expira após 3 min ou limpe no Postgres |
-| Vídeo falha fora da Wi‑Fi | coturn + TURN no `.env` |
+| Login não persiste | `COOKIE_SECURE` deve bater com HTTP/HTTPS |
+| Chat sem tempo real | `docker compose ps` — soketi Up; `NEXT_PUBLIC_PUSHER_HOST` = IP/hostname do celular |
+| Latidos não conecta | `livekit` Up; `node_ip` = IP que o cliente alcança; `use_external_ip: false` |
+| Microfone no celular | HTTPS (modo B, C ou D); não use HTTP `:3000` |
+| Não atende chamada | HTTPS + logado (CallProvider global) |
+| Vídeo chamada 409 | Sessão travada — expira em ~3 min |
+| `server-audit` 38 FAIL | DNS — `setup-https-lan.sh` ou `git pull` + audit |
+| Porta 80 ocupada | Apache/httpd — use `https://` direto |
 | Mudou `.env` e nada mudou | `docker compose up -d --build` |
+| Domínio “não existe” | Normal — use Tailscale ou hosts local |
 
 ---
 
-## Comandos úteis
+## 13. Comandos úteis
 
 ```bash
-# Auditoria completa (substitui server-report + smoke + diagnóstico HTTPS)
-bash scripts/server-audit.sh
-bash scripts/server-audit.sh --quick        # sem logs longos / smoke
-bash scripts/server-audit.sh --smoke-only   # só testes HTTP
-
 docker compose ps
-docker compose restart livekit coturn   # após mudar livekit.yaml ou TURN
 docker compose logs app
-bash scripts/setup-https-lan.sh           # HTTPS (pula :80 se ocupada)
-sudo ss -tlnp | grep ':80'              # quem usa a porta 80
-sudo systemctl start nginx
-docker compose logs soketi
-```
-docker compose restart app
-docker compose down            # parar tudo
+docker compose logs livekit
+docker compose restart livekit coturn
+docker compose up -d --build
+docker compose down
+
+bash scripts/setup-env.sh
+bash scripts/setup-https-lan.sh
+bash scripts/setup-tailscale.sh --serve
+bash scripts/setup-cloudflare-tunnel.sh
+
+sudo ss -tlnp | grep ':80'
+sudo systemctl status nginx tailscaled
+
+bash scripts/server-audit.sh
+./scripts/backup-matilha.sh
 ```
 
 ---
 
-## Ollama (IA local — opcional)
+## 14. Ollama e backup
 
-Com [Ollama](https://ollama.com) no servidor ou em outra máquina da LAN:
+### Ollama (opcional)
 
 ```bash
 ollama pull llama3.2
-ollama pull moondream   # visão para moderação de imagens
+ollama pull moondream
 ```
-
-No `.env`:
 
 ```env
 OLLAMA_BASE_URL=http://192.168.1.4:11434
@@ -280,24 +532,78 @@ OLLAMA_MODEL=llama3.2
 OLLAMA_VISION_MODEL=moondream
 ```
 
-- **Cão de Guarda** (`/configuracoes`) usa Ollama antes de OpenAI.
-- **Upload de imagens** passa pelo modelo de visão se configurado.
-
----
-
-## Backup
+### Backup
 
 ```bash
 chmod +x scripts/backup-matilha.sh
 ./scripts/backup-matilha.sh
 ```
 
-Agendamento: veja `scripts/cron-backup.example`.
+Agendamento: `scripts/cron-backup.example`.
 
 ---
 
-## Resumo
+## 15. Testes manuais
 
-**Um compose. Um `.env`. Cinco containers.** Nada de Pusher cloud, OpenAI ou LiveKit cloud.
+Além de `bash scripts/server-audit.sh`:
 
-Mais detalhes: `deploy/README.md`, `DEPLOY.md`, `LIVEKIT.md`, `COTURN.md`.
+```bash
+curl -s http://localhost:3000/api/health   # no servidor → ok: true
+```
+
+No navegador (mesma rede ou Tailscale):
+
+1. Abrir a URL do modo escolhido (ex. `https://ntek-servidor....ts.net`)
+2. Criar conta → Feed → publicar recado
+3. Segunda conta → curtir / reputação no perfil
+
+**Dev no Windows:**
+
+```powershell
+docker compose up db -d
+copy .env.example .env
+npm install && npx prisma generate && npm run db:deploy
+npm run dev
+```
+
+**Git no PC (erro “untracked working tree”):**
+
+```powershell
+git fetch origin
+git reset --hard origin/main
+```
+
+**URLs de referência (anote as suas):**
+
+| Item | Exemplo |
+|------|---------|
+| App | `http://192.168.1.4:3000` ou URL Tailscale |
+| Gitea | `http://192.168.1.4:3001` |
+| Git | `ssh://git@192.168.1.4:2222/meksteel/brasil_caramelo.git` |
+
+---
+
+## 16. Vídeo HLS (opcional)
+
+Com `ffmpeg` no container (já incluso), após publicar vídeo o servidor pode gerar `playlist.m3u8`. Opcional no `.env`: `FFMPEG_PATH=/usr/bin/ffmpeg`.
+
+Cron de trending (se usar):
+
+```bash
+curl -X POST http://localhost:3000/api/cron/trending -H "Authorization: Bearer SEU_CRON_SECRET"
+```
+
+---
+
+## 17. Histórico e Gitea
+
+| Recurso | Onde |
+|---------|------|
+| Changelog | [Versions.txt](./Versions.txt) |
+| Git self-hosted | [deploy/gitea/README.md](./deploy/gitea/README.md) — porta 3001, compose separado |
+| Exemplos nginx | `deploy/nginx/` |
+| Modelo `.env` | `.env.example` |
+
+---
+
+**Resumo:** um compose, um `.env`, cinco containers. Escolha o [modo de acesso](#5-escolher-modo-de-acesso), rode o script correspondente, `docker compose up -d --build`, valide com `bash scripts/server-audit.sh`.

@@ -150,6 +150,8 @@ if ! systemctl is-active nginx >/dev/null 2>&1; then
   exit 1
 fi
 
+bc_ensure_server_hosts "$(bc_lan_ip)" "brasilcaramelo.com" || true
+
 echo "==> Ajustando .env (backup .env.bak.https)..."
 if [ -f .env ]; then
   cp .env .env.bak.https
@@ -161,6 +163,8 @@ if [ -f .env ]; then
   sed -i 's|^NEXT_PUBLIC_PUSHER_HOST=.*|NEXT_PUBLIC_PUSHER_HOST=brasilcaramelo.com|' .env
   sed -i 's|^NEXT_PUBLIC_PUSHER_PORT=.*|NEXT_PUBLIC_PUSHER_PORT=6443|' .env
   sed -i 's|^NEXT_PUBLIC_PUSHER_USE_TLS=.*|NEXT_PUBLIC_PUSHER_USE_TLS=true|' .env
+  grep -q '^BC_LAN_IP=' .env || echo "BC_LAN_IP=$(bc_lan_ip)" >> .env
+  sed -i "s|^BC_LAN_IP=.*|BC_LAN_IP=$(bc_lan_ip)|" .env
 fi
 
 echo "==> Verificando HTTPS..."

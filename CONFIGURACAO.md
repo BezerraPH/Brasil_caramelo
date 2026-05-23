@@ -142,10 +142,13 @@ cd ~/brasil_caramelo
 sudo apt install mkcert libnss3-tools nginx
 mkcert -install
 mkcert brasilcaramelo.com 192.168.1.4
-bash scripts/setup-https-lan.sh
+bash scripts/setup-https-lan.sh   # nginx + /etc/hosts no servidor (brasilcaramelo.com → IP LAN)
 docker compose up -d --build
 docker compose restart livekit coturn
+bash scripts/server-audit.sh      # smoke usa 127.0.0.1 se DNS local faltar
 ```
+
+O script `setup-https-lan.sh` adiciona `192.168.1.4 brasilcaramelo.com` em `/etc/hosts` **do servidor** quando o nome ainda não resolve — evita falsos FAIL no `server-audit.sh`.
 
 **No seu PC (Windows), como Administrador** — edite `C:\Windows\System32\drivers\etc\hosts`:
 
@@ -173,6 +176,8 @@ Acesse: **https://brasilcaramelo.com** (sem `:3000`).
 | Página não abre | Rode `bash scripts/setup-https-lan.sh` (nginx na 443) |
 | Aviso de certificado | Instale `rootCA.pem` do mkcert no aparelho |
 | Só funciona `:3000` | Normal em HTTP antigo — use HTTPS na 443 |
+| `server-audit` com 38 FAIL | Servidor sem DNS para `brasilcaramelo.com` — rode `setup-https-lan.sh` de novo ou `git pull` + audit (smoke testa via `127.0.0.1` + Host) |
+| Porta 80 ocupada (`httpd`) | Redirect HTTP→HTTPS omitido — acesse `https://` direto ou `setup-https-lan.sh --force-80` |
 
 Variáveis após o script:
 
@@ -250,8 +255,8 @@ docker compose logs app
 bash scripts/setup-https-lan.sh           # HTTPS (pula :80 se ocupada)
 sudo ss -tlnp | grep ':80'              # quem usa a porta 80
 sudo systemctl start nginx
-```
 docker compose logs soketi
+```
 docker compose restart app
 docker compose down            # parar tudo
 ```

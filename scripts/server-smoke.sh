@@ -1,25 +1,17 @@
 #!/bin/bash
-# Runner de smoke tests — usado por server-report.sh ou standalone.
+# Runner de smoke tests — usado por server-audit.sh ou standalone.
 # Uso: ./scripts/server-smoke.sh
 #      BC_SMOKE_EMAIL=... BC_SMOKE_PASSWORD=... ./scripts/server-smoke.sh
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
+# shellcheck source=lib/server-common.sh
+source "$ROOT/scripts/lib/server-common.sh"
 
-safe_env() {
-  local key="$1"
-  local val=""
-  if [ -f .env ]; then
-    val="$(grep -E "^${key}=" .env 2>/dev/null | head -1 | cut -d= -f2- | tr -d '"' | tr -d "'" | tr -d '\r' || true)"
-  fi
-  printf '%s' "$val"
-}
-
-BC_HOST="$(safe_env BC_HOST)"
-[ -z "$BC_HOST" ] && BC_HOST="192.168.1.4"
-APP_PORT="${APP_PORT:-3000}"
-BASE="http://${BC_HOST}:${APP_PORT}"
+bc_load_smoke_urls
+BASE="$SMOKE_BASE"
+BC_HOST_PROBE="$BC_LAN_IP"
 
 SMOKE_COOKIE="$(mktemp /tmp/bc-smoke-cookie.XXXXXX)"
 SMOKE_BODY="$(mktemp /tmp/bc-smoke-body.XXXXXX)"
@@ -41,19 +33,11 @@ code_in_list() {
 
 probe_tcp() {
   local host="$1" port="$2" label="$3"
-  if command -v nc >/dev/null 2>&1; then
-    if nc -z -w 2 "$host" "$port" 2>/dev/null; then
-      printf '  [OK]   %-28s %s:%s\n' "$label" "$host" "$port"
-      PASS=$((PASS + 1))
-      return
-    fi
-  elif (echo >/dev/tcp/"$host"/"$port") 2>/dev/null; then
-    printf '  [OK]   %-28s %s:%s\n' "$label" "$host" "$port"
+  if bc_probe_tcp "$host" "$port" "$label"; then
     PASS=$((PASS + 1))
-    return
+  else
+    FAIL=$((FAIL + 1))
   fi
-  printf '  [FAIL] %-28s %s:%s (sem resposta TCP)\n' "$label" "$host" "$port"
-  FAIL=$((FAIL + 1))
 }
 
 run_http_smoke() {
@@ -62,10 +46,10 @@ run_http_smoke() {
   local code
 
   if [ "$method" = "POST" ] && [ "$path" = "/api/auth/login" ] && [ -z "$body_need" ]; then
-    code="$(curl -sS -o "$SMOKE_BODY" -w '%{http_code}' -m 12 \
+    code="$(bc_curl_smoke -sS -o "$SMOKE_BODY" -w '%{http_code}' -m 12 \
       -X POST "$url" -H 'Content-Type: application/json' -d '{}' 2>/dev/null || echo 000)"
   else
-    code="$(curl -sS -o "$SMOKE_BODY" -w '%{http_code}' -m 12 \
+    code="$(bc_curl_smoke -sS -o "$SMOKE_BODY" -w '%{http_code}' -m 12 \
       -X "$method" "$url" ${SMOKE_USE_COOKIE:+-b "$SMOKE_COOKIE" -c "$SMOKE_COOKIE"} 2>/dev/null || echo 000)"
   fi
 
@@ -102,8 +86,8 @@ run_list_file() {
 }
 
 try_auth_login() {
-  local email="${BC_SMOKE_EMAIL:-$(safe_env BC_SMOKE_EMAIL)}"
-  local pass="${BC_SMOKE_PASSWORD:-$(safe_env BC_SMOKE_PASSWORD)}"
+  local email="${BC_SMOKE_EMAIL:-$(bc_safe_env_raw BC_SMOKE_EMAIL)}"
+  local pass="${BC_SMOKE_PASSWORD:-$(bc_safe_env_raw BC_SMOKE_PASSWORD)}"
 
   if [ -z "$email" ] || [ -z "$pass" ]; then
     printf '\n── Sessão (smoke-tests-auth.list) ──\n'
@@ -113,7 +97,7 @@ try_auth_login() {
   fi
 
   local code
-  code="$(curl -sS -o "$SMOKE_BODY" -w '%{http_code}' -m 15 \
+  code="$(bc_curl_smoke -sS -o "$SMOKE_BODY" -w '%{http_code}' -m 15 \
     -c "$SMOKE_COOKIE" -b "$SMOKE_COOKIE" \
     -X POST "${BASE}/api/auth/login" \
     -H 'Content-Type: application/json' \
@@ -131,41 +115,36 @@ try_auth_login() {
   return 0
 }
 
-printf 'SMOKE TESTS — %s\n' "$BASE"
+printf 'SMOKE TESTS — %s %s\n' "$BASE" "$SMOKE_NOTE"
 
-printf '\n── Infraestrutura (portas TCP) ──\n'
-probe_tcp "$BC_HOST" "$APP_PORT" "App Next.js"
-probe_tcp "$BC_HOST" 6001 "Soketi"
-probe_tcp "$BC_HOST" 7880 "LiveKit"
-probe_tcp "$BC_HOST" 7881 "LiveKit RTC TCP"
-probe_tcp "$BC_HOST" 3478 "coturn TURN"
+printf '\n── Infraestrutura (portas TCP em %s) ──\n' "$BC_LAN_IP"
+probe_tcp "$BC_LAN_IP" "$APP_PORT" "App Next.js"
+probe_tcp "$BC_LAN_IP" 6001 "Soketi"
+probe_tcp "$BC_LAN_IP" 7880 "LiveKit"
+probe_tcp "$BC_LAN_IP" 7881 "LiveKit RTC TCP"
+probe_tcp "$BC_LAN_IP" 3478 "coturn TURN"
 probe_tcp "127.0.0.1" 5432 "PostgreSQL (localhost)"
+probe_tcp "127.0.0.1" 443 "nginx HTTPS"
+probe_tcp "127.0.0.1" 7443 "LiveKit WSS"
+probe_tcp "127.0.0.1" 6443 "Soketi WSS"
 
 if command -v ss >/dev/null 2>&1; then
   if ss -uln 2>/dev/null | grep -qE ':(50000|50001|50100)[[:space:]]'; then
     printf '  [OK]   %-28s UDP 50000–50100 em escuta\n' "LiveKit mídia UDP"
     PASS=$((PASS + 1))
   elif command -v docker >/dev/null 2>&1 && docker compose ps --status running livekit 2>/dev/null | grep -q .; then
-    printf '  [OK]   %-28s container livekit (UDP mapeado no compose)\n' "LiveKit mídia UDP"
+    printf '  [OK]   %-28s container livekit (UDP mapeado)\n' "LiveKit mídia UDP"
     PASS=$((PASS + 1))
   else
     printf '  [SKIP] %-28s porta UDP 50000 não detectada\n' "LiveKit mídia UDP"
     SKIP=$((SKIP + 1))
   fi
-elif command -v nc >/dev/null 2>&1; then
-  if nc -u -z -w 2 "$BC_HOST" 50000 2>/dev/null; then
-    printf '  [OK]   %-28s %s:%s (UDP)\n' "LiveKit mídia UDP" "$BC_HOST" "50000"
-    PASS=$((PASS + 1))
-  else
-    printf '  [SKIP] %-28s UDP %s:50000 (nc sem resposta — normal para WebRTC)\n' "LiveKit mídia UDP" "$BC_HOST"
-    SKIP=$((SKIP + 1))
-  fi
 else
-  printf '  [SKIP] %-28s ss/nc ausente\n' "LiveKit mídia UDP"
+  printf '  [SKIP] %-28s ss ausente\n' "LiveKit mídia UDP"
   SKIP=$((SKIP + 1))
 fi
 
-PUSHER_HOST="$(safe_env PUSHER_HOST)"
+PUSHER_HOST="$(bc_safe_env_raw PUSHER_HOST)"
 if [ "$PUSHER_HOST" = "soketi" ] && command -v docker >/dev/null 2>&1; then
   if docker compose exec -T soketi wget -q -O- http://127.0.0.1:6001/ 2>/dev/null | head -c 1 >/dev/null; then
     printf '  [OK]   %-28s container soketi\n' "Soketi HTTP interno"
@@ -173,7 +152,7 @@ if [ "$PUSHER_HOST" = "soketi" ] && command -v docker >/dev/null 2>&1; then
   fi
 fi
 
-OLLAMA_URL="$(safe_env OLLAMA_BASE_URL)"
+OLLAMA_URL="$(bc_safe_env_raw OLLAMA_BASE_URL)"
 if [ -n "$OLLAMA_URL" ]; then
   if curl -sS -m 5 "${OLLAMA_URL%/}/api/tags" >/dev/null 2>&1; then
     printf '  [OK]   %-28s %s\n' "Ollama" "$OLLAMA_URL"

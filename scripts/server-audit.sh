@@ -65,10 +65,15 @@ bc_run df -h /
 bc_run free -h 2>/dev/null || true
 
 printf '\nResolução DNS do BC_HOST (%s):\n' "$BC_HOST"
-if command -v getent >/dev/null 2>&1; then
-  getent hosts "$BC_HOST" 2>/dev/null || bc_warn "getent não resolveu $BC_HOST — configure hosts/DNS no cliente"
+if bc_host_resolves "$BC_HOST"; then
+  bc_ok "${BC_HOST} resolve neste servidor ($(getent hosts "$BC_HOST" | awk '{print $1}'))"
 else
-  ping -c1 -W1 "$BC_HOST" 2>/dev/null | head -2 || bc_warn "ping falhou para $BC_HOST"
+  bc_warn "${BC_HOST} NÃO resolve neste servidor — normal se só o PC tiver /etc/hosts"
+  printf '         Corrija: sudo bash -c "echo %s %s >> /etc/hosts"\n' "$BC_LAN_IP" "$BC_HOST"
+  printf '         ou: bash scripts/setup-https-lan.sh (adiciona hosts automaticamente)\n'
+fi
+if ! bc_host_resolves "$BC_LAN_IP"; then
+  bc_warn "IP LAN ${BC_LAN_IP} não aparece em getent (verifique rede)"
 fi
 
 # ── 2. Git ───────────────────────────────────────────────────────────────────
@@ -199,7 +204,12 @@ fi
 
 printf '\n── Testes HTTP/HTTPS ──\n'
 bc_probe_tcp "127.0.0.1" "$APP_PORT" "App Docker :3000" || true
-bc_probe_tcp "$BC_HOST" "$APP_PORT" "App via BC_HOST" || true
+bc_probe_tcp "$BC_LAN_IP" "$APP_PORT" "App via IP LAN" || true
+if bc_host_resolves "$BC_HOST"; then
+  bc_probe_tcp "$BC_HOST" "$APP_PORT" "App via hostname" || true
+else
+  printf '  [SKIP] %-32s %s não resolve neste host\n' "App via BC_HOST" "$BC_HOST"
+fi
 
 if systemctl is-active nginx >/dev/null 2>&1; then
   code="$(curl -sS -o /dev/null -w '%{http_code}' -m 8 -k 'https://127.0.0.1/' -H 'Host: brasilcaramelo.com' 2>/dev/null || echo 000)"
@@ -217,15 +227,15 @@ fi
 
 # ── 7. App API ───────────────────────────────────────────────────────────────
 bc_section "7. API — versão e saúde"
-printf 'Testando %s\n' "$BASE_HTTP"
-bc_run curl -sS -m 10 "${BASE_HTTP}/api/version"
+bc_load_smoke_urls
+printf 'Base dos testes: %s %s\n' "$SMOKE_BASE" "$SMOKE_NOTE"
+bc_run bc_curl_smoke -sS -m 10 "${SMOKE_BASE}/api/version"
 printf '\n'
-bc_run curl -sS -m 10 "${BASE_HTTP}/api/health"
+bc_run bc_curl_smoke -sS -m 10 "${SMOKE_BASE}/api/health"
 printf '\n'
-
-if systemctl is-active nginx >/dev/null 2>&1 && [[ "$BASE_HTTPS" == https://* ]]; then
-  printf '\nVia HTTPS (%s):\n' "$BASE_HTTPS"
-  bc_run curl -sS -m 10 -k "${BASE_HTTPS}/api/version"
+if [[ "$BASE_HTTPS" == https://* ]] && [ "$SMOKE_BASE" != "${BASE_HTTPS%/}" ]; then
+  printf '\nVia APP_URL (%s):\n' "$BASE_HTTPS"
+  bc_run bc_curl_smoke -sS -m 10 "${BASE_HTTPS%/}/api/version"
   printf '\n'
 fi
 
@@ -284,18 +294,24 @@ if [ ! -f /etc/nginx/sites-enabled/brasilcaramelo ]; then
 fi
 printf '• PC Windows: hosts → 192.168.1.4 brasilcaramelo.com + instalar rootCA.pem\n'
 printf '• Celular: instalar rootCA.pem + usar https:// (microfone exige HTTPS)\n'
-printf '• Diagnóstico rápido: ./scripts/server-audit.sh --quick\n'
-printf '• Só testes HTTP: ./scripts/server-audit.sh --smoke-only\n'
+printf '• Diagnóstico: bash scripts/server-audit.sh\n'
+printf '• Se smoke falhar só no servidor: bash scripts/setup-https-lan.sh (adiciona /etc/hosts)\n'
 
 bc_hr
-printf 'Resumo: WARN=%s  FAIL=%s' "$WARNINGS" "$FAILURES"
+printf 'Resumo auditoria: WARN=%s  FAIL=%s' "$WARNINGS" "$FAILURES"
 if [ "$QUICK" -eq 0 ]; then
-  printf '  |  Smoke exit=%s' "$SMOKE_EXIT"
+  printf '  |  smoke_exit=%s' "$SMOKE_EXIT"
 fi
 printf '\n'
 
 if [ "$FAILURES" -gt 0 ] || [ "${SMOKE_EXIT:-0}" -ne 0 ]; then
-  printf 'Status: ATENÇÃO — corrija itens [FAIL] acima.\n'
+  if [ "${SMOKE_EXIT:-0}" -ne 0 ] && [ "$FAILURES" -eq 0 ]; then
+    printf 'Status: smoke tests falharam — se o servidor não resolve %s, rode:\n' "$BC_HOST"
+    printf '  bash scripts/setup-https-lan.sh   # adiciona /etc/hosts\n'
+    printf '  bash scripts/server-audit.sh\n'
+  else
+    printf 'Status: ATENÇÃO — corrija itens [FAIL] acima.\n'
+  fi
   exit 1
 fi
 printf 'Status: OK (revise [WARN] se houver).\n'

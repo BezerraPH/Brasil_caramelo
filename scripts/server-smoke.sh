@@ -9,9 +9,11 @@ cd "$ROOT"
 
 safe_env() {
   local key="$1"
+  local val=""
   if [ -f .env ]; then
-    grep -E "^${key}=" .env 2>/dev/null | head -1 | cut -d= -f2- | tr -d '"' | tr -d "'"
+    val="$(grep -E "^${key}=" .env 2>/dev/null | head -1 | cut -d= -f2- | tr -d '"' | tr -d "'" | tr -d '\r' || true)"
   fi
+  printf '%s' "$val"
 }
 
 BC_HOST="$(safe_env BC_HOST)"

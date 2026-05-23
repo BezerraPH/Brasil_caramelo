@@ -1,0 +1,2 @@
+# Shell scripts sempre LF (evita Permission denied / scripts mudos no Ubuntu)
+*.sh text eol=lf

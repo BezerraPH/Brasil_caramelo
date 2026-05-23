@@ -9,9 +9,11 @@ cd "$ROOT"
 
 safe_env() {
   local key="$1"
+  local val=""
   if [ -f .env ]; then
-    grep -E "^${key}=" .env 2>/dev/null | head -1 | cut -d= -f2- | tr -d '"' | tr -d "'"
+    val="$(grep -E "^${key}=" .env 2>/dev/null | head -1 | cut -d= -f2- | tr -d '"' | tr -d "'" | tr -d '\r' || true)"
   fi
+  printf '%s' "$val"
 }
 
 BC_HOST="$(safe_env BC_HOST)"
@@ -64,6 +66,9 @@ case "$REGISTER_CODE" in
     echo "    ✗ Cadastro retornou HTTP ${REGISTER_CODE}"
     cat /tmp/bc-smoke-reg.json 2>/dev/null || true
     echo ""
+    if [ "$REGISTER_CODE" = "429" ]; then
+      echo "    Rate limit de cadastro — aguarde ou crie em ${BASE}/cadastro"
+    fi
     echo "    Crie manualmente em ${BASE}/cadastro ou ajuste BC_SMOKE_* no .env"
     exit 1
     ;;

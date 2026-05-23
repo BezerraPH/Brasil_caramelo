@@ -14,7 +14,7 @@ safe_env() {
   local key="$1"
   if [ -f .env ]; then
     local val
-    val="$(grep -E "^${key}=" .env 2>/dev/null | head -1 | cut -d= -f2- | tr -d '"' | tr -d "'")"
+    val="$(grep -E "^${key}=" .env 2>/dev/null | head -1 | cut -d= -f2- | tr -d '"' | tr -d "'" | tr -d '\r' || true)"
     if [ -z "$val" ]; then
       echo "(vazio ou ausente)"
     else

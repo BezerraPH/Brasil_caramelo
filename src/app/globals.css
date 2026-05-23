@@ -735,6 +735,26 @@ body {
   animation: bc-fade-in-up 0.35s ease both;
 }
 
+.bc-page-shell {
+  animation: bc-fade-in 0.35s ease both;
+}
+
+.bc-day-greeting {
+  animation: bc-fade-in-up 0.4s ease both;
+}
+
+.bc-search-strip {
+  @apply rounded-2xl border border-bc-blue/15 bg-bc-white/80 p-3 shadow-sm backdrop-blur-sm;
+}
+
+.bc-hub-section-title {
+  animation: bc-fade-in-up 0.35s ease both;
+}
+
+.bc-view-fab {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
 .bc-trending-sidebar .bc-trending-chip {
   animation: bc-fade-in-up 0.35s ease both;
 }

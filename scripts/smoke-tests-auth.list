@@ -23,3 +23,4 @@ auth-session|Batalhas|GET|/api/battles|200|
 auth-session|Reputação|GET|/api/reputation|200|
 auth-session|Premium|GET|/api/premium|200|
 auth-session|Storage|GET|/api/storage/stats|200|
+auth-session|Eventos|GET|/api/events|200|

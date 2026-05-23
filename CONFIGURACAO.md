@@ -355,6 +355,20 @@ Sem hosts, sem `rootCA.pem`, sem domínio registrado.
 
 Não misture modos B e C no `.env` sem `docker compose up -d --build`.
 
+### 8.3.1 Checklist pós-deploy (Tailscale)
+
+```bash
+sudo bash scripts/deploy-brasil-caramelo.sh --mode tailscale --full
+# Esperado: smoke FAIL=0, auditoria WARN=0 FAIL=0
+```
+
+| Verificação | Como |
+|-------------|------|
+| Health | `curl -s https://SEU_HOST.ts.net/api/health` → `"ok":true` |
+| Celular | App Tailscale + mesma URL HTTPS |
+| Cron | `CRON_SECRET` no `.env` + `scripts/cron-maintenance.example` |
+| Git | `bash scripts/sync-from-git.sh` se `scripts/` aparecer modificado |
+
 ### 8.4 Tailscale Funnel (público, opcional)
 
 Expõe na internet sem app Tailscale no visitante (cuidado):

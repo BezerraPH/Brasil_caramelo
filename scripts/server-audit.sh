@@ -302,19 +302,25 @@ fi
 
 # ── 12. Recomendações ────────────────────────────────────────────────────────
 bc_section "12. Recomendações"
-if ! systemctl is-active nginx >/dev/null 2>&1; then
-  printf '• nginx parado — porta 80 pode estar ocupada:\n'
-  printf '    sudo ss -tlnp | grep :80\n'
-  printf '    bash scripts/setup-https-lan.sh   # pula :80 se ocupada\n'
-  printf '    sudo systemctl start nginx\n'
+APP_URL_RAW="$(bc_safe_env_raw APP_URL)"
+if [[ "$APP_URL_RAW" == *".ts.net"* ]]; then
+  printf '• Modo Tailscale ativo — celular: app Tailscale + %s\n' "${APP_URL_RAW:-https://SEU_HOST.ts.net}"
+  printf '• Latidos/chamadas: HTTPS via tailscale serve (já configurado)\n'
+  printf '• Cron horário: scripts/cron-maintenance.example\n'
+  printf '• Git limpo: bash scripts/sync-from-git.sh (se scripts/ modificados localmente)\n'
+elif [[ "$APP_URL_RAW" == https://* ]]; then
+  printf '• Modo HTTPS LAN — instale rootCA.pem no celular se o navegador avisar\n'
+  printf '• PC: hosts → %s brasilcaramelo.com\n' "$BC_LAN_IP"
+  if ! systemctl is-active nginx >/dev/null 2>&1; then
+    printf '• nginx parado — sudo systemctl start nginx\n'
+  fi
+else
+  printf '• Modo HTTP — microfone/Latidos no celular exigem HTTPS\n'
+  printf '• Recomendado: sudo bash scripts/setup-tailscale.sh --serve\n'
+  printf '• Alternativa: sudo bash scripts/setup-https-lan.sh\n'
 fi
-if [ ! -f /etc/nginx/sites-enabled/brasilcaramelo ]; then
-  printf '• HTTPS: mkcert + bash scripts/setup-https-lan.sh + docker compose up -d --build\n'
-fi
-printf '• PC Windows: hosts → 192.168.1.4 brasilcaramelo.com + instalar rootCA.pem\n'
-printf '• Celular: instalar rootCA.pem + usar https:// (microfone exige HTTPS)\n'
-printf '• Diagnóstico: bash scripts/server-audit.sh\n'
-printf '• Se smoke falhar só no servidor: bash scripts/setup-https-lan.sh (adiciona /etc/hosts)\n'
+printf '• Diagnóstico completo: bash scripts/server-audit.sh\n'
+printf '• Deploy: bash scripts/deploy-brasil-caramelo.sh --mode tailscale --full\n'
 
 bc_hr
 printf 'Resumo auditoria: WARN=%s  FAIL=%s' "$WARNINGS" "$FAILURES"

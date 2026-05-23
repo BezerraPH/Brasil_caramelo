@@ -2,7 +2,9 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { AppVersionBadge } from "@/components/AppVersionBadge";
 import { MatilhaConnectionChip } from "@/components/MatilhaConnectionChip";
+import { ExplorarHubGrid } from "@/components/ExplorarHubGrid";
 import { FederationFeed } from "@/components/FederationFeed";
+import { MatilhaSearchStrip } from "@/components/MatilhaSearchStrip";
 import { RoadmapPanel } from "@/components/RoadmapPanel";
 import { FederationSyncButton } from "@/components/FederationSyncButton";
 import { MatilhaHealthPanel } from "@/components/MatilhaHealthPanel";
@@ -13,23 +15,6 @@ import { TrendingCloud } from "@/components/TrendingCloud";
 import { getCurrentUser } from "@/lib/auth";
 import { CASINHAS } from "@/lib/casinhas";
 import { refreshMatilhaTrends } from "@/lib/trending";
-
-const HUB = [
-  { href: "/feed", icon: "📰", title: "Feed & Cinelar", desc: "Recados, Insta e Shorts" },
-  { href: "/casinhas", icon: "🏠", title: "Casinhas", desc: "10 comunidades por raça" },
-  { href: "/ranking", icon: "🏆", title: "Ranking", desc: "Top da semana" },
-  { href: "/batalha", icon: "⚔️", title: "Batalha", desc: "Votação de fofura" },
-  { href: "/rolezinho", icon: "🎉", title: "Rolezinho", desc: "Eventos 2x moedas" },
-  { href: "/cachorro", icon: "🐕", title: "Meu pet", desc: "Cuidar, buscar e loja" },
-  { href: "/amigos", icon: "🤝", title: "Amigos", desc: "Matilha social" },
-  { href: "/mensagens", icon: "💬", title: "Mensagens", desc: "Chat ao vivo com amigos" },
-  { href: "/buscar", icon: "🔍", title: "Buscar", desc: "Pessoas, recados e #tags" },
-  { href: "/notificacoes", icon: "🔔", title: "Notificações", desc: "Tudo da matilha" },
-  { href: "/salvos", icon: "🔖", title: "Salvos", desc: "Recados favoritos" },
-  { href: "/latidos", icon: "🎙️", title: "Latidos ao Vivo", desc: "Salas de áudio por casinha" },
-  { href: "/tribunal", icon: "⚖️", title: "Tribunal do Cão", desc: "Mediação gamificada" },
-  { href: "/premium", icon: "👑", title: "Pedigree", desc: "Apoiar o projeto" },
-];
 
 export default async function ExplorarPage() {
   const user = await getCurrentUser();
@@ -80,22 +65,9 @@ export default async function ExplorarPage() {
         </Suspense>
       </section>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {HUB.map((item, i) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="bc-hub-tile bc-card bc-card-interactive bc-animate-in-up flex gap-3 p-4"
-            style={{ animationDelay: `${i * 0.04}s` }}
-          >
-            <span className="text-3xl">{item.icon}</span>
-            <div>
-              <p className="font-bold text-bc-blue">{item.title}</p>
-              <p className="text-xs text-bc-brown">{item.desc}</p>
-            </div>
-          </Link>
-        ))}
-      </div>
+      <MatilhaSearchStrip />
+
+      <ExplorarHubGrid />
 
       <section className="bc-card mt-8 p-5">
         <h2 className="mb-3 font-bold text-bc-blue">Casinhas em destaque</h2>

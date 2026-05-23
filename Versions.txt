@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-22 (v2.9.0-alpha)
-Versão atual do pacote (package.json): 2.9.2-alpha.0
+Última atualização: 2026-05-23 (v2.10.0-alpha)
+Versão atual do pacote (package.json): 2.10.0-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
@@ -451,6 +451,26 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v2.10.0-alpha.0 — 2026-05-23 (Explorar UX, feed greeting, audit Tailscale)
+------------------------------------------------------------------------------
+  APP / UX:
+  + ExplorarHubGrid — hub por seções (Conteúdo, Social, Diversão)
+  + MatilhaSearchStrip — busca rápida no Explorar
+  + MatilhaDayGreeting — saudação no feed (bom dia/tarde/noite)
+  + ViewModeSwitcher — toast ao falhar + safe-area (bc-view-fab)
+  + PageContainer bc-page-shell — animação de entrada
+
+  OPS:
+  + server-audit §12 — recomendações por modo (Tailscale / HTTPS LAN / HTTP)
+  + deploy — aviso se scripts/ ou livekit.yaml modificados localmente
+  + .gitignore — .env.bak.*
+
+  ORGANIZAÇÃO:
+  + src/lib/explorar-hub.ts — dados do hub Explorar
+
+  * package.json: 2.9.2-alpha.0 → 2.10.0-alpha.0
 
 ------------------------------------------------------------------------------
 v2.9.2-alpha.0 — 2026-05-22 (smoke 100%, APIs reputation/premium GET, git sync)

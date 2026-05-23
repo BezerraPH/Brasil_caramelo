@@ -10,7 +10,7 @@ brasil_caramelo/
 │   │   └── api/          # REST API
 │   ├── components/       # UI React
 │   ├── hooks/            # Hooks compartilhados
-│   ├── lib/              # Lógica de negócio
+│   ├── lib/              # Lógica de negócio (explorar-hub.ts, nav.ts…)
 │   └── middleware.ts     # Proteção de rotas (sessão)
 ├── prisma/               # Schema e migrações
 ├── scripts/              # Deploy, smoke, HTTPS, backup

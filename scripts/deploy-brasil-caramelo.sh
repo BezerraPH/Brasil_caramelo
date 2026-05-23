@@ -164,3 +164,9 @@ if [ "$RUN_AUDIT" -eq 1 ]; then
   echo "==> Auditoria..."
   bash scripts/server-audit.sh --quick
 fi
+
+if command -v git >/dev/null 2>&1 && [ -n "$(git status --porcelain scripts/ deploy/livekit/ 2>/dev/null)" ]; then
+  echo ""
+  echo "  [INFO] scripts/ ou livekit.yaml modificados localmente (normal após setup-tailscale)."
+  echo "         Para alinhar ao Git: bash scripts/sync-from-git.sh"
+fi

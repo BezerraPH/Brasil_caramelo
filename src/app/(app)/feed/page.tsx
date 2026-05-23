@@ -3,6 +3,7 @@ import { CreatePostForm } from "@/components/CreatePostForm";
 import { OfflinePostBanner } from "@/components/OfflinePostBanner";
 import { FeedFilterTabs } from "@/components/FeedFilterTabs";
 import { FeedInfinite } from "@/components/FeedInfinite";
+import { MatilhaDayGreeting } from "@/components/MatilhaDayGreeting";
 import { MatilhaStatsCards } from "@/components/MatilhaStatsCards";
 import { NotificationPeek } from "@/components/NotificationPeek";
 import { FeedTrendingTags } from "@/components/FeedTrendingTags";
@@ -189,6 +190,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
                 {title}
               </h1>
               <p className="mt-1 text-sm text-bc-brown">{subtitle}</p>
+              {!isReels && <MatilhaDayGreeting name={user.name} />}
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <FeedRefreshButton />

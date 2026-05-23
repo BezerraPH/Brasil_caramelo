@@ -11,7 +11,7 @@ export function PageContainer({
 }: PageContainerProps) {
   return (
     <main
-      className={`mx-auto px-4 py-6 pb-24 md:pb-8 ${narrow ? "max-w-2xl" : "max-w-6xl"} ${className}`}
+      className={`mx-auto px-4 py-6 pb-24 md:pb-8 bc-page-shell ${narrow ? "max-w-2xl" : "max-w-6xl"} ${className}`}
     >
       {children}
     </main>

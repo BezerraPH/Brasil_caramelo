@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { VIEW_MODES } from "@/lib/constants";
+import { useToast } from "./ToastProvider";
 
 type ViewModeSwitcherProps = {
   currentMode: "FEED" | "INSTA" | "REELS";
@@ -10,6 +11,7 @@ type ViewModeSwitcherProps = {
 
 export function ViewModeSwitcher({ currentMode }: ViewModeSwitcherProps) {
   const router = useRouter();
+  const toast = useToast();
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -25,11 +27,15 @@ export function ViewModeSwitcher({ currentMode }: ViewModeSwitcherProps) {
       body: JSON.stringify({ viewMode: mode }),
     });
     setSaving(false);
-    if (res.ok) router.refresh();
+    if (res.ok) {
+      router.refresh();
+    } else {
+      toast("Não foi possível trocar o modo.");
+    }
   }
 
   return (
-    <div className="fixed bottom-20 right-4 z-40 md:bottom-8 md:right-8">
+    <div className="bc-view-fab fixed bottom-20 right-4 z-40 md:bottom-8 md:right-8">
       {open && (
         <div className="bc-menu-enter absolute bottom-16 right-0 flex flex-col gap-2">
           {VIEW_MODES.map((m, i) => (

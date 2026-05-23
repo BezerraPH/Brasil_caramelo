@@ -96,6 +96,7 @@ auth-guard|Premium checkout|GET|/api/premium/checkout|401|
 auth-guard|Stories view|POST|/api/stories/view|401|
 auth-guard|Pet treat|POST|/api/pet/treat|401|
 
+# v2.10.0 — explorar hub, audit tailscale
 # v2.9.0 — service status explorar, auth polish, pet-shop, deploy maintenance
 # v2.8.0 — pet daily, federation export, logout, --full deploy
 # v2.7.0 — cron maintenance, friends, middleware páginas, register

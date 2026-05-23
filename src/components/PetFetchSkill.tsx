@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { feedPostPath } from "@/lib/feed-post-link";
 import { useCallback, useState } from "react";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
 
@@ -55,7 +56,7 @@ export function PetFetchSkill({ onDone }: { onDone?: () => void }) {
               </p>
               <p className="mt-1 italic">&ldquo;{reward.preview}&rdquo;</p>
               <Link
-                href={`/feed#post-${reward.postId}`}
+                href={feedPostPath(reward.postId)}
                 className="mt-2 inline-block text-xs font-semibold text-bc-caramel"
               >
                 Ver no feed →

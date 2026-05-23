@@ -175,6 +175,39 @@ docker compose down            # parar tudo
 
 ---
 
+## Ollama (IA local — opcional)
+
+Com [Ollama](https://ollama.com) no servidor ou em outra máquina da LAN:
+
+```bash
+ollama pull llama3.2
+ollama pull moondream   # visão para moderação de imagens
+```
+
+No `.env`:
+
+```env
+OLLAMA_BASE_URL=http://192.168.1.4:11434
+OLLAMA_MODEL=llama3.2
+OLLAMA_VISION_MODEL=moondream
+```
+
+- **Cão de Guarda** (`/configuracoes`) usa Ollama antes de OpenAI.
+- **Upload de imagens** passa pelo modelo de visão se configurado.
+
+---
+
+## Backup
+
+```bash
+chmod +x scripts/backup-matilha.sh
+./scripts/backup-matilha.sh
+```
+
+Agendamento: veja `scripts/cron-backup.example`.
+
+---
+
 ## Resumo
 
 **Um compose. Um `.env`. Cinco containers.** Nada de Pusher cloud, OpenAI ou LiveKit cloud.

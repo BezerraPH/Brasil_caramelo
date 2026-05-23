@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MOBILE_NAV, isNavActive } from "@/lib/nav";
 import { PetDailyNavDot } from "./PetDailyNavDot";
+import { TribunalOpenDot } from "./TribunalOpenDot";
 
 export function MobileNav() {
   const pathname = usePathname();
@@ -27,6 +28,7 @@ export function MobileNav() {
                 <span className="relative text-lg" aria-hidden>
                   {tab.icon}
                   {tab.href === "/cachorro" && <PetDailyNavDot />}
+                  {tab.href === "/explorar" && <TribunalOpenDot />}
                 </span>
                 {tab.label}
               </Link>

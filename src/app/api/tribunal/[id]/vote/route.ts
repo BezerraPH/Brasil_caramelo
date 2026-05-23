@@ -5,11 +5,16 @@ import { getCurrentUser } from "@/lib/auth";
 import { isTribunalJuror } from "@/lib/pet-dna";
 import { prisma } from "@/lib/prisma";
 import { resolveTribunalCaseIfReady } from "@/lib/tribunal";
+import {
+  TRIBUNAL_JURY_COINS,
+  TRIBUNAL_JURY_COINS_DAILY_CAP,
+} from "@/lib/tribunal-constants";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 const voteSchema = z.object({
   choice: z.enum(["KEEP", "REMOVE"]),
+  opinion: z.string().max(280).optional(),
 });
 
 export async function POST(request: Request, context: RouteContext) {
@@ -31,7 +36,9 @@ export async function POST(request: Request, context: RouteContext) {
   const { id: caseId } = await context.params;
 
   try {
-    const { choice } = voteSchema.parse(await request.json());
+    const { choice, opinion } = voteSchema.parse(await request.json());
+    const parecer =
+      opinion?.trim().slice(0, 280) || undefined;
     const tribunalCase = await prisma.postTribunalCase.findUnique({
       where: { id: caseId },
       include: { post: { select: { authorId: true } } },
@@ -49,7 +56,7 @@ export async function POST(request: Request, context: RouteContext) {
 
     try {
       await prisma.tribunalVote.create({
-        data: { caseId, jurorId: user.id, choice },
+        data: { caseId, jurorId: user.id, choice, opinion: parecer },
       });
     } catch {
       return NextResponse.json({ error: "Você já votou neste caso." }, { status: 400 });
@@ -66,6 +73,42 @@ export async function POST(request: Request, context: RouteContext) {
     await resolveTribunalCaseIfReady(caseId);
     const unlocked = await unlockAchievement(user.id, "TRIBUNAL_JUROR");
 
+    if (parecer) {
+      const { createNotification } = await import("@/lib/notifications");
+      const juror = await prisma.user.findUnique({
+        where: { id: user.id },
+        select: { username: true },
+      });
+      await createNotification(
+        tribunalCase.post.authorId,
+        "TRIBUNAL_CASE",
+        `⚖️ @${juror?.username ?? "jurado"} deixou parecer no Tribunal sobre seu recado.`,
+        "/tribunal",
+      );
+    }
+
+    const dayStart = new Date();
+    dayStart.setUTCHours(0, 0, 0, 0);
+    const votesToday = await prisma.tribunalVote.count({
+      where: { jurorId: user.id, createdAt: { gte: dayStart } },
+    });
+
+    let coinsAwarded = 0;
+    if (votesToday <= TRIBUNAL_JURY_COINS_DAILY_CAP) {
+      let pet = await prisma.pet.findUnique({ where: { userId: user.id } });
+      if (!pet) {
+        pet = await prisma.pet.create({
+          data: { userId: user.id, coins: TRIBUNAL_JURY_COINS },
+        });
+      } else {
+        await prisma.pet.update({
+          where: { id: pet.id },
+          data: { coins: pet.coins + TRIBUNAL_JURY_COINS },
+        });
+      }
+      coinsAwarded = TRIBUNAL_JURY_COINS;
+    }
+
     const updated = await prisma.postTribunalCase.findUnique({
       where: { id: caseId },
     });
@@ -74,6 +117,7 @@ export async function POST(request: Request, context: RouteContext) {
       ok: true,
       status: updated?.status ?? "OPEN",
       newAchievement: unlocked ? "TRIBUNAL_JUROR" : null,
+      coinsAwarded,
     });
   } catch {
     return NextResponse.json({ error: "Voto inválido." }, { status: 400 });

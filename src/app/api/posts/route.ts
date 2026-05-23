@@ -7,7 +7,7 @@ import {
   fetchFeedPage,
   parseFeedFilter,
 } from "@/lib/feed-posts";
-import { moderateText } from "@/lib/content-moderation";
+import { moderateTextFull } from "@/lib/content-moderation";
 import { notifyMentions } from "@/lib/notify-mentions";
 import { prisma } from "@/lib/prisma";
 import {
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
       postSchema.parse(body);
 
     const text = content?.trim() ?? "";
-    const mod = moderateText(text);
+    const mod = await moderateTextFull(text);
     if (!mod.ok) {
       return NextResponse.json({ error: mod.reason }, { status: 400 });
     }

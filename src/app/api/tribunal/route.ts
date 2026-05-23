@@ -16,7 +16,12 @@ const caseInclude = {
     },
   },
   votes: {
-    select: { choice: true, jurorId: true },
+    select: {
+      choice: true,
+      jurorId: true,
+      opinion: true,
+      juror: { select: { name: true, username: true } },
+    },
   },
 } as const;
 
@@ -76,7 +81,12 @@ function mapCase(
       author: { username: string; name: string };
       _count: { reports: number };
     };
-    votes: { choice: string; jurorId: string }[];
+    votes: {
+      choice: string;
+      jurorId: string;
+      opinion: string | null;
+      juror: { name: string; username: string };
+    }[];
   },
   userId: string,
 ) {
@@ -88,6 +98,13 @@ function mapCase(
     votesRemove: c.votesRemove,
     resolvedAt: c.resolvedAt?.toISOString() ?? null,
     myVote: c.votes.find((v) => v.jurorId === userId)?.choice ?? null,
+    pareceres: c.votes
+      .filter((v) => v.opinion)
+      .map((v) => ({
+        choice: v.choice,
+        opinion: v.opinion!,
+        juror: v.juror,
+      })),
     post: {
       ...c.post,
       createdAt: c.post.createdAt.toISOString(),

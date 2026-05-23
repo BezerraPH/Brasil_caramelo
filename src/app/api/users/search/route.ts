@@ -13,16 +13,15 @@ export async function GET(request: Request) {
     return NextResponse.json({ users: [] });
   }
 
+  const usernameQ = q.startsWith("@") ? q.slice(1) : q;
+
   const users = await prisma.user.findMany({
     where: {
-      AND: [
-        { id: { not: user.id } },
-        {
-          OR: [
-            { username: { contains: q, mode: "insensitive" } },
-            { name: { contains: q, mode: "insensitive" } },
-          ],
-        },
+      shadowbanned: false,
+      id: { not: user.id },
+      OR: [
+        { username: { contains: usernameQ, mode: "insensitive" } },
+        { name: { contains: q, mode: "insensitive" } },
       ],
     },
     take: 20,

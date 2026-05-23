@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppVersionBadge } from "@/components/AppVersionBadge";
+import { LandingMatilhaPulse } from "@/components/LandingMatilhaPulse";
 import { getCurrentUser } from "@/lib/auth";
 import { getVersionLong } from "@/lib/app-version";
 
@@ -43,16 +44,21 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        <div className="bc-animate-in bc-stagger-3 mt-16 grid w-full max-w-3xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <LandingMatilhaPulse />
+
+        <div className="bc-animate-in bc-stagger-3 mt-16 grid w-full max-w-4xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[
             { icon: "💬", title: "Chat & Salas", desc: "DM, casinhas e chamadas" },
             { icon: "📰", title: "Feed & Casinhas", desc: "10 tocas por raça" },
             { icon: "🎬", title: "Cinelar", desc: "Shorts com autoplay" },
-            { icon: "🐕", title: "Pet virtual", desc: "Cuidados e moedas" },
-          ].map((f) => (
+            { icon: "🐕", title: "Pet virtual", desc: "DNA, moedas e loja" },
+            { icon: "⚖️", title: "Tribunal", desc: "Mediação da matilha" },
+            { icon: "🎙️", title: "Latidos", desc: "Áudio ao vivo LAN" },
+          ].map((f, i) => (
             <div
               key={f.title}
-              className="bc-card bc-glass bc-card-interactive p-4 text-center"
+              className="bc-feature-tile bc-card bc-glass bc-card-interactive p-4 text-center"
+              style={{ animationDelay: `${i * 0.05}s` }}
             >
               <span className="text-3xl">{f.icon}</span>
               <p className="mt-2 font-bold text-bc-blue">{f.title}</p>

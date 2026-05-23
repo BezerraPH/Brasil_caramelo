@@ -1,5 +1,6 @@
-import { prisma } from "./prisma";
+import { MATILHA_POST_WITH_AUTHOR } from "./matilha-post-where";
 import { getFriendIds } from "./friendship";
+import { prisma } from "./prisma";
 
 const FETCH_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
@@ -25,7 +26,7 @@ export async function rollPetFetchReward(
       where: {
         authorId: { in: friendIds },
         createdAt: { lte: yearAgo },
-        communityLevel: null,
+        ...MATILHA_POST_WITH_AUTHOR,
       },
       orderBy: { createdAt: "desc" },
       take: 24,

@@ -2,11 +2,18 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useCallback, useState } from "react";
 import { FeedPost } from "@/components/FeedPost";
+import {
+  BuscarRecentChips,
+  rememberSearchQuery,
+} from "@/components/BuscarRecentChips";
+import { BuscarSuggestDropdown } from "@/components/BuscarSuggestDropdown";
 import { PageContainer } from "@/components/PageContainer";
 import { UserAvatar } from "@/components/UserAvatar";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { highlightSearchTerm } from "@/lib/search-highlight";
 
 type User = {
   id: string;
@@ -40,14 +47,16 @@ function BuscarContent() {
   const initialTag = searchParams.get("tag");
 
   const [tab, setTab] = useState<"people" | "posts">(initialTab);
-  const [q, setQ] = useState(
-    initialTag ? `#${initialTag}` : initialQ,
-  );
+  const [q, setQ] = useState(initialTag ? `#${initialTag}` : initialQ);
   const [users, setUsers] = useState<User[]>([]);
   const [posts, setPosts] = useState<PostResult[]>([]);
   const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | undefined>();
+  const [historyKey, setHistoryKey] = useState(0);
+  const [searchFocused, setSearchFocused] = useState(false);
+
+  const debouncedQ = useDebouncedValue(q, 350);
 
   useAsyncEffect(async () => {
     const res = await fetch("/api/users/me");
@@ -57,52 +66,77 @@ function BuscarContent() {
     }
   }, []);
 
-  useEffect(() => {
-    if (initialTag || initialQ.length >= 2) {
-      void runSearch(initialTag ? `#${initialTag}` : initialQ, initialTab);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const runSearch = useCallback(
+    async (query: string, searchTab: "people" | "posts") => {
+      const trimmed = query.trim();
+      if (trimmed.length < 2 && !trimmed.startsWith("#")) {
+        setSearched(false);
+        setUsers([]);
+        setPosts([]);
+        return;
+      }
+      setLoading(true);
+      setSearched(true);
 
-  async function runSearch(query: string, searchTab: "people" | "posts") {
-    const trimmed = query.trim();
-    if (trimmed.length < 2 && !trimmed.startsWith("#")) return;
-    setLoading(true);
-    setSearched(true);
+      if (searchTab === "people" && !trimmed.startsWith("#")) {
+        const res = await fetch(
+          `/api/users/search?q=${encodeURIComponent(trimmed)}`,
+        );
+        const data = await res.json();
+        setUsers(data.users ?? []);
+        setPosts([]);
+      } else {
+        const tag = trimmed.startsWith("#") ? trimmed.slice(1) : null;
+        const url = tag
+          ? `/api/posts/search?tag=${encodeURIComponent(tag)}`
+          : `/api/posts/search?q=${encodeURIComponent(trimmed)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        setPosts(data.posts ?? []);
+        setUsers([]);
+      }
+      rememberSearchQuery(trimmed);
+      setHistoryKey((k) => k + 1);
+      setLoading(false);
+    },
+    [],
+  );
 
-    if (searchTab === "people" && !trimmed.startsWith("#")) {
-      const res = await fetch(
-        `/api/users/search?q=${encodeURIComponent(trimmed)}`,
-      );
-      const data = await res.json();
-      setUsers(data.users ?? []);
-      setPosts([]);
-    } else {
-      const tag = trimmed.startsWith("#") ? trimmed.slice(1) : null;
-      const url = tag
-        ? `/api/posts/search?tag=${encodeURIComponent(tag)}`
-        : `/api/posts/search?q=${encodeURIComponent(trimmed)}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      setPosts(data.posts ?? []);
-      setUsers([]);
-    }
-    setLoading(false);
-  }
+  useAsyncEffect(async () => {
+    await runSearch(debouncedQ, tab);
+  }, [debouncedQ, tab, runSearch]);
 
   async function search(e: React.FormEvent) {
     e.preventDefault();
     await runSearch(q, tab);
   }
 
+  const showLiveHint =
+    q.trim().length >= 2 || q.trim().startsWith("#");
+
+  const highlightQuery =
+    tab === "people" && !q.trim().startsWith("#")
+      ? debouncedQ
+      : tab === "posts" && !q.trim().startsWith("#")
+        ? debouncedQ
+        : "";
+
   return (
     <PageContainer narrow>
       <header className="bc-animate-in mb-6">
         <h1 className="text-2xl font-bold text-bc-blue">Buscar</h1>
         <p className="text-sm text-bc-brown">
-          Pessoas, recados e hashtags (#caramelo)
+          Pessoas, recados e hashtags — resultados enquanto você digita
         </p>
       </header>
+
+      <BuscarRecentChips
+        refreshKey={historyKey}
+        onPick={(term) => {
+          setQ(term);
+          if (term.startsWith("#")) setTab("posts");
+        }}
+      />
 
       <div className="bc-animate-in bc-stagger-1 mb-4 flex gap-2">
         <button
@@ -129,17 +163,21 @@ function BuscarContent() {
         </button>
       </div>
 
-      <form onSubmit={search} className="bc-card bc-animate-in bc-stagger-2 mb-6 p-4">
+      <form
+        onSubmit={search}
+        className="bc-card bc-search-live bc-animate-in bc-stagger-2 relative mb-6 p-4"
+      >
         <div className="flex gap-2">
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setTimeout(() => setSearchFocused(false), 150)}
             placeholder={
-              tab === "posts"
-                ? "Texto ou #hashtag"
-                : "Nome ou @usuário"
+              tab === "posts" ? "Texto ou #hashtag" : "Nome ou @usuário"
             }
             className="bc-input flex-1"
+            autoComplete="off"
           />
           <button
             type="submit"
@@ -149,6 +187,19 @@ function BuscarContent() {
             {loading ? "…" : "Buscar"}
           </button>
         </div>
+        {showLiveHint && (
+          <p className="bc-search-live-hint mt-2 text-[10px] text-bc-green">
+            {loading ? "Buscando na matilha…" : "⚡ Atualizando em tempo real"}
+          </p>
+        )}
+        <BuscarSuggestDropdown
+          query={q}
+          visible={
+            tab === "posts" &&
+            searchFocused &&
+            (q.trim().length >= 1 || q.trim().startsWith("#"))
+          }
+        />
       </form>
 
       {tab === "people" && (
@@ -166,11 +217,15 @@ function BuscarContent() {
               <Link href={`/perfil/${u.username}`} className="flex gap-3">
                 <UserAvatar name={u.name} avatarUrl={u.avatarUrl} size="md" />
                 <div>
-                  <p className="font-semibold text-bc-blue">{u.name}</p>
-                  <p className="text-sm text-bc-brown">@{u.username}</p>
+                  <p className="font-semibold text-bc-blue">
+                    {highlightSearchTerm(u.name, highlightQuery)}
+                  </p>
+                  <p className="text-sm text-bc-brown">
+                    @{highlightSearchTerm(u.username, highlightQuery)}
+                  </p>
                   {u.bio && (
                     <p className="mt-1 line-clamp-2 text-xs text-bc-brown/80">
-                      {u.bio}
+                      {highlightSearchTerm(u.bio, highlightQuery)}
                     </p>
                   )}
                 </div>
@@ -193,6 +248,7 @@ function BuscarContent() {
               post={post}
               currentUserId={currentUserId}
               animationDelay={i < 5 ? `bc-stagger-${i + 1}` : undefined}
+              searchHighlight={highlightQuery}
             />
           ))}
         </div>

@@ -1,4 +1,6 @@
-/** Moderação local (texto + heurísticas). OpenAI opcional para imagens. */
+/** Moderação local (texto + heurísticas). Ollama/OpenAI opcionais para imagens. */
+
+import { askOllama } from "./ollama";
 
 const BLOCKED_PATTERNS = [
   /\b(porn[oô]?|xxx|nsfw|nudez|nudes)\b/i,
@@ -15,6 +17,10 @@ export type ModerationResult =
   | { ok: true }
   | { ok: false; reason: string };
 
+const OLLAMA_TEXT_PROMPT = `Você modera uma rede social familiar brasileira.
+A mensagem abaixo viola regras (ódio, pornografia, spam, golpe)?
+Responda uma linha: ALLOW ou BLOCK.`;
+
 export function moderateText(text: string): ModerationResult {
   const trimmed = text.trim();
   if (!trimmed) return { ok: true };
@@ -26,7 +32,11 @@ export function moderateText(text: string): ModerationResult {
   }
   for (const p of SPAM_PATTERNS) {
     if (p.test(trimmed)) {
-      return { ok: false, reason: "Mensagem parece spam. Tente encurtar links ou texto repetido." };
+      return {
+        ok: false,
+        reason:
+          "Mensagem parece spam. Tente encurtar links ou texto repetido.",
+      };
     }
   }
   if (trimmed.length > 8000) {
@@ -35,8 +45,40 @@ export function moderateText(text: string): ModerationResult {
   return { ok: true };
 }
 
+/** Moderação de texto via Ollama (opcional, após heurísticas locais). */
+export async function moderateTextWithOllama(
+  text: string,
+): Promise<ModerationResult> {
+  if (!process.env.OLLAMA_BASE_URL?.trim()) return { ok: true };
+
+  const answer = await askOllama([
+    { role: "system", content: OLLAMA_TEXT_PROMPT },
+    { role: "user", content: text.slice(0, 800) },
+  ]);
+  if (!answer) return { ok: true };
+
+  const upper = answer.toUpperCase();
+  if (upper.includes("BLOCK") || upper.includes("UNSAFE")) {
+    return {
+      ok: false,
+      reason: "Conteúdo sinalizado pelo Cão de Guarda (Ollama local).",
+    };
+  }
+  return { ok: true };
+}
+
+/** Pipeline: heurística local → Ollama (se configurado). */
+export async function moderateTextFull(text: string): Promise<ModerationResult> {
+  const local = moderateText(text);
+  if (!local.ok) return local;
+  return moderateTextWithOllama(text);
+}
+
 /** Heurística leve em imagens (dimensões extremas / arquivo vazio). */
-export function moderateImageMeta(width: number, height: number): ModerationResult {
+export function moderateImageMeta(
+  width: number,
+  height: number,
+): ModerationResult {
   if (width < 8 || height < 8) {
     return { ok: false, reason: "Imagem inválida." };
   }
@@ -50,10 +92,6 @@ export function moderateImageMeta(width: number, height: number): ModerationResu
   return { ok: true };
 }
 
-/**
- * Cão de Guarda local — amostra reduzida via Sharp (sem API).
- * Bloqueia imagens em branco ou com variação mínima de cor.
- */
 export async function moderateImageBuffer(
   buffer: Buffer,
 ): Promise<ModerationResult> {
@@ -78,6 +116,27 @@ export async function moderateImageBuffer(
   } catch {
     return { ok: true };
   }
+}
+
+const OLLAMA_VISION_PROMPT = `Analise esta imagem para uma rede social brasileira familiar.
+Contém nudez, pornografia, violência gráfica, símbolos de ódio ou conteúdo claramente impróprio?
+Responda em uma linha: SAFE ou UNSAFE.`;
+
+export async function moderateImageWithOllama(
+  buffer: Buffer,
+): Promise<ModerationResult> {
+  const { askOllamaVision } = await import("./ollama");
+  const answer = await askOllamaVision(buffer, OLLAMA_VISION_PROMPT);
+  if (!answer) return { ok: true };
+
+  const upper = answer.toUpperCase();
+  if (upper.includes("UNSAFE") || upper.includes("NSFW")) {
+    return {
+      ok: false,
+      reason: "Imagem sinalizada pelo Cão de Guarda (Ollama local).",
+    };
+  }
+  return { ok: true };
 }
 
 export async function moderateImageWithOpenAI(

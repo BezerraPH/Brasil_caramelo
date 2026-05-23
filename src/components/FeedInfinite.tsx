@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { FeedFilterMode } from "@/lib/feed-posts";
+import { feedFilterQueryParam } from "@/lib/feed-filter-query";
 import { useFeedPrefetch } from "@/hooks/use-feed-prefetch";
 import { FeedPost } from "./FeedPost";
 
@@ -12,6 +13,7 @@ export type FeedPostItem = {
   videoUrl?: string | null;
   videoHlsUrl?: string | null;
   boostedUntil?: string | null;
+  tribunalOpen?: boolean;
   createdAt: string;
   likedByMe: boolean;
   myReaction: string | null;
@@ -50,8 +52,7 @@ export function FeedInfinite({
     if (!cursor || loading) return;
     setLoading(true);
     try {
-      const filterQ =
-        feedFilter === "friends" ? "&filter=friends" : "";
+      const filterQ = feedFilterQueryParam(feedFilter);
       const res = await fetch(
         `/api/posts?cursor=${encodeURIComponent(cursor)}${filterQ}`,
       );

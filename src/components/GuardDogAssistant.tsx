@@ -1,12 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import type { GuardDogProvider } from "@/lib/guard-dog";
+
+const PROVIDER_LABEL: Record<GuardDogProvider, string> = {
+  ollama: "IA local (Ollama) na sua rede",
+  openai: "IA via OpenAI",
+  local: "Modo local — regras da matilha + seus dados",
+};
 
 export function GuardDogAssistant() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [aiPowered, setAiPowered] = useState(false);
+  const [provider, setProvider] = useState<GuardDogProvider | null>(null);
   const [ragUsed, setRagUsed] = useState(false);
 
   async function ask(e: React.FormEvent) {
@@ -23,10 +30,11 @@ export function GuardDogAssistant() {
     setLoading(false);
     if (res.ok) {
       setAnswer(data.answer);
-      setAiPowered(Boolean(data.aiPowered));
+      setProvider(data.provider ?? (data.aiPowered ? "openai" : "local"));
       setRagUsed(Boolean(data.ragUsed));
     } else {
       setAnswer(data.error ?? "Auau… erro.");
+      setProvider(null);
     }
   }
 
@@ -36,7 +44,10 @@ export function GuardDogAssistant() {
       <p className="mt-1 text-xs text-bc-brown">
         Pergunte sobre regras, moedas, impulsionar, Tribunal ou moderação.
       </p>
-      <form onSubmit={(e) => void ask(e)} className="mt-4 flex flex-col gap-2 sm:flex-row">
+      <form
+        onSubmit={(e) => void ask(e)}
+        className="mt-4 flex flex-col gap-2 sm:flex-row"
+      >
         <input
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
@@ -49,19 +60,14 @@ export function GuardDogAssistant() {
         </button>
       </form>
       {answer && (
-        <p className="bc-guard-dog-reply bc-animate-in mt-3 rounded-lg bg-bc-blue/5 p-3 text-sm text-bc-brown">
-          {answer}
-          {ragUsed && (
+        <div className="bc-guard-dog-reply bc-animate-in mt-3 rounded-lg bg-bc-blue/5 p-3 text-sm text-bc-brown">
+          <p className="whitespace-pre-wrap">{answer}</p>
+          {ragUsed && provider && (
             <span className="mt-2 block text-[10px] text-bc-green/80">
-              Resposta com contexto da sua matilha (pet, recados, tribunal).
+              {PROVIDER_LABEL[provider]}
             </span>
           )}
-          {!aiPowered && (
-            <span className="mt-2 block text-[10px] text-bc-brown/70">
-              Modo local — respostas com regras da matilha (sem IA externa).
-            </span>
-          )}
-        </p>
+        </div>
       )}
     </section>
   );

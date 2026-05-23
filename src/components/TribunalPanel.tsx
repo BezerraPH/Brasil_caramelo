@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { feedPostPath } from "@/lib/feed-post-link";
 import { useCallback, useState } from "react";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
 import { formatAchievementToast } from "@/lib/achievement-defs";
@@ -8,6 +9,12 @@ import type { AchievementKey } from "@/lib/achievement-defs";
 import { useToast } from "./ToastProvider";
 
 type Tab = "open" | "history" | "mine";
+
+type Parecer = {
+  choice: string;
+  opinion: string;
+  juror: { name: string; username: string };
+};
 
 type CaseItem = {
   id: string;
@@ -17,6 +24,7 @@ type CaseItem = {
   votesRemove: number;
   resolvedAt: string | null;
   myVote: string | null;
+  pareceres: Parecer[];
   post: {
     id: string;
     content: string;
@@ -32,6 +40,8 @@ export function TribunalPanel() {
   const [juror, setJuror] = useState(false);
   const [cases, setCases] = useState<CaseItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [opinions, setOpinions] = useState<Record<string, string>>({});
+  const [votingId, setVotingId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -49,19 +59,39 @@ export function TribunalPanel() {
   }, [load]);
 
   async function vote(caseId: string, choice: "KEEP" | "REMOVE") {
-    const res = await fetch(`/api/tribunal/${caseId}/vote`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ choice }),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      if (data.newAchievement) {
-        toast(formatAchievementToast(data.newAchievement as AchievementKey), "achievement");
+    setVotingId(caseId);
+    const opinion = opinions[caseId]?.trim().slice(0, 280);
+    try {
+      const res = await fetch(`/api/tribunal/${caseId}/vote`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ choice, opinion: opinion || undefined }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        if (data.newAchievement) {
+          toast(
+            formatAchievementToast(data.newAchievement as AchievementKey),
+            "achievement",
+          );
+        }
+        if (data.coinsAwarded > 0) {
+          toast(
+            `+${data.coinsAwarded} CarameloCoins por julgar na matilha ⚖️`,
+            "achievement",
+          );
+        }
+        setOpinions((prev) => {
+          const next = { ...prev };
+          delete next[caseId];
+          return next;
+        });
+        await load();
+      } else {
+        toast(data.error ?? "Não foi possível registrar o voto.");
       }
-      await load();
-    } else {
-      toast(data.error ?? "Não foi possível registrar o voto.");
+    } finally {
+      setVotingId(null);
     }
   }
 
@@ -81,7 +111,7 @@ export function TribunalPanel() {
         </p>
         {juror ? (
           <p className="mt-2 text-xs font-semibold text-bc-green">
-            Você pode votar como jurado.
+            Vote e opcionalmente redija um parecer (+8 coins/voto, até 5/dia).
           </p>
         ) : (
           <p className="mt-2 text-xs text-bc-brown">
@@ -151,7 +181,7 @@ export function TribunalPanel() {
             </p>
             {tab !== "history" && !c.post.tribunalHidden && (
               <Link
-                href={`/feed#post-${c.post.id}`}
+                href={feedPostPath(c.post.id)}
                 className="mt-2 inline-block text-xs text-bc-blue hover:underline"
               >
                 Ver recado no feed →
@@ -166,22 +196,61 @@ export function TribunalPanel() {
               <span className="text-bc-green">Manter: {c.votesKeep}</span>
               <span className="text-red-600">Remover: {c.votesRemove}</span>
             </div>
+
+            {c.pareceres.length > 0 && (
+              <ul className="bc-tribunal-pareceres mt-4 space-y-2">
+                {c.pareceres.map((p, j) => (
+                  <li
+                    key={`${p.juror.username}-${j}`}
+                    className="rounded-lg border border-bc-blue/10 bg-bc-blue/5 px-3 py-2 text-xs"
+                  >
+                    <p className="font-semibold text-bc-blue">
+                      @{p.juror.username}{" "}
+                      <span className="font-normal text-bc-brown">
+                        ({p.choice === "KEEP" ? "manter" : "remover"})
+                      </span>
+                    </p>
+                    <p className="mt-1 text-bc-brown">{p.opinion}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+
             {tab === "open" && juror && !c.myVote && (
-              <div className="mt-4 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => void vote(c.id, "KEEP")}
-                  className="bc-btn-secondary flex-1 text-xs"
-                >
-                  ✅ Mal-entendido
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void vote(c.id, "REMOVE")}
-                  className="bc-btn-primary flex-1 text-xs"
-                >
-                  🚫 Remover
-                </button>
+              <div className="mt-4 space-y-2">
+                <label className="block text-[10px] font-semibold text-bc-brown">
+                  Parecer opcional (até 280 caracteres)
+                </label>
+                <textarea
+                  value={opinions[c.id] ?? ""}
+                  onChange={(e) =>
+                    setOpinions((prev) => ({
+                      ...prev,
+                      [c.id]: e.target.value.slice(0, 280),
+                    }))
+                  }
+                  rows={2}
+                  className="bc-input w-full resize-none text-xs"
+                  placeholder="Explique seu voto para a matilha…"
+                />
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    disabled={votingId === c.id}
+                    onClick={() => void vote(c.id, "KEEP")}
+                    className="bc-btn-secondary flex-1 text-xs"
+                  >
+                    ✅ Mal-entendido
+                  </button>
+                  <button
+                    type="button"
+                    disabled={votingId === c.id}
+                    onClick={() => void vote(c.id, "REMOVE")}
+                    className="bc-btn-primary flex-1 text-xs"
+                  >
+                    🚫 Remover
+                  </button>
+                </div>
               </div>
             )}
             {c.myVote && (

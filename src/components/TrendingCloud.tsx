@@ -21,7 +21,7 @@ export async function TrendingCloud() {
         return (
           <Link
             key={t.tag}
-            href={`/buscar?q=${encodeURIComponent(`#${t.tag}`)}`}
+            href={`/buscar?tag=${encodeURIComponent(t.tag)}&tab=posts`}
             className="bc-animate-in rounded-full border border-bc-blue/15 bg-bc-white px-3 py-1 font-medium text-bc-blue transition hover:border-bc-caramel hover:bg-bc-caramel/10"
             style={{
               fontSize: `${Math.round(11 + scale * 5)}px`,

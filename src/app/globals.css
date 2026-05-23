@@ -525,6 +525,112 @@ body {
   animation: bc-pop 0.4s ease both;
 }
 
+.bc-post-tribunal-open {
+  @apply border-bc-blue/30;
+}
+
+.bc-tribunal-ribbon {
+  @apply absolute -left-1 -top-1 rounded-full bg-bc-blue/90 px-2.5 py-0.5 text-[10px] font-bold text-white shadow-sm;
+  animation: bc-pop 0.45s ease both;
+}
+
+.bc-health-panel {
+  border-color: color-mix(in srgb, var(--bc-green) 25%, transparent);
+}
+
+.bc-search-live {
+  @apply border-bc-green/20 transition-shadow duration-300;
+}
+
+.bc-search-live:focus-within {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--bc-green) 25%, transparent);
+}
+
+.bc-search-live-hint {
+  animation: bc-fade-in-up 0.3s ease both;
+}
+
+.bc-genealogy-panel {
+  border-color: color-mix(in srgb, var(--bc-caramel) 30%, transparent);
+}
+
+.bc-genealogy-node {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bc-genealogy-node:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgb(198 134 66 / 0.12);
+}
+
+.bc-tribunal-pareceres li {
+  animation: bc-fade-in-up 0.35s ease both;
+}
+
+.bc-search-highlight {
+  background: color-mix(in srgb, var(--bc-caramel) 35%, transparent);
+  color: inherit;
+}
+
+.bc-hub-tile {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.bc-hub-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgb(27 108 168 / 0.1);
+}
+
+.bc-trending-sidebar .bc-trending-chip {
+  animation: bc-fade-in-up 0.35s ease both;
+}
+
+.bc-trending-chip:nth-child(2) {
+  animation-delay: 0.04s;
+}
+
+.bc-suggest-dropdown li {
+  animation: bc-fade-in-up 0.25s ease both;
+}
+
+.bc-feature-tile {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.bc-feature-tile:hover {
+  transform: translateY(-3px) scale(1.02);
+}
+
+.bc-landing-stat {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: bc-fade-in-up 0.45s ease both;
+}
+
+.bc-landing-stat:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 24px rgb(27 108 168 / 12%);
+}
+
+.bc-genealogy-stats {
+  animation: bc-fade-in-up 0.35s ease both;
+}
+
+.bc-share-btn:active {
+  transform: scale(0.96);
+}
+
+.bc-search-recent-chip {
+  animation: bc-fade-in-up 0.3s ease both;
+}
+
+.bc-activity-panel .bc-activity-row {
+  animation: bc-fade-in-up 0.35s ease both;
+}
+
+.bc-offline-pet-banner {
+  animation: bc-fade-in-up 0.4s ease both;
+}
+
 .bc-federation-mirror {
   @apply rounded-2xl border border-bc-caramel/25 bg-gradient-to-br from-bc-caramel/5 to-bc-blue/5;
 }

@@ -21,6 +21,12 @@ export const DESKTOP_NAV: NavItem[] = [
     icon: "🎙️",
     matchPrefixes: ["/latidos"],
   },
+  {
+    href: "/tribunal",
+    label: "Tribunal",
+    icon: "⚖️",
+    matchPrefixes: ["/tribunal"],
+  },
   { href: "/ranking", label: "Matilha", icon: "🏆" },
   { href: "/rolezinho", label: "Eventos", icon: "🎉" },
 ];

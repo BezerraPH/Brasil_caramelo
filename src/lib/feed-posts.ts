@@ -119,11 +119,12 @@ export async function fetchFeedPage(
       ...(authorFilter ? { author: authorFilter } : {}),
       ...(options?.videosOnly ? { videoUrl: { not: null } } : {}),
     },
-    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    orderBy: [{ boostPriority: "desc" }, { createdAt: "desc" }, { id: "desc" }],
     take,
     ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
     include: {
       author: { select: authorSelect },
+      tribunalCase: { select: { status: true } },
       _count: { select: { likes: true, comments: true } },
       likes: {
         where: { userId: viewerId },
@@ -143,6 +144,7 @@ export async function fetchFeedPage(
     videoUrl: p.videoUrl,
     videoHlsUrl: p.videoHlsUrl,
     boostedUntil: p.boostedUntil?.toISOString() ?? null,
+    tribunalOpen: p.tribunalCase?.status === "OPEN",
     createdAt: p.createdAt.toISOString(),
     author: mapAuthorPet(p.author),
     _count: p._count,
@@ -152,6 +154,47 @@ export async function fetchFeedPage(
   }));
 
   return { posts, nextCursor };
+}
+
+/** Busca um recado visível para destacar no feed (?post=). */
+export async function fetchFeedPostById(viewerId: string, postId: string) {
+  await expirePostBoosts();
+
+  const p = await prisma.post.findFirst({
+    where: {
+      id: postId,
+      communityLevel: null,
+      ...VISIBLE_POST_WHERE,
+      author: VISIBLE_AUTHOR_WHERE,
+    },
+    include: {
+      author: { select: authorSelect },
+      tribunalCase: { select: { status: true } },
+      _count: { select: { likes: true, comments: true } },
+      likes: {
+        where: { userId: viewerId },
+        select: { id: true, reaction: true },
+      },
+    },
+  });
+
+  if (!p) return null;
+
+  return {
+    id: p.id,
+    content: p.content,
+    imageUrl: p.imageUrl,
+    videoUrl: p.videoUrl,
+    videoHlsUrl: p.videoHlsUrl,
+    boostedUntil: p.boostedUntil?.toISOString() ?? null,
+    tribunalOpen: p.tribunalCase?.status === "OPEN",
+    createdAt: p.createdAt.toISOString(),
+    author: mapAuthorPet(p.author),
+    _count: p._count,
+    likedByMe: p.likes.length > 0,
+    myReaction: p.likes[0]?.reaction ?? null,
+    savedByMe: false as boolean,
+  };
 }
 
 export async function attachSavedFlags<T extends { id: string }>(

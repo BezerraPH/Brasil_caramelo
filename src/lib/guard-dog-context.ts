@@ -1,3 +1,4 @@
+import { MATILHA_POST_WHERE } from "./matilha-post-where";
 import { prisma } from "./prisma";
 import { summarizeReputation } from "./reputation";
 import { BOOST_COST_COINS } from "./post-boost-constants";
@@ -26,10 +27,11 @@ export async function buildGuardDogRagContext(userId: string): Promise<string> {
       where: { userId },
       select: { name: true, level: true, coins: true, dailyStreak: true },
     }),
-    prisma.post.count({ where: { authorId: userId, tribunalHidden: false } }),
+    prisma.post.count({ where: { authorId: userId, ...MATILHA_POST_WHERE } }),
     prisma.post.count({
       where: {
         authorId: userId,
+        ...MATILHA_POST_WHERE,
         boostedUntil: { gt: now },
       },
     }),

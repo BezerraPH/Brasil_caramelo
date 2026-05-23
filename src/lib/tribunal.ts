@@ -59,5 +59,13 @@ export async function resolveTribunalCaseIfReady(caseId: string): Promise<void> 
       "⚖️ O Tribunal do Cão removeu seu recado da matilha.",
       "/tribunal",
     );
+  } else {
+    const { createNotification } = await import("./notifications");
+    await createNotification(
+      tribunalCase.post.authorId,
+      "TRIBUNAL_CASE",
+      "⚖️ O Tribunal manteve seu recado — mal-entendido da matilha.",
+      "/tribunal",
+    );
   }
 }

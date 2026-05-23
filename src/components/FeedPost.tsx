@@ -24,6 +24,7 @@ type FeedPostProps = {
     videoUrl?: string | null;
     videoHlsUrl?: string | null;
     boostedUntil?: string | null;
+    tribunalOpen?: boolean;
     createdAt: string;
     likedByMe: boolean;
     author: {
@@ -40,6 +41,7 @@ type FeedPostProps = {
   myReaction?: string | null;
   animationDelay?: string;
   savedByMe?: boolean;
+  searchHighlight?: string;
 };
 
 export function FeedPost({
@@ -48,6 +50,7 @@ export function FeedPost({
   myReaction,
   animationDelay,
   savedByMe,
+  searchHighlight,
 }: FeedPostProps) {
   const router = useRouter();
   const isOwn = currentUserId === post.author.id;
@@ -62,15 +65,21 @@ export function FeedPost({
   const isBoosted = Boolean(
     post.boostedUntil && new Date(post.boostedUntil) > new Date(),
   );
+  const tribunalOpen = Boolean(post.tribunalOpen);
 
   return (
     <article
       id={`post-${post.id}`}
-      className={`bc-card bc-card-interactive bc-animate-in scroll-mt-24 p-5 ${isBoosted ? "bc-post-boosted" : ""} ${animationDelay ?? ""}`}
+      className={`bc-card bc-card-interactive bc-animate-in scroll-mt-24 p-5 ${isBoosted ? "bc-post-boosted" : ""} ${tribunalOpen ? "bc-post-tribunal-open" : ""} ${animationDelay ?? ""}`}
     >
       {isBoosted && (
         <span className="bc-boost-ribbon" aria-label="Recado impulsionado">
           🚀 Destaque
+        </span>
+      )}
+      {tribunalOpen && (
+        <span className="bc-tribunal-ribbon" aria-label="Em julgamento no Tribunal">
+          ⚖️ Tribunal
         </span>
       )}
       <header className="mb-3 flex items-center gap-3">
@@ -128,7 +137,9 @@ export function FeedPost({
           />
         </div>
       )}
-      {post.content && <PostContent content={post.content} />}
+      {post.content && (
+        <PostContent content={post.content} highlightQuery={searchHighlight} />
+      )}
       <footer className="mt-4 border-t border-bc-blue/10 pt-3">
         <div className="flex flex-wrap items-center gap-1">
           <ReactionPicker

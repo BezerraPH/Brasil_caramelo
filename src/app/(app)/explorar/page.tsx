@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { AppVersionBadge } from "@/components/AppVersionBadge";
 import { FederationFeed } from "@/components/FederationFeed";
 import { FederationSyncButton } from "@/components/FederationSyncButton";
+import { MatilhaHealthPanel } from "@/components/MatilhaHealthPanel";
 import { MatilhaStatsCards } from "@/components/MatilhaStatsCards";
 import { PageContainer } from "@/components/PageContainer";
 import { TrendingCloud } from "@/components/TrendingCloud";
@@ -47,6 +48,8 @@ export default async function ExplorarPage() {
 
       <MatilhaStatsCards />
 
+      <MatilhaHealthPanel />
+
       <section className="bc-card bc-animate-in mb-8 p-5">
         <h2 className="font-bold text-bc-blue">🌐 Caramelo-Sync (LAN)</h2>
         <p className="mt-1 text-xs text-bc-brown">
@@ -76,7 +79,7 @@ export default async function ExplorarPage() {
           <Link
             key={item.href}
             href={item.href}
-            className="bc-card bc-card-interactive bc-animate-in-up flex gap-3 p-4"
+            className="bc-hub-tile bc-card bc-card-interactive bc-animate-in-up flex gap-3 p-4"
             style={{ animationDelay: `${i * 0.04}s` }}
           >
             <span className="text-3xl">{item.icon}</span>

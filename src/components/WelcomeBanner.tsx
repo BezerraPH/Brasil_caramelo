@@ -1,10 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
 
-const KEY = "bc_welcome_dismissed_v17";
+const KEY = "bc_welcome_dismissed_v24";
 
 export function WelcomeBanner() {
   const [visible, setVisible] = useState(false);
@@ -28,14 +27,10 @@ export function WelcomeBanner() {
     <div className="bc-card bc-animate-in mb-4 border-bc-blue/30 bg-gradient-to-r from-bc-blue/10 via-bc-green/10 to-bc-caramel/10 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="font-bold text-bc-blue">⚖️ Novidades v2.3.8!</p>
+          <p className="font-bold text-bc-blue">🔎 Novidades v2.4.7!</p>
           <p className="mt-1 text-xs text-bc-brown">
-            Tribunal com histórico e seus casos, notificações de DNA e julgamento,
-            filtro global de recados removidos,{" "}
-            <Link href="/latidos" className="font-semibold text-bc-green underline">
-              Latidos
-            </Link>{" "}
-            na nav e cor do filhote no pet.
+            Pulse ao vivo na landing, highlight em recados na busca, moderação Ollama
+            em DM/salas, comentários bloqueados em recados removidos e filtros de notificações.
           </p>
         </div>
         <button

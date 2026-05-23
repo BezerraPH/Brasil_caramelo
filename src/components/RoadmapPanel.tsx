@@ -8,11 +8,10 @@ const DONE = [
   { icon: "🌙", title: "Modo escuro" },
   { icon: "🔔", title: "Notificações ao vivo" },
   { icon: "🧬", title: "DNA Caramelo (cruzamento)" },
-  { icon: "⚖️", title: "Tribunal do Cão" },
+  { icon: "⚖️", title: "Tribunal do Cão (jurados + coins)" },
   { icon: "🛡️", title: "Cão de Guarda IA" },
   { icon: "🎙️", title: "Latidos ao Vivo (LiveKit)" },
-  { icon: "⚖️", title: "Tribunal do Cão (histórico)" },
-  { icon: "🧬", title: "DNA — cor do filhote no pet" },
+  { icon: "🌳", title: "Árvore genealógica DNA" },
   { icon: "🏪", title: "Cupons pet shop regional" },
 ];
 

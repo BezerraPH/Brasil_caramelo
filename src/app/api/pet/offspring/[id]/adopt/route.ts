@@ -16,16 +16,35 @@ export async function POST(
   if (!offspring || offspring.ownerId !== user.id) {
     return NextResponse.json({ error: "Filhote não encontrado." }, { status: 404 });
   }
+  if (offspring.adoptedAt) {
+    return NextResponse.json(
+      { error: "Este filhote já teve o DNA aplicado." },
+      { status: 400 },
+    );
+  }
 
   const pet = await prisma.pet.findUnique({ where: { userId: user.id } });
   if (!pet) {
     return NextResponse.json({ error: "Crie um pet em /cachorro primeiro." }, { status: 400 });
   }
 
-  await prisma.pet.update({
-    where: { id: pet.id },
-    data: { color: offspring.color },
-  });
+  await prisma.$transaction([
+    prisma.pet.update({
+      where: { id: pet.id },
+      data: {
+        color: offspring.color,
+        name: offspring.name.slice(0, 24),
+      },
+    }),
+    prisma.petOffspring.update({
+      where: { id: offspring.id },
+      data: { adoptedAt: new Date() },
+    }),
+  ]);
 
-  return NextResponse.json({ ok: true, color: offspring.color });
+  return NextResponse.json({
+    ok: true,
+    color: offspring.color,
+    name: offspring.name,
+  });
 }

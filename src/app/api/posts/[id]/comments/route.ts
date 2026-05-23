@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { validationMessage } from "@/lib/api-error";
-import { moderateText } from "@/lib/content-moderation";
+import { moderateTextFull } from "@/lib/content-moderation";
 import { createNotification } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
+import { VISIBLE_AUTHOR_WHERE, VISIBLE_POST_WHERE } from "@/lib/visible-posts";
 import {
   checkRateLimit,
   getClientIp,
@@ -22,7 +23,7 @@ export async function GET(
 
   const { id: postId } = await params;
   const comments = await prisma.comment.findMany({
-    where: { postId },
+    where: { postId, author: VISIBLE_AUTHOR_WHERE },
     orderBy: { createdAt: "asc" },
     take: 100,
     include: {
@@ -59,7 +60,13 @@ export async function POST(
   }
 
   const { id: postId } = await params;
-  const post = await prisma.post.findUnique({ where: { id: postId } });
+  const post = await prisma.post.findFirst({
+    where: {
+      id: postId,
+      ...VISIBLE_POST_WHERE,
+      author: VISIBLE_AUTHOR_WHERE,
+    },
+  });
   if (!post) {
     return NextResponse.json({ error: "Recado não encontrado." }, { status: 404 });
   }
@@ -68,7 +75,7 @@ export async function POST(
     const body = await request.json();
     const { content } = commentSchema.parse(body);
 
-    const mod = moderateText(content);
+    const mod = await moderateTextFull(content);
     if (!mod.ok) {
       return NextResponse.json({ error: mod.reason }, { status: 400 });
     }

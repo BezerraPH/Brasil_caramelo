@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { feedPostPath } from "@/lib/feed-post-link";
 import { prisma } from "@/lib/prisma";
 import { VISIBLE_POST_WHERE } from "@/lib/visible-posts";
 
@@ -30,7 +31,7 @@ export async function TrendingPosts() {
         {hot.map((p, i) => (
           <li key={p.id}>
             <Link
-              href={`/feed#post-${p.id}`}
+              href={feedPostPath(p.id)}
               className="block rounded-lg px-2 py-1.5 text-xs transition hover:bg-bc-green/10"
             >
               <span className="font-bold text-bc-caramel">#{i + 1}</span>{" "}

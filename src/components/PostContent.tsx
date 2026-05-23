@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { CONTENT_TOKEN_SPLIT } from "@/lib/mentions";
+import { highlightSearchTerm } from "@/lib/search-highlight";
 
 type PostContentProps = {
   content: string;
   className?: string;
+  highlightQuery?: string;
 };
 
-export function PostContent({ content, className }: PostContentProps) {
+export function PostContent({ content, className, highlightQuery }: PostContentProps) {
   const parts = content.split(CONTENT_TOKEN_SPLIT);
 
   return (
@@ -41,7 +43,13 @@ export function PostContent({ content, className }: PostContentProps) {
             </Link>
           );
         }
-        return <span key={i}>{part}</span>;
+        return (
+          <span key={i}>
+            {highlightQuery
+              ? highlightSearchTerm(part, highlightQuery)
+              : part}
+          </span>
+        );
       })}
     </p>
   );

@@ -1,6 +1,6 @@
-const CACHE_SHELL = "brasil-caramelo-shell-v2";
-const CACHE_MEDIA = "brasil-caramelo-media-v2";
-const PRECACHE = ["/", "/feed", "/manifest.json"];
+const CACHE_SHELL = "brasil-caramelo-shell-v3";
+const CACHE_MEDIA = "brasil-caramelo-media-v3";
+const PRECACHE = ["/", "/feed", "/cachorro", "/manifest.json"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

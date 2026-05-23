@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getVersionDisplay, RELEASE_STAGE } from "@/lib/app-version";
+import { getStackHealth } from "@/lib/stack-health";
 import { ensureUploadDirWritable } from "@/lib/storage";
 
 export async function GET() {
@@ -13,6 +14,7 @@ export async function GET() {
       storage: uploadsWritable ? "ready" : "unavailable",
       version: getVersionDisplay(),
       stage: RELEASE_STAGE,
+      stack: getStackHealth(),
     });
   } catch {
     return NextResponse.json(
@@ -20,6 +22,7 @@ export async function GET() {
         ok: false,
         database: "disconnected",
         storage: uploadsWritable ? "ready" : "unavailable",
+        stack: getStackHealth(),
       },
       { status: 503 },
     );

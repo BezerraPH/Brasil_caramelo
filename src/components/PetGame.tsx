@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
 import { getEquippedDisplay } from "@/lib/pet-cosmetics";
+import { loadOfflinePet, saveOfflinePet } from "@/lib/offline-pet-cache";
 import { PetCosmeticShop } from "./PetCosmeticShop";
 import { PetDailyBonus } from "./PetDailyBonus";
 import { PetFetchSkill } from "./PetFetchSkill";
@@ -31,20 +32,45 @@ export function PetGame() {
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState<string | null>(null);
   const [bounce, setBounce] = useState(false);
+  const [offlineMode, setOfflineMode] = useState(false);
 
   const load = useCallback(async () => {
-    const res = await fetch("/api/pet");
-    const data = await res.json();
-    if (res.ok) {
-      setPet(data.pet);
-      setMood(data.mood);
+    try {
+      const res = await fetch("/api/pet");
+      const data = await res.json();
+      if (res.ok) {
+        setPet(data.pet);
+        setMood(data.mood);
+        saveOfflinePet({
+          pet: data.pet,
+          mood: data.mood,
+          savedAt: new Date().toISOString(),
+        });
+        setOfflineMode(false);
+      }
+    } catch {
+      const cached = loadOfflinePet();
+      if (cached) {
+        setPet(cached.pet as PetData);
+        setMood(cached.mood);
+        setOfflineMode(true);
+      }
     }
     setLoading(false);
   }, []);
 
   useAsyncEffect(load, [load]);
 
+  useEffect(() => {
+    function onOnline() {
+      void load();
+    }
+    window.addEventListener("online", onOnline);
+    return () => window.removeEventListener("online", onOnline);
+  }, [load]);
+
   async function care(action: "feed" | "play" | "rest") {
+    if (offlineMode) return;
     setActing(action);
     try {
       const res = await fetch("/api/pet", {
@@ -91,8 +117,14 @@ export function PetGame() {
 
   return (
     <div className="bc-animate-in-up space-y-6">
-      <PetDailyBonus onClaimed={load} />
-      <PetFetchSkill onDone={load} />
+      {offlineMode && (
+        <div className="bc-card bc-offline-pet-banner border-bc-caramel/30 bg-bc-caramel/10 p-3 text-center text-xs text-bc-brown">
+          📡 Modo offline — último estado do pet salvo. Reconecte para cuidar dele
+          na matilha.
+        </div>
+      )}
+      {!offlineMode && <PetDailyBonus onClaimed={load} />}
+      {!offlineMode && <PetFetchSkill onDone={load} />}
       <div className="bc-card overflow-hidden p-0">
         <div className="bg-gradient-to-br from-bc-blue/20 via-bc-green/15 to-bc-caramel/25 px-6 py-10 text-center">
           <div
@@ -145,7 +177,7 @@ export function PetGame() {
           <button
             key={btn.action}
             type="button"
-            disabled={!!acting}
+            disabled={!!acting || offlineMode}
             onClick={() => care(btn.action)}
             className="bc-card bc-card-interactive flex flex-col items-center gap-1 p-4 transition disabled:opacity-50"
           >

@@ -9,8 +9,9 @@ import {
 } from "@/lib/rate-limit";
 import {
   moderateImageBuffer,
+  moderateImageWithOllama,
   moderateImageWithOpenAI,
-  moderateText,
+  moderateTextFull,
 } from "@/lib/content-moderation";
 import { resolveSafePath } from "@/lib/storage";
 import {
@@ -70,7 +71,7 @@ export async function POST(request: Request) {
     const kind = kindRaw as UploadKind;
     const caption = String(form.get("caption") ?? "");
     if (caption) {
-      const modCaption = moderateText(caption);
+      const modCaption = await moderateTextFull(caption);
       if (!modCaption.ok) {
         return NextResponse.json({ error: modCaption.reason }, { status: 400 });
       }
@@ -87,6 +88,11 @@ export async function POST(request: Request) {
           if (!modLocal.ok) {
             await deleteMediaByUrl(saved.url);
             return NextResponse.json({ error: modLocal.reason }, { status: 400 });
+          }
+          const modOllama = await moderateImageWithOllama(buf);
+          if (!modOllama.ok) {
+            await deleteMediaByUrl(saved.url);
+            return NextResponse.json({ error: modOllama.reason }, { status: 400 });
           }
         } catch {
           /* ignore */

@@ -4,6 +4,7 @@ import { OfflinePostBanner } from "@/components/OfflinePostBanner";
 import { FeedFilterTabs } from "@/components/FeedFilterTabs";
 import { FeedInfinite } from "@/components/FeedInfinite";
 import { FeedMatilhaSidebar } from "@/components/FeedMatilhaSidebar";
+import { FeedTrendingTags } from "@/components/FeedTrendingTags";
 import { FeedRefreshButton } from "@/components/FeedRefreshButton";
 import { FlashEventBanner } from "@/components/FlashEventBanner";
 import { InstaFeed } from "@/components/InstaFeed";
@@ -25,20 +26,21 @@ import { getActiveFlashEvent } from "@/lib/events";
 import {
   attachSavedFlags,
   fetchFeedPage,
+  fetchFeedPostById,
   parseFeedFilter,
 } from "@/lib/feed-posts";
 import { prisma } from "@/lib/prisma";
 import { applyPetDecay, petAvatarStatus } from "@/lib/pet";
 
 type FeedPageProps = {
-  searchParams: Promise<{ filter?: string }>;
+  searchParams: Promise<{ filter?: string; post?: string }>;
 };
 
 export default async function FeedPage({ searchParams }: FeedPageProps) {
   const user = await getCurrentUser();
   if (!user) return null;
 
-  const { filter } = await searchParams;
+  const { filter, post: highlightPostId } = await searchParams;
   const feedFilter = parseFeedFilter(filter);
 
   await Promise.all([finalizeExpiredBattles(), purgeExpiredStories()]);
@@ -47,7 +49,15 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
     friendsOnly: feedFilter === "friends",
     videosOnly: feedFilter === "video",
   });
-  const mappedPosts = await attachSavedFlags(user.id, feedPosts);
+  let mappedPosts = await attachSavedFlags(user.id, feedPosts);
+
+  if (highlightPostId && !mappedPosts.some((p) => p.id === highlightPostId)) {
+    const highlighted = await fetchFeedPostById(user.id, highlightPostId);
+    if (highlighted) {
+      const [withSaved] = await attachSavedFlags(user.id, [highlighted]);
+      mappedPosts = [withSaved, ...mappedPosts];
+    }
+  }
 
   const [friendCount, pendingFriends, flashEvent, viewerPet] =
     await Promise.all([
@@ -182,7 +192,18 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
               </h1>
               <p className="mt-1 text-sm text-bc-brown">{subtitle}</p>
             </div>
-            <FeedRefreshButton />
+            <div className="flex flex-wrap items-center gap-2">
+              <FeedRefreshButton />
+              {!isReels && (
+                <Link
+                  href="/buscar"
+                  className="bc-btn-ghost text-xs"
+                  title="Buscar na matilha"
+                >
+                  🔍 Buscar
+                </Link>
+              )}
+            </div>
           </header>
 
           {!isReels && <OfflinePostBanner />}
@@ -236,6 +257,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
           <aside className="hidden lg:block">
             <div className="bc-animate-in bc-stagger-2 space-y-4">
               <FeedMatilhaSidebar />
+              <FeedTrendingTags />
               <RecentActivity userId={user.id} />
               <TrendingPosts />
               <RoadmapPanel />

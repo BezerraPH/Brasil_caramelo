@@ -1,0 +1,8 @@
+# Backup automático — exemplo de cron (Ubuntu)
+# Edite: crontab -e
+#
+# Todo dia às 3h da manhã:
+# 0 3 * * * cd /home/SEU_USUARIO/brasil_caramelo && ./scripts/backup-matilha.sh >> /var/log/bc-backup.log 2>&1
+#
+# Backups ficam em ~/backups/brasil_caramelo/YYYYMMDD_HHMMSS/
+# Copie para outro disco ou máquina via Tailscale.

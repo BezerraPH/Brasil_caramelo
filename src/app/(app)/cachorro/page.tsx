@@ -1,5 +1,6 @@
 import { PageContainer } from "@/components/PageContainer";
 import { PetBreedingPanel } from "@/components/PetBreedingPanel";
+import { PetGenealogyPanel } from "@/components/PetGenealogyPanel";
 import { PetGame } from "@/components/PetGame";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -33,6 +34,7 @@ export default async function CachorroPage() {
       </header>
       <PetGame />
       <PetBreedingPanel friends={friends} />
+      <PetGenealogyPanel />
     </PageContainer>
   );
 }

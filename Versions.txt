@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-22 (v2.4.0-alpha)
-Versão atual do pacote (package.json): 2.4.0-alpha.0
+Última atualização: 2026-05-22 (v2.4.7-alpha)
+Versão atual do pacote (package.json): 2.4.7-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
@@ -131,7 +131,7 @@ DogReputationLevel (10 personalidades ativas):
   BORDER_COLLIE, BASSET_HOUND, CHOW_CHOW
 
 ================================================================================
-  5. FUNCIONALIDADES ATUAIS (v2.3.8-alpha)
+  5. FUNCIONALIDADES ATUAIS (v2.4.7-alpha)
 ================================================================================
 
 [OK] Cadastro e login
@@ -142,10 +142,11 @@ DogReputationLevel (10 personalidades ativas):
 [OK] DNA visual no perfil (tema por personalidade dominante)
 [OK] Ranking da matilha (/ranking) — Top 10 semanal por raça
 [OK] Amigos (/amigos): enviar pedido, aceitar, recusar, listar
-[OK] Buscar (/buscar): pessoas, recados e hashtags (#tag)
+[OK] Buscar (/buscar): pessoas, recados e hashtags (#tag); highlight em recados
+[OK] Landing pública com pulse ao vivo (caramels, recados, pets)
 [OK] Editar legenda do próprio recado (PATCH /api/posts/[id])
 [OK] Apagar próprio story (DELETE /api/stories/[id]) + limpeza de mídia
-[OK] Página /notificacoes — histórico completo com marcar lidas
+[OK] Página /notificacoes — histórico completo com marcar lidas e filtros (todas/não lidas/tribunal)
 [OK] Hashtags clicáveis nos recados (PostContent → busca por tag)
 [OK] Middleware de sessão nas rotas autenticadas
 [OK] Página 404 personalizada + skeleton de carregamento no feed
@@ -246,11 +247,66 @@ DogReputationLevel (10 personalidades ativas):
 [OK] Cão de Guarda — resposta local sem vazar dump RAG
 [OK] Versão visível no app (v2.3.8-alpha) — NavBar, rodapé, mobile, landing, config
 [OK] Estágio Alpha documentado (lib/app-version.ts, GET /api/version, /api/health)
+[OK] Impulsionar recado — boostPriority no feed + ribbon dourado no card
+[OK] Tribunal no feed — ribbon “Em julgamento” + borda bc-post-tribunal-open
+[OK] Notificação ao autor quando Tribunal mantém recado (KEEP)
+[OK] Links canônicos para recado — /feed?post=id (feed-post-link.ts)
+[OK] PostScrollOnLoad — ?post= e hash legado #post-id
+[OK] Paginação do feed com filtro vídeo/amigos preservado (feed-filter-query)
+[OK] Busca — communityLevel null + tribunalHidden global
+[OK] Nav desktop — atalho Tribunal (/tribunal)
+[OK] DNA adopt — nome e cor do filhote aplicados ao pet
+[OK] Painel saúde da matilha em /explorar (MatilhaHealthPanel → GET /api/health)
+[OK] LiveKit UDP 50000–50100 no docker-compose (mídia WebRTC)
+[OK] WelcomeBanner v18 (novidades v2.4.1)
+[OK] Busca ao vivo com debounce 350ms (/buscar — pessoas e recados)
+[OK] Deep link ?post=id — recado injetado no feed se fora da 1ª página
+[OK] MATILHA_POST_WHERE — filtros unificados (stats, pet-fetch, salvos)
+[OK] Salvos — só recados da matilha visíveis; POST bloqueia ocultos/casinha
+[OK] Árvore genealógica DNA — GET /api/pet/genealogy + PetGenealogyPanel
+[OK] DNA adopt — adoptedAt impede re-aplicar; migração v242
+[OK] Tribunal — jurados ganham +8 CarameloCoins/voto (máx. 5/dia)
+[OK] TribunalOpenDot — badge casos abertos no Explorar (mobile)
+[OK] WelcomeBanner v19 (novidades v2.4.2)
+[OK] Tribunal v3 — parecer opcional do jurado (até 280 chars) + lista no caso
+[OK] GET /api/health — stack Soketi, LiveKit, TURN, Ollama (config .env)
+[OK] MatilhaHealthPanel — chips da stack self-hosted
+[OK] PWA pet offline — cache local + banner em /cachorro; sw precache /cachorro
+[OK] scripts/backup-matilha.sh — dump PostgreSQL + uploads
+[OK] Cão de Guarda RAG — contagens com MATILHA_POST_WHERE
+[OK] Nav desktop — TribunalOpenDot; feed com atalho Buscar
+[OK] WelcomeBanner v20 (novidades v2.4.3)
+[OK] Cão de Guarda — Ollama local (OLLAMA_BASE_URL) antes de OpenAI
+[OK] Cão de Guarda — respostas locais inteligentes com RAG (tribunal, moedas, pet)
+[OK] Busca — highlight do termo em resultados de pessoas
+[OK] FeedTrendingTags — hashtags quentes na sidebar do feed
+[OK] TrendingCloud — links /buscar?tag=&tab=posts
+[OK] Tribunal — notificação ao autor quando jurado envia parecer
+[OK] Pet offline — recarrega ao evento online do navegador
+[OK] Explorar — tiles bc-hub-tile com hover animado
+[OK] WelcomeBanner v21 (novidades v2.4.4)
+[OK] Moderação de imagem — Ollama visão (moondream) no upload antes de OpenAI
+[OK] askOllamaVision — lib/ollama.ts + OLLAMA_VISION_MODEL
+[OK] Buscar — histórico local de buscas (BuscarRecentChips)
+[OK] Atividade da matilha — links ao recado + tempo relativo + filtro MATILHA
+[OK] scripts/cron-backup.example + seção Ollama/backup em CONFIGURACAO.md
+[OK] WelcomeBanner v22 (novidades v2.4.5)
+[OK] GET /api/search/suggest — hashtags trending enquanto digita
+[OK] BuscarSuggestDropdown em /buscar (aba recados)
+[OK] Busca multi-palavra — tokenizeSearchQuery + AND no conteúdo
+[OK] moderateTextFull — Ollama em recados e comentários (após heurística)
+[OK] Busca pessoas — exclui shadowbanned; suporte @usuário
+[OK] Genealogia — stats asOwner/asParent/total na API e painel
+[OK] SharePostButton — link canônico feedPostPath
+[OK] Landing — 6 tiles (Tribunal, Latidos, DNA) + bc-feature-tile
+[OK] WelcomeBanner v24 (novidades v2.4.7)
 
 [PENDENTE]
   - Pagamento real Pedigree (Pix) — stub local; sem gateway externo ainda
   - Pet shops parceiros reais (cupons demo Recife/Caruaru já existem)
   - nginx + HTTPS na LAN (opcional; HTTP funciona hoje)
+  - Meilisearch / MinIO — ver sugestoes_aprimoramentos.txt (roadmap infra)
+  - Ollama: opcional via OLLAMA_BASE_URL + OLLAMA_MODEL (implementado no Guarda)
 
 [SELF-HOSTED — CONFIGURACAO.md]
   Um único docker-compose.yml: app + db + soketi + coturn + livekit
@@ -387,6 +443,171 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v2.4.7-alpha.0 — 2026-05-22 (pulse landing, moderação DM, comentários seguros)
+------------------------------------------------------------------------------
+  SEGURANÇA / MODERAÇÃO:
+  + moderateTextFull em DM (/api/chats), salas casinha e legenda de upload
+  + POST comentários: bloqueia recados tribunalHidden e autores shadowbanned
+  + GET comentários: oculta autores shadowbanned
+
+  UX / DESIGN:
+  + LandingMatilhaPulse — stats ao vivo (caramels, recados, pets) na landing pública
+  + Highlight de termo em recados na busca (PostContent + FeedPost searchHighlight)
+  + BuscarSuggestDropdown só com foco no campo e prefixo digitado
+  + Notificações: filtros Todas / Não lidas / Tribunal
+  + bc-landing-stat hover/anim; deploy-ubuntu lembrete de backup
+
+  * package.json: 2.4.6-alpha.0 → 2.4.7-alpha.0
+  + WelcomeBanner v24
+
+------------------------------------------------------------------------------
+v2.4.6-alpha.0 — 2026-05-22 (suggest busca, Ollama texto, genealogia stats)
+------------------------------------------------------------------------------
+  BUSCA:
+  + GET /api/search/suggest — trending tags por prefixo
+  + BuscarSuggestDropdown + lib/search-words.ts (multi-palavra AND)
+  + users/search — shadowbanned false, @username
+
+  MODERAÇÃO:
+  + moderateTextFull — local + Ollama ALLOW/BLOCK
+  + Recados POST e comentários usam pipeline completo
+
+  SOCIAL / UX:
+  + Genealogia stats (asOwner, asParent, total)
+  + SharePostButton → feedPostPath
+  + Landing 6 feature tiles; bc-suggest-dropdown, bc-feature-tile
+  + WelcomeBanner v23
+
+  * package.json: 2.4.5-alpha.0 → 2.4.6-alpha.0
+
+------------------------------------------------------------------------------
+v2.4.5-alpha.0 — 2026-05-22 (Ollama visão, buscas recentes, atividade feed)
+------------------------------------------------------------------------------
+  MODERAÇÃO:
+  + moderateImageWithOllama — visão local (SAFE/UNSAFE) no upload
+  + Ordem upload: Sharp → Ollama → OpenAI
+  + OLLAMA_VISION_MODEL=moondream no .env.example
+
+  BUSCA / SOCIAL:
+  + lib/search-history.ts + BuscarRecentChips em /buscar
+  + RecentActivity — feedPostPath, tempo relativo, MATILHA_POST_WITH_AUTHOR
+
+  DOCS / OPS:
+  + CONFIGURACAO.md — Ollama + backup
+  + scripts/cron-backup.example
+
+  UX:
+  + bc-search-recent-chip, bc-activity-row
+  + WelcomeBanner v22
+
+  * package.json: 2.4.4-alpha.0 → 2.4.5-alpha.0
+
+------------------------------------------------------------------------------
+v2.4.4-alpha.0 — 2026-05-22 (Ollama Guarda, search highlight, trending feed)
+------------------------------------------------------------------------------
+  CÃO DE GUARDA:
+  + lib/ollama.ts — chat via Ollama self-hosted (/api/chat)
+  + guard-dog.ts — ordem: Ollama → OpenAI → local RAG inteligente
+  + GuardDogAssistant — badge do provider (ollama/openai/local)
+  + .env.example — OLLAMA_MODEL=llama3.2
+
+  BUSCA / TRENDING:
+  + lib/search-highlight.tsx — destaque do termo em /buscar (pessoas)
+  + FeedTrendingTags — sidebar do feed com top hashtags
+  + TrendingCloud — links corrigidos com tab=posts
+
+  TRIBUNAL / PWA:
+  + Notificação ao autor quando jurado envia parecer
+  + PetGame — reload ao voltar online
+
+  UX:
+  + bc-hub-tile, bc-search-highlight, bc-trending-sidebar
+  + WelcomeBanner v21
+
+  * package.json: 2.4.3-alpha.0 → 2.4.4-alpha.0
+
+------------------------------------------------------------------------------
+v2.4.3-alpha.0 — 2026-05-22 (Tribunal parecer, stack health, PWA pet, backup)
+------------------------------------------------------------------------------
+  TRIBUNAL v3:
+  + TribunalVote.opinion (VARCHAR 280) — migração v243
+  + POST vote aceita parecer opcional; pareceres listados no caso
+  + TribunalPanel — textarea + exibição de pareceres
+
+  INFRA / OBSERVABILIDADE:
+  + lib/stack-health.ts — flags Soketi, LiveKit, TURN, Ollama
+  + GET /api/health retorna stack
+  + scripts/backup-matilha.sh — pg_dump + tar uploads
+  + .env.example — OLLAMA_BASE_URL (opcional)
+
+  PWA / OFFLINE:
+  + lib/offline-pet-cache.ts — snapshot do pet no localStorage
+  + PetGame — modo offline com último estado; sw v3 precache /cachorro
+
+  CORREÇÕES:
+  + guard-dog-context — postCount/boosted com MATILHA_POST_WHERE
+
+  UX:
+  + Feed — atalho Buscar; Nav TribunalOpenDot (desktop)
+  + CSS bc-tribunal-pareceres, bc-offline-pet-banner
+  + WelcomeBanner v20
+
+  * package.json: 2.4.2-alpha.0 → 2.4.3-alpha.0
+
+------------------------------------------------------------------------------
+v2.4.2-alpha.0 — 2026-05-22 (busca ao vivo, genealogia, tribunal coins)
+------------------------------------------------------------------------------
+  CORREÇÕES:
+  + lib/matilha-post-where.ts — communityLevel + tribunalHidden unificado
+  + pet-fetch — memórias respeitam MATILHA_POST_WITH_AUTHOR
+  + matilha-stats — contagem boosted/posts com filtros corretos
+  + saved GET/POST — só recados da matilha visíveis
+  + feed ?post=id — fetchFeedPostById injeta recado fora da paginação
+
+  NOVAS FUNCIONALIDADES:
+  + /buscar — debounce 350ms, hint “busca ao vivo”
+  + GET /api/pet/genealogy — linhagem pai A × pai B → filhote
+  + PetGenealogyPanel em /cachorro
+  + Tribunal — +8 coins/voto, cap 5/dia (tribunal-constants.ts)
+  + TribunalOpenDot no mobile Explorar
+  + PetOffspring.adoptedAt — migração 20260526120000_v242_offspring_adopted
+
+  UX:
+  + CSS bc-search-live, bc-genealogy-panel
+  + WelcomeBanner v19; RoadmapPanel deduplicado
+
+  * package.json: 2.4.1-alpha.0 → 2.4.2-alpha.0
+
+------------------------------------------------------------------------------
+v2.4.1-alpha.0 — 2026-05-22 (feed boost, tribunal UX, saúde da stack)
+------------------------------------------------------------------------------
+  CORREÇÕES:
+  + Busca (texto e hashtag) — communityLevel: null (só recados da matilha)
+  + PetFetchSkill, TrendingPosts, TribunalPanel — link /feed?post= (não #post-)
+  + FeedInfinite — paginação mantém ?filter=video|friends
+  + PostScrollOnLoad — suporte a ?post= e hash #post-id legado
+
+  FEED / BOOST:
+  + orderBy boostPriority desc + createdAt no feed
+  + POST boost define boostPriority (timestamp) para subir no feed
+  + FeedPost — ribbon impulsionado + ribbon Tribunal em caso OPEN
+
+  TRIBUNAL:
+  + Notificação ao autor quando voto encerra com KEEP (recado mantido)
+  + Nav desktop com link /tribunal
+  + CSS bc-tribunal-ribbon, bc-post-tribunal-open
+
+  DNA:
+  + POST /api/pet/offspring/[id]/adopt — atualiza name + color do pet
+
+  UX / INFRA:
+  + MatilhaHealthPanel em /explorar (banco, uploads, versão)
+  + docker-compose livekit — portas UDP 50000-50100
+  + WelcomeBanner v18
+
+  * package.json: 2.4.0-alpha.0 → 2.4.1-alpha.0
 
 ------------------------------------------------------------------------------
 v2.4.0-alpha.0 — 2026-05-22 (compose unificado self-hosted)

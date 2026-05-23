@@ -16,6 +16,7 @@ type Offspring = {
   color: string;
   dnaLevel: DogReputationLevel;
   createdAt: string;
+  adoptedAt?: string | null;
 };
 
 type Incoming = {
@@ -90,8 +91,9 @@ export function PetBreedingPanel({ friends }: { friends: Friend[] }) {
     const data = await res.json();
     setLoading(false);
     if (res.ok) {
-      setMsg(`Cor do pet atualizada para ${data.color}!`);
+      setMsg(`Cor e nome do pet atualizados (${data.name})!`);
       toast("DNA aplicado ao seu pet 🧬", "achievement");
+      await load();
     } else setMsg(data.error ?? "Erro.");
   }
 
@@ -197,11 +199,11 @@ export function PetBreedingPanel({ friends }: { friends: Friend[] }) {
                     <p className="text-[10px] text-bc-brown">{breed.breed}</p>
                     <button
                       type="button"
-                      disabled={loading}
+                      disabled={loading || Boolean(o.adoptedAt)}
                       onClick={() => void adoptColor(o.id)}
                       className="bc-btn-ghost mt-1 text-[10px]"
                     >
-                      Aplicar cor ao meu pet
+                      {o.adoptedAt ? "DNA já aplicado" : "Aplicar DNA ao meu pet"}
                     </button>
                   </div>
                 </li>

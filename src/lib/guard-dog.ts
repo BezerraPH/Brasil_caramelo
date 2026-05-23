@@ -1,5 +1,5 @@
 import { buildGuardDogRagContext } from "./guard-dog-context";
-
+import { askOllama } from "./ollama";
 import { BOOST_COST_COINS } from "./post-boost-constants";
 
 const GUARD_DOG_RULES = `
@@ -15,63 +15,105 @@ Regras da matilha:
 Responda em português, tom amigável, máx 200 palavras. Cite dados do contexto quando relevante.
 `;
 
+export type GuardDogProvider = "ollama" | "openai" | "local";
+
+export type GuardDogResult = {
+  answer: string;
+  aiPowered: boolean;
+  ragUsed: boolean;
+  provider: GuardDogProvider;
+};
+
+function localGuardDogAnswer(question: string, ragContext: string): string {
+  const q = question.toLowerCase();
+  const intro = "Auau! Com base na sua matilha:\n\n";
+  const ctx = ragContext.split("\n").slice(0, 4).join("\n");
+
+  if (q.includes("tribunal") || q.includes("denúnc") || q.includes("denunc")) {
+    return `${intro}${ctx}\n\nRecados com 3+ denúncias vão ao Tribunal (/tribunal). Jurados Border Collie e Poodle votam; pareceres ficam no caso.`;
+  }
+  if (q.includes("impulsion") || q.includes("boost") || q.includes("moeda")) {
+    return `${intro}${ctx}\n\nImpulsionar custa ${BOOST_COST_COINS} CarameloCoins por 2h. Cuide do pet e participe de eventos para ganhar moedas.`;
+  }
+  if (q.includes("pet") || q.includes("cachorro") || q.includes("dna")) {
+    return `${intro}${ctx}\n\nSeu pet está em /cachorro — cruzamento DNA com amigos, buscar na matilha e loja de cosméticos.`;
+  }
+  if (q.includes("latido") || q.includes("áudio") || q.includes("audio")) {
+    return `${intro}Salas ao vivo em /latidos (LiveKit). Configure NEXT_PUBLIC_LIVEKIT_URL no servidor.`;
+  }
+
+  return `${intro}${ctx}\n\nSobre "${question.slice(0, 80)}": veja /feed, /tribunal, /cachorro e /explorar. Configure OLLAMA_BASE_URL ou OPENAI_API_KEY no servidor para respostas com IA.`;
+}
+
 export async function askGuardDog(
   userId: string,
   question: string,
-): Promise<{ answer: string; aiPowered: boolean; ragUsed: boolean }> {
+): Promise<GuardDogResult> {
   const trimmed = question.trim().slice(0, 500);
   if (!trimmed) {
     return {
       answer: "Latido? Escreva sua pergunta para o Cão de Guarda.",
       aiPowered: false,
       ragUsed: false,
+      provider: "local",
     };
   }
 
   const ragContext = await buildGuardDogRagContext(userId);
-  const key = process.env.OPENAI_API_KEY?.trim();
+  const messages = [
+    { role: "system" as const, content: GUARD_DOG_RULES },
+    {
+      role: "user" as const,
+      content: `Dados do usuário:\n${ragContext}\n\nPergunta: ${trimmed}`,
+    },
+  ];
 
-  if (!key) {
+  const ollamaAnswer = await askOllama(messages);
+  if (ollamaAnswer) {
     return {
-      answer: `Auau! Sobre "${trimmed}": veja /tribunal, /latidos e DNA em /cachorro. O Cão de Guarda usa regras locais da matilha — sem serviços externos.`,
-      aiPowered: false,
-      ragUsed: true,
-    };
-  }
-
-  try {
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${key}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: GUARD_DOG_RULES },
-          {
-            role: "user",
-            content: `Dados do usuário:\n${ragContext}\n\nPergunta: ${trimmed}`,
-          },
-        ],
-        max_tokens: 320,
-      }),
-    });
-    const data = (await res.json()) as {
-      choices?: { message?: { content?: string } }[];
-    };
-    const text = data.choices?.[0]?.message?.content?.trim();
-    return {
-      answer: text?.slice(0, 900) ?? "Não consegui latir uma resposta agora.",
+      answer: ollamaAnswer,
       aiPowered: true,
       ragUsed: true,
-    };
-  } catch {
-    return {
-      answer: "Auau… falha na toca. Tente de novo em instantes.",
-      aiPowered: false,
-      ragUsed: true,
+      provider: "ollama",
     };
   }
+
+  const openAiKey = process.env.OPENAI_API_KEY?.trim();
+  if (openAiKey) {
+    try {
+      const res = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${openAiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages,
+          max_tokens: 320,
+        }),
+      });
+      const data = (await res.json()) as {
+        choices?: { message?: { content?: string } }[];
+      };
+      const text = data.choices?.[0]?.message?.content?.trim();
+      if (text) {
+        return {
+          answer: text.slice(0, 900),
+          aiPowered: true,
+          ragUsed: true,
+          provider: "openai",
+        };
+      }
+    } catch {
+      /* fallback local */
+    }
+  }
+
+  return {
+    answer: localGuardDogAnswer(trimmed, ragContext),
+    aiPowered: false,
+    ragUsed: true,
+    provider: "local",
+  };
 }

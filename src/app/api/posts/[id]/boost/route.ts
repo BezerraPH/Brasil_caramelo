@@ -79,7 +79,10 @@ export async function POST(request: Request, context: RouteContext) {
     }),
     prisma.post.update({
       where: { id },
-      data: { boostedUntil, boostPriority: 1 },
+      data: {
+        boostedUntil,
+        boostPriority: Math.floor(Date.now() / 1000),
+      },
     }),
   ]);
 

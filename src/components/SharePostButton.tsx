@@ -1,15 +1,17 @@
 "use client";
 
+import { feedPostPath } from "@/lib/feed-post-link";
 import { useToast } from "./ToastProvider";
 
 export function SharePostButton({ postId }: { postId: string }) {
   const toast = useToast();
 
   async function share() {
+    const path = feedPostPath(postId);
     const url =
       typeof window !== "undefined"
-        ? `${window.location.origin}/feed?post=${postId}`
-        : `/feed?post=${postId}`;
+        ? `${window.location.origin}${path}`
+        : path;
     try {
       if (navigator.share) {
         await navigator.share({
@@ -30,7 +32,7 @@ export function SharePostButton({ postId }: { postId: string }) {
     <button
       type="button"
       onClick={() => void share()}
-      className="rounded-lg px-2 py-1 text-sm text-bc-brown transition hover:bg-bc-blue/10 hover:text-bc-blue"
+      className="bc-share-btn rounded-lg px-2 py-1 text-sm text-bc-brown transition hover:bg-bc-blue/10 hover:text-bc-blue"
     >
       ↗ Compartilhar
     </button>

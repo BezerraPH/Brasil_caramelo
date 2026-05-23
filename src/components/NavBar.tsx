@@ -10,6 +10,7 @@ import { PetDailyNavDot } from "./PetDailyNavDot";
 import { NotificationBell } from "./NotificationBell";
 import { AppVersionBadge } from "./AppVersionBadge";
 import { ThemeToggle } from "./ThemeToggle";
+import { TribunalOpenDot } from "./TribunalOpenDot";
 
 type NavBarProps = {
   user: { id: string; name: string; username: string };
@@ -48,12 +49,13 @@ export function NavBar({ user, pusherKey, pusherCluster }: NavBarProps) {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${navLinkClass(active)}`}
+                className={`relative rounded-lg px-3 py-1.5 text-sm font-medium transition ${navLinkClass(active)}`}
               >
                 <span className="mr-1" aria-hidden>
                   {link.icon}
                 </span>
                 {link.label}
+                {link.href === "/tribunal" && <TribunalOpenDot />}
               </Link>
             );
           })}

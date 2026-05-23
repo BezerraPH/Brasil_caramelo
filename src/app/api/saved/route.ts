@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { VISIBLE_POST_WHERE } from "@/lib/visible-posts";
+import { MATILHA_POST_WITH_AUTHOR } from "@/lib/matilha-post-where";
 import { z } from "zod";
 
 const saveSchema = z.object({ postId: z.string().min(1) });
@@ -15,7 +15,9 @@ export async function GET() {
   const saved = await prisma.savedPost.findMany({
     where: {
       userId: user.id,
-      post: VISIBLE_POST_WHERE,
+      post: {
+        ...MATILHA_POST_WITH_AUTHOR,
+      },
     },
     orderBy: { createdAt: "desc" },
     take: 50,
@@ -55,7 +57,9 @@ export async function POST(request: Request) {
 
   try {
     const { postId } = saveSchema.parse(await request.json());
-    const post = await prisma.post.findUnique({ where: { id: postId } });
+    const post = await prisma.post.findFirst({
+      where: { id: postId, ...MATILHA_POST_WITH_AUTHOR },
+    });
     if (!post) {
       return NextResponse.json({ error: "Post não encontrado." }, { status: 404 });
     }

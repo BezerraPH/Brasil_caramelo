@@ -5,6 +5,7 @@ import {
   otherParticipant,
   userInConversation,
 } from "@/lib/chat";
+import { moderateText } from "@/lib/content-moderation";
 import { createNotification } from "@/lib/notifications";
 import { pushChatMessage } from "@/lib/pusher-server";
 import { prisma } from "@/lib/prisma";
@@ -91,6 +92,13 @@ export async function POST(request: Request, context: RouteContext) {
   try {
     const parsed = chatMessageSchema.parse(await request.json());
     const trimmed = parsed.content?.trim() ?? "";
+
+    if (trimmed) {
+      const mod = moderateText(trimmed);
+      if (!mod.ok) {
+        return NextResponse.json({ error: mod.reason }, { status: 400 });
+      }
+    }
 
     const message = await prisma.message.create({
       data: {

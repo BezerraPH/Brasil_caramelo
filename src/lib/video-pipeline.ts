@@ -1,5 +1,5 @@
 import { execFile } from "child_process";
-import { access } from "fs/promises";
+import { access, mkdir } from "fs/promises";
 import path from "path";
 import { promisify } from "util";
 
@@ -37,6 +37,7 @@ export async function maybeTranscodeToHls(
   }
 
   try {
+    await mkdir(outDir, { recursive: true });
     await exec(
       ffmpeg,
       [

@@ -67,37 +67,4 @@ export function OfflinePostBanner() {
   );
 }
 
-export function useOfflinePostSubmit() {
-  return useCallback(
-    async (
-      payload: {
-        content: string;
-        imageUrl?: string;
-        videoUrl?: string;
-        videoHlsUrl?: string;
-        communityLevel?: string;
-      },
-      onError: (msg: string) => void,
-    ): Promise<"ok" | "queued" | "error"> => {
-      try {
-        const res = await fetch("/api/posts", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        const data = await res.json();
-        if (res.ok) return "ok";
-        onError(data.error ?? "Não foi possível publicar.");
-        return "error";
-      } catch {
-        const { enqueueOfflinePost, registerBackgroundSync } = await import(
-          "@/lib/offline-post-queue"
-        );
-        await enqueueOfflinePost(payload);
-        await registerBackgroundSync();
-        return "queued";
-      }
-    },
-    [],
-  );
-}
+export { useOfflinePostSubmit } from "@/hooks/use-offline-post-submit";

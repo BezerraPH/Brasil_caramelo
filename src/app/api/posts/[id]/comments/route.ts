@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { validationMessage } from "@/lib/api-error";
+import { moderateText } from "@/lib/content-moderation";
 import { createNotification } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
 import {
@@ -66,6 +67,11 @@ export async function POST(
   try {
     const body = await request.json();
     const { content } = commentSchema.parse(body);
+
+    const mod = moderateText(content);
+    if (!mod.ok) {
+      return NextResponse.json({ error: mod.reason }, { status: 400 });
+    }
 
     const comment = await prisma.comment.create({
       data: { postId, authorId: user.id, content },

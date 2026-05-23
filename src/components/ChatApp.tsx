@@ -15,6 +15,7 @@ import {
   ChatMessageBubble,
   type ChatBubbleMessage,
 } from "./ChatMessageBubble";
+import { TurnHintBanner } from "./TurnHintBanner";
 import { UserAvatar } from "./UserAvatar";
 import { WebRTCCallOverlay } from "./WebRTCCallOverlay";
 
@@ -406,6 +407,8 @@ export function ChatApp({
           )}
         </p>
       </header>
+
+      <TurnHintBanner />
 
       <div className="bc-chat-tabs mb-4 flex gap-2">
         <Link

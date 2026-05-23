@@ -180,6 +180,16 @@ body {
   }
 }
 
+.bc-cinelar-progress {
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+}
+
+.bc-cinelar-progress-bar {
+  background: linear-gradient(90deg, var(--bc-caramel), var(--bc-gold));
+  transition: width 0.15s linear;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--bc-caramel) 55%, transparent);
+}
+
 .bc-story-ring {
   background: linear-gradient(135deg, var(--bc-caramel), var(--bc-green), var(--bc-blue));
   padding: 3px;
@@ -270,6 +280,16 @@ body {
   animation: bc-fade-in 0.45s ease both;
 }
 
+.bc-spin-icon {
+  animation: bc-spin 0.75s linear infinite;
+}
+
+@keyframes bc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .bc-animate-in-up {
   animation: bc-fade-in-up 0.5s ease both;
 }
@@ -305,6 +325,67 @@ body {
   @apply rounded-xl border border-bc-green/30 bg-bc-white px-4 py-2.5 text-sm font-medium text-bc-blue shadow-lg;
 }
 
+.bc-toast-achievement {
+  border-color: color-mix(in srgb, var(--bc-gold) 45%, transparent);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--bc-gold) 12%, var(--bc-white)),
+    color-mix(in srgb, var(--bc-caramel) 8%, var(--bc-white))
+  );
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--bc-gold) 25%, transparent);
+}
+
+.bc-video-processing {
+  animation: bc-shimmer 2s linear infinite;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--bc-caramel) 15%, transparent),
+    transparent
+  );
+  background-size: 200% 100%;
+  border-radius: 0.5rem;
+  padding: 0.35rem 0.5rem;
+}
+
+.bc-federation-mirror {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bc-federation-mirror:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--bc-blue) 12%, transparent);
+}
+
+.bc-federation-peer {
+  transition: background-color 0.15s ease;
+}
+
+.bc-federation-peer:hover {
+  background: color-mix(in srgb, var(--bc-blue) 4%, transparent);
+}
+
+.bc-battle-card {
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--bc-blue) 8%, transparent);
+}
+
+.bc-battle-live-title {
+  animation: bc-stat-pulse 2.5s ease-in-out infinite;
+}
+
+.bc-battle-bar-fill {
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bc-insta-tile:focus-visible {
+  outline: 2px solid var(--bc-green);
+  outline-offset: 2px;
+}
+
+.bc-insta-modal {
+  box-shadow: 0 24px 48px color-mix(in srgb, var(--bc-blue) 20%, transparent);
+}
+
 .bc-page-header {
   @apply border-b border-bc-blue/10 pb-4;
 }
@@ -329,6 +410,29 @@ body {
 }
 .bc-stagger-5 {
   animation-delay: 0.25s;
+}
+
+.bc-post-boosted {
+  @apply relative border-bc-gold/35 shadow-md shadow-bc-gold/10;
+}
+
+.bc-boost-ribbon {
+  @apply absolute -right-1 -top-1 rounded-full bg-gradient-to-r from-bc-gold to-bc-caramel px-2.5 py-0.5 text-[10px] font-bold text-white shadow-sm;
+  animation: bc-pop 0.4s ease both;
+}
+
+.bc-federation-mirror {
+  @apply rounded-2xl border border-bc-caramel/25 bg-gradient-to-br from-bc-caramel/5 to-bc-blue/5;
+}
+
+.bc-stat-pulse {
+  animation: bc-fade-in-up 0.5s ease both;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bc-stat-pulse:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgb(27 108 168 / 0.08);
 }
 
 .bc-menu-enter {
@@ -570,6 +674,7 @@ html.dark .bc-hero-bg {
   .bc-animate-scale,
   .bc-animate-pop,
   .bc-menu-enter,
+  .bc-spin-icon,
   .bc-card:hover,
   .bc-card-interactive:hover {
     animation: none !important;

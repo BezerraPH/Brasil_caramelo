@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CreatePostForm } from "@/components/CreatePostForm";
+import { FederatedCasinhaPosts } from "@/components/FederatedCasinhaPosts";
 import { FeedPost } from "@/components/FeedPost";
 import { PageContainer } from "@/components/PageContainer";
 import { CASINHA_BY_SLUG } from "@/lib/casinhas";
@@ -57,6 +58,11 @@ export default async function CasinhaPage({ params }: PageProps) {
       </header>
 
       <CreatePostForm communityLevel={casinha.level} />
+
+      <FederatedCasinhaPosts
+        communityLevel={casinha.level}
+        casinhaName={casinha.name}
+      />
 
       <section className="mt-6 space-y-4">
         {posts.length === 0 ? (

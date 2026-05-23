@@ -1,27 +1,8 @@
 import { prisma } from "./prisma";
+import type { AchievementKey } from "./achievement-defs";
 
-export const ACHIEVEMENTS = {
-  DAILY_STREAK_7: {
-    key: "DAILY_STREAK_7",
-    title: "Dono exemplar",
-    emoji: "🏅",
-    desc: "7 dias seguidos de missão diária",
-  },
-  BATTLE_CHAMP_5: {
-    key: "BATTLE_CHAMP_5",
-    title: "Rei da Matilha",
-    emoji: "👑",
-    desc: "Venceu 5 batalhas de fofura",
-  },
-  CASINHA_FIRST: {
-    key: "CASINHA_FIRST",
-    title: "Cidadão da Casinha",
-    emoji: "🏠",
-    desc: "Primeiro recado em uma casinha",
-  },
-} as const;
-
-export type AchievementKey = keyof typeof ACHIEVEMENTS;
+export { ACHIEVEMENTS, type AchievementKey } from "./achievement-defs";
+export { formatAchievementToast } from "./achievement-defs";
 
 export async function unlockAchievement(
   userId: string,

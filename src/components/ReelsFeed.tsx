@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PostContent } from "./PostContent";
+import { BcVideo } from "./BcVideo";
 import { useToast } from "./ToastProvider";
 import { UserAvatar } from "./UserAvatar";
 
@@ -11,6 +12,7 @@ type ReelPost = {
   id: string;
   content: string;
   videoUrl: string;
+  videoHlsUrl?: string | null;
   likedByMe: boolean;
   author: {
     id: string;
@@ -23,10 +25,11 @@ type ReelPost = {
 
 type ReelsFeedProps = {
   posts: ReelPost[];
-  currentUserId: string;
+  /** Reservado para ações do autor no futuro */
+  currentUserId?: string;
 };
 
-export function ReelsFeed({ posts, currentUserId }: ReelsFeedProps) {
+export function ReelsFeed({ posts }: ReelsFeedProps) {
   const withVideo = posts.filter((p) => p.videoUrl);
 
   if (withVideo.length === 0) {
@@ -52,11 +55,12 @@ export function ReelsFeed({ posts, currentUserId }: ReelsFeedProps) {
   return (
     <div className="bc-cinelar-shell mx-auto w-full max-w-lg">
       <div className="bc-cinelar-scroll bc-reels-snap flex h-[calc(100dvh-11rem)] flex-col overflow-y-auto scroll-smooth md:h-[calc(100vh-12rem)] md:rounded-2xl">
-        {withVideo.map((post) => (
+        {withVideo.map((post, i) => (
           <ReelItem
             key={post.id}
             post={post}
-            currentUserId={currentUserId}
+            index={i}
+            allPosts={withVideo}
           />
         ))}
       </div>
@@ -64,7 +68,15 @@ export function ReelsFeed({ posts, currentUserId }: ReelsFeedProps) {
   );
 }
 
-function ReelItem({ post }: { post: ReelPost; currentUserId: string }) {
+function ReelItem({
+  post,
+  index,
+  allPosts,
+}: {
+  post: ReelPost;
+  index: number;
+  allPosts: ReelPost[];
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const lastTap = useRef(0);
@@ -92,6 +104,16 @@ function ReelItem({ post }: { post: ReelPost; currentUserId: string }) {
         if (entry.isIntersecting && entry.intersectionRatio >= 0.55) {
           video.muted = muted;
           video.play().catch(() => {});
+          const next = allPosts[index + 1];
+          if (next) {
+            const src = next.videoHlsUrl ?? next.videoUrl;
+            if (src.startsWith("/api/media/")) {
+              fetch(src, {
+                headers: { Range: "bytes=0-262143" },
+                credentials: "same-origin",
+              }).catch(() => {});
+            }
+          }
         } else {
           video.pause();
         }
@@ -100,7 +122,7 @@ function ReelItem({ post }: { post: ReelPost; currentUserId: string }) {
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [muted]);
+  }, [muted, index, allPosts]);
 
   useEffect(() => {
     if (videoRef.current) videoRef.current.muted = muted;
@@ -166,9 +188,10 @@ function ReelItem({ post }: { post: ReelPost; currentUserId: string }) {
       id={`post-${post.id}`}
       className="bc-reels-item bc-cinelar-slide relative aspect-[9/16] w-full shrink-0 overflow-hidden bg-black"
     >
-      <video
+      <BcVideo
         ref={videoRef}
         src={post.videoUrl}
+        hlsSrc={post.videoHlsUrl}
         className="h-full w-full object-cover"
         loop
         muted
@@ -207,9 +230,9 @@ function ReelItem({ post }: { post: ReelPost; currentUserId: string }) {
             className="pointer-events-auto line-clamp-2 text-sm text-white drop-shadow [&_.bc-hashtag]:text-bc-caramel"
           />
         )}
-        <div className="mt-2 h-0.5 w-full overflow-hidden rounded-full bg-white/20">
+        <div className="bc-cinelar-progress mt-2 h-1 w-full overflow-hidden rounded-full bg-white/20">
           <div
-            className="h-full bg-bc-caramel transition-[width] duration-150"
+            className="bc-cinelar-progress-bar h-full"
             style={{ width: `${progress}%` }}
           />
         </div>

@@ -1,5 +1,6 @@
 import { PageContainer } from "@/components/PageContainer";
 import { PedigreePaymentCard } from "@/components/PedigreePaymentCard";
+import { PetShopLocalBanner } from "@/components/PetShopLocalBanner";
 import { PremiumActivate } from "@/components/PremiumActivate";
 import { PREMIUM_PERKS } from "@/lib/constants";
 import { getCurrentUser } from "@/lib/auth";
@@ -34,6 +35,8 @@ export default async function PremiumPage() {
         </>
       )}
 
+      <PetShopLocalBanner region={process.env.NEXT_PUBLIC_PET_SHOP_REGION} />
+
       <ul className="bc-card mt-6 space-y-3 p-6 text-sm">
         <li>★ Selo dourado no perfil</li>
         <li>🪙 +{Math.round((PREMIUM_PERKS.coinBonus - 1) * 100)}% moedas ao cuidar do pet</li>
@@ -44,17 +47,6 @@ export default async function PremiumPage() {
         </li>
         <li>🎨 Tema dourado Pedigree na interface</li>
       </ul>
-
-      <section className="bc-card mt-6 p-5">
-        <h2 className="font-bold text-bc-blue">Pet Shop parceiro</h2>
-        <p className="mt-2 text-xs text-bc-brown">
-          Espaço reservado para pet shops locais — anúncios discretos por região
-          (integração futura).
-        </p>
-        <div className="mt-4 rounded-xl border border-dashed border-bc-brown/30 bg-bc-brown/5 p-6 text-center text-sm text-bc-brown">
-          🏪 Seu pet shop aqui — contato com a matilha
-        </div>
-      </section>
     </PageContainer>
   );
 }

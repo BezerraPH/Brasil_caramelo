@@ -3,15 +3,19 @@ import { VIEW_MODES } from "@/lib/constants";
 const DONE = [
   { icon: "💬", title: "Chat DM + salas de casinha" },
   { icon: "📹", title: "Chamadas WebRTC" },
-  { icon: "🎬", title: "Cinelar estilo TikTok" },
+  { icon: "🎬", title: "Cinelar estilo TikTok + HLS" },
+  { icon: "🌐", title: "Caramelo-Sync (federação LAN)" },
   { icon: "🌙", title: "Modo escuro" },
   { icon: "🔔", title: "Notificações ao vivo" },
+  { icon: "🏆", title: "Conquistas com toast" },
 ];
 
 const FUTURE = [
-  { icon: "🌐", title: "TURN / chamadas fora da LAN", phase: "Configure .env" },
-  { icon: "🏪", title: "Pet shops parceiros", phase: "Premium" },
-  { icon: "💳", title: "Pagamento Pedigree (Pix)", phase: "Integração" },
+  { icon: "🌐", title: "TURN / coturn no servidor", phase: "Ver COTURN.md" },
+  { icon: "🎥", title: "LiveKit — salas grandes", phase: "Roadmap" },
+  { icon: "🛡️", title: "Moderação IA de imagens", phase: "Em estudo" },
+  { icon: "💳", title: "Pagamento Pedigree (Pix real)", phase: "Integração" },
+  { icon: "🏪", title: "Pet shops geolocalizados", phase: "Stub em /premium" },
 ];
 
 export function RoadmapPanel() {

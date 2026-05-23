@@ -43,7 +43,41 @@ export function moderateImageMeta(width: number, height: number): ModerationResu
   if (width > 12000 || height > 12000) {
     return { ok: false, reason: "Imagem muito grande para processar." };
   }
+  const ratio = width / height;
+  if (ratio > 25 || ratio < 0.04) {
+    return { ok: false, reason: "Proporção da imagem não permitida." };
+  }
   return { ok: true };
+}
+
+/**
+ * Cão de Guarda local — amostra reduzida via Sharp (sem API).
+ * Bloqueia imagens em branco ou com variação mínima de cor.
+ */
+export async function moderateImageBuffer(
+  buffer: Buffer,
+): Promise<ModerationResult> {
+  try {
+    const sharp = (await import("sharp")).default;
+    const meta = await sharp(buffer).metadata();
+    const metaMod = moderateImageMeta(meta.width ?? 0, meta.height ?? 0);
+    if (!metaMod.ok) return metaMod;
+
+    const stats = await sharp(buffer)
+      .resize(96, 96, { fit: "inside", withoutEnlargement: true })
+      .stats();
+    const avgStdev =
+      stats.channels.reduce((s, c) => s + c.stdev, 0) / stats.channels.length;
+    if (avgStdev < 2) {
+      return {
+        ok: false,
+        reason: "Imagem parece inválida ou em branco.",
+      };
+    }
+    return { ok: true };
+  } catch {
+    return { ok: true };
+  }
 }
 
 export async function moderateImageWithOpenAI(

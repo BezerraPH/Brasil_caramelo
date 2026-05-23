@@ -1,20 +1,22 @@
 # Vídeo e Cinelar — streaming no servidor
 
-## Entrega atual (v2.3)
+## Entrega atual (v2.3.5)
 
 - **Range requests** em `GET /api/media/...` — o player baixa por partes (melhor em 4G).
 - **Cache** no Service Worker para `/api/media/` (stale-while-revalidate).
-- **Prefetch** no feed: próxima imagem/vídeo (256 KB) via `use-feed-prefetch.ts`.
+- **Prefetch** no feed e Cinelar (256 KB) via hooks de prefetch.
+- **hls.js** no cliente (`BcVideo`) — playlists `.m3u8` funcionam no Chrome/Firefox; Safari usa HLS nativo.
+- **Transcodificação async** após publicar (`schedulePostVideoTranscode`) + polling em `CreatePostForm`.
 
 ## HLS opcional (ffmpeg)
 
-Se `ffmpeg` estiver no PATH ou `FFMPEG_PATH` apontar para o binário, após upload de vídeo o servidor tenta gerar:
+Se `ffmpeg` estiver no PATH ou `FFMPEG_PATH` apontar para o binário, após publicar um vídeo o servidor gera em background:
 
 ```
 {userId}/{uuid}_hls/playlist.m3u8
 ```
 
-O post salva `videoHlsUrl` e o player usa HLS quando disponível.
+O post salva `videoHlsUrl` e o `BcVideo` usa HLS quando disponível.
 
 ### Ubuntu
 
@@ -24,7 +26,7 @@ sudo apt install ffmpeg
 FFMPEG_PATH=/usr/bin/ffmpeg
 ```
 
-Transcodificação é **síncrona no upload** (alpha). Para produção, use fila (Redis/worker).
+Status do job: `GET /api/posts/[id]/video` → `{ hlsReady, videoHlsUrl }`.
 
 ## Cron de trending
 
@@ -37,4 +39,4 @@ Configure `CRON_SECRET` e agende no servidor (systemd timer ou cron a cada hora)
 
 ## Federação LAN
 
-Veja `FederationPanel` em `/configuracoes`. Use o mesmo `FEDERATION_EXPORT_SECRET` em todos os peers.
+Veja `FederationPanel` em `/configuracoes` ou o botão em `/explorar`. Use o mesmo `FEDERATION_EXPORT_SECRET` em todos os peers.

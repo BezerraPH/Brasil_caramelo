@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Brasil Caramelo
 
-## Getting Started
+Rede social brasileira em **alpha** — feed, Insta, Cinelar, stories, casinhas, chat, WebRTC e jogo do pet.
 
-First, run the development server:
+**Versão:** ver `package.json` e badge no app (`v2.3.5-alpha`).
+
+## Requisitos
+
+- Node.js 20+
+- PostgreSQL 16
+- (Opcional) ffmpeg, coturn, Pusher, OpenAI (moderação de imagens)
+
+## Desenvolvimento local
 
 ```bash
+cp .env.example .env
+npm install
+npx prisma migrate dev
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Produção (Docker)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npx prisma migrate deploy
+docker compose up -d --build
+```
 
-## Learn More
+## Documentação
 
-To learn more about Next.js, take a look at the following resources:
+| Arquivo | Conteúdo |
+|---------|----------|
+| `Versions.txt` | Histórico completo e funcionalidades |
+| `DEPLOY.md` | Deploy no servidor |
+| `DNS-LOCAL.md` | DNS `brasilcaramelo.com` na LAN |
+| `COTURN.md` | WebRTC / TURN |
+| `VIDEO-STREAMING.md` | HLS, hls.js, Range, cron trending |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `npm run dev` — desenvolvimento
+- `npm run build` — build de produção
+- `npm run lint` — ESLint
+- `npm run db:migrate` — migrações (dev)
+- `npm run db:deploy` — migrações (prod)
 
-## Deploy on Vercel
+## Stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Next.js 16 · React 19 · Prisma 7 · PostgreSQL · Tailwind 4 · hls.js · Pusher (opcional)

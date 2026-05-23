@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
+import { FederationSyncButton } from "./FederationSyncButton";
 
 type Peer = {
   id: string;
@@ -16,7 +17,6 @@ export function FederationPanel() {
   const [baseUrl, setBaseUrl] = useState("");
   const [secret, setSecret] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
-  const [syncing, setSyncing] = useState(false);
 
   const load = useCallback(async () => {
     const res = await fetch("/api/federation/peers");
@@ -42,23 +42,6 @@ export function FederationPanel() {
     } else setMsg(data.error);
   }
 
-  async function syncAll() {
-    setSyncing(true);
-    setMsg(null);
-    try {
-      const res = await fetch("/api/federation/sync", { method: "POST" });
-      const data = await res.json();
-      if (res.ok) {
-        setMsg(
-          `Sincronizado com ${data.peers} peer(s). ${data.imported} recados de casinhas.`,
-        );
-        await load();
-      } else setMsg(data.error);
-    } finally {
-      setSyncing(false);
-    }
-  }
-
   async function removePeer(id: string) {
     await fetch(`/api/federation/peers?id=${id}`, { method: "DELETE" });
     await load();
@@ -73,7 +56,7 @@ export function FederationPanel() {
       </p>
 
       {secret && (
-        <p className="mt-3 rounded-lg bg-bc-gold/10 p-3 text-xs text-bc-brown">
+        <p className="mt-3 rounded-lg bg-bc-gold/10 p-3 text-xs text-bc-brown bc-animate-in">
           Guarde o segredo do peer (mostrado uma vez):{" "}
           <code className="break-all font-mono">{secret}</code>
         </p>
@@ -101,10 +84,15 @@ export function FederationPanel() {
         {peers.map((p) => (
           <li
             key={p.id}
-            className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-bc-blue/10 px-3 py-2 text-sm"
+            className="bc-federation-peer flex flex-wrap items-center justify-between gap-2 rounded-lg border border-bc-blue/10 px-3 py-2 text-sm"
           >
             <span>
               <strong>{p.name}</strong> — {p.baseUrl}
+              {p.lastSyncAt && (
+                <span className="ml-2 text-[10px] text-bc-brown">
+                  sync {new Date(p.lastSyncAt).toLocaleString("pt-BR")}
+                </span>
+              )}
             </span>
             <button
               type="button"
@@ -118,14 +106,7 @@ export function FederationPanel() {
       </ul>
 
       {peers.length > 0 && (
-        <button
-          type="button"
-          disabled={syncing}
-          onClick={() => void syncAll()}
-          className="bc-btn-primary mt-4 w-full sm:w-auto"
-        >
-          {syncing ? "Sincronizando…" : "Sincronizar peers"}
-        </button>
+        <FederationSyncButton className="mt-4" />
       )}
 
       {msg && <p className="mt-3 text-xs text-bc-green">{msg}</p>}

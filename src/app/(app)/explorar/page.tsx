@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { AppVersionBadge } from "@/components/AppVersionBadge";
+import { FederationFeed } from "@/components/FederationFeed";
+import { FederationSyncButton } from "@/components/FederationSyncButton";
+import { MatilhaStatsCards } from "@/components/MatilhaStatsCards";
 import { PageContainer } from "@/components/PageContainer";
 import { TrendingCloud } from "@/components/TrendingCloud";
 import { getCurrentUser } from "@/lib/auth";
@@ -39,6 +42,16 @@ export default async function ExplorarPage() {
           <AppVersionBadge showStage />
         </p>
       </header>
+
+      <MatilhaStatsCards />
+
+      <section className="bc-card bc-animate-in mb-8 p-5">
+        <h2 className="font-bold text-bc-blue">🌐 Caramelo-Sync (LAN)</h2>
+        <p className="mt-1 text-xs text-bc-brown">
+          Importe recados de casinhas de outros servidores na rede local
+        </p>
+        <FederationSyncButton className="mt-4" fullWidth />
+      </section>
 
       <section className="bc-card bc-animate-in mb-8 p-6">
         <h2 className="mb-2 text-center font-bold text-bc-blue">
@@ -87,6 +100,8 @@ export default async function ExplorarPage() {
           ))}
         </div>
       </section>
+
+      <FederationFeed />
     </PageContainer>
   );
 }

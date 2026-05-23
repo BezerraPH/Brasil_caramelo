@@ -1,12 +1,31 @@
 import { NextResponse } from "next/server";
+import {
+  importPostsFromPeer,
+  type ExportedFederatedPost,
+} from "@/lib/federation-import";
+import { unlockAchievement } from "@/lib/achievements";
 import { getCurrentUser } from "@/lib/auth";
 import { signFederationPayload } from "@/lib/federation";
 import { prisma } from "@/lib/prisma";
+import {
+  checkRateLimit,
+  getClientIp,
+  rateLimitKey,
+} from "@/lib/rate-limit";
 
-export async function POST() {
+export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+  }
+
+  const ip = getClientIp(request);
+  const key = rateLimitKey(user.id, ip);
+  if (!checkRateLimit(key, 4, 60_000, "federation-sync")) {
+    return NextResponse.json(
+      { error: "Aguarde antes de sincronizar de novo." },
+      { status: 429 },
+    );
   }
 
   const peers = await prisma.federationPeer.findMany({
@@ -36,8 +55,12 @@ export async function POST() {
         errors.push(`${peer.name}: HTTP ${res.status}`);
         continue;
       }
-      const data = (await res.json()) as { posts?: unknown[] };
-      imported += data.posts?.length ?? 0;
+      const data = (await res.json()) as { posts?: ExportedFederatedPost[] };
+      const count = await importPostsFromPeer(
+        peer.id,
+        data.posts ?? [],
+      );
+      imported += count;
       await prisma.federationPeer.update({
         where: { id: peer.id },
         data: { lastSyncAt: new Date() },
@@ -51,6 +74,6 @@ export async function POST() {
     peers: peers.length,
     imported,
     errors,
-    note: "v2.3: importação completa de posts federados em desenvolvimento.",
+    ...(imported > 0 ? { achievement: await unlockAchievement(user.id, "FEDERATION_SYNC") } : {}),
   });
 }

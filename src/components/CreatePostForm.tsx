@@ -1,18 +1,23 @@
 "use client";
 
 import type { DogReputationLevel } from "@/generated/prisma/enums";
+import { formatAchievementToast } from "@/lib/achievement-defs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useOfflinePostSubmit } from "./OfflinePostBanner";
+import { useVideoHlsPolling } from "@/hooks/use-video-hls-polling";
+import { useOfflinePostSubmit } from "@/hooks/use-offline-post-submit";
 import { AiCaptionButton } from "./AiCaptionButton";
 import { LocalMediaUpload } from "./LocalMediaUpload";
 import { BcImage } from "./BcImage";
+import { useToast } from "./ToastProvider";
 
 type CreatePostFormProps = {
   instaMode?: boolean;
   reelsMode?: boolean;
   communityLevel?: DogReputationLevel;
 };
+
+const MAX_POST_CHARS = 2000;
 
 export function CreatePostForm({
   instaMode,
@@ -26,8 +31,11 @@ export function CreatePostForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [queued, setQueued] = useState(false);
+  const [pollingPostId, setPollingPostId] = useState<string | null>(null);
   const router = useRouter();
+  const toast = useToast();
   const submitPost = useOfflinePostSubmit();
+  const { processing: videoProcessing } = useVideoHlsPolling(pollingPostId);
 
   const hasMedia = Boolean(imageUrl || videoUrl);
 
@@ -36,6 +44,7 @@ export function CreatePostForm({
     if (!content.trim() && !hasMedia) return;
     setLoading(true);
     setError(null);
+    setPollingPostId(null);
     try {
       const result = await submitPost(
         {
@@ -47,16 +56,22 @@ export function CreatePostForm({
         },
         (msg) => setError(msg),
       );
-      if (result === "ok" || result === "queued") {
+      if (result.status === "ok") {
+        for (const key of result.newAchievements) {
+          toast(formatAchievementToast(key), "achievement");
+        }
         setContent("");
         setImageUrl(null);
         setVideoUrl(null);
         setVideoHlsUrl(null);
-        setQueued(result === "queued");
-        if (result === "ok") router.refresh();
+        setQueued(false);
+        if (result.videoProcessing) {
+          setPollingPostId(result.postId);
+        }
+        router.refresh();
       }
-      if (result === "error") {
-        /* mensagem em setError */
+      if (result.status === "queued") {
+        setQueued(true);
       }
     } finally {
       setLoading(false);
@@ -106,6 +121,7 @@ export function CreatePostForm({
         value={content}
         onChange={(e) => setContent(e.target.value)}
         rows={instaMode || reelsMode ? 2 : 3}
+        maxLength={MAX_POST_CHARS}
         placeholder={
           reelsMode
             ? "Legenda do vídeo…"
@@ -115,6 +131,16 @@ export function CreatePostForm({
         }
         className="w-full resize-none rounded-lg border border-bc-brown/30 p-3 text-sm focus:border-bc-green focus:outline-none focus:ring-2 focus:ring-bc-green/30"
       />
+      <p
+        className={`mt-1 text-right text-[10px] tabular-nums ${
+          content.length > MAX_POST_CHARS * 0.9
+            ? "font-semibold text-bc-caramel"
+            : "text-bc-brown/60"
+        }`}
+        aria-live="polite"
+      >
+        {content.length}/{MAX_POST_CHARS}
+      </p>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {!reelsMode && (
@@ -137,8 +163,9 @@ export function CreatePostForm({
             accept="video/mp4,video/webm,video/quicktime"
             label="🎬 Vídeo"
             className="rounded-lg border-2 border-bc-caramel/40 bg-bc-white px-3 py-1.5 text-xs font-semibold text-bc-caramel"
-            onUploaded={(url) => {
+            onUploaded={(url, _mime, extra) => {
               setVideoUrl(url);
+              setVideoHlsUrl(extra?.hlsUrl ?? null);
               setImageUrl(null);
               setError(null);
             }}
@@ -154,6 +181,12 @@ export function CreatePostForm({
           {loading ? "Publicando…" : "Publicar"}
         </button>
       </div>
+
+      {videoProcessing && (
+        <p className="bc-video-processing mt-2 text-xs text-bc-caramel bc-animate-in">
+          🎬 Otimizando vídeo para streaming…
+        </p>
+      )}
 
       {queued && (
         <p className="mt-2 text-xs text-bc-caramel">

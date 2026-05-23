@@ -64,7 +64,7 @@ function InstaTile({ post, delay }: { post: InstaPost; delay: number }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`bc-animate-in relative aspect-square overflow-hidden rounded-lg bg-bc-blue/10 ${delay < 6 ? `bc-stagger-${Math.min(delay + 1, 5)}` : ""}`}
+        className={`bc-insta-tile bc-card-interactive bc-animate-in relative aspect-square overflow-hidden rounded-lg bg-bc-blue/10 ${delay < 6 ? `bc-stagger-${Math.min(delay + 1, 5)}` : ""}`}
       >
         {post.imageUrl && (
           <BcImage
@@ -88,7 +88,7 @@ function InstaTile({ post, delay }: { post: InstaPost; delay: number }) {
             aria-label="Fechar"
             onClick={() => setOpen(false)}
           />
-          <div className="bc-animate-scale fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[min(420px,92vw)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl bg-bc-white shadow-2xl">
+          <div className="bc-insta-modal bc-animate-scale fixed left-1/2 top-1/2 z-50 max-h-[90vh] w-[min(420px,92vw)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl bg-bc-white shadow-2xl">
             {post.imageUrl && (
               <div className="relative aspect-square w-full bg-black">
                 <BcImage src={post.imageUrl} alt="" fill className="object-contain" />

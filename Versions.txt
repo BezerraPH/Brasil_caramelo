@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-17 (v2.3.0-alpha)
-Versão atual do pacote (package.json): 2.3.0-alpha.0
+Última atualização: 2026-05-22 (v2.3.5-alpha)
+Versão atual do pacote (package.json): 2.3.5-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
@@ -130,7 +130,7 @@ DogReputationLevel (10 personalidades ativas):
   BORDER_COLLIE, BASSET_HOUND, CHOW_CHOW
 
 ================================================================================
-  5. FUNCIONALIDADES ATUAIS (v2.3.0-alpha)
+  5. FUNCIONALIDADES ATUAIS (v2.3.5-alpha)
 ================================================================================
 
 [OK] Cadastro e login
@@ -196,21 +196,44 @@ DogReputationLevel (10 personalidades ativas):
 [OK] PWA offline — fila de recados IndexedDB + SW v2 cache de mídia
 [OK] Impulsionar recado (CarameloCoins) + pet “buscar na matilha”
 [OK] Trending hashtags em /explorar + cron /api/cron/trending
-[OK] Caramelo-Sync (peers LAN) em /configuracoes
+[OK] Caramelo-Sync — importação em FederatedPostMirror + feed em /explorar
+[OK] Vídeo HLS em background após publicar (ffmpeg opcional)
+[OK] Moderação Cão de Guarda em comentários (POST /api/posts/[id]/comments)
+[OK] Stats da matilha em /explorar + GET /api/matilha/stats
+[OK] Recados federados nas páginas /casinha/[slug]
+[OK] Cinelar: HLS + prefetch do próximo vídeo + barra de progresso animada
+[OK] Rate limit em sync de federação (4/min)
+[OK] Moderação Cão de Guarda em chat DM e salas de casinha
+[OK] Conquistas: primeiro boost, primeiro Cinelar, sync de federação
+[OK] Widget Pulse da matilha na sidebar do feed (FeedMatilhaSidebar)
+[OK] GET /api/posts/[id]/video — polling de status HLS após publicar
+[OK] PetShopLocalBanner em /premium (NEXT_PUBLIC_PET_SHOP_REGION)
+[OK] Contador de caracteres no formulário de recado (2000 max)
+[OK] Polling HLS após publicar vídeo + badge “Otimizando vídeo…”
+[OK] Toast dourado ao desbloquear conquistas (boost, Cinelar, sync, casinha)
+[OK] FederationSyncButton em /explorar e configurações
+[OK] MatilhaStatsCards unificado (feed sidebar + explorar com espelhos federados)
+[OK] Banner TURN em /mensagens quando NEXT_PUBLIC_TURN_URL não configurado
+[OK] RoadmapPanel alinhado ao Versions.txt [PENDENTE]
 [OK] Moderação local (Cão de Guarda) + vídeo Range/HLS opcional
 [OK] Pedigree PIX stub (/api/premium/checkout)
 [OK] Notificações com ícone por tipo + marcar lida ao clicar + hora relativa
 [OK] Rate limit em login, cadastro, premium e curtidas
 [OK] API storage/stats sem expor caminho do disco
-[OK] Versão visível no app (v2.2.0-alpha) — NavBar, rodapé, mobile, landing, config
+[OK] BcVideo + hls.js — HLS no Chrome/Firefox (feed e Cinelar)
+[OK] Cão de Guarda em imagens: heurística Sharp + OpenAI opcional no upload
+[OK] Batalha de pets — cards VS, barras animadas, título pulsante
+[OK] Insta: tiles interativos + modal com sombra
+[OK] WelcomeBanner v14 (HLS + moderação)
+[OK] Versão visível no app (v2.3.5-alpha) — NavBar, rodapé, mobile, landing, config
 [OK] Estágio Alpha documentado (lib/app-version.ts, GET /api/version, /api/health)
 
 [PENDENTE]
   - TURN gerenciado (coturn) no mesmo servidor, se NAT for restrito
   - LiveKit / salas com muitos participantes
-  - Filtro de conteúdo com IA (moderação de imagens)
+  - Filtro de conteúdo com IA (moderação de imagens — heurística local + OpenAI opcional; IA dedicada pendente)
   - Pagamento real Pedigree (Stripe/Pix)
-  - Anúncios geolocalizados de pet shops
+  - Anúncios geolocalizados de pet shops (stub regional em /premium; integração real pendente)
 
 ================================================================================
   6. PERSONALIDADES CANINAS (v0.5.0)
@@ -328,6 +351,115 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v2.3.5-alpha.0 — 2026-05-22 (hls.js, moderação imagem, batalha polish)
+------------------------------------------------------------------------------
+  VÍDEO:
+  + BcVideo — hls.js no Chrome/Firefox; Safari usa HLS nativo
+  + FeedPost e ReelsFeed usam BcVideo; badge HLS no feed
+  + Dependência hls.js; VIDEO-STREAMING.md atualizado
+
+  MODERAÇÃO:
+  + moderateImageBuffer — proporção extrema, imagem em branco (Sharp)
+  + Upload de imagens passa heurística antes de OpenAI
+
+  DESIGN:
+  + BattleArena: VS central, bc-battle-card, barras com transição
+  + InstaFeed: bc-insta-tile, modal bc-insta-modal
+  + WelcomeBanner v14
+
+  * package.json: 2.3.4-alpha.0 → 2.3.5-alpha.0
+
+------------------------------------------------------------------------------
+v2.3.4-alpha.0 — 2026-05-22 (HLS polling, toasts conquista, sync explorar)
+------------------------------------------------------------------------------
+  VÍDEO / CINELAR:
+  + useVideoHlsPolling — consulta GET /api/posts/[id]/video até HLS pronto
+  + CreatePostForm: badge “Otimizando vídeo…” + toast ao concluir transcode
+  + POST /api/posts retorna newAchievements + videoProcessing
+
+  CONQUISTAS / UX:
+  + Toast dourado (bc-toast-achievement) ao desbloquear conquistas
+  + PostBoostButton e FederationSyncButton disparam toast de conquista
+  + achievement-defs.ts — defs compartilhadas client/server
+
+  COMUNIDADE / FEDERAÇÃO:
+  + FederationSyncButton em /explorar (atalho Caramelo-Sync)
+  + MatilhaStatsCards unificado — 5 métricas incl. espelhos federados
+  + FederationFeed cards com hover e gradiente
+
+  CHAT / ROADMAP:
+  + TurnHintBanner em /mensagens (aviso TURN/COTURN.md)
+  + RoadmapPanel atualizado (TURN, LiveKit, IA, Pix, pet shops)
+
+  * package.json: 2.3.3-alpha.0 → 2.3.4-alpha.0
+
+------------------------------------------------------------------------------
+v2.3.3-alpha.0 — 2026-05-22 (conquistas, chat guarda, pulse feed, polish)
+------------------------------------------------------------------------------
+  CONQUISTAS:
+  + POST_BOOST_FIRST — primeiro impulsionamento de recado
+  + CINELAR_FIRST — primeira publicação em vídeo
+  + FEDERATION_SYNC — importação bem-sucedida via Caramelo-Sync
+
+  SEGURANÇA:
+  + Cão de Guarda (moderateText) em mensagens de chat DM e salas de casinha
+
+  COMUNIDADE / UX:
+  + FeedMatilhaSidebar — widget Pulse da matilha na sidebar do feed
+  + PetShopLocalBanner em /premium (NEXT_PUBLIC_PET_SHOP_REGION)
+  + Contador de caracteres no CreatePostForm (2000 max)
+  + FeedRefreshButton com animação bc-spin-icon ao atualizar
+
+  CINELAR / VÍDEO:
+  + Barra de progresso bc-cinelar-progress no ReelsFeed
+  + GET /api/posts/[id]/video — status HLS para polling pós-publicação
+
+  * package.json: 2.3.2-alpha.0 → 2.3.3-alpha.0
+
+------------------------------------------------------------------------------
+v2.3.2-alpha.0 — 2026-05-23 (casinhas federadas, stats, Cinelar HLS)
+------------------------------------------------------------------------------
+  FEDERAÇÃO:
+  + FederatedCasinhaPosts em /casinha/[slug] — espelhos por raça
+  + getFederatedMirrorsForCasinha (lib/federation-import.ts)
+
+  COMUNIDADE:
+  + MatilhaStatsStrip em /explorar (usuários, recados, pets, destaques)
+  + GET /api/matilha/stats
+
+  SEGURANÇA:
+  + Cão de Guarda em comentários (moderateText)
+  + Rate limit federation sync (4/min)
+
+  CINELAR / UX:
+  + ReelsFeed usa videoHlsUrl quando disponível
+  + Prefetch do próximo Cinelar ao entrar no viewport
+  + WelcomeBanner v13; CSS bc-federation-mirror, bc-stat-pulse
+
+  * package.json: 2.3.1-alpha.0 → 2.3.2-alpha.0
+
+------------------------------------------------------------------------------
+v2.3.1-alpha.0 — 2026-05-23 (federação real, vídeo async, polish)
+------------------------------------------------------------------------------
+  FEDERAÇÃO:
+  + FederatedPostMirror — importação real no sync (upsert por peer + externalId)
+  + FederationFeed em /explorar — recados de casinhas de peers LAN
+  + lib/federation-import.ts
+
+  VÍDEO:
+  + Transcodificação HLS em background após publicar (schedulePostVideoTranscode)
+  + Upload não bloqueia mais no ffmpeg; mkdir no pipeline HLS
+
+  DESIGN / UX:
+  + Recados impulsionados: faixa “Destaque” + borda dourada (bc-post-boosted)
+  + ScrollToTop flutuante no layout autenticado
+  + Link Pet na NavBar desktop com PetDailyNavDot
+  + README.md do projeto (substitui template create-next-app)
+
+  * package.json: 2.3.0-alpha.0 → 2.3.1-alpha.0
+  * Migração: 20260523120000_v231_federation_mirrors
 
 ------------------------------------------------------------------------------
 v2.3.0-alpha.0 — 2026-05-17 (crescimento: PWA, trending, economia, vídeo)

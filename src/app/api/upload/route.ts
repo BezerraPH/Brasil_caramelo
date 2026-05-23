@@ -1,3 +1,4 @@
+import { readFile } from "fs/promises";
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -7,19 +8,17 @@ import {
   rateLimitKey,
 } from "@/lib/rate-limit";
 import {
-  moderateImageMeta,
+  moderateImageBuffer,
   moderateImageWithOpenAI,
   moderateText,
 } from "@/lib/content-moderation";
 import { resolveSafePath } from "@/lib/storage";
-import { maybeTranscodeToHls } from "@/lib/video-pipeline";
 import {
   deleteMediaByUrl,
   ensureUploadDirWritable,
   saveUploadedFile,
   type UploadKind,
 } from "@/lib/storage";
-import sharp from "sharp";
 
 const KINDS = new Set<UploadKind>([
   "avatar",
@@ -83,11 +82,11 @@ export async function POST(request: Request) {
       const abs = resolveSafePath(saved.relativePath);
       if (abs) {
         try {
-          const meta = await sharp(abs).metadata();
-          const modMeta = moderateImageMeta(meta.width ?? 0, meta.height ?? 0);
-          if (!modMeta.ok) {
+          const buf = await readFile(abs);
+          const modLocal = await moderateImageBuffer(buf);
+          if (!modLocal.ok) {
             await deleteMediaByUrl(saved.url);
-            return NextResponse.json({ error: modMeta.reason }, { status: 400 });
+            return NextResponse.json({ error: modLocal.reason }, { status: 400 });
           }
         } catch {
           /* ignore */
@@ -102,14 +101,6 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: modAi.reason }, { status: 400 });
           }
         }
-      }
-    }
-
-    let hlsUrl: string | null = null;
-    if (kind === "postVideo") {
-      const abs = resolveSafePath(saved.relativePath);
-      if (abs) {
-        hlsUrl = await maybeTranscodeToHls(abs, saved.relativePath);
       }
     }
 
@@ -128,7 +119,6 @@ export async function POST(request: Request) {
     return NextResponse.json({
       url: saved.url,
       mime: saved.mime,
-      hlsUrl,
     });
   } catch (err) {
     const message =

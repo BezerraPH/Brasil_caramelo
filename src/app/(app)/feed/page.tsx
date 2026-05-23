@@ -3,6 +3,7 @@ import { CreatePostForm } from "@/components/CreatePostForm";
 import { OfflinePostBanner } from "@/components/OfflinePostBanner";
 import { FeedFilterTabs } from "@/components/FeedFilterTabs";
 import { FeedInfinite } from "@/components/FeedInfinite";
+import { FeedMatilhaSidebar } from "@/components/FeedMatilhaSidebar";
 import { FeedRefreshButton } from "@/components/FeedRefreshButton";
 import { FlashEventBanner } from "@/components/FlashEventBanner";
 import { InstaFeed } from "@/components/InstaFeed";
@@ -204,6 +205,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
                 .map((p) => ({
                   ...p,
                   videoUrl: p.videoUrl!,
+                  videoHlsUrl: p.videoHlsUrl ?? null,
                 }))}
             />
           ) : isInsta ? (
@@ -221,6 +223,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
         {!isReels && (
           <aside className="hidden lg:block">
             <div className="bc-animate-in bc-stagger-2 space-y-4">
+              <FeedMatilhaSidebar />
               <RecentActivity userId={user.id} />
               <TrendingPosts />
               <RoadmapPanel />

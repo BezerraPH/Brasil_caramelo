@@ -21,7 +21,7 @@ export function FeedRefreshButton() {
       type="button"
       onClick={() => void refresh()}
       disabled={loading}
-      className="bc-btn-ghost text-xs"
+      className={`bc-btn-ghost text-xs ${loading ? "bc-spin-icon" : ""}`}
       aria-label="Atualizar feed"
     >
       {loading ? "↻ …" : "↻ Atualizar"}

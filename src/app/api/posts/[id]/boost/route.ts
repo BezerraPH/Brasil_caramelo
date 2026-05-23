@@ -4,6 +4,7 @@ import {
   BOOST_COST_COINS,
   BOOST_DURATION_MS,
 } from "@/lib/post-boost-constants";
+import { unlockAchievement } from "@/lib/achievements";
 import { prisma } from "@/lib/prisma";
 import {
   checkRateLimit,
@@ -82,8 +83,11 @@ export async function POST(request: Request, context: RouteContext) {
     }),
   ]);
 
+  const unlocked = await unlockAchievement(user.id, "POST_BOOST_FIRST");
+
   return NextResponse.json({
     boostedUntil: boostedUntil.toISOString(),
     cost: BOOST_COST_COINS,
+    newAchievement: unlocked ? ("POST_BOOST_FIRST" as const) : null,
   });
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { getRoomBySlug } from "@/lib/casinha-rooms";
 import { MESSAGE_PAGE_SIZE } from "@/lib/chat-constants";
+import { moderateText } from "@/lib/content-moderation";
 import { pushRoomMessage } from "@/lib/pusher-server";
 import { prisma } from "@/lib/prisma";
 import {
@@ -116,11 +117,19 @@ export async function POST(request: Request, context: RouteContext) {
 
   try {
     const body = chatMessageSchema.parse(await request.json());
+    const trimmed = body.content?.trim() ?? "";
+    if (trimmed) {
+      const mod = moderateText(trimmed);
+      if (!mod.ok) {
+        return NextResponse.json({ error: mod.reason }, { status: 400 });
+      }
+    }
+
     const message = await prisma.casinhaRoomMessage.create({
       data: {
         roomId: room.id,
         senderId: user.id,
-        content: body.content?.trim() ?? "",
+        content: trimmed,
         attachmentUrl: body.attachmentUrl ?? null,
         attachmentMime: body.attachmentMime ?? null,
       },

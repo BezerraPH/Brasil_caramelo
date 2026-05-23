@@ -431,9 +431,26 @@ model FederationPeer {
   secret     String
   lastSyncAt DateTime?
   createdAt  DateTime  @default(now())
+  mirrors    FederatedPostMirror[]
 
   @@unique([ownerId, baseUrl])
   @@index([ownerId])
+}
+
+model FederatedPostMirror {
+  id              String             @id @default(cuid())
+  peerId          String
+  peer            FederationPeer     @relation(fields: [peerId], references: [id], onDelete: Cascade)
+  externalId      String
+  content         String
+  communityLevel  DogReputationLevel
+  authorUsername  String
+  authorName      String
+  sourceCreatedAt DateTime
+  importedAt      DateTime           @default(now())
+
+  @@unique([peerId, externalId])
+  @@index([communityLevel, importedAt])
 }
 
 model PetBattleVote {

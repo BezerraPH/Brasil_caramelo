@@ -5,6 +5,7 @@ import { AppVersionMobileStrip } from "@/components/AppVersionMobileStrip";
 import { GlobalLiveListener } from "@/components/GlobalLiveListener";
 import { MobileNav } from "@/components/MobileNav";
 import { NavBar } from "@/components/NavBar";
+import { ScrollToTop } from "@/components/ScrollToTop";
 import { ToastProvider } from "@/components/ToastProvider";
 import { ViewModeSwitcher } from "@/components/ViewModeSwitcher";
 import { getCurrentUser } from "@/lib/auth";
@@ -35,6 +36,7 @@ export default async function AppLayout({
       <AppVersionMobileStrip />
       <MobileNav />
       <ViewModeSwitcher currentMode={user.viewMode} />
+      <ScrollToTop />
     </ToastProvider>
     </div>
   );

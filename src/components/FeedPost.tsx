@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { PetAvatarStatus } from "@/lib/pet";
 import { BcImage } from "./BcImage";
+import { BcVideo } from "./BcVideo";
 import { CommentSection } from "./CommentSection";
 import { DeletePostButton } from "./DeletePostButton";
 import { EditPostButton } from "./EditPostButton";
@@ -58,11 +59,20 @@ export function FeedPost({
     minute: "2-digit",
   });
 
+  const isBoosted = Boolean(
+    post.boostedUntil && new Date(post.boostedUntil) > new Date(),
+  );
+
   return (
     <article
       id={`post-${post.id}`}
-      className={`bc-card bc-card-interactive bc-animate-in scroll-mt-24 p-5 ${animationDelay ?? ""}`}
+      className={`bc-card bc-card-interactive bc-animate-in scroll-mt-24 p-5 ${isBoosted ? "bc-post-boosted" : ""} ${animationDelay ?? ""}`}
     >
+      {isBoosted && (
+        <span className="bc-boost-ribbon" aria-label="Recado impulsionado">
+          🚀 Destaque
+        </span>
+      )}
       <header className="mb-3 flex items-center gap-3">
         <Link href={`/perfil/${post.author.username}`}>
           <UserAvatar
@@ -92,8 +102,14 @@ export function FeedPost({
       </header>
       {post.videoUrl && (
         <div className="relative mb-3 aspect-video max-h-96 w-full overflow-hidden rounded-xl bg-black shadow-inner">
-          <video
-            src={post.videoHlsUrl ?? post.videoUrl}
+          {post.videoHlsUrl && (
+            <span className="absolute left-2 top-2 z-10 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-semibold text-bc-caramel">
+              HLS
+            </span>
+          )}
+          <BcVideo
+            src={post.videoUrl}
+            hlsSrc={post.videoHlsUrl}
             className="h-full w-full object-cover"
             controls
             playsInline

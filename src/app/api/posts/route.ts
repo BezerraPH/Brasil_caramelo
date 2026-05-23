@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { checkAndUnlockAchievements, unlockAchievement } from "@/lib/achievements";
+import type { AchievementKey } from "@/lib/achievement-defs";
 import {
   attachSavedFlags,
   fetchFeedPage,
@@ -14,6 +15,7 @@ import {
   getClientIp,
   rateLimitKey,
 } from "@/lib/rate-limit";
+import { schedulePostVideoTranscode } from "@/lib/transcode-post-video";
 import { postSchema } from "@/lib/validators";
 
 export async function GET(request: Request) {
@@ -87,13 +89,27 @@ export async function POST(request: Request) {
       await notifyMentions(text, user.id, user.name, post.id);
     }
 
+    const newAchievements: AchievementKey[] = [];
+
     if (communityLevel) {
-      await unlockAchievement(user.id, "CASINHA_FIRST");
+      if (await unlockAchievement(user.id, "CASINHA_FIRST")) {
+        newAchievements.push("CASINHA_FIRST");
+      }
     }
     void checkAndUnlockAchievements(user.id);
 
+    const videoProcessing = Boolean(post.videoUrl && !post.videoHlsUrl);
+    if (videoProcessing) {
+      schedulePostVideoTranscode(post.id, post.videoUrl!);
+      if (await unlockAchievement(user.id, "CINELAR_FIRST")) {
+        newAchievements.push("CINELAR_FIRST");
+      }
+    }
+
     return NextResponse.json({
       post: { ...post, likedByMe: false, myReaction: null },
+      newAchievements,
+      videoProcessing,
     });
   } catch {
     return NextResponse.json({ error: "Recado inválido." }, { status: 400 });

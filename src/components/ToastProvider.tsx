@@ -8,21 +8,23 @@ import {
   type ReactNode,
 } from "react";
 
-type Toast = { id: number; message: string };
+type ToastVariant = "default" | "achievement";
 
-const ToastContext = createContext<
-  ((message: string) => void) | undefined
->(undefined);
+type Toast = { id: number; message: string; variant: ToastVariant };
+
+type ToastFn = (message: string, variant?: ToastVariant) => void;
+
+const ToastContext = createContext<ToastFn | undefined>(undefined);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  const toast = useCallback((message: string) => {
+  const toast = useCallback<ToastFn>((message, variant = "default") => {
     const id = Date.now();
-    setToasts((t) => [...t, { id, message }]);
+    setToasts((t) => [...t, { id, message, variant }]);
     setTimeout(() => {
       setToasts((t) => t.filter((x) => x.id !== id));
-    }, 3200);
+    }, variant === "achievement" ? 4200 : 3200);
   }, []);
 
   return (
@@ -33,7 +35,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         className="pointer-events-none fixed bottom-24 left-0 right-0 z-[70] flex flex-col items-center gap-2 px-4 md:bottom-8"
       >
         {toasts.map((t) => (
-          <p key={t.id} className="bc-toast bc-animate-in-up pointer-events-auto">
+          <p
+            key={t.id}
+            className={`bc-toast bc-animate-in-up pointer-events-auto ${
+              t.variant === "achievement" ? "bc-toast-achievement" : ""
+            }`}
+          >
             {t.message}
           </p>
         ))}

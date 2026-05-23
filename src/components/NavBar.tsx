@@ -6,6 +6,7 @@ import { useState } from "react";
 import { DESKTOP_NAV, isNavActive, navLinkClass } from "@/lib/nav";
 import { LogoutButton } from "./LogoutButton";
 import { ChatUnreadBadge } from "./ChatUnreadBadge";
+import { PetDailyNavDot } from "./PetDailyNavDot";
 import { NotificationBell } from "./NotificationBell";
 import { AppVersionBadge } from "./AppVersionBadge";
 import { ThemeToggle } from "./ThemeToggle";
@@ -56,6 +57,18 @@ export function NavBar({ user, pusherKey, pusherCluster }: NavBarProps) {
               </Link>
             );
           })}
+          <Link
+            href="/cachorro"
+            className={`relative rounded-lg px-3 py-1.5 text-sm font-medium transition ${navLinkClass(
+              pathname.startsWith("/cachorro"),
+            )}`}
+          >
+            <span className="relative mr-1 inline-block" aria-hidden>
+              🐕
+              <PetDailyNavDot />
+            </span>
+            Pet
+          </Link>
           <Link
             href={`/perfil/${user.username}`}
             className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${navLinkClass(

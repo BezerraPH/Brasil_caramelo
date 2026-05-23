@@ -2,7 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { formatAchievementToast } from "@/lib/achievement-defs";
+import type { AchievementKey } from "@/lib/achievement-defs";
 import { BOOST_COST_COINS } from "@/lib/post-boost-constants";
+import { useToast } from "./ToastProvider";
 
 type PostBoostButtonProps = {
   postId: string;
@@ -11,6 +14,7 @@ type PostBoostButtonProps = {
 
 export function PostBoostButton({ postId, boostedUntil }: PostBoostButtonProps) {
   const router = useRouter();
+  const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const active = Boolean(
@@ -30,8 +34,14 @@ export function PostBoostButton({ postId, boostedUntil }: PostBoostButtonProps) 
     setMsg(null);
     try {
       const res = await fetch(`/api/posts/${postId}/boost`, { method: "POST" });
-      const data = await res.json();
+      const data = (await res.json()) as {
+        error?: string;
+        newAchievement?: AchievementKey | null;
+      };
       if (res.ok) {
+        if (data.newAchievement) {
+          toast(formatAchievementToast(data.newAchievement), "achievement");
+        }
         router.refresh();
       } else {
         setMsg(data.error ?? "Falha ao impulsionar.");

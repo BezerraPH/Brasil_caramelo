@@ -36,6 +36,7 @@ while [ $# -gt 0 ]; do
       ;;
     --audit) RUN_AUDIT=1; shift ;;
     --smoke) RUN_SMOKE=1; shift ;;
+    --full) RUN_SMOKE=1; RUN_AUDIT=1; shift ;;
     --fresh-env) FRESH_ENV=1; shift ;;
     --force-env) FORCE_ENV=1; FRESH_ENV=1; shift ;;
     --skip-migrate) SKIP_MIGRATE=1; shift ;;
@@ -60,6 +61,17 @@ esac
 
 echo "==> Brasil Caramelo — deploy (modo: $MODE)"
 
+bc_ensure_cron_secret() {
+  if grep -qE '^CRON_SECRET=.+' .env 2>/dev/null; then
+    return 0
+  fi
+  if [ -x scripts/ensure-cron-secret.sh ]; then
+    bash scripts/ensure-cron-secret.sh
+  elif [ -f scripts/ensure-cron-secret.sh ]; then
+    bash scripts/ensure-cron-secret.sh
+  fi
+}
+
 if [ "$FORCE_ENV" -eq 1 ] && [ -f .env ]; then
   bak=".env.bak.$(date +%Y%m%d%H%M%S)"
   echo "==> Backup .env → $bak"
@@ -72,6 +84,10 @@ if [ ! -f .env ]; then
   bash scripts/setup-env.sh
 elif [ "$FRESH_ENV" -eq 1 ]; then
   echo "==> .env já existe (use --force-env para recriar)"
+fi
+
+if [ -f .env ]; then
+  bc_ensure_cron_secret
 fi
 
 if [ "$MODE" = "https" ]; then

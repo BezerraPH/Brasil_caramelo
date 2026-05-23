@@ -16,6 +16,7 @@
 | setup-smoke-account.sh | Conta de teste para smoke autenticado |
 | backup-matilha.sh | Backup PostgreSQL + uploads |
 | cron-maintenance.example | Cron horário → `/api/cron/maintenance` |
+| ensure-cron-secret.sh | Gera `CRON_SECRET` no `.env` se vazio |
 | cron-backup.example | Cron diário de backup |
 | setup-gitea.sh | Gitea local (opcional) |
 | hosts-snippet.txt | Linha para `/etc/hosts` manual |

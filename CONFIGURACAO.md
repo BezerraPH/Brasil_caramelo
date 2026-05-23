@@ -508,6 +508,8 @@ Se `brasilcaramelo.com` não resolve no servidor: `bash scripts/setup-https-lan.
 | Porta 80 ocupada | Apache/httpd — use `https://` direto |
 | Mudou `.env` e nada mudou | `docker compose up -d --build` |
 | Domínio “não existe” | Normal — use Tailscale ou hosts local |
+| `Argumento desconhecido: --full` | `git pull` (correção no script) ou use `--smoke --audit` juntos |
+| `CRON_SECRET=` vazio | `bash scripts/ensure-cron-secret.sh` e `docker compose up -d --build` |
 
 ---
 

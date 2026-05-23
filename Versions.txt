@@ -3,7 +3,7 @@
 ================================================================================
 
 Última atualização: 2026-05-22 (v2.9.0-alpha)
-Versão atual do pacote (package.json): 2.9.0-alpha.0
+Versão atual do pacote (package.json): 2.9.1-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
@@ -451,6 +451,16 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v2.9.1-alpha.0 — 2026-05-22 (hotfix deploy --full + CRON_SECRET)
+------------------------------------------------------------------------------
+  FIX:
+  + deploy-brasil-caramelo.sh — flag --full (smoke + audit) estava só na ajuda
+  + scripts/ensure-cron-secret.sh — gera CRON_SECRET se .env vazio
+  + deploy chama ensure-cron-secret antes do compose
+
+  * package.json: 2.9.0-alpha.0 → 2.9.1-alpha.0
 
 ------------------------------------------------------------------------------
 v2.9.0-alpha.0 — 2026-05-22 (stack status, auth UX, notificações mobile)

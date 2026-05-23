@@ -25,17 +25,6 @@ safe_env() {
   fi
 }
 
-env_set() {
-  local key="$1"
-  local val
-  val="$(safe_env "$key")"
-  if [ "$val" = "(vazio ou ausente)" ] || [ "$val" = "(sem .env)" ]; then
-    echo "não"
-  else
-    echo "sim ($val)"
-  fi
-}
-
 run() {
   printf '$ %s\n' "$*"
   if "$@" 2>&1; then
@@ -122,12 +111,14 @@ else
 fi
 
 section "7. Uploads e backup"
-UPLOAD_HOST="${UPLOAD_DIR:-./data/uploads}"
-if [ -d "$UPLOAD_HOST" ]; then
-  run du -sh "$UPLOAD_HOST" 2>/dev/null || du -sh data/uploads 2>/dev/null || true
-  run find "$UPLOAD_HOST" -type f 2>/dev/null | wc -l || true
+if [ -d "./data/uploads" ]; then
+  run du -sh ./data/uploads
+  run find ./data/uploads -type f 2>/dev/null | wc -l
+elif command -v docker >/dev/null 2>&1 && docker compose ps app 2>/dev/null | grep -q Up; then
+  printf 'Uploads via container app (/app/data/uploads):\n'
+  docker compose exec -T app sh -c 'du -sh /app/data/uploads 2>/dev/null; find /app/data/uploads -type f 2>/dev/null | wc -l' 2>/dev/null || true
 else
-  printf 'Pasta uploads não encontrada em %s\n' "$UPLOAD_HOST"
+  printf 'Pasta uploads não encontrada (host nem container app Up)\n'
 fi
 if [ -x scripts/backup-matilha.sh ]; then
   echo "scripts/backup-matilha.sh: presente e executável"
@@ -171,6 +162,22 @@ elif command -v netstat >/dev/null 2>&1; then
   netstat -tlnp 2>/dev/null | grep -E ':3000|:5432|:6001|:7880|:3478|:11434' || true
 fi
 
+section "11. Smoke tests (funcionalidades)"
+SMOKE_EXIT=0
+if [ -x scripts/server-smoke.sh ]; then
+  scripts/server-smoke.sh || SMOKE_EXIT=$?
+elif [ -f scripts/server-smoke.sh ]; then
+  bash scripts/server-smoke.sh || SMOKE_EXIT=$?
+else
+  echo "scripts/server-smoke.sh não encontrado"
+  SMOKE_EXIT=1
+fi
+
 hr
-printf 'Fim do relatório. Envie este texto completo no chat (sem editar).\n'
-printf 'Não contém senhas do .env.\n'
+if [ "$SMOKE_EXIT" -eq 0 ]; then
+  printf 'Fim do relatório — smoke tests OK.\n'
+else
+  printf 'Fim do relatório — ATENÇÃO: alguns smoke tests falharam (seção 11).\n'
+fi
+printf 'Envie este texto completo no chat. Não contém senhas do .env.\n'
+printf 'Novos testes: edite scripts/smoke-tests.list (1 linha por feature).\n'

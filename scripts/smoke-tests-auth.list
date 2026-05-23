@@ -1,0 +1,11 @@
+# Testes que exigem sessão — só rodam se BC_SMOKE_EMAIL e BC_SMOKE_PASSWORD estiverem no .env
+# FORMATO: categoria|nome|METHOD|caminho|codigos_http|corpo_contem(opcional)
+
+auth-session|Usuário logado|GET|/api/users/me|200|"user"
+auth-session|Feed recados|GET|/api/posts|200|
+auth-session|Tribunal|GET|/api/tribunal|200|
+auth-session|Trending|GET|/api/trending|200|
+auth-session|Suggest busca|GET|/api/search/suggest?q=ca|200|
+auth-session|Pet|GET|/api/pet|200|
+auth-session|Notificações|GET|/api/notifications|200|
+auth-session|Stats matilha|GET|/api/matilha/stats|200|

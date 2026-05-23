@@ -1,0 +1,57 @@
+# =============================================================================
+# BRASIL CARAMELO — Smoke tests (server-report / server-smoke.sh)
+# =============================================================================
+#
+# Ao adicionar uma funcionalidade nova, inclua UMA linha aqui.
+#
+# FORMATO (campos separados por |, sem espaços extras):
+#   categoria|nome|METHOD|caminho|codigos_http|corpo_contem(opcional)
+#
+# codigos_http: códigos aceitos separados por vírgula (ex.: 200 ou 200,401 ou 307,200)
+# corpo_contem: substring que deve aparecer na resposta (vazio = não verifica)
+#
+# Categorias:
+#   public-api   — endpoints públicos (200 + JSON)
+#   public-page  — páginas HTML/PWA
+#   auth-guard   — rota protegida; 401 sem login = OK (prova que a rota existe)
+#   middleware   — redirect para /entrar sem sessão
+#
+# Testes COM login ficam em smoke-tests-auth.list (opcional).
+# =============================================================================
+
+public-api|Versão|GET|/api/version|200|brasil_caramelo
+public-api|Saúde geral|GET|/api/health|200|"ok":true
+public-api|Login rejeita vazio|POST|/api/auth/login|400,401|
+public-page|Landing pública|GET|/|200|Brasil Caramelo
+public-page|Entrar|GET|/entrar|200|
+public-page|Cadastro|GET|/cadastro|200|
+public-page|PWA manifest|GET|/manifest.json|200|
+public-page|Service worker|GET|/sw.js|200|brasil-caramelo
+
+middleware|Feed exige sessão|GET|/feed|307,302|
+middleware|Buscar exige sessão|GET|/buscar|307,302|
+middleware|Cachorro exige sessão|GET|/cachorro|307,302|
+middleware|Tribunal página|GET|/tribunal|307,302|
+middleware|Latidos página|GET|/latidos|307,302|
+
+auth-guard|Feed recados|GET|/api/posts|401|
+auth-guard|Trending tags|GET|/api/trending|401|
+auth-guard|Busca suggest|GET|/api/search/suggest?q=ca|401|
+auth-guard|Busca recados|GET|/api/posts/search?q=teste|401|
+auth-guard|Tribunal API|GET|/api/tribunal|401|
+auth-guard|Notificações|GET|/api/notifications|401|
+auth-guard|Perfil (me)|GET|/api/users/me|401|
+auth-guard|Pet virtual|GET|/api/pet|401|
+auth-guard|Genealogia pet|GET|/api/pet/genealogy|401|
+auth-guard|Chat DM|GET|/api/chats|401|
+auth-guard|Salas casinha|GET|/api/rooms|401|
+auth-guard|LiveKit token|GET|/api/livekit/token|401|
+auth-guard|Stories|GET|/api/stories|401|
+auth-guard|Salvos|GET|/api/saved|401|
+auth-guard|Stats matilha|GET|/api/matilha/stats|401|
+auth-guard|Cão de Guarda|POST|/api/ai/guard-dog|401|
+auth-guard|Upload|POST|/api/upload|401|
+
+# v2.4.6 — suggest
+# v2.4.7 — pulse landing (testada via public-page Landing + health)
+# v2.4.7 — moderação DM (auth-guard chats/rooms cobre rotas; lógica exige login manual)

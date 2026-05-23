@@ -24,6 +24,19 @@ Atalho: `./scripts/deploy-ubuntu.sh` (faz tudo acima).
 
 Acesse: **http://192.168.1.4:3000** (troque pelo seu IP).
 
+### Diagnóstico e smoke tests
+
+Conta dedicada + testes automáticos (sem expor senhas no Git):
+
+```bash
+chmod +x scripts/*.sh
+./scripts/setup-smoke-account.sh   # cria smoke_test no site (LAN)
+./scripts/server-smoke.sh            # testes HTTP (sem login + com login)
+./scripts/server-report.sh           # relatório completo para colar no chat
+```
+
+Variáveis opcionais no `.env`: `BC_SMOKE_EMAIL`, `BC_SMOKE_PASSWORD`, `BC_SMOKE_USERNAME`.
+
 ---
 
 ## Onde fica cada coisa

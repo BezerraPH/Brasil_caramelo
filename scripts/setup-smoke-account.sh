@@ -19,13 +19,13 @@ BC_HOST="$(safe_env BC_HOST)"
 BASE="http://${BC_HOST}:3000"
 
 EMAIL="${BC_SMOKE_EMAIL:-$(safe_env BC_SMOKE_EMAIL)}"
-USER="${BC_SMOKE_USERNAME:-$(safe_env BC_SMOKE_USERNAME)}"
+SMOKE_USER="${BC_SMOKE_USERNAME:-$(safe_env BC_SMOKE_USERNAME)}"
 PASS="${BC_SMOKE_PASSWORD:-$(safe_env BC_SMOKE_PASSWORD)}"
 NAME="${BC_SMOKE_NAME:-Conta Smoke Test}"
 
 # Defaults só no servidor (LAN); troque no .env se quiser.
 [ -z "$EMAIL" ] && EMAIL="smoke-test@example.com"
-[ -z "$USER" ] && USER="smoke_test"
+[ -z "$SMOKE_USER" ] && SMOKE_USER="smoke_test"
 [ -z "$PASS" ] && PASS="SmokeMatilha2026!"
 
 append_env_once() {
@@ -46,12 +46,12 @@ SMOKE_ENV_LINES=()
 
 echo "==> Conta smoke — ${BASE}"
 echo "    e-mail:  ${EMAIL}"
-echo "    usuário: ${USER}"
+echo "    usuário: ${SMOKE_USER}"
 
 REGISTER_CODE="$(curl -sS -o /tmp/bc-smoke-reg.json -w '%{http_code}' -m 15 \
   -X POST "${BASE}/api/auth/register" \
   -H 'Content-Type: application/json' \
-  -d "{\"name\":\"${NAME}\",\"username\":\"${USER}\",\"email\":\"${EMAIL}\",\"password\":\"${PASS}\"}" 2>/dev/null || echo 000)"
+  -d "{\"name\":\"${NAME}\",\"username\":\"${SMOKE_USER}\",\"email\":\"${EMAIL}\",\"password\":\"${PASS}\"}" 2>/dev/null || echo 000)"
 
 case "$REGISTER_CODE" in
   200|201)
@@ -84,7 +84,7 @@ echo "    ✓ Login OK"
 
 append_env_once "BC_SMOKE_EMAIL" "$EMAIL"
 append_env_once "BC_SMOKE_PASSWORD" "$PASS"
-append_env_once "BC_SMOKE_USERNAME" "$USER"
+append_env_once "BC_SMOKE_USERNAME" "$SMOKE_USER"
 
 if [ "$NEEDS_SMOKE_BLOCK" -eq 1 ]; then
   {

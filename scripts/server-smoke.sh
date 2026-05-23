@@ -160,12 +160,12 @@ else
   SKIP=$((SKIP + 1))
 fi
 
-if command -v docker >/dev/null 2>&1 && docker compose ps app 2>/dev/null | grep -q Up; then
-  if docker compose exec -T app ffmpeg -version 2>/dev/null | head -1 | grep -q ffmpeg; then
+if command -v docker >/dev/null 2>&1 && docker compose ps --status running app 2>/dev/null | grep -q .; then
+  if docker compose exec -T app sh -c 'ffmpeg -version 2>&1 | head -1' 2>/dev/null | grep -qi ffmpeg; then
     printf '  [OK]   %-28s ffmpeg no container\n' "Transcode vídeo"
     PASS=$((PASS + 1))
   else
-    printf '  [FAIL] %-28s ffmpeg ausente\n' "Transcode vídeo"
+    printf '  [FAIL] %-28s ffmpeg ausente no container app\n' "Transcode vídeo"
     FAIL=$((FAIL + 1))
   fi
 fi

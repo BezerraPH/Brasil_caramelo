@@ -84,6 +84,8 @@ printf 'OPENAI_API_KEY configurada: '
 if [ -f .env ] && grep -qE '^OPENAI_API_KEY=.+' .env 2>/dev/null; then echo sim; else echo não; fi
 printf 'CRON_SECRET configurado: '
 if [ -f .env ] && grep -qE '^CRON_SECRET=.+' .env 2>/dev/null; then echo sim; else echo não; fi
+printf 'Conta smoke (BC_SMOKE_EMAIL): '
+if [ -f .env ] && grep -qE '^BC_SMOKE_EMAIL=.+' .env 2>/dev/null; then grep -E '^BC_SMOKE_EMAIL=' .env | cut -d= -f2-; else echo não configurada; fi
 
 section "4. Docker"
 if command -v docker >/dev/null 2>&1; then

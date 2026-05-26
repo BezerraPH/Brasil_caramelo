@@ -59,6 +59,17 @@ enum NotificationType {
   TRIBUNAL_CASE
   PET_BREED_REQUEST
   PET_BREED_ACCEPTED
+  TESTIMONIAL_NEW
+  TESTIMONIAL_ACCEPTED
+  PET_POKE
+}
+
+enum PetPokeAction {
+  PAWS
+  PET_CARE
+  BARK
+  CHEESE_BREAD
+  SNIFF
 }
 
 enum ReactionType {
@@ -85,6 +96,7 @@ model User {
   bio          String?
   avatarUrl    String?
   viewMode     ViewMode  @default(FEED)
+  showVisits   Boolean   @default(true)
   isPremium    Boolean   @default(false)
   premiumUntil DateTime?
   createdAt    DateTime  @default(now())
@@ -122,6 +134,16 @@ model User {
   petOffspring        PetOffspring[]
   tribunalVotes       TribunalVote[]
   couponRedemptions   PetShopRedemption[]
+  sentTestimonials    Testimonial[]       @relation("SentTestimonials")
+  receivedTestimonials Testimonial[]      @relation("ReceivedTestimonials")
+  profileVisitsMade   ProfileVisit[]      @relation("ProfileVisitor")
+  profileVisitsReceived ProfileVisit[]    @relation("ProfileVisited")
+  petPokesSent        PetPoke[]           @relation("PetPokeFrom")
+  petPokesReceived    PetPoke[]           @relation("PetPokeTo")
+  ownedPacks          Pack[]              @relation("OwnedPacks")
+  packMemberships     PackMember[]
+  threadsAuthored     Thread[]
+  repliesAuthored     Reply[]
 }
 
 model Session {
@@ -571,4 +593,104 @@ model PetShopRedemption {
   createdAt DateTime      @default(now())
 
   @@unique([userId, couponId])
+}
+
+model Testimonial {
+  id         String    @id @default(cuid())
+  fromUserId String
+  toUserId   String
+  content    String
+  accepted   Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  acceptedAt DateTime?
+
+  fromUser User @relation("SentTestimonials", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser   User @relation("ReceivedTestimonials", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  @@index([toUserId, accepted])
+  @@index([toUserId, acceptedAt])
+}
+
+model ProfileVisit {
+  id        String   @id @default(cuid())
+  visitorId String
+  visitedId String
+  visitedAt DateTime @default(now()) @updatedAt
+
+  visitor User @relation("ProfileVisitor", fields: [visitorId], references: [id], onDelete: Cascade)
+  visited User @relation("ProfileVisited", fields: [visitedId], references: [id], onDelete: Cascade)
+
+  @@unique([visitorId, visitedId])
+  @@index([visitedId, visitedAt])
+}
+
+model PetPoke {
+  id         String        @id @default(cuid())
+  fromUserId String
+  toUserId   String
+  action     PetPokeAction
+  createdAt  DateTime      @default(now())
+
+  fromUser User @relation("PetPokeFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser   User @relation("PetPokeTo", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  @@index([toUserId, createdAt])
+  @@index([fromUserId, toUserId])
+}
+
+model Pack {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String   @unique
+  description String
+  avatarUrl   String?
+  bannerUrl   String?
+  ownerId     String
+  createdAt   DateTime @default(now())
+
+  owner   User         @relation("OwnedPacks", fields: [ownerId], references: [id])
+  members PackMember[]
+  threads Thread[]
+
+  @@index([createdAt])
+}
+
+model PackMember {
+  id       String   @id @default(cuid())
+  packId   String
+  userId   String
+  joinedAt DateTime @default(now())
+
+  pack Pack @relation(fields: [packId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([packId, userId])
+  @@index([userId])
+}
+
+model Thread {
+  id        String   @id @default(cuid())
+  packId    String
+  title     String
+  authorId  String
+  createdAt DateTime @default(now())
+
+  pack    Pack    @relation(fields: [packId], references: [id], onDelete: Cascade)
+  author  User    @relation(fields: [authorId], references: [id])
+  replies Reply[]
+
+  @@index([packId, createdAt])
+}
+
+model Reply {
+  id        String   @id @default(cuid())
+  threadId  String
+  authorId  String
+  content   String
+  createdAt DateTime @default(now())
+
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  author User   @relation(fields: [authorId], references: [id])
+
+  @@index([threadId, createdAt])
 }

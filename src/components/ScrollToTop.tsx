@@ -18,7 +18,7 @@ export function ScrollToTop() {
       type="button"
       aria-label="Voltar ao topo"
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-      className="bc-animate-pop fixed bottom-20 right-4 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-bc-caramel text-lg text-white shadow-lg shadow-bc-caramel/30 transition hover:scale-105 md:bottom-8"
+      className="bc-scroll-top bc-animate-pop fixed bottom-20 left-4 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-bc-caramel text-lg text-white shadow-lg shadow-bc-caramel/30 transition hover:scale-105 md:bottom-8 md:left-auto md:right-24"
     >
       ↑
     </button>

@@ -130,7 +130,7 @@ export function FeedPost({
         <div className="relative mb-3 aspect-video max-h-96 w-full overflow-hidden rounded-xl bg-bc-blue/5 shadow-inner">
           <BcImage
             src={post.imageUrl}
-            alt=""
+            alt={`Foto de ${post.author.name}`}
             fill
             sizes="(max-width:768px) 100vw, 600px"
             className="object-cover transition duration-500 hover:scale-[1.02]"

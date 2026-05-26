@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SorteDoDiaCard } from "@/components/SorteDoDiaCard";
 import { CreatePostForm } from "@/components/CreatePostForm";
 import { OfflinePostBanner } from "@/components/OfflinePostBanner";
 import { FeedFilterTabs } from "@/components/FeedFilterTabs";
@@ -207,6 +208,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
           </header>
 
           {!isReels && <FeedQuickDock />}
+          {!isReels && !isInsta && <SorteDoDiaCard />}
           {!isReels && <OfflinePostBanner />}
           {!isReels && <WelcomeBanner />}
           {!isReels && <PetDailyClaimBanner />}

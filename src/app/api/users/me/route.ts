@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { validationMessage } from "@/lib/api-error";
 import { prisma } from "@/lib/prisma";
-import { updateProfileSchema, viewModeSchema } from "@/lib/validators";
+import { updateProfileSchema, viewModeSchema, privacySchema } from "@/lib/validators";
 
 export async function GET() {
   const user = await getCurrentUser();
@@ -27,6 +27,16 @@ export async function PATCH(request: Request) {
         where: { id: user.id },
         data: { viewMode },
         select: { id: true, viewMode: true },
+      });
+      return NextResponse.json(updated);
+    }
+
+    if (body.showVisits !== undefined) {
+      const { showVisits } = privacySchema.parse(body);
+      const updated = await prisma.user.update({
+        where: { id: user.id },
+        data: { showVisits },
+        select: { id: true, showVisits: true },
       });
       return NextResponse.json(updated);
     }

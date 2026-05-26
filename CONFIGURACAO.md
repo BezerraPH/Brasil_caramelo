@@ -369,6 +369,8 @@ sudo bash scripts/deploy-brasil-caramelo.sh --mode tailscale --full
 | Cron | `CRON_SECRET` no `.env` + `scripts/cron-maintenance.example` |
 | Git | `bash scripts/sync-from-git.sh` se `scripts/` aparecer modificado |
 
+`sync-from-git.sh` descarta alterações locais em `scripts/` e `livekit.yaml` antes do `git pull` (normal após Tailscale).
+
 ### 8.4 Tailscale Funnel (público, opcional)
 
 Expõe na internet sem app Tailscale no visitante (cuidado):

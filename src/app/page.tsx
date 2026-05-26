@@ -24,8 +24,8 @@ export default async function HomePage() {
             <span className="bc-shimmer-text">Caramelo</span>
           </h1>
           <p className="mx-auto mt-4 max-w-lg text-lg text-bc-brown">
-            Feed, Insta, Cinelar, stories, casinhas e batalhas de fofura — a
-            rede social que late em comunidade.
+            Feed, Insta, Cinelar, casinhas e scrapbook da matilha — 100%
+            self-hosted, estilo comunidade brasileira.
           </p>
           <p className="mt-4 flex justify-center">
             <AppVersionBadge showStage className="text-sm" />

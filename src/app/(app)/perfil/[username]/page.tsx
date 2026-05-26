@@ -2,6 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PageContainer } from "@/components/PageContainer";
 import { PersonalityProfileCard } from "@/components/PersonalityProfileCard";
+import { ProfileMatilhaStats } from "@/components/ProfileMatilhaStats";
+import { ProfileQuickLinks } from "@/components/ProfileQuickLinks";
+import { ProfileVisitTracker } from "@/components/ProfileVisitTracker";
+import { ProfileVisitorsPanel } from "@/components/ProfileVisitorsPanel";
+import { TestimonialsSection } from "@/components/TestimonialsSection";
 import { PetYardVisit } from "@/components/PetYardVisit";
 import { ReputationBar } from "@/components/ReputationBar";
 import { ReputationPButton } from "@/components/ReputationPButton";
@@ -38,14 +43,36 @@ export default async function ProfilePage({ params }: PageProps) {
 
   void checkAndUnlockAchievements(profile.id);
 
-  const myReputation = await prisma.reputation.findUnique({
-    where: {
-      fromUserId_toUserId: {
-        fromUserId: viewer.id,
-        toUserId: profile.id,
+  const [friendCount, myReputation, acceptedTestimonials, viewerPrivacy] =
+    await Promise.all([
+    prisma.friendship.count({
+      where: {
+        status: "ACCEPTED",
+        OR: [{ requesterId: profile.id }, { addresseeId: profile.id }],
       },
-    },
-  });
+    }),
+    prisma.reputation.findUnique({
+      where: {
+        fromUserId_toUserId: {
+          fromUserId: viewer.id,
+          toUserId: profile.id,
+        },
+      },
+    }),
+    prisma.testimonial.findMany({
+      where: { toUserId: profile.id, accepted: true },
+      orderBy: { acceptedAt: "desc" },
+      include: {
+        fromUser: {
+          select: { id: true, name: true, username: true, avatarUrl: true },
+        },
+      },
+    }),
+    prisma.user.findUnique({
+      where: { id: viewer.id },
+      select: { showVisits: true },
+    }),
+  ]);
 
   const summary = summarizeReputation(
     profile.reputationsReceived.map((r) => r.level),
@@ -81,7 +108,13 @@ export default async function ProfilePage({ params }: PageProps) {
   }));
 
   return (
-    <PageContainer narrow>
+    <PageContainer narrow className="bc-profile-page">
+      {!isOwnProfile && (
+        <ProfileVisitTracker
+          visitedId={profile.id}
+          enabled={viewerPrivacy?.showVisits ?? true}
+        />
+      )}
       <PersonalityProfileCard dominantLevel={summary.dominant?.level}>
         <div
           className={`relative h-28 ${summary.dominant?.level === "HUSKY" ? "bc-profile-banner--husky" : ""}`}
@@ -163,10 +196,16 @@ export default async function ProfilePage({ params }: PageProps) {
               {profile.bio}
             </p>
           )}
-          <p className="mt-2 text-xs text-bc-brown">
-            {profile._count.posts} recado
-            {profile._count.posts !== 1 ? "s" : ""}
-          </p>
+
+          <ProfileMatilhaStats
+            postCount={profile._count.posts}
+            friendCount={friendCount}
+            memberSince={profile.createdAt}
+            isPremium={profile.isPremium}
+          />
+
+          {isOwnProfile && <ProfileQuickLinks />}
+          {isOwnProfile && <ProfileVisitorsPanel />}
 
           <section className="mt-6">
             <ReputationBar summary={summary} />
@@ -179,6 +218,16 @@ export default async function ProfilePage({ params }: PageProps) {
           </section>
 
           {!isOwnProfile && <PetYardVisit ownerUserId={profile.id} />}
+
+          <TestimonialsSection
+            toUserId={profile.id}
+            toUsername={profile.username}
+            accepted={acceptedTestimonials.map((t) => ({
+              ...t,
+              acceptedAt: t.acceptedAt?.toISOString() ?? null,
+            }))}
+            canWrite={!isOwnProfile && isFriend}
+          />
 
           <AchievementBadges userId={profile.id} />
 

@@ -1,6 +1,6 @@
 {
   "name": "brasil_caramelo",
-  "version": "2.10.0-alpha.0",
+  "version": "2.12.0-alpha.0",
   "private": true,
   "scripts": {
     "dev": "next dev",

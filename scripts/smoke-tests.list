@@ -44,6 +44,9 @@ middleware|Salvos exige sessão|GET|/salvos|307,302|
 middleware|Notificações exige sessão|GET|/notificacoes|307,302|
 middleware|Rolezinho exige sessão|GET|/rolezinho|307,302|
 middleware|Batalha exige sessão|GET|/batalha|307,302|
+middleware|Perfil exige sessão|GET|/perfil/smoke-test|307,302|
+middleware|Depoimentos exige sessão|GET|/depoimentos|307,302|
+middleware|Matilhas exige sessão|GET|/matilhas|307,302|
 
 public-api|Conexão matilha|GET|/api/matilha/connection|200|secureRecommended
 public-api|Cadastro rejeita vazio|POST|/api/auth/register|400|
@@ -95,6 +98,10 @@ auth-guard|Pet shop resgate|POST|/api/pet-shop/redeem|401|
 auth-guard|Premium checkout|GET|/api/premium/checkout|401|
 auth-guard|Stories view|POST|/api/stories/view|401|
 auth-guard|Pet treat|POST|/api/pet/treat|401|
+auth-guard|Depoimentos|GET|/api/testimonials|401|
+auth-guard|Visitas perfil|GET|/api/profile-visits|401|
+auth-guard|PetPoke|POST|/api/pet-poke|401|
+auth-guard|Matilhas fórum|GET|/api/packs|401|
 
 # v2.10.0 — explorar hub, audit tailscale
 # v2.9.0 — service status explorar, auth polish, pet-shop, deploy maintenance

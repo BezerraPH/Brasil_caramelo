@@ -19,6 +19,9 @@ export function notificationIcon(type: NotificationType): string {
     TRIBUNAL_CASE: "⚖️",
     PET_BREED_REQUEST: "🧬",
     PET_BREED_ACCEPTED: "🧬",
+    TESTIMONIAL_NEW: "📝",
+    TESTIMONIAL_ACCEPTED: "👑",
+    PET_POKE: "🐾",
   };
   return map[type] ?? "🔔";
 }

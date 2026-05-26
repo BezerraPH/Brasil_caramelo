@@ -5,6 +5,7 @@ import { GuardDogAssistant } from "@/components/GuardDogAssistant";
 import { FederationPanel } from "@/components/FederationPanel";
 import { AvatarUpload } from "@/components/AvatarUpload";
 import { StoragePanel } from "@/components/StoragePanel";
+import { PrivacyVisitsToggle } from "@/components/PrivacyVisitsToggle";
 import { EditProfileForm } from "@/components/EditProfileForm";
 import { PageContainer } from "@/components/PageContainer";
 import { getCurrentUser } from "@/lib/auth";
@@ -16,7 +17,14 @@ export default async function SettingsPage() {
 
   const full = await prisma.user.findUnique({
     where: { id: user.id },
-    select: { name: true, username: true, bio: true, email: true, avatarUrl: true },
+    select: {
+      name: true,
+      username: true,
+      bio: true,
+      email: true,
+      avatarUrl: true,
+      showVisits: true,
+    },
   });
 
   if (!full) return null;
@@ -37,6 +45,7 @@ export default async function SettingsPage() {
       </header>
 
       <ShareMatilhaLink className="mb-6" />
+      <PrivacyVisitsToggle initialShowVisits={full.showVisits} />
       <StoragePanel />
       <AvatarUpload name={full.name} avatarUrl={full.avatarUrl} />
       <EditProfileForm user={full} />

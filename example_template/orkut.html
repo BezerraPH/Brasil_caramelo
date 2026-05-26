@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>orkut - Perfil de José</title>
+    <style>
+        /* Paleta de Cores e Configurações Globais (Anos 2000) */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #D9E6F7; /* Azul clássico de fundo do Orkut */
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            color: #333333;
+        }
+
+        a {
+            color: #02679C; /* Azul de link clássico do Orkut */
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Topo / Barra de Navegação */
+        header {
+            background-color: #A0C0EB;
+            border-bottom: 2px solid #6E94D1;
+            padding: 8px 0;
+        }
+
+       .header-container {
+            max-width: 950px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+        }
+
+       .logo {
+            font-family: "Century Gothic", "Trebuchet MS", sans-serif;
+            font-size: 28px;
+            font-weight: bold;
+            color: #E3007E; /* Rosa choque clássico do logotipo do orkut */
+            letter-spacing: -2px;
+        }
+
+       .nav-links {
+            color: #3B5888;
+        }
+
+       .nav-links a {
+            color: #2F4D7D;
+            margin-right: 15px;
+            font-size: 11px;
+        }
+
+        /* Container Principal do Perfil */
+       .main-container {
+            max-width: 950px;
+            margin: 15px auto;
+            display: grid;
+            grid-template-columns: 180px 1fr 280px;
+            gap: 15px;
+            padding: 0 10px;
+        }
+
+        /* Blocos Padronizados */
+       .box {
+            background-color: #FFFFFF;
+            border: 1px solid #C5D7EF;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+       .box-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #333333;
+            margin-bottom: 10px;
+            border-bottom: 1px dashed #C5D7EF;
+            padding-bottom: 4px;
+        }
+
+        /* COLUNA DA ESQUERDA (Foto e Menu) */
+       .profile-pic {
+            width: 100%;
+            height: 160px;
+            background-color: #E8EEFA;
+            border: 1px solid #BFD0EA;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #94B5E1;
+            font-size: 32px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+       .profile-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+       .profile-menu {
+            list-style: none;
+            margin-top: 10px;
+        }
+
+       .profile-menu li {
+            padding: 4px 0;
+            border-bottom: 1px solid #E8EEFA;
+        }
+
+       .profile-menu li a {
+            font-size: 11px;
+            font-weight: normal;
+        }
+
+        /* Sorte do Dia */
+       .luck-box {
+            background-color: #FFFEE0; /* Amarelo clarinho de papel de biscoito */
+            border: 1px solid #E6DB55;
+            color: #615B18;
+            font-style: italic;
+        }
+
+        /* COLUNA CENTRAL (Nome, Status, Informações) */
+       .center-column h1 {
+            font-size: 20px;
+            color: #02679C;
+            margin-bottom: 5px;
+        }
+
+       .user-phrase {
+            font-style: italic;
+            color: #666666;
+            margin-bottom: 15px;
+        }
+
+        /* Sistema de Notas Clássico (Sexy, Confiável, Legal) */
+       .rating-system {
+            display: flex;
+            gap: 20px;
+            background-color: #EDF2FC;
+            border: 1px solid #BFD0EA;
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+       .rating-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 11px;
+            color: #666;
+        }
+
+       .rating-item span {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        /* Ficha de Dados do Perfil */
+       .profile-info-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+       .profile-info-table td {
+            padding: 6px;
+            border-bottom: 1px solid #EDF2FC;
+            vertical-align: top;
+        }
+
+       .profile-info-table td.label {
+            width: 120px;
+            color: #666666;
+            text-align: right;
+            font-weight: bold;
+            padding-right: 15px;
+        }
+
+        /* COLUNA DA DIREITA (Grids de Amigos e Comunidades) */
+       .grid-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+
+       .item-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            text-align: center;
+        }
+
+       .grid-item {
+            font-size: 10px;
+        }
+
+       .grid-item-thumb {
+            width: 70px;
+            height: 70px;
+            background-color: #EDF2FC;
+            border: 1px solid #BFD0EA;
+            border-radius: 4px;
+            margin: 0 auto 4px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #94B5E1;
+            font-size: 20px;
+            overflow: hidden;
+        }
+
+       .grid-item-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+       .grid-item a {
+            display: block;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            font-weight: normal;
+        }
+
+        /* Box de Recados Rápidos (Scraps) no Fim da Coluna Central */
+       .scraps-list {
+            margin-top: 15px;
+        }
+
+       .scrap-item {
+            background-color: #F8FAFD;
+            border: 1px solid #E8EEFA;
+            padding: 8px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+        }
+
+       .scrap-header {
+            font-weight: bold;
+            font-size: 11px;
+            margin-bottom: 4px;
+            color: #02679C;
+        }
+
+       .scrap-body {
+            line-height: 1.4;
+        }
+
+        /* Responsividade Básica para Telas Menores */
+        @media (max-width: 768px) {
+           .main-container {
+                grid-template-columns: 1fr;
+            }
+           .profile-info-table td.label {
+                width: auto;
+                text-align: left;
+                padding-right: 0;
+            }
+           .profile-info-table tr {
+                display: flex;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <div class="logo">orkut</div>
+            <div class="nav-links">
+                <a href="#">Início</a>
+                <a href="#">Perfil</a>
+                <a href="#">Página de Recados</a>
+                <a href="#">Comunidades</a>
+                <a href="#">Sair</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+
+        <section class="left-column">
+            <div class="box">
+                <div class="profile-pic">
+                    👤
+                </div>
+                <ul class="profile-menu">
+                    <li><a href="#">📝 ver perfil</a></li>
+                    <li><a href="#">💬 recados (<strong>42</strong>)</a></li>
+                    <li><a href="#">📸 fotos (12)</a></li>
+                    <li><a href="#">🎥 vídeos (3)</a></li>
+                    <li><a href="#">✉️ depoimentos (1)</a></li>
+                </ul>
+            </div>
+
+            <div class="box luck-box">
+                <div class="box-title" style="border-color: #E6DB55; color: #615B18;">sorte do dia</div>
+                "Quem caminha com foco e paciência colhe os melhores frutos na hora certa. Não apresse o seu tempo."
+            </div>
+
+            <div class="box">
+                <div class="box-title">quem me visitou?</div>
+                <ul style="list-style: none; font-size: 11px; line-height: 1.6;">
+                    <li>👤 <a href="#" style="font-weight: normal;">Mariana Souza</a></li>
+                    <li>👤 <a href="#" style="font-weight: normal;">Rodrigo Oliveira</a></li>
+                    <li>👤 <a href="#" style="font-weight: normal;">Carlos Santos</a></li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="center-column">
+            <div class="box">
+                <h1>José da Silva</h1>
+                <p class="user-phrase">"No topo ou na lama, os amigos de verdade são os que ficam."</p>
+
+                <div class="rating-system">
+                    <div class="rating-item">
+                        <span>confiável:</span>
+                        <div>💛💛💛</div> </div>
+                    <div class="rating-item">
+                        <span>legal:</span>
+                        <div>😀😀😀</div> </div>
+                    <div class="rating-item">
+                        <span>sexy:</span>
+                        <div>🧊🧊</div> </div>
+                </div>
+
+                <table class="profile-info-table">
+                    <tr>
+                        <td class="label">relacionamento:</td>
+                        <td>Solteiro</td>
+                    </tr>
+                    <tr>
+                        <td class="label">quem sou eu:</td>
+                        <td>Sou um cara simples, focado em tecnologia e desenvolvimento de software. Nas horas vagas curto jogar online com os amigos e ler sobre arquitetura de sistemas. Não me adicionem se eu não te conheço! Adicione apenas com recado.</td>
+                    </tr>
+                    <tr>
+                        <td class="label">país:</td>
+                        <td>Brasil</td>
+                    </tr>
+                    <tr>
+                        <td class="label">cidade natal:</td>
+                        <td>Porto Alegre</td>
+                    </tr>
+                    <tr>
+                        <td class="label">interesses:</td>
+                        <td>Mídia Social, Linux, Servidores de Nuvem, Bancos de Dados Relacionais, Clássicos da Internet.</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="box">
+                <div class="box-title">recados recentes (scraps)</div>
+                <div class="scraps-list">
+                    <div class="scrap-item">
+                        <div class="scrap-header">Fernanda Lima diz:</div>
+                        <div class="scrap-body">Passando para deixar aquele "scraps" clássico! E aí, quando vamos marcar aquele futebol com a galera? Abração!</div>
+                    </div>
+                    <div class="scrap-item">
+                        <div class="scrap-header">Felipe Albuquerque diz:</div>
+                        <div class="scrap-body">Cara, o seu BuddyPoke ficou muito parecido com você! Me adiciona na sua colheita depois. Valeu!</div>
+                    </div>
+                </div>
+                <div style="text-align: right; margin-top: 10px;">
+                    <a href="#" style="font-size: 11px;">ver todos os scraps &gt;&gt;</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="right-column">
+            
+            <div class="box">
+                <div class="grid-header">
+                    <strong>meus amigos (248)</strong>
+                    <a href="#">ver todos</a>
+                </div>
+                <div class="item-grid">
+                    <div class="grid-item">
+                        <div class="grid-item-thumb">👩</div>
+                        <a href="#">Mariana</a>
+                    </div>
+                    <div class="grid-item">
+                        <div class="grid-item-thumb">👨</div>
+                        <a href="#">Rodrigo</a>
+                    </div>
+                    <div class="grid-item">
+                        <div class="grid-item-thumb">🧔</div>
+                        <a href="#">Carlos</a>
+                    </div>
+                    <div class="grid-item">
+                        <div class="grid-item-thumb">👩‍🦰</div>
+                        <a href="#">Fernanda</a>
+                    </div>
+                    <div class="grid-item">
+                        <div class="grid-item-thumb">👱</div>
+                        <a href="#">Felipe</a>
+                    </div>
+                    <div class="grid-item">
+                        <div class="grid-item-thumb">👩‍🦳</div>
+                        <a href="#">Patricia</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="box">
+                <div class="grid-header">
+                    <strong>minhas comunidades (34)</strong>
+                    <a href="#">ver todas</a>
+                </div>
+                <div class="item-grid">
+                    <div class="grid-item">
+                        <div class="grid-item-thumb" style="background-color: #FFE6F2; font-size: 24px;">🐱</div>
+                        <a href="#" title="Eu odeio acordar cedo">Odeio acordar cedo</a>
+                    </div>
+                    <div class="grid-item">
+                        <div class="grid-item-thumb" style="background-color: #E6F7FF; font-size: 24px;">🐧</div>
+                        <a href="#" title="Eu amo Linux">Eu amo Linux</a>
+                    </div>
+                    <div class="grid-item">
+                        <div class="grid-item-thumb" style="background-color: #FFF0F5; font-size: 24px;">☕</div>
+                        <a href="#" title="Café depois do almoço">Café e Código</a>
+                    </div>
+                    <div class="grid-item">
+                        <div class="grid-item-thumb" style="background-color: #EAFCEF; font-size: 24px;">🎮</div>
+                        <a href="#" title="Lan House">Lan House das Antigas</a>
+                    </div>
+                    <div class="grid-item">
+                        <div class="grid-item-thumb" style="background-color: #FCFBE3; font-size: 24px;">🚜</div>
+                        <a href="#" title="Colheita Feliz">Colheita Feliz</a>
+                    </div>
+                    <div class="grid-item">
+                        <div class="grid-item-thumb" style="background-color: #F3EAFE; font-size: 24px;">🛸</div>
+                        <a href="#" title="Acredito em Alienígenas">UFOs e Segredos</a>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+</body>
+</html>

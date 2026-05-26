@@ -1,16 +1,28 @@
 #!/bin/bash
-# Atualiza o repo descartando alteração local só em scripts/deploy-brasil-caramelo.sh
-# (evita conflito comum após deploy manual no servidor).
+# Atualiza o repo descartando alterações locais comuns após setup-tailscale / deploy.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-if git diff --quiet scripts/deploy-brasil-caramelo.sh 2>/dev/null; then
-  git pull origin main
-else
-  echo "==> Alteração local em scripts/deploy-brasil-caramelo.sh — descartando e puxando main..."
-  git checkout -- scripts/deploy-brasil-caramelo.sh
-  git pull origin main
+RESET_PATHS=(
+  scripts/
+  deploy/livekit/livekit.yaml
+)
+
+needs_reset=0
+for p in "${RESET_PATHS[@]}"; do
+  if [ -e "$p" ] && ! git diff --quiet -- "$p" 2>/dev/null; then
+    needs_reset=1
+    break
+  fi
+done
+
+if [ "$needs_reset" -eq 1 ]; then
+  echo "==> Descartando alterações locais em scripts/ e livekit.yaml..."
+  git checkout -- scripts/ deploy/livekit/livekit.yaml 2>/dev/null || true
 fi
+
+git pull origin main
 
 chmod +x scripts/*.sh 2>/dev/null || true
 echo "OK. Versão: $(grep '"version"' package.json | head -1)"
+echo "Deploy: sudo bash scripts/deploy-brasil-caramelo.sh --mode tailscale --full"

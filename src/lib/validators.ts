@@ -113,3 +113,34 @@ export const viewModeSchema = z.object({
 export const petTreatSchema = z.object({
   toUserId: z.string().min(1),
 });
+
+export const testimonialSchema = z.object({
+  toUserId: z.string().min(1),
+  content: z.string().min(1).max(1000),
+});
+
+export const testimonialActionSchema = z.object({
+  id: z.string().min(1),
+});
+
+export const profileVisitSchema = z.object({
+  visitedId: z.string().min(1),
+});
+
+export const petPokeSchema = z.object({
+  toUserId: z.string().min(1),
+  action: z.enum(["PAWS", "PET_CARE", "BARK", "CHEESE_BREAD", "SNIFF"]),
+});
+
+export const privacySchema = z.object({
+  showVisits: z.boolean(),
+});
+
+export const packThreadSchema = z.object({
+  title: z.string().min(3).max(120),
+  content: z.string().min(1).max(4000),
+});
+
+export const packReplySchema = z.object({
+  content: z.string().min(1).max(4000),
+});

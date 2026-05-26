@@ -17,7 +17,7 @@
 | backup-matilha.sh | Backup PostgreSQL + uploads |
 | cron-maintenance.example | Cron horário → `/api/cron/maintenance` |
 | ensure-cron-secret.sh | Gera `CRON_SECRET` no `.env` se vazio |
-| sync-from-git.sh | `git pull` descartando conflito local no deploy script |
+| sync-from-git.sh | `git pull` + reset de `scripts/` e `livekit.yaml` locais |
 | cron-backup.example | Cron diário de backup |
 | setup-gitea.sh | Gitea local (opcional) |
 | hosts-snippet.txt | Linha para `/etc/hosts` manual |

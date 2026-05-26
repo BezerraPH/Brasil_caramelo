@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-23 (v2.10.0-alpha)
-Versão atual do pacote (package.json): 2.10.0-alpha.0
+Última atualização: 2026-05-23 (v2.12.0-alpha)
+Versão atual do pacote (package.json): 2.12.0-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
@@ -451,6 +451,59 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+v2.12.0-alpha.0 — 2026-05-23 (features Orkut: depoimentos, visitas, Matilhas)
+------------------------------------------------------------------------------
+  APP / UX — nostalgia Orkut:
+  + Testimonial — depoimentos com aceite, acceptedAt, luta pelo topo (👑 Dono do Topo)
+  + /depoimentos — inbox estilo chat para pendentes (aceitar / não aceita / responder)
+  + ProfileVisit — upsert por par; reciprocidade via showVisits no perfil
+  + SorteDoDiaCard — biscoito de sorte determinístico no feed (zero DB)
+  + PetPoke — interações caninas no quintal (+5 felicidade, notificação)
+  + ReputationBar — Gráfico da Matilha com pills Caramelo (#C68642) e Vira-Lata (#8B5E3C)
+  + Pack/Thread/Reply — Matilhas fórum (/matilhas, tópicos, respostas)
+  + 3 Matilhas oficiais seed (acordar cedo, só add com scrap, café e pix)
+  + PrivacyVisitsToggle em /configuracoes
+
+  PRISMA:
+  + Testimonial, ProfileVisit, PetPoke, Pack, PackMember, Thread, Reply
+  + User.showVisits (default true)
+  + NotificationType: TESTIMONIAL_*, PET_POKE
+
+  API:
+  + /api/testimonials, /api/testimonials/[id]
+  + /api/profile-visits
+  + /api/pet-poke
+  + /api/packs, /api/packs/[slug], threads, replies
+
+  TESTES:
+  + smoke middleware /depoimentos, /matilhas
+  + smoke auth-guard novas APIs
+
+  * package.json: 2.11.0-alpha.0 → 2.12.0-alpha.0
+
+------------------------------------------------------------------------------
+v2.11.0-alpha.0 — 2026-05-23 (perfil scrapbook, scroll-top, sync-from-git)
+------------------------------------------------------------------------------
+  APP / UX:
+  + ProfileMatilhaStats — recados, amigos, “na matilha desde” (estilo scrapbook)
+  + ProfileQuickLinks — atalhos no próprio perfil
+  + ScrollToTop — canto esquerdo no mobile (não sobrepõe FAB de modos)
+  + FeedPost — alt em fotos; landing com texto self-hosted
+
+  OPS:
+  + sync-from-git.sh — reset scripts/ + livekit.yaml antes do pull
+
+  TESTES:
+  + smoke middleware /perfil
+
+  DOCS:
+  + example_template/README — Orkut + Cinelar
+  + CONFIGURACAO §8.3.1 sync-from-git
+
+  * package.json: 2.10.0-alpha.0 → 2.11.0-alpha.0
 
 ------------------------------------------------------------------------------
 v2.10.0-alpha.0 — 2026-05-23 (Explorar UX, feed greeting, audit Tailscale)

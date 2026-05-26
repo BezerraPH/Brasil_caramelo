@@ -1,0 +1,629 @@
+<!-- O conceito do Redesign:
+Paleta "Brasil Moderno": Substituímos o clássico azul-bebê por um fundo cinza-esverdeado muito claro e limpo (#F3F6F4). O verde bandeira escuro (#004B23) vira a cor de destaque principal (botões, logo e cabeçalhos). O amarelo ouro (#FFC72C) entra nos detalhes quentes (como a Sorte do Dia e estrelas de avaliação) e o azul profundo (#002F6C) nos links e interações.
+
+Design Fluido e Responsivo: Grid de layout moderno baseado em cartões flutuantes com cantos arredondados, sombras suaves e transições ao passar o mouse.
+
+Mecânicas Reimaginadas:
+
+Sorte do Dia: Agora parece um widget moderno e minimalista de aplicativo.
+
+Avaliações (Sexy, Confiável, Legal): Transformadas em barras de progresso circulares ou pill badges (crachás ovais) elegantes.
+
+Scraps (Recados): Reestilizados como um feed de microblog contemporâneo, limpo e com foco em tipografia.-->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>orkut // José da Silva</title>
+    <style>
+        /* Variáveis de Cores - Conceito Brasil Moderno */
+        :root {
+            --bg-global: #F4F7F5;       /* Cinza-esverdeado muito claro, limpo e calmo */
+            --primary: #005F38;         /* Verde Amazônia profundo */
+            --primary-hover: #004427;   /* Verde mais escuro para hover */
+            --secondary: #FFC72C;       /* Amarelo Ouro vibrante */
+            --accent-blue: #002776;     /* Azul clássico da bandeira */
+            --text-main: #1A2420;       /* Grafite escuro levemente esverdeado */
+            --text-muted: #60726A;     /* Cinza médio para textos secundários */
+            --card-bg: #FFFFFF;         /* Branco puro para os cards */
+            --border-color: #E2EAE5;    /* Borda suave esverdeada */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-global);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        /* Navbar Moderna */
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+       .nav-container {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+       .logo {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -1.5px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+       .logo::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+       .nav-links {
+            display: flex;
+            gap: 24px;
+        }
+
+       .nav-links a {
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+       .nav-links a.active,.nav-links a:hover {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        /* Layout Grid */
+       .main-layout {
+            max-width: 1140px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 260px 1fr 320px;
+            gap: 24px;
+        }
+
+        /* Cartões (Cards) Estilo Glassmorphism / Clean */
+       .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(0, 95, 56, 0.02);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+       .card:hover {
+            box-shadow: 0 8px 24px rgba(0, 95, 56, 0.05);
+        }
+
+       .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* COLUNA DA ESQUERDA (Perfil & Atalhos) */
+       .profile-card {
+            text-align: center;
+        }
+
+       .avatar-container {
+            width: 130px;
+            height: 130px;
+            margin: 0 auto 16px auto;
+            border-radius: 50%;
+            border: 4px solid #FFFFFF;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            background-color: var(--bg-global);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 56px;
+            overflow: hidden;
+            position: relative;
+        }
+
+       .user-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+       .user-handle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+       .sidebar-menu {
+            list-style: none;
+            text-align: left;
+            border-top: 1px solid var(--border-color);
+            padding-top: 16px;
+        }
+
+       .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            color: var(--text-main);
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+       .sidebar-menu li a:hover {
+            background-color: var(--bg-global);
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+       .sidebar-menu li a span.badge {
+            margin-left: auto;
+            background-color: var(--primary);
+            color: white;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        /* Widget Sorte do Dia */
+       .luck-widget {
+            background: linear-gradient(135deg, #005F38 0%, #002776 100%);
+            color: white;
+            border: none;
+        }
+
+       .luck-widget.card-title {
+            color: var(--secondary);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+       .luck-text {
+            font-size: 13.5px;
+            font-style: italic;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+
+        /* COLUNA CENTRAL (Conteúdo do Perfil) */
+       .bio-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+       .bio-quote {
+            font-size: 15px;
+            color: var(--text-muted);
+            font-style: italic;
+            margin-bottom: 24px;
+            border-left: 3px solid var(--primary);
+            padding-left: 12px;
+        }
+
+        /* Crachás de Avaliação Modernos (Pills) */
+       .ratings-grid {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+       .rating-badge {
+            background-color: var(--bg-global);
+            border: 1px solid var(--border-color);
+            padding: 10px 16px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+       .rating-badge span.label {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+       .rating-badge span.value {
+            color: var(--primary);
+        }
+
+        /* Tabela de Informações */
+       .info-list {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            row-gap: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+
+       .info-label {
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+       .info-value {
+            color: var(--text-main);
+        }
+
+        /* Feed de Scraps (Recados) */
+       .scrap-input-box {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+       .scrap-textarea {
+            flex: 1;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            font-family: inherit;
+            resize: none;
+            height: 60px;
+            transition: border-color 0.2s;
+        }
+
+       .scrap-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+       .btn-send {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+       .btn-send:hover {
+            background-color: var(--primary-hover);
+        }
+
+       .scrap-feed-item {
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 0;
+            display: flex;
+            gap: 16px;
+        }
+
+       .scrap-feed-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+       .scrap-user-avatar {
+            width: 44px;
+            height: 44px;
+            background-color: var(--bg-global);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+       .scrap-content-wrapper {
+            flex: 1;
+        }
+
+       .scrap-user-meta {
+            margin-bottom: 4px;
+        }
+
+       .scrap-date {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-left: 8px;
+        }
+
+       .scrap-body {
+            color: var(--text-main);
+            font-size: 13.5px;
+            line-height: 1.4;
+        }
+
+        /* COLUNA DA DIREITA (Redes e Conexões) */
+       .view-all {
+            font-size: 12px;
+            color: var(--accent-blue);
+        }
+
+       .connection-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            text-align: center;
+        }
+
+       .connection-item {
+            font-size: 12px;
+        }
+
+       .connection-avatar {
+            width: 64px;
+            height: 64px;
+            background-color: var(--bg-global);
+            border-radius: 16px; /* Cantos arredondados modernos em vez de círculos simples */
+            margin: 0 auto 8px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s;
+        }
+
+       .connection-item:hover.connection-avatar {
+            transform: scale(1.05);
+        }
+
+       .connection-name {
+            font-weight: 500;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
+
+        /* Estilo para Comunidades com cores exclusivas */
+       .community-icon-green { background-color: #E6F4EA; color: #137333; }
+       .community-icon-yellow { background-color: #FEF7E0; color: #B06000; }
+       .community-icon-blue { background-color: #E8F0FE; color: #1A73E8; }
+
+        /* Responsivo */
+        @media (max-width: 992px) {
+           .main-layout {
+                grid-template-columns: 1fr;
+            }
+           .sidebar-menu {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+           .sidebar-menu li {
+                flex: 1 1 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="nav-container">
+            <div class="logo">orkut</div>
+            <nav class="nav-links">
+                <a href="#" class="active">Início</a>
+                <a href="#">Perfil</a>
+                <a href="#">Comunidades</a>
+                <a href="#">Jogos</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-layout">
+
+        <section class="left-col">
+            <div class="card profile-card">
+                <div class="avatar-container">
+                    👨‍💻
+                </div>
+                <h2 class="user-name">José da Silva</h2>
+                <p class="user-handle">@josesilva</p>
+                
+                <ul class="sidebar-menu">
+                    <li><a href="#">👤 Perfil</a></li>
+                    <li><a href="#">💬 Recados <span class="badge">12</span></a></li>
+                    <li><a href="#">📸 Fotos</a></li>
+                    <li><a href="#">✉️ Depoimentos</a></li>
+                    <li><a href="#">⚙️ Configurações</a></li>
+                </ul>
+            </div>
+
+            <div class="card luck-widget">
+                <div class="card-title">Sorte do Dia</div>
+                <p class="luck-text">"Grandes soluções surgem quando você simplifica os problemas. Confie no processo de compilação da vida."</p>
+            </div>
+        </section>
+
+        <section class="center-col">
+            <div class="card">
+                <div class="bio-header">
+                    <div>
+                        <h2 style="font-size: 22px; font-weight: 800;">José da Silva</h2>
+                        <p style="color: var(--text-muted); font-size: 13px;">São Paulo, Brasil</p>
+                    </div>
+                </div>
+
+                <p class="bio-quote">"A simplicidade é o último grau de sofisticação."</p>
+
+                <div class="ratings-grid">
+                    <div class="rating-badge">
+                        <span>🤝</span>
+                        <span class="label">Confiável:</span>
+                        <span class="value">Excelente</span>
+                    </div>
+                    <div class="rating-badge">
+                        <span>✌️</span>
+                        <span class="label">Legal:</span>
+                        <span class="value">Gente Boa</span>
+                    </div>
+                    <div class="rating-badge">
+                        <span>🧊</span>
+                        <span class="label">Sexy:</span>
+                        <span class="value">Iceberg</span>
+                    </div>
+                </div>
+
+                <div class="info-list">
+                    <div class="info-label">Relacionamento:</div>
+                    <div class="info-value">Solteiro(a)</div>
+
+                    <div class="info-label">Quem sou eu:</div>
+                    <div class="info-value">Desenvolvedor de Software focado em criar sistemas leves, robustos e elegantes. Apaixonado pela cultura open source e por arquitetar monolitos que aguentam o tranco.</div>
+
+                    <div class="info-label">Interesses:</div>
+                    <div class="info-value">HTML5, UI/UX, Servidores de alta performance, Elixir, Banco de Dados, Cafeína e Memes antigos de 2004.</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Mural de Recados (Scraps)</div>
+                
+                <div class="scrap-input-box">
+                    <textarea class="scrap-textarea" placeholder="Deixe um recado no mural do José..."></textarea>
+                    <button class="btn-send">Postar</button>
+                </div>
+
+                <div class="scrap-feed">
+                    <div class="scrap-feed-item">
+                        <div class="scrap-user-avatar">👩</div>
+                        <div class="scrap-content-wrapper">
+                            <div class="scrap-user-meta">
+                                <a href="#">Mariana Souza</a>
+                                <span class="scrap-date">Há 2 horas</span>
+                            </div>
+                            <p class="scrap-body">Parabéns pelo novo projeto! A arquitetura daquela aplicação em máquina única ficou sensacional. Precisamos marcar aquele café!</p>
+                        </div>
+                    </div>
+                    <div class="scrap-feed-item">
+                        <div class="scrap-user-avatar">🧔</div>
+                        <div class="scrap-content-wrapper">
+                            <div class="scrap-user-meta">
+                                <a href="#">Carlos Eduardo</a>
+                                <span class="scrap-date">Ontem</span>
+                            </div>
+                            <p class="scrap-body">Cara, seu avatar de código ficou idêntico! Lembra muito o saudoso BuddyPoke do antigo Orkut, mas muito mais limpo. Abraço!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="right-col">
+            <div class="card">
+                <div class="card-title">
+                    <span>Amigos (148)</span>
+                    <a href="#" class="view-all">ver todos</a>
+                </div>
+                <div class="connection-grid">
+                    <div class="connection-item">
+                        <div class="connection-avatar">👩</div>
+                        <span class="connection-name">Mariana</span>
+                    </div>
+                    <div class="connection-item">
+                        <div class="connection-avatar">🧔</div>
+                        <span class="connection-name">Carlos</span>
+                    </div>
+                    <div class="connection-item">
+                        <div class="connection-avatar">👱‍♂️</div>
+                        <span class="connection-name">Felipe</span>
+                    </div>
+                    <div class="connection-item">
+                        <div class="connection-avatar">👩‍🦰</div>
+                        <span class="connection-name">Fernanda</span>
+                    </div>
+                    <div class="connection-item">
+                        <div class="connection-avatar">👨</div>
+                        <span class="connection-name">Rodrigo</span>
+                    </div>
+                    <div class="connection-item">
+                        <div class="connection-avatar">👩‍🦳</div>
+                        <span class="connection-name">Patricia</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span>Comunidades (32)</span>
+                    <a href="#" class="view-all">ver todas</a>
+                </div>
+                <div class="connection-grid">
+                    <div class="connection-item">
+                        <div class="connection-avatar community-icon-yellow">☕</div>
+                        <span class="connection-name" title="Eu Odeio Acordar Cedo">Odeio Acordar Cedo</span>
+                    </div>
+                    <div class="connection-item">
+                        <div class="connection-avatar community-icon-green">🐧</div>
+                        <span class="connection-name" title="Eu Amo Linux">Eu Amo Linux</span>
+                    </div>
+                    <div class="connection-item">
+                        <div class="connection-avatar community-icon-blue">💻</div>
+                        <span class="connection-name" title="Clean Code Brasil">Clean Code BR</span>
+                    </div>
+                    <div class="connection-item">
+                        <div class="connection-avatar community-icon-green">🚜</div>
+                        <span class="connection-name" title="Colheita Feliz">Colheita Feliz</span>
+                    </div>
+                    <div class="connection-item">
+                        <div class="connection-avatar community-icon-blue">⚡</div>
+                        <span class="connection-name" title="Elixir Brasil">Elixir Brasil</span>
+                    </div>
+                    <div class="connection-item">
+                        <div class="connection-avatar community-icon-yellow">🧉</div>
+                        <span class="connection-name" title="Chimarrão com Código">Chima & Code</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+</body>
+</html>

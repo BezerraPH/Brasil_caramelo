@@ -755,6 +755,32 @@ body {
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
+.bc-profile-page {
+  animation: bc-fade-in 0.35s ease both;
+}
+
+.bc-profile-stats {
+  @apply rounded-xl border border-bc-blue/10 bg-bc-blue/5 p-3;
+}
+
+.bc-profile-stat-cell {
+  @apply rounded-lg px-1 py-1;
+}
+
+.bc-profile-quick-link {
+  @apply inline-flex items-center gap-1.5 rounded-full border border-bc-blue/15 bg-bc-white/90 px-3 py-1.5 text-xs font-semibold text-bc-blue shadow-sm transition;
+  animation: bc-fade-in-up 0.35s ease both;
+}
+
+.bc-profile-quick-link:hover {
+  @apply border-bc-green/30 bg-bc-green/10;
+  transform: translateY(-1px);
+}
+
+.bc-scroll-top:active {
+  transform: scale(0.95);
+}
+
 .bc-trending-sidebar .bc-trending-chip {
   animation: bc-fade-in-up 0.35s ease both;
 }

@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
+import { PetPokePanel } from "@/components/PetPokePanel";
 
 type VisitData = {
   owner: { name: string; username: string };
@@ -16,6 +17,8 @@ type VisitData = {
   };
   mood: { label: string; emoji: string; color: string };
   canTreat: boolean;
+  canPoke: boolean;
+  canSniff: boolean;
   treatsTogether: number;
   closeFriends: boolean;
 };
@@ -137,6 +140,10 @@ export function PetYardVisit({ ownerUserId }: PetYardVisitProps) {
 
       {message && (
         <p className="mt-2 text-center text-xs font-medium text-bc-green">{message}</p>
+      )}
+
+      {data.canPoke && (
+        <PetPokePanel toUserId={ownerUserId} canSniff={data.canSniff} />
       )}
     </section>
   );

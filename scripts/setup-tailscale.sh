@@ -73,16 +73,7 @@ except Exception:
 }
 
 bc_install_origin_nginx() {
-  if [ ! -f "$ROOT/deploy/nginx/brasilcaramelo-tunnel.conf" ]; then
-    echo "ERRO: falta deploy/nginx/brasilcaramelo-tunnel.conf"
-    exit 1
-  fi
-  echo "==> Nginx origem única (8780): app + Soketi + LiveKit..."
-  sudo cp "$ROOT/deploy/nginx/brasilcaramelo-tunnel.conf" /etc/nginx/sites-available/brasilcaramelo-tailscale
-  sudo ln -sf /etc/nginx/sites-available/brasilcaramelo-tailscale /etc/nginx/sites-enabled/brasilcaramelo-tailscale
-  sudo nginx -t
-  sudo systemctl reload nginx 2>/dev/null || sudo systemctl start nginx
-  echo "OK: http://127.0.0.1:8780"
+  bc_install_tunnel_origin_nginx "$ROOT"
 }
 
 bc_apply_tailscale_env() {

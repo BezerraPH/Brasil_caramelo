@@ -97,16 +97,7 @@ bc_apply_tunnel_env() {
 }
 
 bc_install_tunnel_nginx() {
-  echo "==> Nginx origem única (porta 8780) para cloudflared..."
-  sudo cp "$ROOT/deploy/nginx/brasilcaramelo-tunnel.conf" /etc/nginx/sites-available/brasilcaramelo-tunnel
-  sudo ln -sf /etc/nginx/sites-available/brasilcaramelo-tunnel /etc/nginx/sites-enabled/brasilcaramelo-tunnel
-  sudo nginx -t
-  sudo systemctl reload nginx 2>/dev/null || sudo systemctl start nginx
-  if ! bc_port_in_use 8780 | grep -q .; then
-    echo "ERRO: nginx não está na porta 8780"
-    exit 1
-  fi
-  echo "OK: http://127.0.0.1:8780 (app + /app Soketi + /rtc LiveKit)"
+  bc_install_tunnel_origin_nginx "$ROOT"
 }
 
 bc_install_cloudflared() {

@@ -93,9 +93,6 @@ fi
 if [ "$MODE" = "https" ]; then
   echo "==> Configurando HTTPS na LAN (mkcert + nginx)..."
   sudo bash scripts/setup-https-lan.sh
-elif [ "$MODE" = "tailscale" ]; then
-  echo "==> Configurando Tailscale Serve..."
-  sudo bash scripts/setup-tailscale.sh --serve
 fi
 
 echo "==> Subindo stack (app, db, soketi, coturn, livekit)..."
@@ -103,6 +100,11 @@ docker compose up -d --build
 
 echo "==> Recarregando LiveKit e coturn..."
 docker compose restart livekit coturn 2>/dev/null || true
+
+if [ "$MODE" = "tailscale" ]; then
+  echo "==> Configurando Tailscale Serve (nginx :8780 + serve :443)..."
+  sudo bash scripts/setup-tailscale.sh --serve
+fi
 
 if [ "$SKIP_MIGRATE" -eq 0 ]; then
   echo "==> Aplicando migrações Prisma..."

@@ -146,6 +146,83 @@ bc_port_in_use() {
   bc_port_listener "$port" | grep -q .
 }
 
+# Nginx origem :8780 (Tailscale Serve / cloudflared). Desativa vhosts em 80/443 para evitar conflito.
+bc_install_tunnel_origin_nginx() {
+  local root="${1:-.}"
+  local sites_available="/etc/nginx/sites-available"
+  local sites_enabled="/etc/nginx/sites-enabled"
+  local site_name="brasilcaramelo-tailscale"
+  local conf_src="$root/deploy/nginx/brasilcaramelo-tunnel.conf"
+
+  if [ ! -f "$conf_src" ]; then
+    echo "ERRO: falta $conf_src"
+    return 1
+  fi
+
+  if ! command -v nginx >/dev/null 2>&1; then
+    echo "==> Instalando nginx..."
+    sudo apt-get update -qq
+    sudo apt-get install -y nginx
+  fi
+
+  echo "==> Nginx origem única (8780): app + Soketi + LiveKit..."
+
+  # HTTPS LAN (443) e default (80) conflitam com tailscale serve na 443 ou com bind duplo.
+  for other in default brasilcaramelo brasilcaramelo-tunnel brasilcaramelo-https; do
+    if [ -L "${sites_enabled}/${other}" ] || [ -f "${sites_enabled}/${other}" ]; then
+      echo "    Desativando site conflitante: ${other}"
+      sudo rm -f "${sites_enabled}/${other}"
+    fi
+  done
+
+  sudo cp "$conf_src" "${sites_available}/${site_name}"
+  sudo ln -sf "${sites_available}/${site_name}" "${sites_enabled}/${site_name}"
+
+  if bc_port_in_use 8780; then
+    echo ""
+    echo "AVISO: porta 8780 já em uso (nginx antigo ou outro processo):"
+    bc_port_listener 8780 | sed 's/^/    /'
+    if systemctl is-active nginx >/dev/null 2>&1; then
+      echo "    Tentando reload do nginx existente..."
+      sudo nginx -t && sudo systemctl reload nginx && return 0
+    fi
+  fi
+
+  if ! sudo nginx -t 2>&1; then
+    echo "ERRO: nginx -t falhou"
+    return 1
+  fi
+
+  sudo mkdir -p /var/lib/nginx/body /var/cache/nginx 2>/dev/null || true
+
+  if systemctl is-active nginx >/dev/null 2>&1; then
+    sudo systemctl reload nginx
+  else
+    if ! sudo systemctl start nginx 2>&1; then
+      echo ""
+      echo "ERRO: nginx não iniciou. Portas 80 / 443 / 8780:"
+      bc_port_listener 80 | sed 's/^/    /' || true
+      bc_port_listener 443 | sed 's/^/    /' || true
+      bc_port_listener 8780 | sed 's/^/    /' || true
+      echo ""
+      echo "Últimas linhas do journal:"
+      sudo journalctl -u nginx -n 25 --no-pager 2>/dev/null || true
+      echo ""
+      echo "Correção rápida no servidor:"
+      echo "  sudo bash scripts/fix-nginx-tailscale.sh"
+      return 1
+    fi
+  fi
+
+  if ! bc_port_in_use 8780; then
+    echo "ERRO: nginx subiu mas não escuta na 8780"
+    return 1
+  fi
+
+  echo "OK: http://127.0.0.1:8780"
+  return 0
+}
+
 bc_probe_tcp() {
   local host="$1" port="$2" label="$3"
   if command -v nc >/dev/null 2>&1; then

@@ -106,6 +106,9 @@ auth-guard|Biscoito recado|POST|/api/posts/smoke-test/biscuit|401|
 auth-guard|Encontros matilha|GET|/api/packs/odeio-acordar-cedo/events|401|
 auth-guard|Duelo pátio|POST|/api/patio-duel|401|
 auth-guard|Fila pão de queijo|GET|/api/matilha/friend-queue|401|
+auth-guard|Álbuns|GET|/api/albums|401|
+auth-guard|Enquete matilha|POST|/api/packs/threads/smoke-test/poll|401|
+middleware|Fotos exige sessão|GET|/fotos|307,302|
 
 # v2.10.0 — explorar hub, audit tailscale
 # v2.9.0 — service status explorar, auth polish, pet-shop, deploy maintenance

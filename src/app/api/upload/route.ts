@@ -28,6 +28,7 @@ const KINDS = new Set<UploadKind>([
   "story",
   "chatAttachment",
   "voiceNote",
+  "albumPhoto",
 ]);
 
 export async function POST(request: Request) {
@@ -126,6 +127,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       url: saved.url,
       mime: saved.mime,
+      thumbUrl: saved.thumbUrl ?? null,
     });
   } catch (err) {
     const message =

@@ -8,6 +8,7 @@ import { StoragePanel } from "@/components/StoragePanel";
 import { ProfileThemePicker } from "@/components/ProfileThemePicker";
 import { PrivacyVisitsToggle } from "@/components/PrivacyVisitsToggle";
 import { LocationPinForm } from "@/components/LocationPinForm";
+import { ProfileInterestsEditor } from "@/components/ProfileInterestsEditor";
 import { EditProfileForm } from "@/components/EditProfileForm";
 import { PageContainer } from "@/components/PageContainer";
 import { getCurrentUser } from "@/lib/auth";
@@ -30,6 +31,9 @@ export default async function SettingsPage() {
       locationCity: true,
       locationArea: true,
       showLocation: true,
+      birthDate: true,
+      relationshipStatus: true,
+      interests: true,
     },
   });
 
@@ -60,6 +64,7 @@ export default async function SettingsPage() {
       <ProfileThemePicker initialTheme={full.profileTheme} />
       <StoragePanel />
       <AvatarUpload name={full.name} avatarUrl={full.avatarUrl} />
+      <ProfileInterestsEditor initialInterests={full.interests} />
       <EditProfileForm user={full} />
 
       <FederationPanel />

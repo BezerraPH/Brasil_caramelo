@@ -3,10 +3,25 @@
 import Link from "next/link";
 import { useCallback, useState } from "react";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
+import { FriendDegreePicker } from "@/components/FriendDegreePicker";
 import { PageContainer } from "@/components/PageContainer";
 import { UserAvatar } from "@/components/UserAvatar";
+import type { FriendshipDegree } from "@/generated/prisma/enums";
+import {
+  FRIENDSHIP_DEGREE_EMOJI,
+  FRIENDSHIP_DEGREE_LABELS,
+} from "@/lib/friendship-degree";
 
-type User = {
+type Friend = {
+  id: string;
+  name: string;
+  username: string;
+  avatarUrl: string | null;
+  friendshipId: string;
+  myDegree: FriendshipDegree;
+};
+
+type UserMini = {
   id: string;
   name: string;
   username: string;
@@ -15,12 +30,12 @@ type User = {
 
 type Pending = {
   id: string;
-  requester?: User;
-  addressee?: User;
+  requester?: UserMini;
+  addressee?: UserMini;
 };
 
 export default function AmigosPage() {
-  const [friends, setFriends] = useState<User[]>([]);
+  const [friends, setFriends] = useState<Friend[]>([]);
   const [pendingReceived, setPendingReceived] = useState<Pending[]>([]);
   const [pendingSent, setPendingSent] = useState<Pending[]>([]);
   const [username, setUsername] = useState("");
@@ -71,7 +86,9 @@ export default function AmigosPage() {
     <PageContainer narrow>
       <header className="bc-animate-in mb-6">
         <h1 className="text-2xl font-bold text-bc-blue">Amigos</h1>
-        <p className="text-sm text-bc-brown">Sua rede no Brasil Caramelo</p>
+        <p className="text-sm text-bc-brown">
+          Sua rede no Brasil Caramelo — grau estilo Orkut: Fã, Amigo, Melhor Amigo
+        </p>
       </header>
 
       <form
@@ -161,9 +178,17 @@ export default function AmigosPage() {
                         <UserAvatar name={f.name} avatarUrl={f.avatarUrl} />
                         <div>
                           <p className="font-medium text-bc-blue">{f.name}</p>
-                          <p className="text-xs text-bc-brown">@{f.username}</p>
+                          <p className="text-xs text-bc-brown">
+                            @{f.username} ·{" "}
+                            {FRIENDSHIP_DEGREE_EMOJI[f.myDegree]}{" "}
+                            {FRIENDSHIP_DEGREE_LABELS[f.myDegree]}
+                          </p>
                         </div>
                       </Link>
+                      <FriendDegreePicker
+                        friendshipId={f.friendshipId}
+                        current={f.myDegree}
+                      />
                       <Link
                         href={`/mensagens?with=${f.username}`}
                         className="bc-btn-ghost shrink-0 text-sm"

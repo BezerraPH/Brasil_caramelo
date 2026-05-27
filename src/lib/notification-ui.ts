@@ -25,6 +25,7 @@ export function notificationIcon(type: NotificationType): string {
     BISCUIT_RECEIVED: "🍪",
     PATIO_DUEL: "⚔️",
     CAPSULE_RELEASED: "🦴",
+    PHOTO_COMMENT: "📷",
   };
   return map[type] ?? "🔔";
 }

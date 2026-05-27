@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-22 (v2.15.0-alpha)
-Versão atual do pacote (package.json): 2.15.0-alpha.0
+Última atualização: 2026-05-22 (v2.18.0-alpha)
+Versão atual do pacote (package.json): 2.18.0-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
@@ -456,6 +456,75 @@ Remote Gitea:
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+v2.18.0-alpha.0 — 2026-05-22 (enquetes Matilha + graus de amizade)
+------------------------------------------------------------------------------
+  APP / UX:
+  + Enquetes em tópicos — ThreadPoll, opções, voto único, barras de resultado
+  + Graus de amizade Orkut — Fã / Amigo / Melhor Amigo (por lado da relação)
+  + /amigos — seletor de grau por amigo
+  + /matilhas — filtros: mais membros, mais novas + busca por nome
+
+  PRISMA:
+  + FriendshipDegree enum; requesterDegree, addresseeDegree
+  + ThreadPoll, PollOption, PollVote
+
+  API:
+  + POST /api/packs/threads/[threadId]/poll — votar
+  + pollOptions em POST /api/packs/[slug]/threads
+  + PATCH /api/friends/[id] — { degree }
+  + GET /api/packs?sort=members|newest&q=
+
+  * package.json: 2.17.0-alpha.0 → 2.18.0-alpha.0
+
+------------------------------------------------------------------------------
+v2.17.0-alpha.0 — 2026-05-22 (álbuns, fotos, thumbnails, comentários)
+------------------------------------------------------------------------------
+  APP / UX:
+  + Álbuns e Fotos — modelos dedicados (fora do feed de posts)
+  + /fotos — criar álbum, upload múltiplo, grid com thumbnails
+  + /fotos/[albumId]/[photoId] — foto em tela + comentários (texto e uivo)
+  + Thumbnails 400px WebP via sharp no upload (kind albumPhoto)
+  + Grid de álbuns no perfil Insta + link no menu Orkut
+
+  PRISMA:
+  + Album, Photo, PhotoComment
+  + NotificationType PHOTO_COMMENT
+
+  API:
+  + GET/POST /api/albums
+  + GET/PATCH/DELETE /api/albums/[albumId]
+  + POST /api/albums/[albumId]/photos
+  + GET/DELETE /api/albums/photos/[photoId]
+  + GET/POST /api/albums/photos/[photoId]/comments
+  + Upload kind albumPhoto → url + thumbUrl
+
+  * package.json: 2.16.0-alpha.0 → 2.17.0-alpha.0
+
+------------------------------------------------------------------------------
+v2.16.0-alpha.0 — 2026-05-22 (perfil Orkut completo + layout 3 colunas)
+------------------------------------------------------------------------------
+  APP / UX:
+  + Perfil Orkut — layout 3 colunas (sidebar | conteúdo | conexões)
+  + Quem sou eu — bio com **negrito** e *itálico*
+  + Informações pessoais — aniversário, idade, relacionamento, localização
+  + Interesses — tags editáveis em /configuracoes
+  + Scraps no perfil — cards com borda tracejada caramelo (bc-scrap-orkut)
+  + Menu lateral Orkut — atalhos recados, matilhas, amigos, depoimentos
+  + Mini grid de amigos na coluna direita
+
+  PRISMA:
+  + RelationshipStatus enum
+  + User: birthDate, relationshipStatus, interests[]
+
+  API:
+  + PATCH /api/users/me — birthDate, relationshipStatus, interests
+
+  * package.json: 2.15.0-alpha.0 → 2.16.0-alpha.0
+
 ------------------------------------------------------------------------------
 v2.15.0-alpha.0 — 2026-05-22 (radar, fila, selo ouro, uivo, luar, desafio)
 ------------------------------------------------------------------------------

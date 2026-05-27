@@ -837,6 +837,48 @@ body {
   animation: bc-fade-in 0.35s ease both;
 }
 
+/* Perfil Orkut — grid 3 colunas */
+.bc-orkut-profile-grid {
+  display: grid;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .bc-orkut-profile-grid {
+    grid-template-columns: 240px minmax(0, 1fr) 260px;
+  }
+}
+
+.bc-orkut-card {
+  @apply rounded-2xl border-2 border-bc-blue/12 bg-bc-white shadow-sm;
+}
+
+.bc-orkut-sidebar-card {
+  @apply border-dashed border-bc-caramel/45;
+  box-shadow: 3px 3px 0 color-mix(in srgb, var(--bc-caramel) 12%, transparent);
+}
+
+.bc-scrap-orkut {
+  @apply border-2 border-dashed border-bc-caramel/50 shadow-none;
+  box-shadow: 2px 2px 0 color-mix(in srgb, var(--bc-brown) 10%, transparent);
+}
+
+.bc-scrap-orkut:hover {
+  @apply border-bc-caramel/70;
+  transform: none;
+}
+
+html.luar .bc-orkut-sidebar-card,
+html.luar .bc-scrap-orkut {
+  box-shadow: 0 0 16px rgba(198, 134, 66, 0.12);
+}
+
+.bc-profile-bio-rich {
+  border-left: 3px solid var(--bc-caramel);
+  padding-left: 0.75rem;
+}
+
 .bc-profile-stats {
   @apply rounded-xl border border-bc-blue/10 bg-bc-blue/5 p-3;
 }

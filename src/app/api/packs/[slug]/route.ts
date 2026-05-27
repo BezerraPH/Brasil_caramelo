@@ -14,6 +14,7 @@ function mapThread(t: {
   anonymous: boolean;
   author: { name: string; username: string; avatarUrl: string | null };
   _count: { replies: number };
+  poll: { id: string } | null;
 }) {
   return {
     id: t.id,
@@ -23,6 +24,7 @@ function mapThread(t: {
     isGolden: t.isGolden,
     archived: t.archived,
     anonymous: t.anonymous,
+    hasPoll: Boolean(t.poll),
     replyCount: t._count.replies,
     author: t.anonymous
       ? { name: "Um Caramelo Misterioso", username: "misterioso", avatarUrl: null }
@@ -51,6 +53,7 @@ export async function GET(_request: Request, context: RouteContext) {
             select: { name: true, username: true, avatarUrl: true },
           },
           _count: { select: { replies: true } },
+          poll: { select: { id: true } },
         },
       },
     },

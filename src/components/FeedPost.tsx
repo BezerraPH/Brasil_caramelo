@@ -43,6 +43,8 @@ type FeedPostProps = {
   animationDelay?: string;
   savedByMe?: boolean;
   searchHighlight?: string;
+  /** Estilo scrap Orkut — borda tracejada caramelo */
+  scrapMode?: boolean;
 };
 
 export function FeedPost({
@@ -52,6 +54,7 @@ export function FeedPost({
   animationDelay,
   savedByMe,
   searchHighlight,
+  scrapMode,
 }: FeedPostProps) {
   const router = useRouter();
   const isOwn = currentUserId === post.author.id;
@@ -71,7 +74,7 @@ export function FeedPost({
   return (
     <article
       id={`post-${post.id}`}
-      className={`bc-card bc-card-interactive bc-animate-in scroll-mt-24 p-5 ${isBoosted ? "bc-post-boosted" : ""} ${tribunalOpen ? "bc-post-tribunal-open" : ""} ${animationDelay ?? ""}`}
+      className={`bc-card bc-card-interactive bc-animate-in scroll-mt-24 p-5 ${scrapMode ? "bc-scrap-orkut" : ""} ${isBoosted ? "bc-post-boosted" : ""} ${tribunalOpen ? "bc-post-tribunal-open" : ""} ${animationDelay ?? ""}`}
     >
       {isBoosted && (
         <span className="bc-boost-ribbon" aria-label="Recado impulsionado">

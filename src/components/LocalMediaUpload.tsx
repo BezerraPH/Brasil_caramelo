@@ -12,7 +12,7 @@ type LocalMediaUploadProps = {
   onUploaded: (
     url: string,
     mime: string,
-    extra?: { hlsUrl?: string | null },
+    extra?: { hlsUrl?: string | null; thumbUrl?: string | null },
   ) => void;
   onError?: (message: string) => void;
 };
@@ -42,7 +42,10 @@ export function LocalMediaUpload({
         onError?.(data.error ?? "Falha no envio.");
         return;
       }
-      onUploaded(data.url, data.mime, { hlsUrl: data.hlsUrl ?? null });
+      onUploaded(data.url, data.mime, {
+        hlsUrl: data.hlsUrl ?? null,
+        thumbUrl: data.thumbUrl ?? null,
+      });
     } catch {
       onError?.("Erro de rede ao enviar o arquivo.");
     } finally {

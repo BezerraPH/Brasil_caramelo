@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
+import { validationMessage } from "@/lib/api-error";
+import { getThreadPollResults } from "@/lib/thread-poll";
 import { prisma } from "@/lib/prisma";
 import { packReplySchema, threadModerationSchema } from "@/lib/validators";
 
@@ -37,6 +39,8 @@ export async function GET(_request: Request, context: RouteContext) {
     ? { name: "Um Caramelo Misterioso", username: "misterioso", avatarUrl: null }
     : thread.author;
 
+  const poll = await getThreadPollResults(threadId, user.id);
+
   return NextResponse.json({
     thread: {
       id: thread.id,
@@ -47,6 +51,7 @@ export async function GET(_request: Request, context: RouteContext) {
       isOwner: thread.pack.ownerId === user.id,
       author: displayAuthor,
       pack: thread.pack,
+      poll,
       replies: thread.replies.map((r) => ({
         id: r.id,
         content: r.content,

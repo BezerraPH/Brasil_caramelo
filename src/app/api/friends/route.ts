@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { validationMessage } from "@/lib/api-error";
+import { myFriendshipDegree } from "@/lib/friendship-degree";
 import { createNotification } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
 import { friendRequestSchema } from "@/lib/validators";
@@ -44,9 +45,14 @@ export async function GET() {
     }),
   ]);
 
-  const friendUsers = friends.map((f) =>
-    f.requesterId === user.id ? f.addressee : f.requester,
-  );
+  const friendUsers = friends.map((f) => {
+    const peer = f.requesterId === user.id ? f.addressee : f.requester;
+    return {
+      ...peer,
+      friendshipId: f.id,
+      myDegree: myFriendshipDegree(f, user.id),
+    };
+  });
 
   return NextResponse.json({
     friends: friendUsers,

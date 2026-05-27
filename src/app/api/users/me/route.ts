@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { validationMessage } from "@/lib/api-error";
 import { prisma } from "@/lib/prisma";
-import { updateProfileSchema, viewModeSchema, privacySchema, profileThemeSchema, locationSchema } from "@/lib/validators";
+import { updateProfileSchema, viewModeSchema, privacySchema, profileThemeSchema, locationSchema, interestsSchema } from "@/lib/validators";
 
 export async function GET() {
   const user = await getCurrentUser();
@@ -78,6 +78,18 @@ export async function PATCH(request: Request) {
       return NextResponse.json(updated);
     }
 
+    if (body.interests !== undefined && body.name === undefined) {
+      const { interests } = interestsSchema.parse(body);
+      const updated = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          interests: interests.map((t) => t.trim().toLowerCase()).filter(Boolean),
+        },
+        select: { id: true, interests: true },
+      });
+      return NextResponse.json(updated);
+    }
+
     const data = updateProfileSchema.parse(body);
 
     if (data.username && data.username !== user.username) {
@@ -98,6 +110,23 @@ export async function PATCH(request: Request) {
         name: data.name,
         bio: data.bio ?? null,
         ...(data.username ? { username: data.username } : {}),
+        ...(data.birthDate !== undefined
+          ? {
+              birthDate: data.birthDate
+                ? new Date(`${data.birthDate}T12:00:00.000Z`)
+                : null,
+            }
+          : {}),
+        ...(data.relationshipStatus !== undefined
+          ? { relationshipStatus: data.relationshipStatus }
+          : {}),
+        ...(data.interests !== undefined
+          ? {
+              interests: data.interests
+                .map((t) => t.trim().toLowerCase())
+                .filter(Boolean),
+            }
+          : {}),
       },
       select: {
         id: true,
@@ -105,6 +134,9 @@ export async function PATCH(request: Request) {
         username: true,
         bio: true,
         email: true,
+        birthDate: true,
+        relationshipStatus: true,
+        interests: true,
       },
     });
 

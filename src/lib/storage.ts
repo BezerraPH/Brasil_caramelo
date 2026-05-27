@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import { mkdir, writeFile, access, readdir, stat, unlink } from "fs/promises";
 import { constants } from "fs";
 import path from "path";
-import { generateBlurDataUrl, optimizeImageBuffer } from "./image-optimize";
+import { generateBlurDataUrl, generateGridThumbnail, optimizeImageBuffer } from "./image-optimize";
 
 export type UploadKind =
   | "avatar"
@@ -10,7 +10,8 @@ export type UploadKind =
   | "postVideo"
   | "story"
   | "chatAttachment"
-  | "voiceNote";
+  | "voiceNote"
+  | "albumPhoto";
 
 const MIME_EXT: Record<string, string> = {
   "image/jpeg": ".jpg",
@@ -67,6 +68,10 @@ const LIMITS: Record<
     maxBytes: 512 * 1024,
     mimes: new Set(["audio/webm", "audio/ogg", "audio/mpeg"]),
   },
+  albumPhoto: {
+    maxBytes: 8 * 1024 * 1024,
+    mimes: new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]),
+  },
 };
 
 const DEFAULT_UPLOAD_SUBDIR = "data/uploads";
@@ -96,6 +101,13 @@ export async function deleteMediaByUrl(url: string | null | undefined): Promise<
   } catch {
     /* arquivo já removido ou inexistente */
   }
+}
+
+export async function deletePhotoMedia(
+  url: string | null | undefined,
+  thumbUrl: string | null | undefined,
+): Promise<void> {
+  await Promise.all([deleteMediaByUrl(url), deleteMediaByUrl(thumbUrl)]);
 }
 
 export function publicMediaUrl(relativePath: string): string {
@@ -184,7 +196,7 @@ export async function saveUploadedFile(
   file: File,
   userId: string,
   kind: UploadKind,
-): Promise<{ url: string; relativePath: string; mime: string }> {
+): Promise<{ url: string; relativePath: string; mime: string; thumbUrl?: string }> {
   const rules = LIMITS[kind];
   if (!rules.mimes.has(file.type)) {
     throw new Error("Tipo de arquivo não permitido.");
@@ -205,7 +217,8 @@ export async function saveUploadedFile(
     kind === "avatar" ||
     kind === "postImage" ||
     kind === "story" ||
-    kind === "chatAttachment";
+    kind === "chatAttachment" ||
+    kind === "albumPhoto";
   if (shouldOptimize && mime !== "image/gif") {
     const optimized = await optimizeImageBuffer(buffer, mime);
     if (optimized) {
@@ -215,12 +228,26 @@ export async function saveUploadedFile(
     }
   }
 
-  const relativePath = `${userId}/${randomUUID()}${ext}`;
+  const fileId = randomUUID();
+  const relativePath = `${userId}/${fileId}${ext}`;
   const absolutePath = resolveSafePath(relativePath);
   if (!absolutePath) throw new Error("Caminho inválido.");
 
   await mkdir(path.dirname(absolutePath), { recursive: true });
   await writeFile(absolutePath, buffer);
+
+  let thumbUrl: string | undefined;
+  if (kind === "albumPhoto" && mime.startsWith("image/") && mime !== "image/gif") {
+    const thumbBuf = await generateGridThumbnail(buffer);
+    if (thumbBuf) {
+      const thumbRelative = `${userId}/${fileId}_thumb.webp`;
+      const thumbAbsolute = resolveSafePath(thumbRelative);
+      if (thumbAbsolute) {
+        await writeFile(thumbAbsolute, thumbBuf);
+        thumbUrl = publicMediaUrl(thumbRelative);
+      }
+    }
+  }
 
   if (mime.startsWith("image/") && mime !== "image/gif") {
     const blur = await generateBlurDataUrl(buffer);
@@ -233,5 +260,6 @@ export async function saveUploadedFile(
     url: publicMediaUrl(relativePath),
     relativePath,
     mime,
+    thumbUrl,
   };
 }

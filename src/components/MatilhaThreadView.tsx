@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useCallback, useState } from "react";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
+import { ThreadPollCard } from "@/components/ThreadPollCard";
 import { UserAvatar } from "@/components/UserAvatar";
+import type { PollResults } from "@/lib/thread-poll";
 
 type ThreadDetail = {
   id: string;
@@ -14,6 +16,7 @@ type ThreadDetail = {
   isOwner: boolean;
   author: { name: string; username: string; avatarUrl: string | null };
   pack: { slug: string; name: string };
+  poll: PollResults | null;
   replies: {
     id: string;
     content: string;
@@ -89,6 +92,14 @@ export function MatilhaThreadView({ threadId }: MatilhaThreadViewProps) {
         <p className="mt-2 rounded-lg bg-bc-brown/10 px-3 py-2 text-xs text-bc-brown">
           🔒 Arquivo confidencial — somente leitura.
         </p>
+      )}
+
+      {thread.poll && (
+        <ThreadPollCard
+          threadId={threadId}
+          initial={thread.poll}
+          archived={thread.archived}
+        />
       )}
 
       {thread.isOwner && (

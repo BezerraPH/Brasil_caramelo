@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
+import { validationMessage } from "@/lib/api-error";
 import { startOfWeekUtc } from "@/lib/pack-mystery";
 import { prisma } from "@/lib/prisma";
 import { packThreadSchema } from "@/lib/validators";
@@ -30,7 +31,7 @@ export async function POST(request: Request, context: RouteContext) {
 
   try {
     const body = await request.json();
-    const { title, content, anonymous } = packThreadSchema.parse(body);
+    const { title, content, anonymous, pollOptions } = packThreadSchema.parse(body);
 
     if (anonymous) {
       const weekStart = startOfWeekUtc();
@@ -62,11 +63,32 @@ export async function POST(request: Request, context: RouteContext) {
             content: content.trim(),
           },
         },
+        ...(pollOptions && pollOptions.length >= 2
+          ? {
+              poll: {
+                create: {
+                  question: title.trim(),
+                  options: {
+                    create: pollOptions.map((text, i) => ({
+                      text: text.trim(),
+                      sortOrder: i,
+                    })),
+                  },
+                },
+              },
+            }
+          : {}),
       },
     });
 
     return NextResponse.json({ ok: true, threadId: thread.id });
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.name === "ZodError") {
+      return NextResponse.json(
+        { error: validationMessage(error) },
+        { status: 400 },
+      );
+    }
     return NextResponse.json({ error: "Tópico inválido." }, { status: 400 });
   }
 }

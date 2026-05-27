@@ -2,20 +2,43 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import type { RelationshipStatus } from "@/generated/prisma/enums";
+
+const RELATIONSHIP_OPTIONS: { value: RelationshipStatus | ""; label: string }[] =
+  [
+    { value: "", label: "Não informar" },
+    { value: "SINGLE", label: "Solteiro(a)" },
+    { value: "IN_RELATIONSHIP", label: "Namorando" },
+    { value: "ENGAGED", label: "Noivo(a)" },
+    { value: "MARRIED", label: "Casado(a)" },
+    { value: "COMPLICATED", label: "É complicado" },
+    { value: "NOT_SAYING", label: "Prefiro não dizer" },
+  ];
 
 type EditProfileFormProps = {
   user: {
     name: string;
     username: string;
     bio: string | null;
+    birthDate: Date | null;
+    relationshipStatus: RelationshipStatus | null;
   };
 };
+
+function toDateInputValue(d: Date | null): string {
+  if (!d) return "";
+  return d.toISOString().slice(0, 10);
+}
 
 export function EditProfileForm({ user }: EditProfileFormProps) {
   const router = useRouter();
   const [name, setName] = useState(user.name);
   const [username, setUsername] = useState(user.username);
   const [bio, setBio] = useState(user.bio ?? "");
+  const [birthDate, setBirthDate] = useState(toDateInputValue(user.birthDate));
+  const [relationshipStatus, setRelationshipStatus] = useState(
+    user.relationshipStatus ?? "",
+  );
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -31,6 +54,8 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
           name: name.trim(),
           username: username.toLowerCase().trim(),
           bio: bio.trim() || null,
+          birthDate: birthDate || null,
+          relationshipStatus: relationshipStatus || null,
         }),
       });
       const data = await res.json();
@@ -82,17 +107,56 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
 
       <div>
         <label htmlFor="bio" className="bc-label">
-          Bio
+          Quem sou eu
         </label>
         <textarea
           id="bio"
           value={bio}
           onChange={(e) => setBio(e.target.value)}
-          rows={4}
-          maxLength={300}
-          placeholder="Conte um pouco sobre você..."
+          rows={5}
+          maxLength={500}
+          placeholder="Conte um pouco sobre você… Use **negrito** e *itálico*."
           className="bc-input resize-none"
         />
+        <p className="mt-1 text-xs text-bc-brown/70">
+          Formatação básica: **negrito**, *itálico*
+        </p>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label htmlFor="birthDate" className="bc-label">
+            Aniversário
+          </label>
+          <input
+            id="birthDate"
+            type="date"
+            value={birthDate}
+            onChange={(e) => setBirthDate(e.target.value)}
+            className="bc-input"
+          />
+        </div>
+        <div>
+          <label htmlFor="relationship" className="bc-label">
+            Relacionamento
+          </label>
+          <select
+            id="relationship"
+            value={relationshipStatus}
+            onChange={(e) =>
+              setRelationshipStatus(
+                e.target.value as RelationshipStatus | "",
+              )
+            }
+            className="bc-input"
+          >
+            {RELATIONSHIP_OPTIONS.map((o) => (
+              <option key={o.value || "none"} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {error && (

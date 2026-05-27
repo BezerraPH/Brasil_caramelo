@@ -14,6 +14,7 @@ import { AchievementBadges } from "@/components/AchievementBadges";
 import { MatilhaRadarChart } from "@/components/MatilhaRadarChart";
 import { PatioKingBadge } from "@/components/PatioKingBadge";
 import { ProfileMediaGrid } from "@/components/ProfileMediaGrid";
+import { AlbumPhotosGrid } from "@/components/AlbumPhotosGrid";
 import { ProfilePetHighlight } from "@/components/ProfilePetHighlight";
 import { CopyProfileLink } from "@/components/CopyProfileLink";
 import { FeedPost } from "@/components/FeedPost";
@@ -26,8 +27,15 @@ import { prisma } from "@/lib/prisma";
 import { FoundingMemberBadge } from "@/components/FoundingMemberBadge";
 import { CarameloRadarBadge } from "@/components/CarameloRadarBadge";
 import { CarameloVerificadoBadge } from "@/components/CarameloVerificadoBadge";
+import {
+  ProfileOrkutView,
+  ProfileOrkutBioCard,
+  ProfileOrkutScrapsSection,
+} from "@/components/ProfileOrkutView";
 import { computeMatilhaRadar } from "@/lib/matilha-radar";
 import { computeCarameloTier } from "@/lib/caramelo-tier";
+import { getProfileFriendsPreview } from "@/lib/profile-friends";
+import { getRecentAlbumPhotos } from "@/lib/album-photos";
 import { isPatioKing, PROFILE_VIBE_LABELS } from "@/lib/profile-vibe";
 import { VISIBLE_POST_WHERE, capsuleVisibleWhere } from "@/lib/visible-posts";
 import { PROFILE_THEME_BY_ID } from "@/lib/profile-themes";
@@ -54,8 +62,21 @@ export default async function ProfilePage({ params }: PageProps) {
 
   void checkAndUnlockAchievements(profile.id);
 
-  const [friendCount, myReputation, acceptedTestimonials, viewerPrivacy, radar, profilePet, mediaPosts, carameloTier] =
-    await Promise.all([
+  const isOwnProfile = profile.id === viewer.id;
+
+  const [
+    friendCount,
+    myReputation,
+    acceptedTestimonials,
+    viewerPrivacy,
+    radar,
+    profilePet,
+    mediaPosts,
+    carameloTier,
+    profileFriends,
+    pendingFriends,
+    albumPhotos,
+  ] = await Promise.all([
     prisma.friendship.count({
       where: {
         status: "ACCEPTED",
@@ -107,16 +128,23 @@ export default async function ProfilePage({ params }: PageProps) {
       },
     }),
     computeCarameloTier(profile.id),
+    getProfileFriendsPreview(profile.id),
+    isOwnProfile
+      ? prisma.friendship.count({
+          where: { status: "PENDING", addresseeId: profile.id },
+        })
+      : Promise.resolve(0),
+    getRecentAlbumPhotos(profile.id, 12),
   ]);
 
   const summary = summarizeReputation(
     profile.reputationsReceived.map((r) => r.level),
   );
-  const isOwnProfile = profile.id === viewer.id;
   const isFriend =
     !isOwnProfile && (await areFriends(viewer.id, profile.id));
   const theme = getPersonalityTheme(summary.dominant?.level);
-  const palette = PROFILE_THEME_BY_ID[profile.profileTheme] ?? PROFILE_THEME_BY_ID.CLASSIC;
+  const palette =
+    PROFILE_THEME_BY_ID[profile.profileTheme] ?? PROFILE_THEME_BY_ID.CLASSIC;
   const vibe = profile.profileVibe;
   const showKing = isPatioKing(profile.patioKingUntil);
 
@@ -128,7 +156,7 @@ export default async function ProfilePage({ params }: PageProps) {
       AND: [capsuleVisibleWhere(viewer.id)],
     },
     orderBy: { createdAt: "desc" },
-    take: 5,
+    take: vibe === "FEED" ? 10 : 5,
     include: {
       author: {
         select: {
@@ -166,6 +194,151 @@ export default async function ProfilePage({ params }: PageProps) {
       canWrite={!isOwnProfile && isFriend}
     />
   );
+
+  if (vibe === "FEED") {
+    return (
+      <PageContainer className="bc-profile-page bc-profile-vibe-feed">
+        {!isOwnProfile && (
+          <ProfileVisitTracker
+            visitedId={profile.id}
+            enabled={viewerPrivacy?.showVisits ?? true}
+          />
+        )}
+
+        <header className="bc-orkut-card mb-4 overflow-hidden p-0">
+          <div
+            className={`relative h-20 ${summary.dominant?.level === "HUSKY" ? "bc-profile-banner--husky" : ""}`}
+            style={{ background: palette.banner }}
+          >
+            {theme?.pattern && theme.pattern !== "none" && (
+              <div
+                className="absolute inset-0 opacity-60"
+                style={{ background: theme.pattern }}
+              />
+            )}
+            {!isOwnProfile && (
+              <div className="absolute bottom-2 right-3 z-10">
+                <ReputationPButton
+                  key={myReputation?.level ?? "none"}
+                  toUserId={profile.id}
+                  myLevel={myReputation?.level ?? null}
+                />
+              </div>
+            )}
+          </div>
+          <div className="px-4 py-2">
+            <p className="text-xs text-bc-brown">
+              Perfil Orkut · {profile.name}
+              {summary.dominant && (
+                <span className="ml-2">
+                  DNA {summary.dominant.breed} {summary.dominant.emoji}
+                </span>
+              )}
+            </p>
+          </div>
+        </header>
+
+        <ProfileOrkutView
+          profile={{
+            id: profile.id,
+            name: profile.name,
+            username: profile.username,
+            bio: profile.bio,
+            avatarUrl: profile.avatarUrl,
+            birthDate: profile.birthDate,
+            relationshipStatus: profile.relationshipStatus,
+            locationCity: profile.locationCity,
+            locationArea: profile.locationArea,
+            showLocation: profile.showLocation,
+            interests: profile.interests,
+            isFoundingMember: profile.isFoundingMember,
+            biscuitBalance: profile.biscuitBalance,
+            isPremium: profile.isPremium,
+            createdAt: profile.createdAt,
+          }}
+          isOwnProfile={isOwnProfile}
+          isFriend={isFriend}
+          friendCount={friendCount}
+          friends={profileFriends}
+          pendingFriends={pendingFriends}
+          carameloTier={carameloTier}
+          showKing={showKing}
+          accentColor={palette.accent}
+          centerContent={
+            <>
+              {profile.bio && <ProfileOrkutBioCard bio={profile.bio} />}
+
+              <section className="bc-orkut-card p-5">
+                <ReputationBar summary={summary} />
+                {!isOwnProfile && (
+                  <p className="mt-2 text-center text-xs text-bc-brown/80">
+                    Toque no botão <strong className="text-bc-blue">P</strong>{" "}
+                    para votar na personalidade
+                  </p>
+                )}
+              </section>
+
+              {testimonialsBlock}
+
+              <section className="bc-orkut-card p-5">
+                <MatilhaRadarChart stats={radar.stats} />
+              </section>
+
+              {profilePosts.length > 0 ? (
+                <ProfileOrkutScrapsSection title="Scraps (recados)">
+                  {profilePosts.map((post) => (
+                    <FeedPost
+                      key={post.id}
+                      post={post}
+                      currentUserId={viewer.id}
+                      scrapMode
+                    />
+                  ))}
+                </ProfileOrkutScrapsSection>
+              ) : (
+                <section className="bc-orkut-card p-5 text-center text-sm text-bc-brown/80">
+                  Nenhum scrap publicado ainda.
+                </section>
+              )}
+            </>
+          }
+          rightExtras={
+            <>
+              {isOwnProfile && <ProfileVisitorsPanel />}
+              {!isOwnProfile && <PetYardVisit ownerUserId={profile.id} />}
+              <AchievementBadges userId={profile.id} />
+              <section className="bc-orkut-card p-4">
+                <h2 className="mb-2 text-sm font-bold text-bc-blue">
+                  Matilha
+                </h2>
+                <ProfileMatilhaStats
+                  postCount={profile._count.posts}
+                  friendCount={friendCount}
+                  memberSince={profile.createdAt}
+                  isPremium={profile.isPremium}
+                />
+                <Link
+                  href="/matilhas"
+                  className="bc-btn-secondary mt-3 inline-flex w-full justify-center text-xs"
+                >
+                  Ver Matilhas →
+                </Link>
+              </section>
+            </>
+          }
+        />
+
+        {!isOwnProfile && (
+          <Link
+            href="/feed"
+            className="mt-6 inline-block text-sm text-bc-blue hover:underline"
+          >
+            ← Voltar ao feed
+          </Link>
+        )}
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer narrow className={`bc-profile-page bc-profile-vibe-${vibe.toLowerCase()}`}>
@@ -253,16 +426,6 @@ export default async function ProfilePage({ params }: PageProps) {
           <p className="text-bc-brown">
             @{profile.username} · Vibe {PROFILE_VIBE_LABELS[vibe]}
           </p>
-          {vibe === "FEED" &&
-            profile.showLocation &&
-            profile.locationCity && (
-              <div className="mt-2">
-                <CarameloRadarBadge
-                  city={profile.locationCity}
-                  area={profile.locationArea}
-                />
-              </div>
-            )}
           {isOwnProfile && profile.biscuitBalance > 0 && (
             <p className="mt-1 text-xs text-bc-caramel">
               🍪 {profile.biscuitBalance} biscoito{profile.biscuitBalance !== 1 ? "s" : ""} recebidos
@@ -296,6 +459,7 @@ export default async function ProfilePage({ params }: PageProps) {
             <section className="mt-6">
               <h2 className="mb-3 font-bold text-bc-blue">Grid de fotos</h2>
               <ProfileMediaGrid posts={mediaMapped} mode="INSTA" />
+              <AlbumPhotosGrid photos={albumPhotos} />
             </section>
           )}
 
@@ -304,20 +468,6 @@ export default async function ProfilePage({ params }: PageProps) {
               <h2 className="mb-3 font-bold text-bc-blue">Vídeos curtos</h2>
               <ProfileMediaGrid posts={mediaMapped} mode="REELS" />
             </section>
-          )}
-
-          {vibe === "FEED" && (
-            <>
-              {testimonialsBlock}
-              <section className="mt-4">
-                <Link
-                  href={isOwnProfile ? "/amigos" : `/amigos`}
-                  className="bc-btn-secondary inline-flex text-sm"
-                >
-                  👥 {friendCount} amigo{friendCount !== 1 ? "s" : ""} da matilha
-                </Link>
-              </section>
-            </>
           )}
 
           <section className="mt-6">
@@ -336,15 +486,13 @@ export default async function ProfilePage({ params }: PageProps) {
 
           {!isOwnProfile && <PetYardVisit ownerUserId={profile.id} />}
 
-          {vibe !== "FEED" && testimonialsBlock}
+          {testimonialsBlock}
 
           <AchievementBadges userId={profile.id} />
 
-          {(vibe === "FEED" || vibe === "INSTA") && profilePosts.length > 0 && (
+          {(vibe === "INSTA") && profilePosts.length > 0 && (
             <section className="mt-8 space-y-4 border-t border-bc-blue/10 pt-6">
-              <h2 className="font-bold text-bc-blue">
-                {vibe === "INSTA" ? "Legenda recente" : "Últimos recados"}
-              </h2>
+              <h2 className="font-bold text-bc-blue">Legenda recente</h2>
               {profilePosts.map((post) => (
                 <FeedPost
                   key={post.id}

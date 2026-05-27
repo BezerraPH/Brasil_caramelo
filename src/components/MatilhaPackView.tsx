@@ -15,6 +15,7 @@ type ThreadRow = {
   pinned?: boolean;
   isGolden?: boolean;
   anonymous?: boolean;
+  hasPoll?: boolean;
   author: { name: string; username: string; avatarUrl: string | null };
 };
 
@@ -57,6 +58,7 @@ function ThreadTable({ threads, showAuthor = true }: { threads: ThreadRow[]; sho
               >
                 {t.isGolden && "⭐ "}
                 {t.pinned && "📌 "}
+                {t.hasPoll && "📊 "}
                 {t.title}
               </Link>
               {showAuthor && (
@@ -97,6 +99,10 @@ export function MatilhaPackView({ slug }: MatilhaPackViewProps) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [anonymous, setAnonymous] = useState(false);
+  const [withPoll, setWithPoll] = useState(false);
+  const [pollOpt1, setPollOpt1] = useState("");
+  const [pollOpt2, setPollOpt2] = useState("");
+  const [pollOpt3, setPollOpt3] = useState("");
   const [creating, setCreating] = useState(false);
 
   const load = useCallback(async () => {
@@ -117,11 +123,18 @@ export function MatilhaPackView({ slug }: MatilhaPackViewProps) {
 
   async function createThread() {
     if (!title.trim() || !content.trim()) return;
+    const pollOptions = withPoll
+      ? [pollOpt1, pollOpt2, pollOpt3].map((s) => s.trim()).filter(Boolean)
+      : undefined;
+    if (withPoll && (pollOptions?.length ?? 0) < 2) {
+      alert("Enquete precisa de pelo menos 2 opções.");
+      return;
+    }
     setCreating(true);
     const res = await fetch(`/api/packs/${slug}/threads`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, content, anonymous }),
+      body: JSON.stringify({ title, content, anonymous, pollOptions }),
     });
     const data = await res.json();
     if (res.ok) {
@@ -223,6 +236,40 @@ export function MatilhaPackView({ slug }: MatilhaPackViewProps) {
                   />
                   Fofoca de corredor — postar como &ldquo;Um Caramelo Misterioso&rdquo; (1×/semana)
                 </label>
+                <label className="flex items-center gap-2 text-xs text-bc-brown">
+                  <input
+                    type="checkbox"
+                    checked={withPoll}
+                    onChange={(e) => setWithPoll(e.target.checked)}
+                  />
+                  📊 Incluir enquete no tópico
+                </label>
+                {withPoll && (
+                  <div className="space-y-2 rounded-lg border border-bc-green/25 bg-bc-green/5 p-3">
+                    <p className="text-xs font-semibold text-bc-green">Opções da enquete</p>
+                    <input
+                      value={pollOpt1}
+                      onChange={(e) => setPollOpt1(e.target.value)}
+                      placeholder="Opção 1"
+                      maxLength={80}
+                      className="bc-input text-sm"
+                    />
+                    <input
+                      value={pollOpt2}
+                      onChange={(e) => setPollOpt2(e.target.value)}
+                      placeholder="Opção 2"
+                      maxLength={80}
+                      className="bc-input text-sm"
+                    />
+                    <input
+                      value={pollOpt3}
+                      onChange={(e) => setPollOpt3(e.target.value)}
+                      placeholder="Opção 3 (opcional)"
+                      maxLength={80}
+                      className="bc-input text-sm"
+                    />
+                  </div>
+                )}
                 <button
                   type="button"
                   disabled={creating}

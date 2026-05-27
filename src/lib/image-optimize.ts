@@ -29,6 +29,21 @@ export async function optimizeImageBuffer(
   }
 }
 
+/** Miniatura para grid de álbum (~400px). */
+export async function generateGridThumbnail(
+  buffer: Buffer,
+): Promise<Buffer | null> {
+  try {
+    return await sharp(buffer)
+      .rotate()
+      .resize({ width: 400, withoutEnlargement: true })
+      .webp({ quality: 78 })
+      .toBuffer();
+  } catch {
+    return null;
+  }
+}
+
 /** Miniatura ~20px para blur-up (LQIP). */
 export async function generateBlurDataUrl(buffer: Buffer): Promise<string | null> {
   try {

@@ -103,13 +103,30 @@ export const petUpdateSchema = z.object({
 
 export const updateProfileSchema = z.object({
   name: z.string().min(2).max(80),
-  bio: z.string().max(300).optional().nullable(),
+  bio: z.string().max(500).optional().nullable(),
   username: z
     .string()
     .min(3)
     .max(30)
     .regex(/^[a-z0-9_]+$/, "Use apenas letras minúsculas, números e _")
     .optional(),
+  birthDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Use formato AAAA-MM-DD.")
+    .optional()
+    .nullable(),
+  relationshipStatus: z
+    .enum([
+      "SINGLE",
+      "IN_RELATIONSHIP",
+      "ENGAGED",
+      "MARRIED",
+      "COMPLICATED",
+      "NOT_SAYING",
+    ])
+    .optional()
+    .nullable(),
+  interests: z.array(z.string().min(1).max(30)).max(15).optional(),
 });
 
 export const viewModeSchema = z.object({
@@ -147,6 +164,15 @@ export const packThreadSchema = z.object({
   title: z.string().min(3).max(120),
   content: z.string().min(1).max(4000),
   anonymous: z.boolean().optional(),
+  pollOptions: z.array(z.string().min(1).max(80)).min(2).max(6).optional(),
+});
+
+export const pollVoteSchema = z.object({
+  optionId: z.string().min(1),
+});
+
+export const friendshipDegreeSchema = z.object({
+  degree: z.enum(["FAN", "FRIEND", "BEST_FRIEND"]),
 });
 
 export const packEventSchema = z.object({
@@ -174,4 +200,29 @@ export const locationSchema = z.object({
   locationCity: z.string().max(80).optional().nullable(),
   locationArea: z.string().max(80).optional().nullable(),
   showLocation: z.boolean().optional(),
+});
+
+export const interestsSchema = z.object({
+  interests: z.array(z.string().min(1).max(30)).max(15),
+});
+
+export const albumSchema = z.object({
+  name: z.string().min(1).max(80),
+  description: z.string().max(300).optional().nullable(),
+});
+
+export const albumUpdateSchema = z.object({
+  name: z.string().min(1).max(80).optional(),
+  description: z.string().max(300).optional().nullable(),
+});
+
+export const photoSchema = z.object({
+  url: mediaUrlSchema,
+  thumbUrl: mediaUrlSchema.optional().nullable(),
+  caption: z.string().max(500).optional().nullable(),
+});
+
+export const photoCommentSchema = z.object({
+  content: z.string().max(1000).optional(),
+  audioUrl: mediaUrlSchema.optional(),
 });

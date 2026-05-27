@@ -23,7 +23,7 @@ export function NavBar({ user, pusherKey, pusherCluster }: NavBarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="bc-glass sticky top-0 z-40 border-b-2 border-bc-blue/15 shadow-sm">
+    <header className="bc-nav-brasil bc-glass sticky top-0 z-40 shadow-sm">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
         <Link
           href="/feed"

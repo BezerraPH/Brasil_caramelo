@@ -89,6 +89,8 @@ enum NotificationType {
   PATIO_DUEL
   CAPSULE_RELEASED
   PHOTO_COMMENT
+  POLL_RESULTS
+  PACK_EVENT_REMINDER
 }
 
 enum PetPokeAction {
@@ -190,6 +192,7 @@ model User {
   albums              Album[]
   photoComments       PhotoComment[]
   pollVotes           PollVote[]
+  postInteractions    PostInteraction[]
 }
 
 model Session {
@@ -213,6 +216,7 @@ model Post {
   videoHlsUrl    String?
   audioUrl       String?
   capsuleReleaseAt DateTime?
+  capsuleNotified  Boolean             @default(false)
   communityLevel DogReputationLevel?
   boostedUntil   DateTime?
   boostPriority  Int                 @default(0)
@@ -225,11 +229,32 @@ model Post {
   biscuits       PostBiscuit[]
   tribunalCase   PostTribunalCase?
   tribunalHidden Boolean            @default(false)
+  reelScore      Float              @default(0)
+  interactions   PostInteraction[]
 
   @@index([authorId, createdAt])
   @@index([communityLevel, createdAt])
   @@index([createdAt, id])
   @@index([boostPriority, createdAt])
+  @@index([reelScore, createdAt])
+}
+
+model PostInteraction {
+  id         String   @id @default(cuid())
+  postId     String
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  watchMs    Int      @default(0)
+  completed  Boolean  @default(false)
+  liked      Boolean  @default(false)
+  shared     Boolean  @default(false)
+  updatedAt  DateTime @updatedAt
+  createdAt  DateTime @default(now())
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
 }
 
 model Comment {
@@ -782,13 +807,15 @@ model Reply {
 }
 
 model ThreadPoll {
-  id        String       @id @default(cuid())
-  threadId  String       @unique
-  thread    Thread       @relation(fields: [threadId], references: [id], onDelete: Cascade)
-  question  String?
-  createdAt DateTime     @default(now())
-  options   PollOption[]
-  votes     PollVote[]
+  id                String       @id @default(cuid())
+  threadId          String       @unique
+  thread            Thread       @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  question          String?
+  closesAt          DateTime?
+  resultsNotifiedAt DateTime?
+  createdAt         DateTime     @default(now())
+  options           PollOption[]
+  votes             PollVote[]
 }
 
 model PollOption {

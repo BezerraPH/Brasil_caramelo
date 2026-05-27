@@ -68,6 +68,9 @@ export async function POST(request: Request, context: RouteContext) {
               poll: {
                 create: {
                   question: title.trim(),
+                  closesAt: new Date(
+                    Date.now() + 7 * 24 * 60 * 60 * 1000,
+                  ),
                   options: {
                     create: pollOptions.map((text, i) => ({
                       text: text.trim(),

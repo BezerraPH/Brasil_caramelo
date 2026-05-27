@@ -2,18 +2,43 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-22 (v2.18.0-alpha)
-Versão atual do pacote (package.json): 2.18.0-alpha.0
+Última atualização: 2026-05-22 (v2.20.0-alpha)
+Versão atual do pacote (package.json): 2.20.0-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
-INSTRUÇÃO PARA DESENVOLVEDORES / IA:
+INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
   Sempre que o programa for melhorado, atualize ESTE arquivo:
   - Ajuste "Versão atual" e a data no topo
   - Incremente a versão em package.json (semver; em alpha use 2.x.x-alpha.N)
   - Mantenha RELEASE_STAGE em src/lib/app-version.ts alinhado ao estágio real
   - Adicione uma nova seção em "HISTÓRICO DE VERSÕES" com o que mudou
-  - Atualize "FUNCIONALIDADES ATUAIS" e "ROADMAP" se necessário
+  - Atualize "FUNCIONALIDADES ATUAIS" e a seção "ROADMAP (resumo)" abaixo
   - Configuração do servidor: CONFIGURACAO.md (não duplicar aqui)
+
+  ROADMAP CHECKLIST (nunca esquecer):
+  - Fonte mestre de tarefas pendentes: ROADMAP.md (checkboxes [ ] / [x])
+  - Ao CONCLUIR um item do roadmap: marque [x] em ROADMAP.md (data + versão na linha)
+  - Ao CONCLUIR: mova o item de [PENDENTE] para [OK] em "FUNCIONALIDADES ATUAIS" se aplicável
+  - Ao CONCLUIR: atualize a tabela "ROADMAP (resumo)" neste arquivo
+  - Se o item aparecer na UI: atualize src/components/RoadmapPanel.tsx
+  - Regra também em AGENTS.md (raiz do projeto)
+
+================================================================================
+  ROADMAP (resumo) — detalhes em ROADMAP.md
+================================================================================
+
+Arquivo mestre: ROADMAP.md
+Progresso (manual — atualizar ao marcar itens): P0 4/4 · P1 10/15 · P2 4/8 · P3 0/6
+
+Concluído em v2.20 (P1 + P2):
+  [x] R-UI-01 Brasil Moderno · R-ENG-01..07 notificações/cron · R-ENG-04 Matilhas quentes
+  [x] R-ENG-05 Dono do Topo · R-UI-03/04/05/06 landing, explorar, sorte, pills reputação
+
+Próximo foco (P1): R-MON-01 Pix Pedigree · R-INF-01 Meilisearch · R-LIVE-01/02 Latidos×Matilha
+
+P3 ops: testes CI, Redis, observabilidade, backup pg_dump + uploads.
+
+Concluídos no roadmap (docs/deploy): R-DOC-01, R-DOC-02 (nginx Tailscale 8780).
 
 ================================================================================
   1. VISÃO GERAL
@@ -108,6 +133,7 @@ brasil_caramelo/
   docker-compose.yml           — app + postgres
   Dockerfile
   CONFIGURACAO.md              — guia único do servidor (deploy, HTTPS, Tailscale…)
+  ROADMAP.md                   — checklist de tarefas ([ ] / [x]) — ATUALIZAR ao entregar
   Versions.txt                 — ESTE ARQUIVO
 
 ================================================================================
@@ -309,12 +335,23 @@ DogReputationLevel (10 personalidades ativas):
 [OK] Smoke tests expandidos — LiveKit token, chats, rooms, genealogy, UDP 50000, calls
 [OK] WelcomeBanner v24 (novidades v2.4.7)
 
-[PENDENTE]
-  - Pagamento real Pedigree (Pix) — stub local; sem gateway externo ainda
-  - Pet shops parceiros reais (cupons demo Recife/Caruaru já existem)
-  - nginx + HTTPS na LAN (opcional; HTTP funciona hoje)
-  - Meilisearch / MinIO — ver sugestoes_aprimoramentos.txt (roadmap infra)
-  - Ollama: opcional via OLLAMA_BASE_URL + OLLAMA_MODEL (implementado no Guarda)
+[OK] v2.19 — Cinelar For You (PostInteraction, reelScore, /api/posts/cinelar)
+[OK] v2.19 — Registro de visualização POST /api/posts/[id]/reels-view
+[OK] v2.19 — Enquetes no topo da Matilha (MatilhaPollsFeed + polls-feed API)
+[OK] v2.19 — Fotos recentes no perfil Orkut (ProfileOrkutPhotosMini)
+[OK] v2.19 — Fila do Pão de Queijo com melhores amigos em comum (queueScore)
+[OK] v2.20 — Visual Brasil Moderno (perfil Orkut, pills reputação, sorte do dia)
+[OK] v2.20 — Matilhas sort=hot · Dono do Topo sidebar · notificações poll/evento/cápsula
+[OK] v2.20 — Radar duplo opt-in · cron maintenance expandido
+
+[PENDENTE] — lista completa e IDs em ROADMAP.md (marcar [x] lá ao concluir)
+  - R-019-01 … R-019-04 — sprint v2.19 (Cinelar FYP + triângulo modos)
+  - R-MON-01 Pix Pedigree real · R-MON-02 pet shops · R-INF-01 Meilisearch
+  - R-UI-01 visual Orkut (new_orkut.html) · R-ENG-* notificações e engajamento
+  - R-OPS-01 testes · R-OPS-02 Redis · R-OPS-03 métricas · R-OPS-04 backup
+  - R-PWA-01/02 PWA · R-LIVE-01/02/03 Latidos/WebRTC/Matilha
+  - Ollama: opcional via OLLAMA_BASE_URL (Guarda Pro — já implementado)
+  - HTTPS LAN (mkcert): suportado; ver CONFIGURACAO.md — não bloqueia Tailscale
 
 [SELF-HOSTED — CONFIGURACAO.md]
   Um único docker-compose.yml: app + db + soketi + coturn + livekit
@@ -460,8 +497,61 @@ Remote Gitea:
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
+v2.20.0-alpha.0 — 2026-05-22 (Brasil Moderno + engajamento Matilha)
+------------------------------------------------------------------------------
+  APP / UX:
+  + Visual Brasil Moderno — vars CSS, navbar, perfil Orkut (bc-brasil-page)
+  + ReputationOrkutPills — avaliações estilo mock (pills + vibe label)
+  + ProfileOrkutTestimonialCrown — Dono do Topo na coluna esquerda
+  + Sorte do Dia — widget bc-luck-widget (gradiente verde/azul)
+  + Matilhas — sort=hot (atividade 7 dias), filtro 🔥 Quentes na UI
+  + Landing — tiles Matilhas, Cinelar FYP, álbuns, depoimentos
+
+  NOTIFICAÇÕES / CRON:
+  + POLL_RESULTS, PACK_EVENT_REMINDER (enum)
+  + cron: enquetes encerradas (7d), cápsulas (capsuleNotified), lembrete evento 24h
+  + RSVP confirma ingresso; depoimento pendente reforça link /depoimentos
+
+  PRISMA:
+  + ThreadPoll.closesAt, resultsNotifiedAt · Post.capsuleNotified
+  + Migração 20260605120000_v220_engagement_ui
+
+  PRIVACIDADE:
+  + LocationPinForm — duplo opt-in antes de exibir pin
+
+  * package.json: 2.19.0-alpha.0 → 2.20.0-alpha.0
+
+------------------------------------------------------------------------------
+v2.19.0-alpha.0 — 2026-05-22 (Cinelar FYP + triângulo modos)
+------------------------------------------------------------------------------
+  APP / UX:
+  + Cinelar For You — PostInteraction, reelScore, mistura descoberta + amigos
+  + GET /api/posts/cinelar · POST /api/posts/[id]/reels-view (watch time)
+  + CinelarFeed — scroll infinito FYP + badge For You
+  + MatilhaPollsFeed — enquetes ativas no topo do fórum (/api/packs/[slug]/polls-feed)
+  + ProfileOrkutPhotosMini — grid 6 fotos na coluna Orkut
+  + Fila do Pão de Queijo — boost por melhores amigos em comum (mutualBestFriends)
+  + Design: bc-sorte-dia-modern, cards Orkut com hover, WelcomeBanner v2.19
+
+  PRISMA:
+  + Post.reelScore · PostInteraction (watchMs, completed, liked, shared)
+  + Migração 20260604120000_v219_cinelar_fyp
+
+  DOCS / OPS:
+  + docs/README.md · smoke-tests (cinelar, polls-feed, friend-queue auth)
+  + explorar-hub: Matilhas, Fotos, Depoimentos
+
+  * package.json: 2.18.0-alpha.0 → 2.19.0-alpha.0
+
+------------------------------------------------------------------------------
 v2.18.0-alpha.0 — 2026-05-22 (enquetes Matilha + graus de amizade)
 ------------------------------------------------------------------------------
+  DOCS:
+  + ROADMAP.md — checklist mestre ([ ] / [x]) com IDs R-xxx e prioridades P0–P3
+  + Versions.txt — seção ROADMAP (resumo) + instrução obrigatória para IA/devs
+  + AGENTS.md — regra: concluir item → ROADMAP.md + Versions.txt + package.json
+  + RoadmapPanel — espelho P0/P1 + referência a ROADMAP.md
+
   APP / UX:
   + Enquetes em tópicos — ThreadPoll, opções, voto único, barras de resultado
   + Graus de amizade Orkut — Fã / Amigo / Melhor Amigo (por lado da relação)

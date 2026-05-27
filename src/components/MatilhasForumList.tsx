@@ -12,16 +12,18 @@ type PackItem = {
   memberCount: number;
   threadCount: number;
   joined: boolean;
+  activityScore?: number;
+  recentReplies?: number;
 };
 
-type SortKey = "default" | "members" | "newest";
+type SortKey = "default" | "hot" | "members" | "newest";
 
 const BANNER_COLORS = ["#C68642", "#2D8B57", "#C68642"] as const;
 
 export function MatilhasForumList() {
   const [packs, setPacks] = useState<PackItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sort, setSort] = useState<SortKey>("default");
+  const [sort, setSort] = useState<SortKey>("hot");
   const [query, setQuery] = useState("");
 
   const load = useCallback(async () => {
@@ -42,6 +44,7 @@ export function MatilhasForumList() {
       <div className="flex flex-wrap gap-2">
         {(
           [
+            ["hot", "🔥 Quentes"],
             ["default", "Clássicas"],
             ["members", "Mais membros"],
             ["newest", "Mais novas"],
@@ -91,6 +94,13 @@ export function MatilhasForumList() {
                   <p className="mt-2 text-xs text-bc-green">
                     {pack.memberCount} membro{pack.memberCount !== 1 ? "s" : ""} ·{" "}
                     {pack.threadCount} tópico{pack.threadCount !== 1 ? "s" : ""}
+                    {(pack.recentReplies ?? 0) > 0 && (
+                      <span className="text-bc-caramel">
+                        {" "}
+                        · 🔥 {pack.recentReplies} resposta
+                        {pack.recentReplies !== 1 ? "s" : ""} na semana
+                      </span>
+                    )}
                     {pack.joined && " · você entrou"}
                   </p>
                 </div>

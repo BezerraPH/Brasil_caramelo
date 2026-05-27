@@ -9,6 +9,7 @@ import { ProfileVisitorsPanel } from "@/components/ProfileVisitorsPanel";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import { PetYardVisit } from "@/components/PetYardVisit";
 import { ReputationBar } from "@/components/ReputationBar";
+import { ReputationOrkutPills } from "@/components/ReputationOrkutPills";
 import { ReputationPButton } from "@/components/ReputationPButton";
 import { AchievementBadges } from "@/components/AchievementBadges";
 import { MatilhaRadarChart } from "@/components/MatilhaRadarChart";
@@ -32,6 +33,7 @@ import {
   ProfileOrkutBioCard,
   ProfileOrkutScrapsSection,
 } from "@/components/ProfileOrkutView";
+import { ProfileOrkutPhotosMini } from "@/components/ProfileOrkutPhotosMini";
 import { computeMatilhaRadar } from "@/lib/matilha-radar";
 import { computeCarameloTier } from "@/lib/caramelo-tier";
 import { getProfileFriendsPreview } from "@/lib/profile-friends";
@@ -183,6 +185,14 @@ export default async function ProfilePage({ params }: PageProps) {
     createdAt: p.createdAt.toISOString(),
   }));
 
+  const topTestimonial =
+    acceptedTestimonials[0] != null
+      ? {
+          content: acceptedTestimonials[0].content,
+          fromUser: acceptedTestimonials[0].fromUser,
+        }
+      : null;
+
   const testimonialsBlock = (
     <TestimonialsSection
       toUserId={profile.id}
@@ -197,7 +207,7 @@ export default async function ProfilePage({ params }: PageProps) {
 
   if (vibe === "FEED") {
     return (
-      <PageContainer className="bc-profile-page bc-profile-vibe-feed">
+      <PageContainer className="bc-profile-page bc-profile-vibe-feed bc-brasil-page">
         {!isOwnProfile && (
           <ProfileVisitTracker
             visitedId={profile.id}
@@ -264,16 +274,17 @@ export default async function ProfilePage({ params }: PageProps) {
           carameloTier={carameloTier}
           showKing={showKing}
           accentColor={palette.accent}
+          topTestimonial={topTestimonial}
           centerContent={
             <>
               {profile.bio && <ProfileOrkutBioCard bio={profile.bio} />}
 
               <section className="bc-orkut-card p-5">
-                <ReputationBar summary={summary} />
+                <ReputationOrkutPills summary={summary} />
                 {!isOwnProfile && (
-                  <p className="mt-2 text-center text-xs text-bc-brown/80">
+                  <p className="mt-3 text-center text-xs text-bc-brown/80">
                     Toque no botão <strong className="text-bc-blue">P</strong>{" "}
-                    para votar na personalidade
+                    no banner para votar na personalidade
                   </p>
                 )}
               </section>
@@ -304,6 +315,11 @@ export default async function ProfilePage({ params }: PageProps) {
           }
           rightExtras={
             <>
+              <ProfileOrkutPhotosMini
+                username={profile.username}
+                photos={albumPhotos}
+                isOwnProfile={isOwnProfile}
+              />
               {isOwnProfile && <ProfileVisitorsPanel />}
               {!isOwnProfile && <PetYardVisit ownerUserId={profile.id} />}
               <AchievementBadges userId={profile.id} />

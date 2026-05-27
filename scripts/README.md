@@ -18,6 +18,7 @@
 | cron-maintenance.example | Cron horário → `/api/cron/maintenance` |
 | ensure-cron-secret.sh | Gera `CRON_SECRET` no `.env` se vazio |
 | sync-from-git.sh | `git pull` + reset de `scripts/` e `livekit.yaml` locais |
+| fix-nginx-tailscale.sh | Corrige nginx :8780 + `tailscale serve` se deploy falhar |
 | cron-backup.example | Cron diário de backup |
 | setup-gitea.sh | Gitea local (opcional) |
 | hosts-snippet.txt | Linha para `/etc/hosts` manual |
@@ -31,3 +32,11 @@ chmod +x scripts/*.sh
 ```
 
 Ver **CONFIGURACAO.md** para modos de acesso e troubleshooting.
+
+Após atualizar para **v2.19+**, no servidor:
+
+```bash
+docker compose exec -T app npx prisma migrate deploy
+```
+
+Smoke tests novos (v2.19): `/api/posts/cinelar`, `/api/packs/{slug}/polls-feed`, `/api/posts/{id}/reels-view`.

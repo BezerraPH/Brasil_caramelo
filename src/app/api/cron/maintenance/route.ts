@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { finalizeExpiredBattles } from "@/lib/battles";
 import { purgeExpiredStories } from "@/lib/cleanup";
+import {
+  notifyClosedPolls,
+  releaseTimeCapsules,
+  remindPackEvents,
+} from "@/lib/cron-matilha";
 import { refreshMatilhaTrends } from "@/lib/trending";
 
 function authorizeCron(request: Request): boolean {
@@ -18,10 +23,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
   }
 
-  const [battles, stories, trends] = await Promise.all([
+  const [battles, stories, trends, capsules, polls, events] = await Promise.all([
     finalizeExpiredBattles(),
     purgeExpiredStories(),
     refreshMatilhaTrends(),
+    releaseTimeCapsules(),
+    notifyClosedPolls(),
+    remindPackEvents(),
   ]);
 
   return NextResponse.json({
@@ -29,5 +37,8 @@ export async function POST(request: Request) {
     battlesFinalized: battles,
     storiesPurged: stories,
     trendsRefreshed: trends,
+    capsulesReleased: capsules,
+    pollsNotified: polls,
+    eventReminders: events,
   });
 }

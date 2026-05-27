@@ -18,7 +18,10 @@ export const EXPLORAR_HUB: HubSection[] = [
     title: "Conteúdo",
     emoji: "📰",
     items: [
-      { href: "/feed", icon: "📰", title: "Feed & Cinelar", desc: "Recados, Insta e Shorts" },
+      { href: "/feed", icon: "📰", title: "Feed & Cinelar FYP", desc: "Recados, Insta e For You" },
+      { href: "/matilhas", icon: "🐾", title: "Matilhas", desc: "Fórum, enquetes e eventos" },
+      { href: "/fotos", icon: "📷", title: "Fotos", desc: "Álbuns estilo Orkut" },
+      { href: "/depoimentos", icon: "💬", title: "Depoimentos", desc: "Inbox estilo Orkut" },
       { href: "/casinhas", icon: "🏠", title: "Casinhas", desc: "10 comunidades por raça" },
       { href: "/buscar", icon: "🔍", title: "Buscar", desc: "Pessoas, recados e #tags" },
       { href: "/salvos", icon: "🔖", title: "Salvos", desc: "Recados favoritos" },

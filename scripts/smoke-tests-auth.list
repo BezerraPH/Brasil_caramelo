@@ -17,6 +17,9 @@ auth-session|Calls invite inválido|POST|/api/calls/signal|400|
 auth-session|Conexão matilha|GET|/api/matilha/connection|200|mode
 auth-session|Achievements|GET|/api/achievements|200|
 auth-session|Amigos|GET|/api/friends|200|
+auth-session|Cinelar FYP|GET|/api/posts/cinelar|200|fyp
+auth-session|Fila pão de queijo|GET|/api/matilha/friend-queue|200|suggestions
+auth-session|Matilhas hot|GET|/api/packs?sort=hot|200|packs
 auth-session|Salvos|GET|/api/saved|200|
 auth-session|Pet daily status|GET|/api/pet/daily|200|canClaim
 auth-session|Batalhas|GET|/api/battles|200|

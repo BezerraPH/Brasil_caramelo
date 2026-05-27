@@ -24,8 +24,8 @@ export default async function HomePage() {
             <span className="bc-shimmer-text">Caramelo</span>
           </h1>
           <p className="mx-auto mt-4 max-w-lg text-lg text-bc-brown">
-            Feed, Insta, Cinelar, casinhas e scrapbook da matilha — 100%
-            self-hosted, estilo comunidade brasileira.
+            Feed, Insta, Cinelar For You, Matilhas com enquetes, álbuns de fotos,
+            depoimentos Orkut e scrapbook — 100% self-hosted.
           </p>
           <p className="mt-4 flex justify-center">
             <AppVersionBadge showStage className="text-sm" />
@@ -52,12 +52,15 @@ export default async function HomePage() {
 
         <div className="bc-animate-in bc-stagger-3 mt-16 grid w-full max-w-4xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[
-            { icon: "💬", title: "Chat & Salas", desc: "DM, casinhas e chamadas" },
-            { icon: "📰", title: "Feed & Casinhas", desc: "10 tocas por raça" },
-            { icon: "🎬", title: "Cinelar", desc: "Shorts com autoplay" },
-            { icon: "🐕", title: "Pet virtual", desc: "DNA, moedas e loja" },
-            { icon: "⚖️", title: "Tribunal", desc: "Mediação da matilha" },
-            { icon: "🎙️", title: "Latidos", desc: "Áudio ao vivo (HTTPS)" },
+            { icon: "🐾", title: "Matilhas", desc: "Fórum, enquetes e eventos" },
+            { icon: "🎬", title: "Cinelar FYP", desc: "Descoberta por retenção" },
+            { icon: "📷", title: "Álbuns", desc: "Fotos estilo Orkut" },
+            { icon: "💬", title: "Depoimentos", desc: "Dono do Topo" },
+            { icon: "💬", title: "Chat & Salas", desc: "DM e chamadas" },
+            { icon: "🐕", title: "Pet & DNA", desc: "Quintal e cruzamento" },
+            { icon: "⚖️", title: "Tribunal", desc: "Mediação gamificada" },
+            { icon: "🎙️", title: "Latidos", desc: "Áudio ao vivo" },
+            { icon: "🏠", title: "Casinhas", desc: "10 tocas por raça" },
           ].map((f, i) => (
             <div
               key={f.title}

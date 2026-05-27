@@ -8,7 +8,7 @@ type LocationPinFormProps = {
   initialShow: boolean;
 };
 
-/** Pin de cidade/bairro — Radar de Caramelo (privacidade total). */
+/** Pin de cidade/bairro — Radar de Caramelo com duplo opt-in (R-ENG-07). */
 export function LocationPinForm({
   initialCity,
   initialArea,
@@ -17,10 +17,17 @@ export function LocationPinForm({
   const [city, setCity] = useState(initialCity ?? "");
   const [area, setArea] = useState(initialArea ?? "");
   const [showLocation, setShowLocation] = useState(initialShow);
+  const [privacyAck, setPrivacyAck] = useState(initialShow);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
+  const canPublish = city.trim().length > 0 && privacyAck;
+
   async function save() {
+    if (!canPublish && showLocation) {
+      setMessage("Confirme a privacidade antes de exibir o pin.");
+      return;
+    }
     setSaving(true);
     setMessage(null);
     try {
@@ -30,7 +37,7 @@ export function LocationPinForm({
         body: JSON.stringify({
           locationCity: city.trim() || null,
           locationArea: area.trim() || null,
-          showLocation,
+          showLocation: canPublish ? showLocation : false,
         }),
       });
       if (!res.ok) {
@@ -49,8 +56,8 @@ export function LocationPinForm({
     <section className="bc-card mb-6 space-y-3 p-5">
       <h2 className="font-bold text-bc-blue">📍 Radar de Caramelo</h2>
       <p className="text-sm text-bc-brown">
-        Marque sua cidade ou bairro — nunca GPS em tempo real. No modo Orkut,
-        amigos veem: &ldquo;O Caramelo está circulando por…&rdquo;
+        Apenas <strong>cidade ou bairro</strong> — nunca GPS em tempo real. No
+        perfil Orkut, amigos veem: &ldquo;circulando por…&rdquo;
       </p>
       <label className="block">
         <span className="bc-label">Cidade</span>
@@ -72,11 +79,28 @@ export function LocationPinForm({
           className="bc-input w-full"
         />
       </label>
+
+      <div className="rounded-xl border border-bc-blue/15 bg-bc-green/5 p-3 text-xs text-bc-brown">
+        <p className="font-semibold text-bc-green">Privacidade (obrigatório)</p>
+        <label className="mt-2 flex cursor-pointer items-start gap-2">
+          <input
+            type="checkbox"
+            checked={privacyAck}
+            onChange={(e) => setPrivacyAck(e.target.checked)}
+            className="mt-0.5 h-4 w-4 rounded border-bc-blue/30"
+          />
+          <span>
+            Entendo que, se ativar abaixo, <strong>amigos da matilha</strong>{" "}
+            verão só cidade/bairro — não endereço nem localização ao vivo.
+          </span>
+        </label>
+      </div>
+
       <label className="flex cursor-pointer items-center gap-3">
         <input
           type="checkbox"
           checked={showLocation}
-          disabled={saving || !city.trim()}
+          disabled={saving || !canPublish}
           onChange={(e) => setShowLocation(e.target.checked)}
           className="h-4 w-4 rounded border-bc-blue/30"
         />
@@ -84,6 +108,11 @@ export function LocationPinForm({
           Exibir região no meu perfil (modo Orkut)
         </span>
       </label>
+      {!privacyAck && city.trim() && (
+        <p className="text-xs text-bc-caramel">
+          Marque a confirmação de privacidade para publicar o pin.
+        </p>
+      )}
       <button
         type="button"
         disabled={saving}

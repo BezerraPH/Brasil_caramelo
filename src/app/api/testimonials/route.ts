@@ -82,7 +82,7 @@ export async function POST(request: Request) {
     await createNotification(
       toUserId,
       "TESTIMONIAL_NEW",
-      `${user.name} escreveu um depoimento para você.`,
+      `${user.name} enviou um depoimento — aceite em Depoimentos (inbox).`,
       `/depoimentos`,
     );
 

@@ -1,6 +1,7 @@
 import { randomBytes } from "crypto";
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
+import { createNotification } from "@/lib/notifications";
 import { prisma } from "@/lib/prisma";
 
 type RouteContext = { params: Promise<{ eventId: string }> };
@@ -51,6 +52,13 @@ export async function POST(_request: Request, context: RouteContext) {
   });
 
   const pet = await prisma.pet.findUnique({ where: { userId: user.id } });
+
+  await createNotification(
+    user.id,
+    "PACK_EVENT_REMINDER",
+    `Ingresso confirmado: «${event.title}» — ${new Date(event.startsAt).toLocaleDateString("pt-BR")}`,
+    `/matilhas/${event.pack.slug}?tab=events`,
+  );
 
   return NextResponse.json({
     ok: true,

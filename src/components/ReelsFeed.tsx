@@ -28,9 +28,13 @@ type ReelsFeedProps = {
   posts: ReelPost[];
   currentUserId?: string;
   viewerPet?: { name: string; color: string } | null;
+  /** Scroll infinito FYP */
+  onNearEnd?: () => void;
+  /** Registra watch time para ranking */
+  trackViews?: boolean;
 };
 
-export function ReelsFeed({ posts, viewerPet }: ReelsFeedProps) {
+export function ReelsFeed({ posts, viewerPet, onNearEnd, trackViews }: ReelsFeedProps) {
   const withVideo = posts.filter((p) => p.videoUrl);
 
   if (withVideo.length === 0) {
@@ -63,6 +67,9 @@ export function ReelsFeed({ posts, viewerPet }: ReelsFeedProps) {
             index={i}
             allPosts={withVideo}
             viewerPet={viewerPet}
+            trackViews={trackViews}
+            isLast={i === withVideo.length - 1}
+            onNearEnd={onNearEnd}
           />
         ))}
       </div>
@@ -75,15 +82,24 @@ function ReelItem({
   index,
   allPosts,
   viewerPet,
+  trackViews,
+  isLast,
+  onNearEnd,
 }: {
   post: ReelPost;
   index: number;
   allPosts: ReelPost[];
   viewerPet?: { name: string; color: string } | null;
+  trackViews?: boolean;
+  isLast?: boolean;
+  onNearEnd?: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const lastTap = useRef(0);
+  const watchAccumMs = useRef(0);
+  const lastTick = useRef<number | null>(null);
+  const reportedMs = useRef(0);
   const router = useRouter();
   const toast = useToast();
 
@@ -99,6 +115,23 @@ function ReelItem({
   >([]);
   const [commentText, setCommentText] = useState("");
 
+  const flushViewReport = useCallback(
+    (completed: boolean) => {
+      if (!trackViews) return;
+      const total = watchAccumMs.current;
+      const delta = total - reportedMs.current;
+      if (delta < 800 && !completed) return;
+      reportedMs.current = total;
+      void fetch(`/api/posts/${post.id}/reels-view`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ watchMs: delta, completed }),
+        keepalive: true,
+      });
+    },
+    [post.id, trackViews],
+  );
+
   useEffect(() => {
     const el = ref.current;
     const video = videoRef.current;
@@ -108,7 +141,9 @@ function ReelItem({
       ([entry]) => {
         if (entry.isIntersecting && entry.intersectionRatio >= 0.55) {
           video.muted = muted;
+          lastTick.current = Date.now();
           video.play().catch(() => {});
+          if (isLast) onNearEnd?.();
           const next = allPosts[index + 1];
           if (next) {
             const src = next.videoHlsUrl ?? next.videoUrl;
@@ -120,14 +155,25 @@ function ReelItem({
             }
           }
         } else {
+          if (lastTick.current) {
+            watchAccumMs.current += Date.now() - lastTick.current;
+            lastTick.current = null;
+          }
           video.pause();
+          if (trackViews) flushViewReport(false);
         }
       },
       { threshold: [0, 0.55, 1] },
     );
     observer.observe(el);
-    return () => observer.disconnect();
-  }, [muted, index, allPosts]);
+    return () => {
+      if (lastTick.current) {
+        watchAccumMs.current += Date.now() - lastTick.current;
+      }
+      if (trackViews) flushViewReport(false);
+      observer.disconnect();
+    };
+  }, [muted, index, allPosts, isLast, onNearEnd, trackViews, flushViewReport]);
 
   useEffect(() => {
     if (videoRef.current) videoRef.current.muted = muted;
@@ -160,10 +206,17 @@ function ReelItem({
     try {
       if (navigator.share) {
         await navigator.share({ title: "Brasil Caramelo", url });
-        return;
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast("Link copiado!");
       }
-      await navigator.clipboard.writeText(url);
-      toast("Link copiado!");
+      if (trackViews) {
+        void fetch(`/api/posts/${post.id}/reels-view`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ watchMs: 0, shared: true }),
+        });
+      }
     } catch {
       /* cancelado */
     }
@@ -209,7 +262,15 @@ function ReelItem({
         onClick={onVideoTap}
         onTimeUpdate={(e) => {
           const v = e.currentTarget;
-          if (v.duration) setProgress((v.currentTime / v.duration) * 100);
+          if (lastTick.current) {
+            watchAccumMs.current += Date.now() - lastTick.current;
+          }
+          lastTick.current = Date.now();
+          if (v.duration) {
+            const pct = (v.currentTime / v.duration) * 100;
+            setProgress(pct);
+            if (trackViews && pct >= 92) flushViewReport(true);
+          }
         }}
       />
 

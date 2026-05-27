@@ -15,7 +15,7 @@ import { FeedRefreshButton } from "@/components/FeedRefreshButton";
 import { FlashEventBanner } from "@/components/FlashEventBanner";
 import { InstaFeed } from "@/components/InstaFeed";
 import { PageContainer } from "@/components/PageContainer";
-import { ReelsFeed } from "@/components/ReelsFeed";
+import { CinelarFeed } from "@/components/CinelarFeed";
 import { StoriesBar } from "@/components/StoriesBar";
 import { PostScrollOnLoad } from "@/components/PostScrollOnLoad";
 import { RecentActivity } from "@/components/RecentActivity";
@@ -34,6 +34,7 @@ import {
   fetchFeedPostById,
   parseFeedFilter,
 } from "@/lib/feed-posts";
+import { fetchCinelarFeed } from "@/lib/cinelar-fyp";
 import { prisma } from "@/lib/prisma";
 import { getOnThisDayMemory } from "@/lib/memories";
 import { applyPetDecay, petAvatarStatus } from "@/lib/pet";
@@ -49,10 +50,16 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
   const { filter, post: highlightPostId } = await searchParams;
   const feedFilter = parseFeedFilter(filter);
 
-  const { posts: feedPosts, nextCursor } = await fetchFeedPage(user.id, null, {
-    friendsOnly: feedFilter === "friends",
-    videosOnly: feedFilter === "video",
-  });
+  const isReelsMode = user.viewMode === "REELS";
+
+  const feedResult = isReelsMode
+    ? await fetchCinelarFeed(user.id, null)
+    : await fetchFeedPage(user.id, null, {
+        friendsOnly: feedFilter === "friends",
+        videosOnly: feedFilter === "video",
+      });
+
+  const { posts: feedPosts, nextCursor } = feedResult;
   let mappedPosts = await attachSavedFlags(user.id, feedPosts);
 
   if (highlightPostId && !mappedPosts.some((p) => p.id === highlightPostId)) {
@@ -103,7 +110,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
       ? "Insta Caramelo"
       : "Recados";
   const subtitle = isReels
-    ? "Shorts da matilha — role até o próximo"
+    ? "For You da matilha — descoberta + amigos"
     : isInsta
       ? "Grade de fotos da matilha"
       : "O que a comunidade está latindo";
@@ -245,17 +252,22 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
           </div>
 
           {isReels ? (
-            <ReelsFeed
+            <CinelarFeed
               currentUserId={user.id}
+              initialCursor={nextCursor}
               viewerPet={
                 viewerPet
                   ? { name: viewerPet.name, color: viewerPet.color }
                   : null
               }
-              posts={mappedPosts
+              initialPosts={mappedPosts
                 .filter((p) => p.videoUrl)
                 .map((p) => ({
-                  ...p,
+                  id: p.id,
+                  content: p.content,
+                  likedByMe: p.likedByMe,
+                  author: p.author,
+                  _count: p._count,
                   videoUrl: p.videoUrl!,
                   videoHlsUrl: p.videoHlsUrl ?? null,
                 }))}

@@ -25,7 +25,7 @@ Stack: **um** `docker-compose.yml` + **um** `.env` → app, PostgreSQL, Soketi, 
 12. [Problemas comuns](#12-problemas-comuns)
 13. [Comandos úteis](#13-comandos-úteis)
 14. [Ollama e backup](#14-ollama-e-backup)
-15. [Testes manuais](#15-testes-manuais)
+15. [Testes manuais](#15-testes-manuais) (incl. Cinelar FYP v2.19)
 16. [Vídeo HLS (opcional)](#16-vídeo-hls-opcional)
 17. [Histórico e Gitea](#17-histórico-e-gitea)
 
@@ -528,6 +528,8 @@ Se `brasilcaramelo.com` não resolve no servidor: `bash scripts/setup-https-lan.
 | `CRON_SECRET=` vazio | `bash scripts/ensure-cron-secret.sh` e `docker compose up -d --build` |
 | `git pull` bloqueado em deploy script | `bash scripts/sync-from-git.sh` ou `git checkout -- scripts/deploy-brasil-caramelo.sh && git pull` |
 | Smoke FAIL em register/reputation/premium | `git pull` (v2.9.2+) e `docker compose up -d --build` |
+| `nginx.service failed` no deploy Tailscale | `sudo bash scripts/fix-nginx-tailscale.sh` — só porta **8780** (sem vhosts 80/443) |
+| Cinelar sem ordem “For You” | Migração v2.19: `docker compose exec -T app npx prisma migrate deploy` |
 
 ---
 
@@ -614,6 +616,9 @@ No navegador (mesma rede ou Tailscale):
 1. Abrir a URL do modo escolhido (ex. `https://ntek-servidor....ts.net`)
 2. Criar conta → Feed → publicar recado
 3. Segunda conta → curtir / reputação no perfil
+4. **v2.19** — Modo Cinelar (patinha): badge “For You”; assistir vídeos (ranking por retenção)
+5. **v2.19** — `/matilhas` → enquetes no topo do fórum; perfil Orkut → fotos na coluna direita
+6. **v2.20** — Matilhas filtro 🔥 Quentes; perfil Orkut pills de reputação; configurações → radar com duplo opt-in
 
 **Dev no Windows:**
 

@@ -26,6 +26,8 @@ export function notificationIcon(type: NotificationType): string {
     PATIO_DUEL: "⚔️",
     CAPSULE_RELEASED: "🦴",
     PHOTO_COMMENT: "📷",
+    POLL_RESULTS: "📊",
+    PACK_EVENT_REMINDER: "📅",
   };
   return map[type] ?? "🔔";
 }

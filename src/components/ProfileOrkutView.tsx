@@ -13,6 +13,7 @@ import { CarameloVerificadoBadge } from "@/components/CarameloVerificadoBadge";
 import { FoundingMemberBadge } from "@/components/FoundingMemberBadge";
 import { PatioKingBadge } from "@/components/PatioKingBadge";
 import { CopyProfileLink } from "@/components/CopyProfileLink";
+import { ProfileOrkutTestimonialCrown } from "@/components/ProfileOrkutTestimonialCrown";
 
 type FriendMini = {
   id: string;
@@ -49,6 +50,10 @@ type ProfileOrkutViewProps = {
   accentColor: string;
   centerContent: ReactNode;
   rightExtras?: ReactNode;
+  topTestimonial?: {
+    content: string;
+    fromUser: { name: string; username: string; avatarUrl: string | null };
+  } | null;
 };
 
 /** Layout Orkut clássico — 3 colunas: perfil | conteúdo | conexões. */
@@ -64,6 +69,7 @@ export function ProfileOrkutView({
   accentColor,
   centerContent,
   rightExtras,
+  topTestimonial,
 }: ProfileOrkutViewProps) {
   return (
     <div className="bc-orkut-profile-grid">
@@ -140,6 +146,8 @@ export function ProfileOrkutView({
             <ProfileOrkutSidebarMenu pendingFriends={pendingFriends} />
           )}
         </section>
+
+        <ProfileOrkutTestimonialCrown top={topTestimonial ?? null} />
       </aside>
 
       <div className="bc-orkut-col-center space-y-4">{centerContent}</div>

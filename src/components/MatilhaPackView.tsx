@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
 import { MatilhaEventsPanel } from "@/components/MatilhaEventsPanel";
+import { MatilhaPollsFeed } from "@/components/MatilhaPollsFeed";
 import { UserAvatar } from "@/components/UserAvatar";
 
 type ThreadRow = {
@@ -280,6 +281,8 @@ export function MatilhaPackView({ slug }: MatilhaPackViewProps) {
                 </button>
               </div>
             )}
+
+            <MatilhaPollsFeed slug={slug} />
 
             {pack.goldenThreads.length > 0 && (
               <section className="mb-6">

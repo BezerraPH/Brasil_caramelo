@@ -10,6 +10,15 @@
   --background: #e8f0ec;
   --foreground: #1a2e24;
   --bc-glass: rgba(255, 255, 255, 0.72);
+  /* Brasil Moderno (new_orkut.html) */
+  --brasil-bg: #f4f7f5;
+  --brasil-primary: #005f38;
+  --brasil-primary-hover: #004427;
+  --brasil-secondary: #ffc72c;
+  --brasil-accent-blue: #002776;
+  --brasil-text: #1a2420;
+  --brasil-muted: #60726a;
+  --brasil-border: #e2eae5;
 }
 
 html.dark {
@@ -850,8 +859,99 @@ body {
   }
 }
 
+/* Brasil Moderno — página e navbar */
+.bc-brasil-page {
+  background-color: var(--brasil-bg);
+}
+
+.bc-nav-brasil {
+  @apply border-b bg-bc-white/95 backdrop-blur-md;
+  border-color: var(--brasil-border) !important;
+}
+
+.bc-nav-brasil .font-bold.text-bc-blue {
+  color: var(--brasil-primary);
+}
+
+.bc-luck-widget {
+  border: none;
+  border-radius: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, var(--brasil-primary) 0%, var(--brasil-accent-blue) 100%);
+  color: white;
+  box-shadow: 0 8px 24px rgba(0, 95, 56, 0.15);
+  animation: bc-fade-in-up 0.45s ease both;
+}
+
+.bc-luck-widget-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--brasil-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.bc-luck-widget-text {
+  font-size: 0.875rem;
+  font-style: italic;
+  line-height: 1.6;
+  opacity: 0.95;
+}
+
+.bc-orkut-rating-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid var(--brasil-border);
+  background: var(--brasil-bg);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bc-orkut-rating-pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 95, 56, 0.08);
+}
+
+.bc-orkut-rating-pill-label {
+  color: var(--brasil-muted);
+  font-weight: 500;
+}
+
+.bc-orkut-rating-pill-value {
+  color: var(--brasil-primary);
+}
+
+/* Brasil Moderno — widgets legado */
+.bc-sorte-dia-modern {
+  @apply rounded-2xl border-2 border-bc-caramel/45 bg-gradient-to-br from-[#F4F7F5] to-bc-caramel/12 p-4 shadow-sm;
+  animation: bc-fade-in-up 0.45s ease both;
+}
+
+.bc-cinelar-fyp-badge {
+  animation: bc-fade-in 0.5s ease both;
+}
+
+.bc-orkut-photo-thumb {
+  @apply ring-1 ring-bc-blue/10;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bc-orkut-photo-thumb:hover {
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--bc-caramel) 25%, transparent);
+}
+
 .bc-orkut-card {
   @apply rounded-2xl border-2 border-bc-blue/12 bg-bc-white shadow-sm;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.bc-orkut-card:hover {
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--bc-green) 8%, transparent);
 }
 
 .bc-orkut-sidebar-card {

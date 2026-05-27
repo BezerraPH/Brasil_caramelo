@@ -108,6 +108,10 @@ auth-guard|Duelo pátio|POST|/api/patio-duel|401|
 auth-guard|Fila pão de queijo|GET|/api/matilha/friend-queue|401|
 auth-guard|Álbuns|GET|/api/albums|401|
 auth-guard|Enquete matilha|POST|/api/packs/threads/smoke-test/poll|401|
+auth-guard|Cinelar FYP|GET|/api/posts/cinelar|401|
+auth-guard|Reels view|POST|/api/posts/smoke-test/reels-view|401|
+auth-guard|Polls feed matilha|GET|/api/packs/odeio-acordar-cedo/polls-feed|401|
+auth-guard|Matilhas quentes|GET|/api/packs?sort=hot|401|
 middleware|Fotos exige sessão|GET|/fotos|307,302|
 
 # v2.10.0 — explorar hub, audit tailscale

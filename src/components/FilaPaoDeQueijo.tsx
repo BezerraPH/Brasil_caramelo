@@ -11,6 +11,8 @@ type Suggestion = {
   username: string;
   avatarUrl: string | null;
   sharedPacks: string[];
+  mutualBestFriends?: number;
+  queueScore?: number;
 };
 
 /** Fila do Pão de Queijo — sugestões por Matilhas em comum. */
@@ -34,7 +36,7 @@ export function FilaPaoDeQueijo() {
   if (count === 0) return null;
 
   return (
-    <section className="rounded-2xl border-2 border-bc-caramel/40 bg-gradient-to-br from-[#FFF8F0] to-bc-caramel/15 p-4 shadow-sm">
+    <section className="bc-sorte-dia-modern border-bc-caramel/40 from-[#FFF8F0] to-bc-caramel/15 p-4">
       <h2 className="text-sm font-bold text-bc-caramel">
         🧀 Fila do Pão de Queijo
       </h2>
@@ -56,6 +58,14 @@ export function FilaPaoDeQueijo() {
                 </p>
                 <p className="truncate text-xs text-bc-brown">
                   {s.sharedPacks.slice(0, 2).join(" · ")}
+                  {(s.mutualBestFriends ?? 0) > 0 && (
+                    <span className="text-bc-caramel">
+                      {" "}
+                      · 💛 {s.mutualBestFriends} melhor
+                      {s.mutualBestFriends !== 1 ? "es" : ""} amigo
+                      {s.mutualBestFriends !== 1 ? "s" : ""} em comum
+                    </span>
+                  )}
                 </p>
               </div>
               <span className="text-xs text-bc-caramel">→</span>

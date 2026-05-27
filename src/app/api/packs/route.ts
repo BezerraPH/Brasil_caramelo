@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
+import { scorePackActivity } from "@/lib/pack-activity";
 import { ensureOfficialPacks } from "@/lib/pack-seeds";
 import { prisma } from "@/lib/prisma";
 
@@ -30,7 +31,14 @@ export async function GET(request: Request) {
     );
   }
 
-  if (sort === "members") {
+  const activityMap = await scorePackActivity(packs.map((p) => p.id));
+
+  if (sort === "hot") {
+    packs.sort(
+      (a, b) =>
+        (activityMap.get(b.id)?.score ?? 0) - (activityMap.get(a.id)?.score ?? 0),
+    );
+  } else if (sort === "members") {
     packs.sort((a, b) => b._count.members - a._count.members);
   } else if (sort === "newest") {
     packs.sort(
@@ -56,6 +64,8 @@ export async function GET(request: Request) {
       threadCount: p._count.threads,
       joined: joined.has(p.id),
       createdAt: p.createdAt.toISOString(),
+      activityScore: activityMap.get(p.id)?.score ?? 0,
+      recentReplies: activityMap.get(p.id)?.recentReplies ?? 0,
     })),
   });
 }

@@ -11,15 +11,21 @@ const DONE = [
   { icon: "⚖️", title: "Tribunal do Cão (jurados + coins)" },
   { icon: "🛡️", title: "Cão de Guarda IA" },
   { icon: "🎙️", title: "Latidos ao Vivo (LiveKit + Tailscale)" },
+  { icon: "🎬", title: "Cinelar For You (retenção + descoberta)", phase: "v2.19" },
+  { icon: "📊", title: "Enquetes no topo da Matilha", phase: "v2.19" },
+  { icon: "🇧🇷", title: "Brasil Moderno + Matilhas quentes", phase: "v2.20" },
+  { icon: "👑", title: "Dono do Topo no perfil Orkut", phase: "v2.20" },
   { icon: "🔒", title: "HTTPS / Tailscale / mkcert (CONFIGURACAO.md)" },
   { icon: "🌳", title: "Árvore genealógica DNA" },
   { icon: "🏪", title: "Cupons pet shop regional" },
 ];
 
+/** Espelho dos itens P0/P1 de ROADMAP.md — atualizar ao marcar [x] no roadmap. */
 const FUTURE = [
-  { icon: "💳", title: "Pagamento Pedigree (Pix real)", phase: "Integração" },
-  { icon: "🏪", title: "Pet shops geolocalizados", phase: "Parceiros reais" },
-  { icon: "📱", title: "App nativo (PWA melhorado)", phase: "Planejado" },
+  { icon: "💳", title: "Pagamento Pedigree (Pix real)", phase: "v2.21 · R-MON-01" },
+  { icon: "🎙️", title: "Latidos — reações e link ao evento", phase: "v2.21 · R-LIVE" },
+  { icon: "🔍", title: "Busca Meilisearch", phase: "R-INF-01" },
+  { icon: "📱", title: "PWA install + push tailnet", phase: "v2.22 · R-PWA" },
 ];
 
 export function RoadmapPanel() {
@@ -53,6 +59,9 @@ export function RoadmapPanel() {
 
       <section className="bc-card p-4">
         <h2 className="mb-3 font-bold text-bc-brown">Em breve</h2>
+        <p className="mb-3 text-xs text-bc-brown/80">
+          Checklist completo no repositório: <strong>ROADMAP.md</strong>
+        </p>
         <ul className="space-y-2 text-sm text-bc-brown">
           {FUTURE.map((f) => (
             <li key={f.title} className="flex gap-2">

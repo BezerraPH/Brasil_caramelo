@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["@aws-sdk/client-s3"],
   images: {
     // URLs legadas (posts antigos no Uploadthing) continuam funcionando
     remotePatterns: [

@@ -19,7 +19,7 @@ export async function POST(request: Request, context: RouteContext) {
 
   const ip = getClientIp(request);
   const key = rateLimitKey(user.id, ip);
-  if (!checkRateLimit(key, 30, 10_000, "typing")) {
+  if (!(await checkRateLimit(key, 30, 10_000, "typing"))) {
     return NextResponse.json({ ok: true });
   }
 

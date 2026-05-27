@@ -1,5 +1,7 @@
 "use client";
 
+import { reportOpsClient } from "@/lib/ops-client";
+
 const DB_NAME = "brasil-caramelo-offline";
 const STORE = "pending-posts";
 const DB_VERSION = 1;
@@ -89,7 +91,11 @@ export async function flushOfflinePosts(): Promise<number> {
         await removeOfflinePost(item.id);
         synced += 1;
       }
-    } catch {
+    } catch (e) {
+      reportOpsClient(
+        "offline_queue_fail",
+        e instanceof Error ? e.message : "sync aborted",
+      );
       break;
     }
   }

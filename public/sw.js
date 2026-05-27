@@ -1,5 +1,5 @@
-const CACHE_SHELL = "brasil-caramelo-shell-v3";
-const CACHE_MEDIA = "brasil-caramelo-media-v3";
+const CACHE_SHELL = "brasil-caramelo-shell-v4";
+const CACHE_MEDIA = "brasil-caramelo-media-v4";
 const PRECACHE = ["/", "/feed", "/cachorro", "/manifest.json"];
 
 self.addEventListener("install", (event) => {
@@ -78,4 +78,40 @@ self.addEventListener("sync", (event) => {
       }),
     );
   }
+});
+
+self.addEventListener("push", (event) => {
+  let data = { title: "Brasil Caramelo", body: "Nova atividade na matilha", url: "/notificacoes" };
+  try {
+    data = { ...data, ...JSON.parse(event.data?.text() ?? "{}") };
+  } catch {
+    /* payload inválido */
+  }
+  event.waitUntil(
+    self.registration.showNotification(data.title ?? "Brasil Caramelo", {
+      body: data.body,
+      icon: "/icons/icon.svg",
+      badge: "/icons/icon.svg",
+      data: { url: data.url ?? "/notificacoes" },
+      tag: "bc-push",
+    }),
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const path = event.notification.data?.url ?? "/notificacoes";
+  const target = new URL(path, self.location.origin).href;
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+      for (const client of list) {
+        if (client.url.startsWith(self.location.origin)) {
+          return client.focus().then((c) => {
+            if ("navigate" in c) return c.navigate(target);
+          });
+        }
+      }
+      return clients.openWindow(target);
+    }),
+  );
 });

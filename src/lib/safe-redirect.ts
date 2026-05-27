@@ -11,6 +11,7 @@ const ALLOWED_PREFIXES = [
   "/rolezinho",
   "/batalha",
   "/premium",
+  "/pet-shops",
   "/explorar",
   "/salvos",
   "/notificacoes",

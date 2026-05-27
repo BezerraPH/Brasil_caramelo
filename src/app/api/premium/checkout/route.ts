@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 
-/** Stub de pagamento Pedigree — integração PIX/gateway futura. */
+/** Informações de checkout Pedigree (PIX manual e/ou Mercado Pago). */
 export async function GET() {
   const user = await getCurrentUser();
   if (!user) {
@@ -10,14 +10,21 @@ export async function GET() {
 
   const pixKey = process.env.PEDIGREE_PIX_KEY?.trim();
   const amount = process.env.PEDIGREE_PRICE_BRL?.trim() ?? "19.90";
+  const hasMp = Boolean(process.env.MERCADOPAGO_ACCESS_TOKEN?.trim());
+  const hasWebhook = Boolean(process.env.PREMIUM_WEBHOOK_SECRET?.trim());
 
   return NextResponse.json({
-    provider: pixKey ? "pix_manual" : "coming_soon",
+    provider: hasMp ? "mercadopago" : pixKey ? "pix_manual" : "code_only",
     amountBrl: amount,
     pixKey: pixKey ?? null,
+    hasMercadoPago: hasMp,
+    hasWebhook,
+    createOrderUrl: "/api/premium/orders",
     instructions: pixKey
-      ? "Envie o PIX com seu @username na descrição. Ativação manual em até 24h (alpha)."
-      : "Pagamento automático em breve. Use código Pedigree ou apoie via matilha.",
+      ? "Gere um pedido e use a referência BC-… na descrição do PIX. Confirmação via webhook ou admin."
+      : hasMp
+        ? "Pague com Mercado Pago abaixo."
+        : "Use um código Pedigree em /premium.",
     webhookUrl: "/api/premium/webhook",
   });
 }

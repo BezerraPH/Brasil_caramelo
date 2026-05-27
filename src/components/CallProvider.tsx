@@ -65,6 +65,7 @@ export function CallProvider({
           mode={call.overlay.mode}
           peerName={call.overlay.peer.name}
           status={call.status}
+          icePath={call.icePath}
           onHangup={() => void call.hangup()}
           onAccept={() => void call.acceptCall()}
           onDecline={() => void call.decline()}
@@ -81,4 +82,8 @@ export function useCall(): CallContextValue {
     throw new Error("useCall deve ser usado dentro de CallProvider");
   }
   return ctx;
+}
+
+export function useCallOptional(): CallContextValue | null {
+  return useContext(CallContext);
 }

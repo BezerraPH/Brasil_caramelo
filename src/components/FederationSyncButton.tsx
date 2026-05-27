@@ -57,7 +57,7 @@ export function FederationSyncButton({
         onClick={() => void sync()}
         className={`bc-btn-primary bc-ripple ${fullWidth ? "w-full" : ""}`}
       >
-        {syncing ? "Sincronizando…" : "🌐 Sincronizar matilha LAN"}
+        {syncing ? "Sincronizando…" : "🌐 Sincronizar peers (LAN + Tailscale)"}
       </button>
       {msg && (
         <p className="mt-2 text-xs text-bc-green bc-animate-in">{msg}</p>

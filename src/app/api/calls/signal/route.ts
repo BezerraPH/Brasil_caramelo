@@ -20,7 +20,7 @@ export async function POST(request: Request) {
 
   const ip = getClientIp(request);
   const key = rateLimitKey(user.id, ip);
-  if (!checkRateLimit(key, 60, 60_000, "calls")) {
+  if (!(await checkRateLimit(key, 60, 60_000, "calls"))) {
     return NextResponse.json(
       { error: "Muitas sinalizações de chamada." },
       { status: 429 },

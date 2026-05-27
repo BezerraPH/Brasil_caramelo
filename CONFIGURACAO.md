@@ -178,11 +178,154 @@ Rotas no app: `/latidos` (lista) e `/latidos/[slug]` (sala).
 | Dois aparelhos na mesma Wi‑Fi | Em geral não |
 | Celular 4G ↔ Wi‑Fi | Sim |
 
-### 3.5 Opcional
+### 3.5 Pedigree (PIX e Mercado Pago) — v2.21+
 
 | Variável | Uso |
 |----------|-----|
-| `PREMIUM_CODE` | Pedigree |
+| `PEDIGREE_PIX_KEY` | Chave PIX exibida em `/premium` |
+| `PEDIGREE_PRICE_BRL` | Valor (ex. `19.90`) |
+| `PREMIUM_WEBHOOK_SECRET` | Confirma pagamento em `POST /api/premium/webhook` |
+| `MERCADOPAGO_ACCESS_TOKEN` | Checkout MP + `POST /api/premium/webhook/mercadopago` |
+| `APP_URL` / `NEXT_PUBLIC_APP_URL` | URLs de retorno do MP |
+
+Fluxo: usuário em `/premium` → **Gerar pedido PIX** → referência `BC-{USERNAME}-{XXXX}` na descrição do PIX.  
+Webhook manual (corpo JSON): `{ "status": "approved", "reference": "BC-..." }` com header `X-Webhook-Secret` ou `secret` no body.  
+Códigos demo (`PEDIGREE`, `MATILHA`) continuam em `POST /api/premium` para dev.
+
+Após deploy v2.21: `docker compose exec -T app npx prisma migrate deploy`.
+
+### 3.6 Pet shops parceiros (v2.22+)
+
+| Recurso | Descrição |
+|---------|-----------|
+| `NEXT_PUBLIC_PET_SHOP_REGION` | Região padrão (ex. `Recife`, `Caruaru`) |
+| `/pet-shops` | Mapa e lista por bairro |
+| Radar do perfil | `locationCity` / `locationArea` em /configuracoes ordenam parceiros |
+
+Cupons no banco (`PetShopCoupon`) — migração v2.22 adiciona endereço e coordenadas.  
+API: `GET /api/pet-shop/partners?region=Recife&city=Recife`
+
+### 3.7 WebRTC debug (v2.22+)
+
+Em **/configuracoes → WebRTC avançado**: teste de candidatos ICE (host, srflx, relay).  
+Durante chamada em **/mensagens**, o overlay mostra **P2P direto** ou **Via TURN**.  
+Configure `NEXT_PUBLIC_STUN_URL` e `NEXT_PUBLIC_TURN_URL` (coturn no compose).
+
+### 3.8 Meilisearch (v2.23+)
+
+| Variável | Uso |
+|----------|-----|
+| `MEILISEARCH_HOST` | URL interna (`http://meilisearch:7700` no Docker) |
+| `MEILISEARCH_MASTER_KEY` | Chave master (igual no compose) |
+
+Container `meilisearch` na porta **7700** (localhost). Sem Meili, `/buscar` usa SQL.
+
+Após primeiro deploy com Meili:
+
+```bash
+./scripts/reindex-meilisearch.sh
+# ou: curl -X POST "$APP_URL/api/cron/maintenance?reindex=1" -H "Authorization: Bearer $CRON_SECRET"
+```
+
+Índices: `bc_users`, `bc_posts`. Sincronização incremental ao criar recado ou editar perfil.
+
+### 3.9 Push PWA na tailnet (v2.23+)
+
+```bash
+./scripts/generate-vapid-keys.sh   # copie para .env
+```
+
+| Variável | Uso |
+|----------|-----|
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Chave pública (client + SW) |
+| `VAPID_PRIVATE_KEY` | Servidor — **não commitar** |
+| `VAPID_SUBJECT` | `mailto:` ou URL do app |
+
+Em **/configuracoes → Push na matilha**, o usuário ativa notificações do sistema.  
+Funciona com **HTTPS** (Tailscale Serve ou mkcert). Complementa Pusher (sino ao vivo).
+
+### 3.10 Redis, métricas ops e CI (v2.24+)
+
+| Variável | Uso |
+|----------|-----|
+| `REDIS_URL` | Cache e rate limit (`redis://redis:6379` no Docker) |
+
+Container **redis** no `docker-compose.yml`. Sem Redis, o app usa LRU em memória (menos eficiente em múltiplas réplicas).
+
+Cache quente: lista de Matilhas (`/api/packs`), pet do usuário (`GET /api/pet`), trends da Matilha.
+
+**Observabilidade** (painel em Matilha → saúde da stack + `GET /api/ops/metrics` com `Authorization: Bearer $CRON_SECRET`):
+
+- Falhas HLS no player (`BcVideo`)
+- Flush da fila offline de recados
+- Eventos genéricos via `POST /api/ops/event` (cliente autenticado)
+
+**CI local / GitHub:** workflow `.github/workflows/ci.yml` — lint, build, migrate Postgres, `npm run validate:smoke`.
+
+**Backup:** `./scripts/backup-matilha.sh` (pg_dump + tarball uploads, retenção `RETENTION_DAYS=14`).  
+Agendar: `./scripts/setup-backup-cron.sh` ou `scripts/cron-backup.example`.
+
+### 3.11 MinIO / S3 para mídia (v2.25+)
+
+| Variável | Uso |
+|----------|-----|
+| `S3_ENDPOINT` | URL do MinIO (`http://minio:9000` no Docker) |
+| `S3_ACCESS_KEY` | Usuário (igual `MINIO_ROOT_USER` no compose) |
+| `S3_SECRET_KEY` | Senha (igual `MINIO_ROOT_PASSWORD`) |
+| `S3_BUCKET` | Bucket (`bc-media` padrão) |
+| `S3_REGION` | `us-east-1` (MinIO ignora, SDK exige) |
+
+Container **minio** nas portas **9000** (API) e **9001** (console, localhost).  
+Se `S3_ENDPOINT` estiver preenchido, uploads vão para o bucket; URLs públicas continuam em `/api/media/…`.  
+Sem S3, use `UPLOAD_DIR` como antes.
+
+```bash
+./scripts/setup-minio-bucket.sh   # checagem de saúde
+```
+
+Painel em **/configuracoes → Armazenamento** mostra badge **Disco** ou **S3**.  
+Backup: `backup-matilha.sh` ainda copia `data/uploads`; com MinIO, inclua volume `minio_data` no backup do host.
+
+### 3.12 Comunidades e LGPD (v2.26+)
+
+| Recurso | Onde |
+|---------|------|
+| Comunidades Orkut | `/comunidades` — participar, temas por categoria |
+| Exportar dados | `/configuracoes` → **Exportar meus dados** ou `GET /api/users/me/export` |
+
+A migração `20260609120000_v226_communities` cria tabelas e 6 comunidades demo.  
+Limite de exportação: 3 downloads JSON por hora por conta.
+
+### 3.13 Federação Tailscale (v2.27+)
+
+| Variável | Uso |
+|----------|-----|
+| `FEDERATION_EXPORT_SECRET` | Segredo compartilhado entre servidores (recomendado na tailnet) |
+
+```bash
+./scripts/setup-federation-tailscale.sh
+```
+
+Em **/configuracoes → Caramelo-Sync**: aba **Tailscale**, URL `https://outro-servidor.tailXXXX.ts.net` (HTTPS obrigatório).  
+Use **Testar** (`POST /api/federation/peers/{id}/probe`) antes de sincronizar.
+
+### 3.14 App nativo Capacitor (v2.27+)
+
+O app nativo carrega seu servidor (não embute o build Next no APK).
+
+```bash
+CAPACITOR_SERVER_URL=https://seu-host.tailXXXX.ts.net ./scripts/setup-capacitor.sh
+npm run cap:open:android
+```
+
+Pastas `android/` e `ios/` são geradas localmente (no `.gitignore`).  
+Painel em **/configuracoes → App nativo (Capacitor)**.
+
+### 3.15 Opcional
+
+| Variável | Uso |
+|----------|-----|
+| `PREMIUM_CODE` | Pedigree (legado) |
 | `NEXT_PUBLIC_PET_SHOP_REGION` | `Recife` ou `Caruaru` |
 | `BC_SMOKE_EMAIL` / `BC_SMOKE_PASSWORD` | Conta para smoke tests |
 | `OLLAMA_BASE_URL` | IA local (seção 14) |
@@ -200,6 +343,9 @@ Rotas no app: `/latidos` (lista) e `/latidos/[slug]` (sala).
 | **soketi** | 6001 | WebSocket / Pusher |
 | **coturn** | 3478 | TURN/STUN |
 | **livekit** | 7880–7881, UDP 50000–50100 | Latidos |
+| **meilisearch** | 7700 (localhost) | Busca rápida |
+| **redis** | 6379 (interno) | Cache + rate limit |
+| **minio** | 9000–9001 (localhost) | Mídia S3 (opcional) |
 
 Convive com outros containers no mesmo host (Gitea 3001, Nextcloud 8080, Portainer 8000, etc.) — portas diferentes, sem conflito.
 

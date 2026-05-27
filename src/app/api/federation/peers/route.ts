@@ -5,12 +5,14 @@ import {
   listFederationPeers,
   normalizePeerUrl,
 } from "@/lib/federation";
+import { inferNetworkType } from "@/lib/federation-probe";
 import { prisma } from "@/lib/prisma";
 import { randomBytes } from "crypto";
 
 const peerSchema = z.object({
   name: z.string().min(2).max(40),
   baseUrl: z.string().url().max(200),
+  networkType: z.enum(["lan", "tailnet"]).optional(),
 });
 
 export async function GET() {
@@ -32,17 +34,19 @@ export async function POST(request: Request) {
   const count = await prisma.federationPeer.count({
     where: { ownerId: user.id },
   });
-  if (count >= 5) {
+  if (count >= 8) {
     return NextResponse.json(
-      { error: "Máximo de 5 peers na matilha LAN." },
+      { error: "Máximo de 8 peers federados." },
       { status: 400 },
     );
   }
 
   try {
     const body = await request.json();
-    const { name, baseUrl } = peerSchema.parse(body);
+    const { name, baseUrl, networkType: networkRaw } = peerSchema.parse(body);
     const url = normalizePeerUrl(baseUrl);
+    const networkType =
+      networkRaw ?? inferNetworkType(url);
     const secret = randomBytes(24).toString("hex");
 
     const peer = await prisma.federationPeer.create({
@@ -51,6 +55,7 @@ export async function POST(request: Request) {
         name,
         baseUrl: url,
         secret,
+        networkType,
       },
       select: {
         id: true,

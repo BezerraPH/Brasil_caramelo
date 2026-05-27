@@ -95,7 +95,7 @@ export async function POST(request: Request, context: RouteContext) {
 
   const ip = getClientIp(request);
   const key = rateLimitKey(user.id, ip);
-  if (!checkRateLimit(key, 40, 60_000, "room-chat")) {
+  if (!(await checkRateLimit(key, 40, 60_000, "room-chat"))) {
     return NextResponse.json(
       { error: "Muitas mensagens. Aguarde um momento." },
       { status: 429 },

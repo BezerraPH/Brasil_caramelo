@@ -6,6 +6,8 @@ import {
   releaseTimeCapsules,
   remindPackEvents,
 } from "@/lib/cron-matilha";
+import { isMeilisearchEnabled } from "@/lib/meilisearch";
+import { reindexAllMeilisearch } from "@/lib/meilisearch-index";
 import { refreshMatilhaTrends } from "@/lib/trending";
 
 function authorizeCron(request: Request): boolean {
@@ -23,14 +25,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
   }
 
-  const [battles, stories, trends, capsules, polls, events] = await Promise.all([
-    finalizeExpiredBattles(),
-    purgeExpiredStories(),
-    refreshMatilhaTrends(),
-    releaseTimeCapsules(),
-    notifyClosedPolls(),
-    remindPackEvents(),
-  ]);
+  const reindexSearch =
+    isMeilisearchEnabled() &&
+    new URL(request.url).searchParams.get("reindex") === "1";
+
+  const [battles, stories, trends, capsules, polls, events, search] =
+    await Promise.all([
+      finalizeExpiredBattles(),
+      purgeExpiredStories(),
+      refreshMatilhaTrends(),
+      releaseTimeCapsules(),
+      notifyClosedPolls(),
+      remindPackEvents(),
+      reindexSearch ? reindexAllMeilisearch() : Promise.resolve(null),
+    ]);
 
   return NextResponse.json({
     ok: true,
@@ -40,5 +48,6 @@ export async function POST(request: Request) {
     capsulesReleased: capsules,
     pollsNotified: polls,
     eventReminders: events,
+    searchReindex: search,
   });
 }

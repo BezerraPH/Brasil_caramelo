@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useState } from "react";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
 
@@ -11,6 +12,7 @@ type PackEventItem = {
   startsAt: string;
   rsvpCount: number;
   myRsvp: { ticketToken: string } | null;
+  latidosHref?: string;
 };
 
 type MatilhaEventsPanelProps = {
@@ -147,16 +149,26 @@ export function MatilhaEventsPanel({ slug, joined }: MatilhaEventsPanelProps) {
               <p className="mt-1 text-xs text-bc-green">
                 {e.rsvpCount} confirmado{e.rsvpCount !== 1 ? "s" : ""}
               </p>
-              {joined && (
-                <button
-                  type="button"
-                  disabled={busy === e.id}
-                  onClick={() => rsvp(e.id)}
-                  className="bc-btn-primary mt-2 text-xs"
-                >
-                  {e.myRsvp ? "Ver ingresso 🎫" : "Confirmar presença"}
-                </button>
-              )}
+              <div className="mt-2 flex flex-wrap gap-2">
+                {e.latidosHref && (
+                  <Link
+                    href={e.latidosHref}
+                    className="bc-btn-secondary inline-flex items-center gap-1 text-xs"
+                  >
+                    🎙 Entrar na sala ao vivo
+                  </Link>
+                )}
+                {joined && (
+                  <button
+                    type="button"
+                    disabled={busy === e.id}
+                    onClick={() => rsvp(e.id)}
+                    className="bc-btn-primary text-xs"
+                  >
+                    {e.myRsvp ? "Ver ingresso 🎫" : "Confirmar presença"}
+                  </button>
+                )}
+              </div>
             </li>
           ))}
         </ul>

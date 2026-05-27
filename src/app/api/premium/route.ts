@@ -39,7 +39,7 @@ export async function POST(request: Request) {
 
   const ip = getClientIp(request);
   const key = rateLimitKey(user.id, ip);
-  if (!checkRateLimit(key, 10, 60 * 60_000, "premium")) {
+  if (!(await checkRateLimit(key, 10, 60 * 60_000, "premium"))) {
     return NextResponse.json(
       { error: "Muitas tentativas. Aguarde um momento." },
       { status: 429 },

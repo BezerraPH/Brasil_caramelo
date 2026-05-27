@@ -1,4 +1,3 @@
-import { readFile } from "fs/promises";
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -13,10 +12,10 @@ import {
   moderateImageWithOpenAI,
   moderateTextFull,
 } from "@/lib/content-moderation";
-import { resolveSafePath } from "@/lib/storage";
 import {
   deleteMediaByUrl,
   ensureUploadDirWritable,
+  readMediaBytes,
   saveUploadedFile,
   type UploadKind,
 } from "@/lib/storage";
@@ -39,7 +38,7 @@ export async function POST(request: Request) {
 
   const ip = getClientIp(request);
   const key = rateLimitKey(user.id, ip);
-  if (!checkRateLimit(key, 15, 60_000, "upload")) {
+  if (!(await checkRateLimit(key, 15, 60_000, "upload"))) {
     return NextResponse.json(
       { error: "Muitos uploads. Aguarde um minuto." },
       { status: 429 },
@@ -82,10 +81,9 @@ export async function POST(request: Request) {
     const saved = await saveUploadedFile(file, user.id, kind);
 
     if (saved.mime.startsWith("image/") && saved.mime !== "image/gif") {
-      const abs = resolveSafePath(saved.relativePath);
-      if (abs) {
-        try {
-          const buf = await readFile(abs);
+      try {
+        const buf = await readMediaBytes(saved.relativePath);
+        if (buf) {
           const modLocal = await moderateImageBuffer(buf);
           if (!modLocal.ok) {
             await deleteMediaByUrl(saved.url);
@@ -96,18 +94,18 @@ export async function POST(request: Request) {
             await deleteMediaByUrl(saved.url);
             return NextResponse.json({ error: modOllama.reason }, { status: 400 });
           }
-        } catch {
-          /* ignore */
         }
-        const appUrl = process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL;
-        if (appUrl) {
-          const modAi = await moderateImageWithOpenAI(
-            `${appUrl.replace(/\/$/, "")}${saved.url}`,
-          );
-          if (!modAi.ok) {
-            await deleteMediaByUrl(saved.url);
-            return NextResponse.json({ error: modAi.reason }, { status: 400 });
-          }
+      } catch {
+        /* ignore */
+      }
+      const appUrl = process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL;
+      if (appUrl) {
+        const modAi = await moderateImageWithOpenAI(
+          `${appUrl.replace(/\/$/, "")}${saved.url}`,
+        );
+        if (!modAi.ok) {
+          await deleteMediaByUrl(saved.url);
+          return NextResponse.json({ error: modAi.reason }, { status: 400 });
         }
       }
     }

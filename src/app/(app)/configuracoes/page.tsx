@@ -4,10 +4,14 @@ import { ShareMatilhaLink } from "@/components/ShareMatilhaLink";
 import { GuardDogAssistant } from "@/components/GuardDogAssistant";
 import { FederationPanel } from "@/components/FederationPanel";
 import { AvatarUpload } from "@/components/AvatarUpload";
+import { CapacitorNativePanel } from "@/components/CapacitorNativePanel";
+import { GdprExportPanel } from "@/components/GdprExportPanel";
 import { StoragePanel } from "@/components/StoragePanel";
 import { ProfileThemePicker } from "@/components/ProfileThemePicker";
 import { PrivacyVisitsToggle } from "@/components/PrivacyVisitsToggle";
 import { LocationPinForm } from "@/components/LocationPinForm";
+import { PushNotificationPanel } from "@/components/PushNotificationPanel";
+import { WebRTCDebugPanel } from "@/components/WebRTCDebugPanel";
 import { ProfileInterestsEditor } from "@/components/ProfileInterestsEditor";
 import { EditProfileForm } from "@/components/EditProfileForm";
 import { PageContainer } from "@/components/PageContainer";
@@ -62,6 +66,10 @@ export default async function SettingsPage() {
       />
       <PrivacyVisitsToggle initialShowVisits={full.showVisits} />
       <ProfileThemePicker initialTheme={full.profileTheme} />
+      <CapacitorNativePanel />
+      <PushNotificationPanel />
+      <WebRTCDebugPanel />
+      <GdprExportPanel />
       <StoragePanel />
       <AvatarUpload name={full.name} avatarUrl={full.avatarUrl} />
       <ProfileInterestsEditor initialInterests={full.interests} />

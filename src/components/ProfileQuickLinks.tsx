@@ -5,6 +5,7 @@ const LINKS = [
   { href: "/cachorro", icon: "🐕", label: "Pet" },
   { href: "/depoimentos", icon: "💬", label: "Depoimentos" },
   { href: "/matilhas", icon: "🐾", label: "Matilhas" },
+  { href: "/comunidades", icon: "🏘️", label: "Comunidades" },
   { href: "/explorar", icon: "🧭", label: "Explorar" },
   { href: "/configuracoes", icon: "⚙️", label: "Editar" },
 ] as const;

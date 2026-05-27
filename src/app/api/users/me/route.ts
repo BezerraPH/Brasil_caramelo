@@ -140,6 +140,9 @@ export async function PATCH(request: Request) {
       },
     });
 
+    void import("@/lib/meilisearch-index").then((m) =>
+      m.indexUserDocument(user.id),
+    );
     return NextResponse.json(updated);
   } catch (error) {
     if (error instanceof Error && error.name === "ZodError") {

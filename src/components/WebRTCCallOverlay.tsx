@@ -5,11 +5,17 @@ import {
   canUseMediaDevices,
   mediaDevicesBlockedReason,
 } from "@/lib/media-devices";
+import {
+  icePathBadgeClass,
+  icePathLabel,
+  type IcePathKind,
+} from "@/lib/webrtc-ice-debug";
 
 type WebRTCCallOverlayProps = {
   mode: "outgoing" | "incoming";
   peerName: string;
   status: string;
+  icePath?: IcePathKind;
   onHangup: () => void;
   onAccept: () => void;
   onDecline: () => void;
@@ -23,6 +29,7 @@ export function WebRTCCallOverlay({
   mode,
   peerName,
   status,
+  icePath = "idle",
   onHangup,
   onAccept,
   onDecline,
@@ -49,6 +56,11 @@ export function WebRTCCallOverlay({
       <p className="bc-call-ring mt-2 max-w-sm rounded-full px-4 py-1 text-center text-sm text-white/70">
         {status}
       </p>
+      {icePath !== "idle" && (
+        <span className={`mt-2 ${icePathBadgeClass(icePath)}`}>
+          {icePathLabel(icePath)}
+        </span>
+      )}
 
       {mediaBlocked && (
         <p className="mt-3 max-w-md rounded-lg border border-amber-400/40 bg-amber-500/15 px-3 py-2 text-center text-xs text-amber-100">

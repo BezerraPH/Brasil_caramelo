@@ -6,6 +6,7 @@ import {
 import { unlockAchievement } from "@/lib/achievements";
 import { getCurrentUser } from "@/lib/auth";
 import { signFederationPayload } from "@/lib/federation";
+import { federationSyncTimeoutMs } from "@/lib/federation-probe";
 import { prisma } from "@/lib/prisma";
 import {
   checkRateLimit,
@@ -21,7 +22,7 @@ export async function POST(request: Request) {
 
   const ip = getClientIp(request);
   const key = rateLimitKey(user.id, ip);
-  if (!checkRateLimit(key, 4, 60_000, "federation-sync")) {
+  if (!(await checkRateLimit(key, 4, 60_000, "federation-sync"))) {
     return NextResponse.json(
       { error: "Aguarde antes de sincronizar de novo." },
       { status: 429 },
@@ -49,7 +50,9 @@ export async function POST(request: Request) {
           "X-Federation-Peer-Id": peer.id,
         },
         body,
-        signal: AbortSignal.timeout(8000),
+        signal: AbortSignal.timeout(
+          federationSyncTimeoutMs(peer.networkType),
+        ),
       });
       if (!res.ok) {
         errors.push(`${peer.name}: HTTP ${res.status}`);

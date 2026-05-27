@@ -15,7 +15,7 @@ import { registerSchema } from "@/lib/validators";
 export async function POST(request: Request) {
   const ip = getClientIp(request);
   const key = rateLimitKey(null, ip);
-  if (!checkRateLimit(key, 8, 60 * 60_000, "auth-register")) {
+  if (!(await checkRateLimit(key, 8, 60 * 60_000, "auth-register"))) {
     return NextResponse.json(
       { error: "Muitas contas criadas deste IP. Tente mais tarde." },
       { status: 429 },
@@ -62,6 +62,10 @@ export async function POST(request: Request) {
         pet: { create: {} },
       },
     });
+
+    void import("@/lib/meilisearch-index").then((m) =>
+      m.indexUserDocument(user.id),
+    );
 
     await createSession(user.id);
     return NextResponse.json({ ok: true, username: user.username });

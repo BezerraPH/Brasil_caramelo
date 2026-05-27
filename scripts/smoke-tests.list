@@ -112,6 +112,25 @@ auth-guard|Cinelar FYP|GET|/api/posts/cinelar|401|
 auth-guard|Reels view|POST|/api/posts/smoke-test/reels-view|401|
 auth-guard|Polls feed matilha|GET|/api/packs/odeio-acordar-cedo/polls-feed|401|
 auth-guard|Matilhas quentes|GET|/api/packs?sort=hot|401|
+auth-guard|Premium pedido PIX|POST|/api/premium/orders|401|
+auth-guard|Premium webhook|POST|/api/premium/webhook|401|
+auth-guard|Premium webhook MP|POST|/api/premium/webhook/mercadopago|401|
+auth-guard|LiveKit matilha|GET|/api/livekit/token?room=matilha:odeio-acordar-cedo|401|
+middleware|Latidos matilha exige sessão|GET|/latidos/m/odeio-acordar-cedo|307,302|
+middleware|Pet shops exige sessão|GET|/pet-shops|307,302|
+auth-guard|Pet shop parceiros|GET|/api/pet-shop/partners?region=Recife|401|
+auth-guard|Search status|GET|/api/search/status|401|
+auth-guard|Search reindex|POST|/api/search/reindex|401|
+public-api|Push VAPID public key|GET|/api/push/vapid|200|
+auth-guard|Push subscribe|POST|/api/push/subscribe|401|
+public-api|Cron maintenance reindex param|POST|/api/cron/maintenance?reindex=1|401|
+auth-guard|Ops metrics|GET|/api/ops/metrics|401|
+auth-guard|Ops event|POST|/api/ops/event|401|
+auth-guard|Storage stats|GET|/api/storage/stats|401|
+auth-guard|GDPR export|GET|/api/users/me/export|401|
+public-api|Comunidades list|GET|/api/communities|200|communities
+middleware|Comunidades página|GET|/comunidades|307,302|
+auth-guard|Federation probe|POST|/api/federation/peers/probe-test/probe|401|
 middleware|Fotos exige sessão|GET|/fotos|307,302|
 
 # v2.10.0 — explorar hub, audit tailscale

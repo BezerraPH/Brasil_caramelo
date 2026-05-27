@@ -24,7 +24,7 @@ export default async function ExplorarPage() {
 
   return (
     <PageContainer>
-      <header className="mb-8 text-center bc-animate-in">
+      <header className="bc-explorar-hero mb-8 text-center bc-animate-in">
         <h1 className="bc-shimmer-text text-3xl font-bold text-bc-blue">
           Explorar
         </h1>
@@ -42,9 +42,9 @@ export default async function ExplorarPage() {
       <MatilhaServiceStatus />
 
       <section className="bc-card bc-animate-in mb-8 p-5">
-        <h2 className="font-bold text-bc-blue">🌐 Caramelo-Sync (LAN)</h2>
+        <h2 className="font-bold text-bc-blue">🌐 Caramelo-Sync</h2>
         <p className="mt-1 text-xs text-bc-brown">
-          Importe recados de casinhas de outros servidores na rede local
+          Importe recados de outros servidores na LAN ou na tailnet Tailscale
         </p>
         <FederationSyncButton className="mt-4" fullWidth />
       </section>

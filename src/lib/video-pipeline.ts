@@ -2,6 +2,7 @@ import { execFile } from "child_process";
 import { access, mkdir } from "fs/promises";
 import path from "path";
 import { promisify } from "util";
+import { headObject, isObjectStorageEnabled } from "./object-storage";
 
 const exec = promisify(execFile);
 
@@ -27,13 +28,19 @@ export async function maybeTranscodeToHls(
   const base = path.basename(absoluteVideoPath, path.extname(absoluteVideoPath));
   const outDir = path.join(dir, `${base}_hls`);
   const playlist = path.join(outDir, "playlist.m3u8");
+  const rel = path.dirname(mediaRelativePath);
+  const hlsRelative = `${rel}/${base}_hls/playlist.m3u8`;
 
-  try {
-    await access(playlist);
-    const rel = path.dirname(mediaRelativePath);
-    return `/api/media/${rel}/${base}_hls/playlist.m3u8`;
-  } catch {
-    /* gerar */
+  if (isObjectStorageEnabled()) {
+    const existing = await headObject(hlsRelative);
+    if (existing) return `/api/media/${hlsRelative}`;
+  } else {
+    try {
+      await access(playlist);
+      return `/api/media/${hlsRelative}`;
+    } catch {
+      /* gerar */
+    }
   }
 
   try {
@@ -66,8 +73,7 @@ export async function maybeTranscodeToHls(
       ],
       { timeout: 120_000 },
     );
-    const rel = path.dirname(mediaRelativePath);
-    return `/api/media/${rel}/${base}_hls/playlist.m3u8`;
+    return `/api/media/${hlsRelative}`;
   } catch {
     return null;
   }

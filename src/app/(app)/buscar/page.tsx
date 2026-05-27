@@ -55,6 +55,7 @@ function BuscarContent() {
   const [currentUserId, setCurrentUserId] = useState<string | undefined>();
   const [historyKey, setHistoryKey] = useState(0);
   const [searchFocused, setSearchFocused] = useState(false);
+  const [engine, setEngine] = useState<"meilisearch" | "sql" | null>(null);
 
   const debouncedQ = useDebouncedValue(q, 350);
 
@@ -84,6 +85,7 @@ function BuscarContent() {
         );
         const data = await res.json();
         setUsers(data.users ?? []);
+        setEngine(data.engine ?? "sql");
         setPosts([]);
       } else {
         const tag = trimmed.startsWith("#") ? trimmed.slice(1) : null;
@@ -93,6 +95,7 @@ function BuscarContent() {
         const res = await fetch(url);
         const data = await res.json();
         setPosts(data.posts ?? []);
+        setEngine(data.engine ?? "sql");
         setUsers([]);
       }
       rememberSearchQuery(trimmed);
@@ -128,6 +131,11 @@ function BuscarContent() {
         <p className="text-sm text-bc-brown">
           Pessoas, recados e hashtags — resultados enquanto você digita
         </p>
+        {engine === "meilisearch" && searched && (
+          <p className="bc-search-engine-badge mt-2 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold text-bc-blue">
+            ⚡ Busca Meilisearch
+          </p>
+        )}
       </header>
 
       <BuscarRecentChips

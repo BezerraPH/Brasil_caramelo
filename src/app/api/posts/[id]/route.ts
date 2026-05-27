@@ -27,6 +27,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       where: { id },
       data: { content: body.content.trim() },
     });
+    void import("@/lib/meilisearch-index").then((m) => m.indexPostDocument(id));
     return NextResponse.json({ post: updated });
   } catch {
     return NextResponse.json({ error: "Texto inválido." }, { status: 400 });
@@ -53,5 +54,6 @@ export async function DELETE(_request: Request, context: RouteContext) {
     deleteMediaByUrl(post.videoUrl),
   ]);
   await prisma.post.delete({ where: { id } });
+  void import("@/lib/meilisearch-index").then((m) => m.removePostDocument(id));
   return NextResponse.json({ ok: true });
 }

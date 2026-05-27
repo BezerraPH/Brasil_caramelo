@@ -27,6 +27,12 @@ export function normalizePeerUrl(url: string): string {
   if (!u.startsWith("http://") && !u.startsWith("https://")) {
     throw new Error("URL deve começar com http:// ou https://");
   }
+  const parsed = new URL(u);
+  if (parsed.hostname.endsWith(".ts.net") && parsed.protocol === "http:") {
+    throw new Error(
+      "Peers Tailscale devem usar HTTPS (ex.: https://servidor.tailXXXX.ts.net).",
+    );
+  }
   return u;
 }
 
@@ -38,7 +44,10 @@ export async function listFederationPeers(ownerId: string) {
       id: true,
       name: true,
       baseUrl: true,
+      networkType: true,
       lastSyncAt: true,
+      lastProbeAt: true,
+      lastProbeOk: true,
       createdAt: true,
     },
   });

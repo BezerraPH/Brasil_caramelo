@@ -20,7 +20,7 @@ export async function POST(
 
   const ip = getClientIp(_request);
   const key = rateLimitKey(user.id, ip);
-  if (!checkRateLimit(key, 10, 60_000, "reports")) {
+  if (!(await checkRateLimit(key, 10, 60_000, "reports"))) {
     return NextResponse.json(
       { error: "Muitas denúncias. Tente mais tarde." },
       { status: 429 },

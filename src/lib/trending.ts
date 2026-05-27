@@ -1,3 +1,4 @@
+import { cacheGetJson, cacheSetJson } from "./redis";
 import { prisma } from "./prisma";
 import { VISIBLE_AUTHOR_WHERE, VISIBLE_POST_WHERE } from "./visible-posts";
 
@@ -73,12 +74,20 @@ export async function refreshMatilhaTrends(): Promise<number> {
     ),
   ]);
 
+  const { cacheDelPattern } = await import("./redis");
+  await cacheDelPattern("trends:v1:");
   return top.length;
 }
 
 export async function getMatilhaTrends(limit = 16) {
-  return prisma.matilhaTrend.findMany({
+  const key = `trends:v1:${limit}`;
+  const cached = await cacheGetJson<{ tag: string; count: number }[]>(key);
+  if (cached) return cached;
+
+  const rows = await prisma.matilhaTrend.findMany({
     orderBy: { count: "desc" },
     take: limit,
   });
+  await cacheSetJson(key, rows, 300);
+  return rows;
 }

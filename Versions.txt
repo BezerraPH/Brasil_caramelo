@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-22 (v2.20.0-alpha)
-Versão atual do pacote (package.json): 2.20.0-alpha.0
+Última atualização: 2026-05-22 (v2.27.0-alpha)
+Versão atual do pacote (package.json): 2.27.0-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
@@ -28,15 +28,45 @@ INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
 ================================================================================
 
 Arquivo mestre: ROADMAP.md
-Progresso (manual — atualizar ao marcar itens): P0 4/4 · P1 10/15 · P2 4/8 · P3 0/6
+Progresso (manual — atualizar ao marcar itens): P0 4/4 · P1 15/15 · P2 8/8 · P3 6/6 · V3 4/4
+
+**Roadmap P0–V3: FECHADO** — pronto para deploy.
+
+Concluído em v2.27 (V3):
+  [x] R-V3-03 Federação Tailscale (networkType, probe, timeout 20s)
+  [x] R-V3-04 Capacitor (capacitor.config.ts, setup-capacitor.sh, painel UI)
+
+Concluído em v2.26 (V3):
+  [x] R-V3-01 Comunidades Orkut (temas, /comunidades, participar)
+  [x] R-V3-02 Export GDPR JSON (/api/users/me/export)
+
+Concluído em v2.25 (P3 infra):
+  [x] R-INF-02 MinIO/S3 object storage para mídia (fallback disco local)
+
+Concluído em v2.24 (P3 ops):
+  [x] R-OPS-01 CI GitHub (lint, build, migrate, validate:smoke)
+  [x] R-OPS-02 Redis cache + rate limit (fallback LRU)
+  [x] R-OPS-03 métricas ops (HLS, offline, stack health)
+  [x] R-OPS-04 backup pg_dump + uploads + retenção
+
+Concluído em v2.23 (P1 + P2):
+  [x] R-INF-01 Meilisearch · R-PWA-02 push tailnet · R-INF-03 HTTPS doc
+
+Concluído em v2.22 (P1):
+  [x] R-MON-02 pet shops mapa + geo · R-LIVE-03 WebRTC P2P/TURN debug
+
+Concluído em v2.21 (P1 + P2):
+  [x] R-MON-01 Pedigree PIX + Mercado Pago + webhooks
+  [x] R-LIVE-01 reações rápidas Latidos · R-LIVE-02 sala Matilha × encontros
+  [x] R-PWA-01 banner instalar app
 
 Concluído em v2.20 (P1 + P2):
   [x] R-UI-01 Brasil Moderno · R-ENG-01..07 notificações/cron · R-ENG-04 Matilhas quentes
   [x] R-ENG-05 Dono do Topo · R-UI-03/04/05/06 landing, explorar, sorte, pills reputação
 
-Próximo foco (P1): R-MON-01 Pix Pedigree · R-INF-01 Meilisearch · R-LIVE-01/02 Latidos×Matilha
+Próximo foco: deploy em produção (ver CONFIGURACAO.md).
 
-P3 ops: testes CI, Redis, observabilidade, backup pg_dump + uploads.
+P0–V3: todos os itens do ROADMAP.md concluídos.
 
 Concluídos no roadmap (docs/deploy): R-DOC-01, R-DOC-02 (nginx Tailscale 8780).
 
@@ -243,7 +273,7 @@ DogReputationLevel (10 personalidades ativas):
 [OK] Banner TURN em /mensagens quando NEXT_PUBLIC_TURN_URL não configurado
 [OK] RoadmapPanel alinhado ao Versions.txt [PENDENTE]
 [OK] Moderação local (Cão de Guarda) + vídeo Range/HLS opcional
-[OK] Pedigree PIX stub (/api/premium/checkout)
+[OK] Pedigree PIX — pedidos, checkout, webhook manual e Mercado Pago (/api/premium/*)
 [OK] Notificações com ícone por tipo + marcar lida ao clicar + hora relativa
 [OK] Rate limit em login, cadastro, premium e curtidas
 [OK] API storage/stats sem expor caminho do disco
@@ -343,13 +373,25 @@ DogReputationLevel (10 personalidades ativas):
 [OK] v2.20 — Visual Brasil Moderno (perfil Orkut, pills reputação, sorte do dia)
 [OK] v2.20 — Matilhas sort=hot · Dono do Topo sidebar · notificações poll/evento/cápsula
 [OK] v2.20 — Radar duplo opt-in · cron maintenance expandido
+[OK] v2.21 — PedigreePaymentCard + PremiumOrder + webhooks PIX/MP
+[OK] v2.21 — Latidos reações (data channel) + sala /latidos/m/[packSlug]
+[OK] v2.21 — Encontros Matilha com latidosHref · PwaInstallBanner no layout
+[OK] v2.22 — /pet-shops mapa + GET /api/pet-shop/partners (geo, radar)
+[OK] v2.22 — WebRTCDebugPanel + badge P2P/TURN na chamada
+[OK] v2.23 — Meilisearch (bc_users/bc_posts) + fallback SQL
+[OK] v2.23 — Push PWA VAPID + PushSubscription + sw.js push
+[OK] v2.24 — Redis (cache packs/pet/trends + rate limit async)
+[OK] v2.24 — ops-metrics + /api/ops/event + /api/ops/metrics + MatilhaHealthPanel
+[OK] v2.24 — CI .github/workflows/ci.yml · npm run validate:smoke
+[OK] v2.24 — backup-matilha.sh retenção · setup-backup-cron.sh
+[OK] v2.25 — MinIO/S3 (@aws-sdk/client-s3) · leitura/escrita /api/media via bucket
+[OK] v2.25 — HLS sincronizado para S3 após ffmpeg · StoragePanel badge Disco/S3
+[OK] v2.26 — /comunidades + Community/CommunityMember + temas por categoria
+[OK] v2.26 — GdprExportPanel + GET /api/users/me/export (JSON LGPD)
+[OK] v2.27 — Caramelo-Sync abas LAN/Tailscale + POST probe peer
+[OK] v2.27 — Capacitor (config + setup-capacitor.sh + CapacitorNativePanel)
 
-[PENDENTE] — lista completa e IDs em ROADMAP.md (marcar [x] lá ao concluir)
-  - R-019-01 … R-019-04 — sprint v2.19 (Cinelar FYP + triângulo modos)
-  - R-MON-01 Pix Pedigree real · R-MON-02 pet shops · R-INF-01 Meilisearch
-  - R-UI-01 visual Orkut (new_orkut.html) · R-ENG-* notificações e engajamento
-  - R-OPS-01 testes · R-OPS-02 Redis · R-OPS-03 métricas · R-OPS-04 backup
-  - R-PWA-01/02 PWA · R-LIVE-01/02/03 Latidos/WebRTC/Matilha
+[PENDENTE] — apenas evoluções pós-deploy (fora do roadmap fechado)
   - Ollama: opcional via OLLAMA_BASE_URL (Guarda Pro — já implementado)
   - HTTPS LAN (mkcert): suportado; ver CONFIGURACAO.md — não bloqueia Tailscale
 
@@ -496,6 +538,175 @@ Remote Gitea:
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+v2.27.0-alpha.0 — 2026-05-22 (Federação Tailscale + Capacitor — fim V3)
+------------------------------------------------------------------------------
+  FEDERAÇÃO (R-V3-03):
+  + FederationPeer.networkType (lan | tailnet) · lastProbeAt/Ok
+  + inferNetworkType (*.ts.net) · timeout sync 20s tailnet
+  + POST /api/federation/peers/[id]/probe
+  + FederationPanel abas LAN/Tailscale · botão Testar
+  + setup-federation-tailscale.sh
+
+  CAPACITOR (R-V3-04):
+  + capacitor.config.ts — server.url self-hosted
+  + scripts/setup-capacitor.sh · npm run cap:sync / cap:open:android
+  + CapacitorNativePanel · src/lib/capacitor-env.ts
+  + .gitignore android/ ios/
+
+  FIX:
+  + src/types/ambient-modules.d.ts (hls.js, lru-cache)
+
+  ROADMAP:
+  + V3 4/4 — roadmap fechado para deploy
+
+  * package.json: 2.26.0-alpha.0 → 2.27.0-alpha.0
+
+------------------------------------------------------------------------------
+v2.26.0-alpha.0 — 2026-05-22 (Comunidades Orkut + export LGPD)
+------------------------------------------------------------------------------
+  COMUNIDADES (R-V3-01):
+  + Prisma Community, CommunityMember · migração + seed 6 comunidades
+  + /comunidades · /comunidades/[slug] · temas primary/accent por card
+  + GET /api/communities · POST/DELETE /api/communities/[slug]/join
+  + CommunitiesExplorer · CommunityJoinButton · link opcional Matilha
+
+  GDPR (R-V3-02):
+  + buildUserDataExport — perfil, posts, depoimentos, amigos, álbuns…
+  + GET /api/users/me/export — download JSON (rate limit 3/h)
+  + GdprExportPanel em /configuracoes
+
+  UI:
+  + WelcomeBanner v226 · explorar hub · bc-community-* CSS
+  + ROADMAP seção V3 · contadores P2 8/8 P3 6/6
+
+  * package.json: 2.25.0-alpha.0 → 2.26.0-alpha.0
+
+------------------------------------------------------------------------------
+v2.25.0-alpha.0 — 2026-05-22 (MinIO / S3 para mídia)
+------------------------------------------------------------------------------
+  MINIO (R-INF-02):
+  + Container minio no docker-compose (9000 API, 9001 console)
+  + src/lib/object-storage.ts — S3 compatível (put/get/range/delete/list)
+  + storage.ts — backend local | minio; readMediaBytes, readMediaRange
+  + /api/media — serve do bucket com Range para vídeo
+  + Upload, moderação, delete e stats unificados
+  + transcode-post-video — HLS local + uploadLocalDirectoryToObjectStorage
+  + stack-health + MatilhaHealthPanel — badge MinIO
+  + StoragePanel — backend, bucket, estilos bc-storage-panel
+
+  SCRIPTS:
+  + setup-minio-bucket.sh
+
+  UI:
+  + WelcomeBanner v225 · explorar bc-explorar-hero · animação bc-shimmer-line
+
+  * package.json: 2.24.0-alpha.0 → 2.25.0-alpha.0 · dep @aws-sdk/client-s3
+
+------------------------------------------------------------------------------
+v2.24.0-alpha.0 — 2026-05-22 (Redis, CI, observabilidade, backup)
+------------------------------------------------------------------------------
+  REDIS (R-OPS-02):
+  + Container redis no docker-compose · REDIS_URL
+  + src/lib/redis.ts — getRedis, cacheGet/Set, cacheDelPattern
+  + Cache: GET /api/packs, GET /api/pet, trends Matilha (matilha-cache.ts)
+  + checkRateLimit async — Redis + fallback LRU (18 rotas com await)
+  + invalidatePacksListCache após mutações relevantes
+
+  OBSERVABILIDADE (R-OPS-03):
+  + ops-metrics.ts · ops-client.ts
+  + POST /api/ops/event · GET /api/ops/metrics (CRON_SECRET)
+  + BcVideo reporta erros HLS · OfflinePostBanner flush → ops
+  + stack-health inclui redis/meilisearch · MatilhaHealthPanel
+
+  CI (R-OPS-01):
+  + .github/workflows/ci.yml — lint, build, prisma migrate, validate:smoke
+  + npm run validate:smoke → scripts/validate-smoke-tests.sh
+  + smoke-tests.list: /api/ops/metrics, /api/ops/event
+
+  BACKUP (R-OPS-04):
+  + backup-matilha.sh — pg_dump, tarball uploads, manifest, RETENTION_DAYS
+  + setup-backup-cron.sh — cron diário 3h
+
+  UI:
+  + WelcomeBanner v224 (Redis, ops, CI, backup)
+  + RoadmapPanel — v2.24 entregue; próximo MinIO
+
+  FIX:
+  + Parêntese faltando em 10 rotas com await checkRateLimit (build Turbopack)
+
+  * package.json: 2.23.0-alpha.0 → 2.24.0-alpha.0 · dep redis
+
+------------------------------------------------------------------------------
+v2.23.0-alpha.0 — 2026-05-22 (Meilisearch + push PWA)
+------------------------------------------------------------------------------
+  BUSCA (R-INF-01):
+  + Container meilisearch no docker-compose (porta 7700)
+  + Índices bc_users, bc_posts — reindex + sync incremental
+  + APIs: /api/search/reindex, /api/search/status
+  + /buscar badge "Meilisearch" · suggest tags via Meili
+  + Fallback SQL se Meili indisponível
+
+  PUSH (R-PWA-02):
+  + PushSubscription (Prisma) · /api/push/subscribe · /api/push/vapid
+  + web-push + VAPID · createNotification envia push
+  + PushNotificationPanel em /configuracoes
+  + sw.js v4 — push + notificationclick
+
+  SCRIPTS:
+  + reindex-meilisearch.sh · generate-vapid-keys.sh
+
+  * package.json: 2.22.0-alpha.0 → 2.23.0-alpha.0 · dep web-push
+
+------------------------------------------------------------------------------
+v2.22.0-alpha.0 — 2026-05-22 (Pet shops mapa + WebRTC debug)
+------------------------------------------------------------------------------
+  PET SHOPS (R-MON-02):
+  + PetShopCoupon — city, neighborhood, address, lat/lng, phone, partnerUrl
+  + GET /api/pet-shop/partners — filtro região/cidade/bairro + distância
+  + /pet-shops — PetShopExplorer + PetShopMap (pins animados PE)
+  + Cupons demo atualizados (Recife Boa Viagem, Olinda, Madalena, Caruaru)
+  + PetShopCoupons — endereço, link mapa, /pet-shops
+
+  WEBRTC (R-LIVE-03):
+  + webrtc-ice-debug.ts — gatherIceCandidates, detectActiveIcePath
+  + WebRTCDebugPanel em /configuracoes — teste ICE + status STUN/TURN
+  + Badge P2P / TURN na WebRTCCallOverlay durante chamada
+
+  PRISMA:
+  + Migração 20260607120000_v222_pet_shops_geo
+
+  * package.json: 2.21.0-alpha.0 → 2.22.0-alpha.0
+
+------------------------------------------------------------------------------
+v2.21.0-alpha.0 — 2026-05-22 (Pedigree real + Latidos × Matilha + PWA)
+------------------------------------------------------------------------------
+  MONETIZAÇÃO:
+  + PremiumOrder (referência BC-USER-XXXX) · POST /api/premium/orders
+  + PedigreePaymentCard — copiar referência, link Mercado Pago
+  + POST /api/premium/webhook (PREMIUM_WEBHOOK_SECRET)
+  + POST /api/premium/webhook/mercadopago — confirma pagamento MP
+  + activatePremium + notificação PREMIUM_ACTIVATED
+
+  LATIDOS / MATILHA:
+  + Reações rápidas na sala (encode/decode data channel, UI flutuante)
+  + /latidos/m/[packSlug] — sala LiveKit da Matilha (room matilha:slug)
+  + PackEvent.latidosRoom · link “Entrar na sala ao vivo” nos encontros
+  + matilha-latidos-shared.ts (sem Prisma no client)
+
+  PWA:
+  + PwaInstallBanner — beforeinstallprompt no layout autenticado
+
+  PRISMA:
+  + PremiumOrder, PremiumOrderStatus · NotificationType.PREMIUM_ACTIVATED
+  + Migração 20260606120000_v221_premium_latidos
+
+  DOCS / OPS:
+  + smoke-tests: premium/orders, webhooks, livekit matilha, /latidos/m/
+  + .env.example: PEDIGREE_*, PREMIUM_WEBHOOK_SECRET, MERCADOPAGO_ACCESS_TOKEN
+
+  * package.json: 2.20.0-alpha.0 → 2.21.0-alpha.0
+
 ------------------------------------------------------------------------------
 v2.20.0-alpha.0 — 2026-05-22 (Brasil Moderno + engajamento Matilha)
 ------------------------------------------------------------------------------

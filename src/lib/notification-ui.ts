@@ -28,6 +28,7 @@ export function notificationIcon(type: NotificationType): string {
     PHOTO_COMMENT: "📷",
     POLL_RESULTS: "📊",
     PACK_EVENT_REMINDER: "📅",
+    PREMIUM_ACTIVATED: "👑",
   };
   return map[type] ?? "🔔";
 }

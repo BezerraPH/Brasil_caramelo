@@ -36,6 +36,11 @@ export default async function PremiumPage() {
       )}
 
       <PetShopCoupons region={process.env.NEXT_PUBLIC_PET_SHOP_REGION} />
+      <p className="mt-3 text-center text-xs text-bc-brown">
+        <a href="/pet-shops" className="text-bc-green font-medium hover:underline">
+          🗺 Ver mapa de pet shops por bairro
+        </a>
+      </p>
       {!process.env.NEXT_PUBLIC_PET_SHOP_REGION?.trim() && (
         <p className="bc-card mt-4 p-4 text-center text-xs text-bc-brown">
           Cupons regionais: defina{" "}

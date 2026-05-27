@@ -50,6 +50,7 @@ export const MOBILE_NAV: NavItem[] = [
       "/ranking",
       "/batalha",
       "/premium",
+      "/pet-shops",
       "/rolezinho",
       "/salvos",
       "/tribunal",

@@ -45,7 +45,7 @@ export async function POST(request: Request) {
 
   const ip = getClientIp(request);
   const key = rateLimitKey(user.id, ip);
-  if (!checkRateLimit(key, 20, 60_000, "posts")) {
+  if (!(await checkRateLimit(key, 20, 60_000, "posts"))) {
     return NextResponse.json(
       { error: "Muitos recados em pouco tempo. Aguarde um minuto." },
       { status: 429 },
@@ -93,6 +93,10 @@ export async function POST(request: Request) {
     if (text) {
       await notifyMentions(text, user.id, user.name, post.id);
     }
+
+    void import("@/lib/meilisearch-index").then((m) =>
+      m.indexPostDocument(post.id),
+    );
 
     const newAchievements: AchievementKey[] = [];
 

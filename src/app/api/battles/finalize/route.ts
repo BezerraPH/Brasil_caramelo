@@ -15,7 +15,7 @@ export async function POST(request: Request) {
 
   const ip = getClientIp(request);
   const key = rateLimitKey(user.id, ip);
-  if (!checkRateLimit(key, 6, 60_000, "battle-finalize")) {
+  if (!(await checkRateLimit(key, 6, 60_000, "battle-finalize"))) {
     return NextResponse.json(
       { error: "Muitas finalizações em pouco tempo. Aguarde um minuto." },
       { status: 429 },

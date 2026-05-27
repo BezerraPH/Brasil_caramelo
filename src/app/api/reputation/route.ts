@@ -31,7 +31,7 @@ export async function POST(request: Request) {
 
   const ip = getClientIp(request);
   const key = rateLimitKey(user.id, ip);
-  if (!checkRateLimit(key, 30, 60_000, "reputation")) {
+  if (!(await checkRateLimit(key, 30, 60_000, "reputation"))) {
     return NextResponse.json(
       { error: "Muitos votos de personalidade. Aguarde um momento." },
       { status: 429 },

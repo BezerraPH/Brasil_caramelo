@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { scorePackActivity } from "@/lib/pack-activity";
 import { ensureOfficialPacks } from "@/lib/pack-seeds";
+import { cacheGetJson, cacheSetJson } from "@/lib/redis";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
@@ -15,6 +16,14 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const sort = searchParams.get("sort") ?? "default";
   const q = searchParams.get("q")?.trim().toLowerCase() ?? "";
+
+  const cacheKey = `packs:v1:${user.id}:${sort}:${q}`;
+  const cached = await cacheGetJson<{ packs: unknown[]; cached: boolean }>(
+    cacheKey,
+  );
+  if (cached) {
+    return NextResponse.json({ ...cached, cached: true });
+  }
 
   let packs = await prisma.pack.findMany({
     include: {
@@ -54,7 +63,7 @@ export async function GET(request: Request) {
   });
   const joined = new Set(memberships.map((m) => m.packId));
 
-  return NextResponse.json({
+  const payload = {
     packs: packs.map((p) => ({
       id: p.id,
       slug: p.slug,
@@ -67,5 +76,9 @@ export async function GET(request: Request) {
       activityScore: activityMap.get(p.id)?.score ?? 0,
       recentReplies: activityMap.get(p.id)?.recentReplies ?? 0,
     })),
-  });
+    cached: false,
+  };
+  await cacheSetJson(cacheKey, payload, 90);
+  return NextResponse.json(payload);
 }
+

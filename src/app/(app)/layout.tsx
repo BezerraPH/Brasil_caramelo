@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { AlphaNoticeBanner } from "@/components/AlphaNoticeBanner";
+import { PwaInstallBanner } from "@/components/PwaInstallBanner";
 import { MatilhaConnectionBanner } from "@/components/MatilhaConnectionBanner";
 import { AppVersionFooter } from "@/components/AppVersionFooter";
 import { AppVersionMobileStrip } from "@/components/AppVersionMobileStrip";
@@ -34,6 +35,7 @@ export default async function AppLayout({
         pusherCluster={process.env.NEXT_PUBLIC_PUSHER_CLUSTER ?? null}
       />
       <AlphaNoticeBanner />
+      <PwaInstallBanner />
       <MatilhaConnectionBanner />
       <NavBar
         user={user}

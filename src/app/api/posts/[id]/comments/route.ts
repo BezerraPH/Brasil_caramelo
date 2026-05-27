@@ -52,7 +52,7 @@ export async function POST(
 
   const ip = getClientIp(request);
   const key = rateLimitKey(user.id, ip);
-  if (!checkRateLimit(key, 30, 60_000, "comments")) {
+  if (!(await checkRateLimit(key, 30, 60_000, "comments"))) {
     return NextResponse.json(
       { error: "Muitos comentários. Aguarde um momento." },
       { status: 429 },

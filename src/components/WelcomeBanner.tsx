@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
 
-const KEY = "bc_welcome_dismissed_v2200";
+const KEY = "bc_welcome_dismissed_v2270";
 
 export function WelcomeBanner() {
   const [visible, setVisible] = useState(false);
@@ -24,13 +24,13 @@ export function WelcomeBanner() {
   }
 
   return (
-    <div className="bc-card bc-animate-in mb-4 border-bc-blue/30 bg-gradient-to-r from-bc-blue/10 via-bc-green/10 to-bc-caramel/10 p-4">
+    <div className="bc-card bc-animate-in mb-4 border-bc-blue/35 bg-gradient-to-r from-bc-blue/12 to-bc-green/10 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="font-bold text-bc-blue">🇧🇷 Novidades v2.20!</p>
+          <p className="font-bold text-bc-blue">🎉 Roadmap V3 completo — v2.27!</p>
           <p className="mt-1 text-xs text-bc-brown">
-            Visual Brasil Moderno no Orkut, Matilhas quentes, Dono do Topo na sidebar,
-            notificações de enquete/evento/cápsula e radar com duplo opt-in.
+            Caramelo-Sync com peers Tailscale (*.ts.net), teste de conexão e app
+            nativo Capacitor (scripts/setup-capacitor.sh).
           </p>
         </div>
         <button

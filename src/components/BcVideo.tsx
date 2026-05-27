@@ -1,6 +1,7 @@
 "use client";
 
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
+import { reportOpsClient } from "@/lib/ops-client";
 
 type BcVideoProps = Omit<
   React.VideoHTMLAttributes<HTMLVideoElement>,
@@ -44,6 +45,17 @@ export const BcVideo = forwardRef<HTMLVideoElement, BcVideoProps>(
         if (destroyed || !innerRef.current) return;
         if (Hls.isSupported()) {
           const hls = new Hls({ enableWorker: true });
+          hls.on(Hls.Events.ERROR, (_e, data: unknown) => {
+            const err = data as { fatal?: boolean; type?: string };
+            if (err.fatal) {
+              reportOpsClient(
+                "hls_fatal",
+                `${err.type ?? "?"} · ${streamSrc.slice(0, 120)}`,
+              );
+            } else {
+              reportOpsClient("hls_error", err.type ?? "non-fatal");
+            }
+          });
           hls.loadSource(streamSrc);
           hls.attachMedia(innerRef.current);
           instance = hls;

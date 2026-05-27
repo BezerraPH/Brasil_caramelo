@@ -7,6 +7,10 @@ import {
   getLiveKitRoomName,
   isLiveKitConfigured,
 } from "@/lib/livekit";
+import {
+  canJoinMatilhaLatidos,
+  getMatilhaLatidosRoomName,
+} from "@/lib/matilha-latidos";
 
 export async function GET(request: Request) {
   const user = await getCurrentUser();
@@ -21,13 +25,34 @@ export async function GET(request: Request) {
     );
   }
 
-  const slug = new URL(request.url).searchParams.get("room")?.trim();
-  const casinha = CASINHAS.find((c) => c.slug === slug);
-  if (!casinha) {
+  const roomParam = new URL(request.url).searchParams.get("room")?.trim();
+  if (!roomParam) {
     return NextResponse.json({ error: "Sala inválida." }, { status: 400 });
   }
 
-  const roomName = getLiveKitRoomName(casinha.slug);
+  let roomName: string;
+  let displayName: string;
+
+  if (roomParam.startsWith("matilha:")) {
+    const packSlug = roomParam.slice("matilha:".length);
+    const access = await canJoinMatilhaLatidos(user.id, packSlug);
+    if (!access.ok) {
+      return NextResponse.json(
+        { error: "Entre na Matilha para acessar esta sala." },
+        { status: 403 },
+      );
+    }
+    roomName = getMatilhaLatidosRoomName(packSlug);
+    displayName = access.packName ?? packSlug;
+  } else {
+    const casinha = CASINHAS.find((c) => c.slug === roomParam);
+    if (!casinha) {
+      return NextResponse.json({ error: "Sala inválida." }, { status: 400 });
+    }
+    roomName = getLiveKitRoomName(casinha.slug);
+    displayName = casinha.name;
+  }
+
   const { token, url } = await createLiveKitToken(user.id, user.name, roomName);
   const unlocked = await unlockAchievement(user.id, "LATIDOS_FIRST");
 
@@ -35,6 +60,7 @@ export async function GET(request: Request) {
     token,
     url,
     roomName,
+    displayName,
     newAchievement: unlocked ? "LATIDOS_FIRST" : null,
   });
 }

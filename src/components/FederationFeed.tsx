@@ -12,9 +12,9 @@ export async function FederationFeed() {
 
   return (
     <section className="bc-card bc-animate-in bc-federation-panel mt-8 border-bc-blue/20 p-5">
-      <h2 className="font-bold text-bc-blue">🌐 Matilha conectada (LAN)</h2>
+      <h2 className="font-bold text-bc-blue">🌐 Matilha federada</h2>
       <p className="mt-1 text-xs text-bc-brown">
-        Recados de casinhas em outros servidores Brasil Caramelo
+        Recados de casinhas em outros servidores (LAN ou Tailscale)
       </p>
       <ul className="mt-4 space-y-3">
         {mirrors.map((m, i) => {

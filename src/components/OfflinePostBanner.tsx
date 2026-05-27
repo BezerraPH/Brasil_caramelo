@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
+import { reportOpsClient } from "@/lib/ops-client";
 import { flushOfflinePosts, listOfflinePosts } from "@/lib/offline-post-queue";
 import { useRouter } from "next/navigation";
 
@@ -20,7 +21,10 @@ export function OfflinePostBanner() {
     try {
       const n = await flushOfflinePosts();
       await refresh();
-      if (n > 0) router.refresh();
+      if (n > 0) {
+        reportOpsClient("offline_queue_flush", `${n} recados`);
+        router.refresh();
+      }
     } finally {
       setSyncing(false);
     }

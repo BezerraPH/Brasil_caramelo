@@ -15,14 +15,30 @@ import type { CasinhaConfig } from "@/lib/casinhas";
 import { formatAchievementToast, type AchievementKey } from "@/lib/achievement-defs";
 import { livekitDisconnectMessage } from "@/lib/livekit-errors";
 import {
+  LATIDOS_REACTIONS,
+  decodeLatidosReaction,
+  encodeLatidosReaction,
+} from "@/lib/latidos-reactions";
+import { getMatilhaLatidosTokenRoom } from "@/lib/matilha-latidos-shared";
+import {
   canUseMediaDevices,
   mediaDevicesBlockedReason,
 } from "@/lib/media-devices";
 import { buildIceServers } from "@/lib/webrtc-ice";
 import { useToast } from "./ToastProvider";
 
+export type LatidosRoomIdentity =
+  | { kind: "casinha"; casinha: CasinhaConfig }
+  | { kind: "matilha"; slug: string; name: string; emoji?: string };
+
 type Props = {
-  casinha: CasinhaConfig;
+  room: LatidosRoomIdentity;
+};
+
+type FloatingReaction = {
+  id: string;
+  emoji: string;
+  name: string;
 };
 
 type Speaker = {
@@ -44,7 +60,36 @@ async function playAudioElement(el: HTMLAudioElement) {
   }
 }
 
-export function LatidosRoomClient({ casinha }: Props) {
+function roomToken(room: LatidosRoomIdentity): string {
+  return room.kind === "casinha"
+    ? room.casinha.slug
+    : getMatilhaLatidosTokenRoom(room.slug);
+}
+
+function roomTitle(room: LatidosRoomIdentity): {
+  emoji: string;
+  name: string;
+  tagline: string;
+  accent: string;
+} {
+  if (room.kind === "casinha") {
+    return {
+      emoji: room.casinha.emoji,
+      name: room.casinha.name,
+      tagline: room.casinha.tagline,
+      accent: room.casinha.accent,
+    };
+  }
+  return {
+    emoji: room.emoji ?? "🐾",
+    name: room.name,
+    tagline: "Sala de áudio da Matilha",
+    accent: "#C68642",
+  };
+}
+
+export function LatidosRoomClient({ room }: Props) {
+  const meta = roomTitle(room);
   const toast = useToast();
   const roomRef = useRef<Room | null>(null);
   const audioEls = useRef<Map<string, HTMLAudioElement>>(new Map());
@@ -57,6 +102,7 @@ export function LatidosRoomClient({ casinha }: Props) {
   const [micError, setMicError] = useState<string | null>(null);
   const [needsAudioTap, setNeedsAudioTap] = useState(false);
   const [speakers, setSpeakers] = useState<Speaker[]>([]);
+  const [reactions, setReactions] = useState<FloatingReaction[]>([]);
 
   const livekitConfigured = Boolean(process.env.NEXT_PUBLIC_LIVEKIT_URL?.trim());
   const mediaBlocked = mediaDevicesBlockedReason();
@@ -155,7 +201,7 @@ export function LatidosRoomClient({ casinha }: Props) {
 
     try {
       const res = await fetch(
-        `/api/livekit/token?room=${encodeURIComponent(casinha.slug)}`,
+        `/api/livekit/token?room=${encodeURIComponent(roomToken(room))}`,
       );
       const data = (await res.json()) as {
         token?: string;
@@ -172,7 +218,7 @@ export function LatidosRoomClient({ casinha }: Props) {
         toast(formatAchievementToast(data.newAchievement), "achievement");
       }
 
-      const room = new Room({
+      const lkRoom = new Room({
         adaptiveStream: true,
         dynacast: true,
         audioCaptureDefaults: {
@@ -181,15 +227,15 @@ export function LatidosRoomClient({ casinha }: Props) {
           autoGainControl: true,
         },
       });
-      roomRef.current = room;
+      roomRef.current = lkRoom;
 
-      room.on(RoomEvent.ParticipantConnected, () => refreshSpeakers(room));
-      room.on(RoomEvent.ParticipantDisconnected, () => refreshSpeakers(room));
-      room.on(RoomEvent.LocalTrackPublished, () => refreshSpeakers(room));
-      room.on(RoomEvent.LocalTrackUnpublished, () => refreshSpeakers(room));
-      room.on(RoomEvent.TrackMuted, () => refreshSpeakers(room));
-      room.on(RoomEvent.TrackUnmuted, () => refreshSpeakers(room));
-      room.on(
+      lkRoom.on(RoomEvent.ParticipantConnected, () => refreshSpeakers(lkRoom));
+      lkRoom.on(RoomEvent.ParticipantDisconnected, () => refreshSpeakers(lkRoom));
+      lkRoom.on(RoomEvent.LocalTrackPublished, () => refreshSpeakers(lkRoom));
+      lkRoom.on(RoomEvent.LocalTrackUnpublished, () => refreshSpeakers(lkRoom));
+      lkRoom.on(RoomEvent.TrackMuted, () => refreshSpeakers(lkRoom));
+      lkRoom.on(RoomEvent.TrackUnmuted, () => refreshSpeakers(lkRoom));
+      lkRoom.on(
         RoomEvent.TrackSubscribed,
         (
           track: RemoteTrack,
@@ -197,30 +243,58 @@ export function LatidosRoomClient({ casinha }: Props) {
           participant: RemoteParticipant,
         ) => {
           void attachAudio(track, participant.identity);
-          refreshSpeakers(room);
+          refreshSpeakers(lkRoom);
         },
       );
-      room.on(RoomEvent.TrackUnsubscribed, (track: RemoteTrack) => {
+      lkRoom.on(RoomEvent.TrackUnsubscribed, (track: RemoteTrack) => {
         track.detach().forEach((el) => el.remove());
       });
-      room.on(RoomEvent.Disconnected, (reason?: DisconnectReason) => {
+      lkRoom.on(RoomEvent.Disconnected, (reason?: DisconnectReason) => {
         setStatus("error");
         setDisconnectHint(livekitDisconnectMessage(reason));
         setMicOn(false);
       });
+      lkRoom.on(RoomEvent.DataReceived, (payload) => {
+        const decoded = decodeLatidosReaction(payload);
+        if (!decoded) return;
+        const id = `${Date.now()}-${Math.random()}`;
+        setReactions((prev) => [...prev.slice(-12), { id, ...decoded }]);
+        setTimeout(() => {
+          setReactions((prev) => prev.filter((r) => r.id !== id));
+        }, 2800);
+      });
 
-      await room.connect(data.url, data.token, {
+      await lkRoom.connect(data.url, data.token, {
         rtcConfig: buildIceServers(),
       });
-      await room.localParticipant.setMicrophoneEnabled(false);
+      await lkRoom.localParticipant.setMicrophoneEnabled(false);
 
       setStatus("connected");
       setMicOn(false);
-      refreshSpeakers(room);
+      refreshSpeakers(lkRoom);
     } catch (e) {
       setStatus("error");
       setError(e instanceof Error ? e.message : "Falha ao conectar.");
       await disconnect();
+    }
+  }
+
+  async function sendReaction(emoji: string, label: string) {
+    const lkRoom = roomRef.current;
+    if (!lkRoom || status !== "connected") return;
+    const name = lkRoom.localParticipant.name || "Caramelo";
+    try {
+      await lkRoom.localParticipant.publishData(
+        encodeLatidosReaction({ type: "reaction", emoji, name }),
+        { reliable: true },
+      );
+      const id = `local-${Date.now()}`;
+      setReactions((prev) => [...prev.slice(-12), { id, emoji, name: `${name} · ${label}` }]);
+      setTimeout(() => {
+        setReactions((prev) => prev.filter((r) => r.id !== id));
+      }, 2800);
+    } catch {
+      /* sala cheia */
     }
   }
 
@@ -253,13 +327,13 @@ export function LatidosRoomClient({ casinha }: Props) {
     <div className="space-y-6">
       <section
         className="bc-card bc-latidos-header bc-animate-in p-6 text-center"
-        style={{ borderColor: `${casinha.accent}33` }}
+        style={{ borderColor: `${meta.accent}33` }}
       >
-        <p className="text-4xl">{casinha.emoji}</p>
+        <p className="text-4xl">{meta.emoji}</p>
         <h1 className="bc-shimmer-text mt-2 text-2xl font-bold text-bc-blue">
-          {casinha.name}
+          {meta.name}
         </h1>
-        <p className="mt-1 text-sm text-bc-brown">{casinha.tagline}</p>
+        <p className="mt-1 text-sm text-bc-brown">{meta.tagline}</p>
         <p className="mt-2 text-xs text-bc-brown/80">
           Sala de áudio ao vivo — latidos e papo da matilha
         </p>
@@ -390,6 +464,34 @@ export function LatidosRoomClient({ casinha }: Props) {
                 </p>
               )}
 
+              <div className="bc-latidos-reactions mt-4">
+                <p className="mb-2 text-center text-xs font-semibold text-bc-brown">
+                  Reações rápidas
+                </p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {LATIDOS_REACTIONS.map((r) => (
+                    <button
+                      key={r.id}
+                      type="button"
+                      title={r.label}
+                      onClick={() => void sendReaction(r.emoji, r.label)}
+                      className="bc-latidos-reaction-btn"
+                    >
+                      {r.emoji}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bc-latidos-reaction-floats pointer-events-none relative mt-2 min-h-[2rem]">
+                {reactions.map((r) => (
+                  <span key={r.id} className="bc-latidos-reaction-pop">
+                    {r.emoji}{" "}
+                    <span className="text-[10px] font-medium">{r.name}</span>
+                  </span>
+                ))}
+              </div>
+
               <div className="mt-6 flex flex-wrap justify-center gap-3">
                 <button
                   type="button"
@@ -413,13 +515,29 @@ export function LatidosRoomClient({ casinha }: Props) {
       )}
 
       <p className="text-center text-xs text-bc-brown/70">
-        <Link href={`/casinha/${casinha.slug}`} className="text-bc-green hover:underline">
-          Ver casinha {casinha.emoji}
-        </Link>
-        {" · "}
-        <Link href="/mensagens?tab=rooms" className="text-bc-green hover:underline">
-          Chat da casinha
-        </Link>
+        {room.kind === "casinha" ? (
+          <>
+            <Link
+              href={`/casinha/${room.casinha.slug}`}
+              className="text-bc-green hover:underline"
+            >
+              Ver casinha {room.casinha.emoji}
+            </Link>
+            {" · "}
+            <Link href="/mensagens?tab=rooms" className="text-bc-green hover:underline">
+              Chat da casinha
+            </Link>
+          </>
+        ) : (
+          <>
+            <Link
+              href={`/matilhas/${room.slug}`}
+              className="text-bc-green hover:underline"
+            >
+              ← Voltar à Matilha
+            </Link>
+          </>
+        )}
       </p>
     </div>
   );

@@ -91,6 +91,7 @@ enum NotificationType {
   PHOTO_COMMENT
   POLL_RESULTS
   PACK_EVENT_REMINDER
+  PREMIUM_ACTIVATED
 }
 
 enum PetPokeAction {
@@ -174,6 +175,7 @@ model User {
   petOffspring        PetOffspring[]
   tribunalVotes       TribunalVote[]
   couponRedemptions   PetShopRedemption[]
+  pushSubscriptions   PushSubscription[]
   sentTestimonials    Testimonial[]       @relation("SentTestimonials")
   receivedTestimonials Testimonial[]      @relation("ReceivedTestimonials")
   profileVisitsMade   ProfileVisit[]      @relation("ProfileVisitor")
@@ -193,6 +195,8 @@ model User {
   photoComments       PhotoComment[]
   pollVotes           PollVote[]
   postInteractions    PostInteraction[]
+  premiumOrders       PremiumOrder[]
+  communityMemberships CommunityMember[]
 }
 
 model Session {
@@ -545,17 +549,21 @@ model MatilhaTrend {
 }
 
 model FederationPeer {
-  id         String    @id @default(cuid())
-  ownerId    String
-  name       String
-  baseUrl    String
-  secret     String
-  lastSyncAt DateTime?
-  createdAt  DateTime  @default(now())
-  mirrors    FederatedPostMirror[]
+  id          String    @id @default(cuid())
+  ownerId     String
+  name        String
+  baseUrl     String
+  secret      String
+  networkType String    @default("lan")
+  lastSyncAt  DateTime?
+  lastProbeAt DateTime?
+  lastProbeOk Boolean?
+  createdAt   DateTime  @default(now())
+  mirrors     FederatedPostMirror[]
 
   @@unique([ownerId, baseUrl])
   @@index([ownerId])
+  @@index([networkType])
 }
 
 model FederatedPostMirror {
@@ -659,17 +667,38 @@ model TribunalVote {
   @@unique([caseId, jurorId])
 }
 
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
 model PetShopCoupon {
-  id       String   @id @default(cuid())
-  region   String
-  shopName String
-  title    String
-  code     String   @unique
-  coinCost Int
-  active   Boolean  @default(true)
-  redemptions PetShopRedemption[]
+  id           String   @id @default(cuid())
+  region       String
+  city         String?
+  neighborhood String?
+  address      String?
+  lat          Float?
+  lng          Float?
+  phone        String?
+  partnerUrl   String?
+  shopName     String
+  title        String
+  code         String   @unique
+  coinCost     Int
+  active       Boolean  @default(true)
+  redemptions  PetShopRedemption[]
 
   @@index([region, active])
+  @@index([city, active])
 }
 
 model PetShopRedemption {
@@ -756,8 +785,40 @@ model Pack {
   members PackMember[]
   threads Thread[]
   events  PackEvent[]
+  community Community?
 
   @@index([createdAt])
+}
+
+model Community {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  name         String
+  description  String
+  emoji        String   @default("🏘️")
+  category     String   @default("outros")
+  themePrimary String   @default("#005f38")
+  themeAccent  String   @default("#ffc72c")
+  packId       String?  @unique
+  createdAt    DateTime @default(now())
+
+  pack    Pack?              @relation(fields: [packId], references: [id], onDelete: SetNull)
+  members CommunityMember[]
+
+  @@index([category])
+}
+
+model CommunityMember {
+  id          String   @id @default(cuid())
+  communityId String
+  userId      String
+  joinedAt    DateTime @default(now())
+
+  community Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([communityId, userId])
+  @@index([userId])
 }
 
 model PackMember {
@@ -843,6 +904,28 @@ model PollVote {
   @@index([optionId])
 }
 
+enum PremiumOrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
+
+model PremiumOrder {
+  id         String             @id @default(cuid())
+  userId     String
+  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reference  String             @unique
+  amountBrl  String
+  provider   String             @default("pix_manual")
+  externalId String?
+  status     PremiumOrderStatus @default(PENDING)
+  paidAt     DateTime?
+  createdAt  DateTime           @default(now())
+
+  @@index([userId, status])
+  @@index([status, createdAt])
+}
+
 model PackEvent {
   id          String   @id @default(cuid())
   packId      String
@@ -851,6 +934,7 @@ model PackEvent {
   description String?
   location    String
   startsAt    DateTime
+  latidosRoom String?
   createdAt   DateTime @default(now())
 
   pack    Pack            @relation(fields: [packId], references: [id], onDelete: Cascade)

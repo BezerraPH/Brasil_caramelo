@@ -20,6 +20,10 @@
 # production
 /build
 
+# Capacitor native shells (gerados por setup-capacitor.sh)
+/android/
+/ios/
+
 # misc
 .DS_Store
 *.pem

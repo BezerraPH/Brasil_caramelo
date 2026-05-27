@@ -26,7 +26,7 @@ export async function POST(
 
   const ip = getClientIp(request);
   const key = rateLimitKey(user.id, ip);
-  if (!checkRateLimit(key, 60, 60_000, "like")) {
+  if (!(await checkRateLimit(key, 60, 60_000, "like"))) {
     return NextResponse.json(
       { error: "Muitas reações. Aguarde um momento." },
       { status: 429 },

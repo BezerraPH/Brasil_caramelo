@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
+import {
+  getMatilhaLatidosPath,
+  getMatilhaLatidosTokenRoom,
+} from "@/lib/matilha-latidos-shared";
 import { prisma } from "@/lib/prisma";
 import { packEventSchema } from "@/lib/validators";
 
@@ -40,6 +44,8 @@ export async function GET(_request: Request, context: RouteContext) {
       creator: e.creator,
       rsvpCount: e._count.rsvps,
       myRsvp: e.rsvps[0] ?? null,
+      latidosRoom: e.latidosRoom ?? getMatilhaLatidosTokenRoom(slug),
+      latidosHref: getMatilhaLatidosPath(slug),
     })),
   });
 }
@@ -78,6 +84,7 @@ export async function POST(request: Request, context: RouteContext) {
         description: data.description?.trim() || null,
         location: data.location.trim(),
         startsAt: new Date(data.startsAt),
+        latidosRoom: getMatilhaLatidosTokenRoom(slug),
       },
     });
 

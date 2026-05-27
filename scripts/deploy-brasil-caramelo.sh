@@ -138,6 +138,10 @@ fi
 echo "  Guia:    CONFIGURACAO.md"
 echo "  Auditoria: bash scripts/server-audit.sh"
 echo "  Smoke:     bash scripts/server-smoke.sh"
+echo "  Backup:    bash scripts/backup-matilha.sh  (cron: setup-backup-cron.sh)"
+echo "  MinIO:     bash scripts/setup-minio-bucket.sh  (se S3_* no .env)"
+echo "  Federação: bash scripts/setup-federation-tailscale.sh"
+echo "  Capacitor: CAPACITOR_SERVER_URL=https://seu-host.ts.net ./scripts/setup-capacitor.sh"
 
 if ! grep -qE '^CRON_SECRET=.+' .env 2>/dev/null; then
   echo ""

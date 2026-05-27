@@ -5,6 +5,10 @@ import {
   requestUserMedia,
   vibrateIncomingCall,
 } from "@/lib/media-devices";
+import {
+  detectActiveIcePath,
+  type IcePathKind,
+} from "@/lib/webrtc-ice-debug";
 import { buildIceServers } from "@/lib/webrtc-ice";
 import type { CallSignalPayload } from "./use-realtime-chat";
 
@@ -38,7 +42,9 @@ export function useWebRTCCall(currentUserId: string) {
     callId: string;
   } | null>(null);
   const [status, setStatus] = useState("");
+  const [icePath, setIcePath] = useState<IcePathKind>("idle");
   const pcRef = useRef<RTCPeerConnection | null>(null);
+  const iceMonitorRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
   const callIdRef = useRef<string | null>(null);
   const pendingOfferRef = useRef<string | null>(null);
@@ -46,7 +52,31 @@ export function useWebRTCCall(currentUserId: string) {
   const callAcceptedRef = useRef(false);
   const overlayModeRef = useRef<"outgoing" | "incoming" | null>(null);
 
+  const stopIceMonitor = useCallback(() => {
+    if (iceMonitorRef.current) {
+      clearInterval(iceMonitorRef.current);
+      iceMonitorRef.current = null;
+    }
+    setIcePath("idle");
+  }, []);
+
+  const startIceMonitor = useCallback((pc: RTCPeerConnection) => {
+    stopIceMonitor();
+    const tick = async () => {
+      if (pc.connectionState === "closed") return;
+      setIcePath(await detectActiveIcePath(pc));
+    };
+    void tick();
+    pc.addEventListener("iceconnectionstatechange", () => {
+      void tick();
+    });
+    iceMonitorRef.current = setInterval(() => {
+      void tick();
+    }, 3000);
+  }, [stopIceMonitor]);
+
   const cleanup = useCallback(() => {
+    stopIceMonitor();
     pcRef.current?.close();
     pcRef.current = null;
     localStreamRef.current?.getTracks().forEach((t) => t.stop());
@@ -55,7 +85,7 @@ export function useWebRTCCall(currentUserId: string) {
     pendingOfferRef.current = null;
     callAcceptedRef.current = false;
     overlayModeRef.current = null;
-  }, []);
+  }, [stopIceMonitor]);
 
   const close = useCallback(() => {
     cleanup();
@@ -107,8 +137,9 @@ export function useWebRTCCall(currentUserId: string) {
       }
     };
     pcRef.current = pc;
+    startIceMonitor(pc);
     return pc;
-  }, []);
+  }, [startIceMonitor]);
 
   const answerPendingOffer = useCallback(async () => {
     const sdp = pendingOfferRef.current;
@@ -257,6 +288,7 @@ export function useWebRTCCall(currentUserId: string) {
   return {
     overlay,
     status,
+    icePath,
     startCall,
     acceptCall,
     decline,

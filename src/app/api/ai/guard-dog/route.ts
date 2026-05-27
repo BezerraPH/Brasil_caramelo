@@ -20,7 +20,7 @@ export async function POST(request: Request) {
 
   const ip = getClientIp(request);
   const key = rateLimitKey(user.id, ip);
-  if (!checkRateLimit(key, 8, 60_000, "guard-dog")) {
+  if (!(await checkRateLimit(key, 8, 60_000, "guard-dog"))) {
     return NextResponse.json(
       { error: "O Cão de Guarda precisa descansar. Aguarde um minuto." },
       { status: 429 },

@@ -1,8 +1,18 @@
 import { randomUUID } from "crypto";
-import { mkdir, writeFile, access, readdir, stat, unlink } from "fs/promises";
+import { mkdir, writeFile, access, readdir, stat, unlink, readFile } from "fs/promises";
 import { constants } from "fs";
 import path from "path";
 import { generateBlurDataUrl, generateGridThumbnail, optimizeImageBuffer } from "./image-optimize";
+import {
+  checkObjectStorageReady,
+  deleteObject,
+  getObject,
+  getObjectRange,
+  headObject,
+  isObjectStorageEnabled,
+  listObjectStorageStats,
+  putObject,
+} from "./object-storage";
 
 export type UploadKind =
   | "avatar"
@@ -12,6 +22,8 @@ export type UploadKind =
   | "chatAttachment"
   | "voiceNote"
   | "albumPhoto";
+
+export type StorageBackend = "local" | "minio";
 
 const MIME_EXT: Record<string, string> = {
   "image/jpeg": ".jpg",
@@ -76,6 +88,16 @@ const LIMITS: Record<
 
 const DEFAULT_UPLOAD_SUBDIR = "data/uploads";
 
+export function getStorageBackend(): StorageBackend {
+  return isObjectStorageEnabled() ? "minio" : "local";
+}
+
+export function isSafeRelativePath(relativePath: string): boolean {
+  if (!relativePath || relativePath.includes("..")) return false;
+  const normalized = relativePath.replace(/\\/g, "/");
+  return !normalized.startsWith("/") && !normalized.includes("//");
+}
+
 export function getUploadRoot(): string {
   const custom = process.env.UPLOAD_DIR?.trim();
   if (custom) return custom;
@@ -90,17 +112,27 @@ export function mediaUrlToRelativePath(url: string | null | undefined): string |
   return url.slice("/api/media/".length);
 }
 
-export async function deleteMediaByUrl(url: string | null | undefined): Promise<void> {
-  const relative = mediaUrlToRelativePath(url);
-  if (!relative) return;
+async function deleteRelativePath(relative: string): Promise<void> {
+  if (!isSafeRelativePath(relative)) return;
+  if (isObjectStorageEnabled()) {
+    await deleteObject(relative);
+    await deleteObject(`${relative}.blur`);
+    return;
+  }
   const absolute = resolveSafePath(relative);
   if (!absolute) return;
   try {
     await unlink(absolute);
     await unlink(`${absolute}.blur`).catch(() => {});
   } catch {
-    /* arquivo já removido ou inexistente */
+    /* arquivo já removido */
   }
+}
+
+export async function deleteMediaByUrl(url: string | null | undefined): Promise<void> {
+  const relative = mediaUrlToRelativePath(url);
+  if (!relative) return;
+  await deleteRelativePath(relative);
 }
 
 export async function deletePhotoMedia(
@@ -116,6 +148,7 @@ export function publicMediaUrl(relativePath: string): string {
 }
 
 export function resolveSafePath(relativePath: string): string | null {
+  if (!isSafeRelativePath(relativePath)) return null;
   const root = path.resolve(getUploadRoot());
   const resolved = path.resolve(root, relativePath);
   if (!resolved.startsWith(root + path.sep) && resolved !== root) {
@@ -141,10 +174,84 @@ export function mimeFromPath(filePath: string): string {
   return map[ext] ?? "application/octet-stream";
 }
 
+export async function readMediaBytes(relativePath: string): Promise<Buffer | null> {
+  if (!isSafeRelativePath(relativePath)) return null;
+  if (isObjectStorageEnabled()) {
+    return getObject(relativePath);
+  }
+  const absolute = resolveSafePath(relativePath);
+  if (!absolute) return null;
+  try {
+    return await readFile(absolute);
+  } catch {
+    return null;
+  }
+}
+
+export async function statMediaFile(
+  relativePath: string,
+): Promise<{ size: number } | null> {
+  if (!isSafeRelativePath(relativePath)) return null;
+  if (isObjectStorageEnabled()) {
+    const meta = await headObject(relativePath);
+    return meta ? { size: meta.size } : null;
+  }
+  const absolute = resolveSafePath(relativePath);
+  if (!absolute) return null;
+  try {
+    const s = await stat(absolute);
+    return { size: s.size };
+  } catch {
+    return null;
+  }
+}
+
+export async function readMediaRange(
+  relativePath: string,
+  start: number,
+  end: number,
+): Promise<{ data: Buffer; size: number } | null> {
+  if (!isSafeRelativePath(relativePath)) return null;
+  if (isObjectStorageEnabled()) {
+    const chunk = await getObjectRange(relativePath, start, end);
+    if (!chunk) return null;
+    return { data: chunk.data, size: chunk.size };
+  }
+  const absolute = resolveSafePath(relativePath);
+  if (!absolute) return null;
+  try {
+    const fileStat = await stat(absolute);
+    const data = await readFile(absolute);
+    const chunk = data.subarray(start, end + 1);
+    return { data: chunk, size: fileStat.size };
+  } catch {
+    return null;
+  }
+}
+
+async function writeMediaBytes(
+  relativePath: string,
+  buffer: Buffer,
+  mime: string,
+): Promise<void> {
+  if (!isSafeRelativePath(relativePath)) throw new Error("Caminho inválido.");
+  if (isObjectStorageEnabled()) {
+    await putObject(relativePath, buffer, mime);
+    return;
+  }
+  const absolutePath = resolveSafePath(relativePath);
+  if (!absolutePath) throw new Error("Caminho inválido.");
+  await mkdir(path.dirname(absolutePath), { recursive: true });
+  await writeFile(absolutePath, buffer);
+}
+
 export async function getStorageStats(): Promise<{
   files: number;
   bytes: number;
 }> {
+  if (isObjectStorageEnabled()) {
+    return listObjectStorageStats();
+  }
   const root = getUploadRoot();
   let files = 0;
   let bytes = 0;
@@ -181,7 +288,11 @@ export function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
 }
 
+/** Pasta local gravável ou MinIO acessível. */
 export async function ensureUploadDirWritable(): Promise<boolean> {
+  if (isObjectStorageEnabled()) {
+    return checkObjectStorageReady();
+  }
   const root = getUploadRoot();
   try {
     await mkdir(root, { recursive: true });
@@ -230,29 +341,23 @@ export async function saveUploadedFile(
 
   const fileId = randomUUID();
   const relativePath = `${userId}/${fileId}${ext}`;
-  const absolutePath = resolveSafePath(relativePath);
-  if (!absolutePath) throw new Error("Caminho inválido.");
 
-  await mkdir(path.dirname(absolutePath), { recursive: true });
-  await writeFile(absolutePath, buffer);
+  await writeMediaBytes(relativePath, buffer, mime);
 
   let thumbUrl: string | undefined;
   if (kind === "albumPhoto" && mime.startsWith("image/") && mime !== "image/gif") {
     const thumbBuf = await generateGridThumbnail(buffer);
     if (thumbBuf) {
       const thumbRelative = `${userId}/${fileId}_thumb.webp`;
-      const thumbAbsolute = resolveSafePath(thumbRelative);
-      if (thumbAbsolute) {
-        await writeFile(thumbAbsolute, thumbBuf);
-        thumbUrl = publicMediaUrl(thumbRelative);
-      }
+      await writeMediaBytes(thumbRelative, thumbBuf, "image/webp");
+      thumbUrl = publicMediaUrl(thumbRelative);
     }
   }
 
   if (mime.startsWith("image/") && mime !== "image/gif") {
     const blur = await generateBlurDataUrl(buffer);
     if (blur) {
-      await writeFile(`${absolutePath}.blur`, blur, "utf8");
+      await writeMediaBytes(`${relativePath}.blur`, Buffer.from(blur, "utf8"), "text/plain");
     }
   }
 

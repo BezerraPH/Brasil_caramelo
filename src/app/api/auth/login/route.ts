@@ -12,7 +12,7 @@ import { loginSchema } from "@/lib/validators";
 export async function POST(request: Request) {
   const ip = getClientIp(request);
   const key = rateLimitKey(null, ip);
-  if (!checkRateLimit(key, 20, 15 * 60_000, "auth-login")) {
+  if (!(await checkRateLimit(key, 20, 15 * 60_000, "auth-login"))) {
     return NextResponse.json(
       { error: "Muitas tentativas. Aguarde alguns minutos." },
       { status: 429 },

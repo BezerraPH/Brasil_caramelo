@@ -22,7 +22,7 @@ export async function POST(request: Request, context: RouteContext) {
 
   const ip = getClientIp(request);
   const key = rateLimitKey(user.id, ip);
-  if (!checkRateLimit(key, 5, 60_000, "post-boost")) {
+  if (!(await checkRateLimit(key, 5, 60_000, "post-boost"))) {
     return NextResponse.json(
       { error: "Aguarde antes de impulsionar outro recado." },
       { status: 429 },

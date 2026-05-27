@@ -14,7 +14,7 @@ export default async function LatidosRoomPage({ params }: Props) {
 
   return (
     <PageContainer>
-      <LatidosRoomClient casinha={casinha} />
+      <LatidosRoomClient room={{ kind: "casinha", casinha }} />
     </PageContainer>
   );
 }

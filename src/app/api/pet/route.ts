@@ -4,6 +4,7 @@ import { validationMessage } from "@/lib/api-error";
 import { PREMIUM_PERKS } from "@/lib/constants";
 import { applyCoinMultiplier, getCoinMultiplier } from "@/lib/events";
 import { applyCare, applyPetDecay, petMood } from "@/lib/pet";
+import { cacheDel, cacheGetJson, cacheSetJson } from "@/lib/redis";
 import { prisma } from "@/lib/prisma";
 import { petCareSchema, petUpdateSchema } from "@/lib/validators";
 
@@ -11,6 +12,15 @@ export async function GET() {
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+  }
+
+  const cacheKey = `pet:hot:${user.id}`;
+  const cached = await cacheGetJson<{
+    pet: unknown;
+    mood: string;
+  }>(cacheKey);
+  if (cached) {
+    return NextResponse.json({ ...cached, cached: true });
   }
 
   let pet = await prisma.pet.findUnique({ where: { userId: user.id } });
@@ -37,10 +47,13 @@ export async function GET() {
     });
   }
 
-  return NextResponse.json({
+  const payload = {
     pet: stats,
     mood: petMood(stats),
-  });
+    cached: false,
+  };
+  await cacheSetJson(cacheKey, payload, 45);
+  return NextResponse.json(payload);
 }
 
 export async function PATCH(request: Request) {
@@ -84,6 +97,7 @@ export async function PATCH(request: Request) {
         },
       });
 
+      await cacheDel(`pet:hot:${user.id}`);
       return NextResponse.json({
         pet: saved,
         mood: petMood(saved),
@@ -99,6 +113,7 @@ export async function PATCH(request: Request) {
       },
     });
 
+    await cacheDel(`pet:hot:${user.id}`);
     return NextResponse.json({ pet, mood: petMood(applyPetDecay(pet)) });
   } catch (error) {
     if (error instanceof Error && error.name === "ZodError") {

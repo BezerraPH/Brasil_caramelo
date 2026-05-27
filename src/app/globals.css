@@ -582,6 +582,170 @@ body {
   }
 }
 
+.bc-latidos-reactions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.bc-latidos-reaction-btn {
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--bc-caramel) 35%, transparent);
+  background: color-mix(in srgb, var(--bc-caramel) 12%, white);
+  padding: 0.35rem 0.75rem;
+  font-size: 1.25rem;
+  line-height: 1;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.bc-latidos-reaction-btn:hover {
+  transform: scale(1.12);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--bc-caramel) 25%, transparent);
+}
+
+.bc-latidos-reaction-floats {
+  overflow: hidden;
+}
+
+.bc-latidos-reaction-pop {
+  display: inline-block;
+  margin: 0 0.25rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--bc-green) 15%, white);
+  font-size: 0.75rem;
+  animation: bc-latidos-reaction-pop 2.6s ease-out forwards;
+}
+
+@keyframes bc-latidos-reaction-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.85);
+  }
+  12% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.95);
+  }
+}
+
+.bc-pedigree-pay {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--bc-gold) 8%, white),
+    color-mix(in srgb, var(--bc-caramel) 6%, white)
+  );
+}
+
+.bc-pwa-install-banner {
+  animation-delay: 0.1s;
+}
+
+/* Pet shops — mapa parceiros (v2.22) */
+.bc-pet-shop-map__bg {
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--bc-green) 18%, #e8f5ee) 0%,
+    color-mix(in srgb, var(--bc-blue) 12%, #eef4fa) 45%,
+    color-mix(in srgb, var(--bc-caramel) 10%, #faf6f0) 100%
+  );
+}
+
+.bc-pet-shop-pin {
+  z-index: 5;
+  transition: transform 0.2s ease;
+}
+
+.bc-pet-shop-pin__dot {
+  display: block;
+  font-size: 1.35rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+  animation: bc-pet-shop-bounce 2s ease-in-out infinite;
+}
+
+.bc-pet-shop-pin--active .bc-pet-shop-pin__dot {
+  transform: scale(1.2);
+}
+
+.bc-pet-shop-pin__label {
+  display: block;
+  margin-top: 2px;
+  white-space: nowrap;
+  border-radius: 6px;
+  background: var(--bc-white);
+  padding: 2px 6px;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--bc-green);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.bc-pet-shop-list-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--bc-green) 12%, transparent);
+}
+
+@keyframes bc-pet-shop-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* WebRTC ICE debug (v2.22) */
+.bc-ice-badge {
+  display: inline-block;
+  border-radius: 9999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.bc-ice-badge--p2p {
+  background: color-mix(in srgb, var(--bc-green) 25%, white);
+  color: var(--bc-green);
+}
+
+.bc-ice-badge--turn {
+  background: color-mix(in srgb, #f59e0b 25%, white);
+  color: #92400e;
+}
+
+.bc-ice-badge--checking {
+  background: color-mix(in srgb, var(--bc-blue) 20%, white);
+  color: var(--bc-blue);
+  animation: bc-pulse-soft 1.2s ease-in-out infinite;
+}
+
+.bc-ice-badge--unknown {
+  background: color-mix(in srgb, var(--bc-brown) 15%, white);
+  color: var(--bc-brown);
+}
+
+.bc-webrtc-debug {
+  border-color: color-mix(in srgb, var(--bc-blue) 20%, transparent);
+}
+
+.bc-search-engine-badge {
+  background: color-mix(in srgb, var(--bc-blue) 12%, white);
+  border: 1px solid color-mix(in srgb, var(--bc-blue) 25%, transparent);
+}
+
+.bc-push-panel {
+  border-color: color-mix(in srgb, var(--bc-blue) 18%, transparent);
+}
+
 .bc-page-header {
   @apply border-b border-bc-blue/10 pb-4;
 }
@@ -628,6 +792,107 @@ body {
 
 .bc-health-panel {
   border-color: color-mix(in srgb, var(--bc-green) 25%, transparent);
+}
+
+.bc-storage-panel {
+  border-color: color-mix(in srgb, var(--bc-caramel) 30%, transparent);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--bc-caramel) 8%, var(--bc-white)),
+    var(--bc-white)
+  );
+}
+
+.bc-storage-badge {
+  animation: bc-fade-in-up 0.35s ease both;
+}
+
+.bc-explorar-hero {
+  position: relative;
+}
+
+.bc-explorar-hero::after {
+  content: "";
+  position: absolute;
+  inset: -8px -12px auto;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--bc-caramel),
+    var(--bc-green),
+    transparent
+  );
+  opacity: 0.65;
+  animation: bc-shimmer-line 2.8s ease-in-out infinite;
+}
+
+.bc-community-card {
+  border-color: color-mix(in srgb, var(--bc-community-primary, var(--bc-blue)) 35%, transparent);
+}
+
+.bc-community-card-header {
+  border-bottom: 2px solid color-mix(in srgb, var(--bc-community-accent, var(--bc-caramel)) 40%, transparent);
+}
+
+.bc-community-hero::after {
+  content: "";
+  display: block;
+  width: 4rem;
+  height: 3px;
+  margin: 0.75rem auto 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--bc-green), var(--bc-caramel), var(--bc-blue));
+  animation: bc-shimmer-line 2.5s ease-in-out infinite;
+}
+
+.bc-community-join-pulse {
+  animation: bc-community-pulse 2s ease-in-out infinite;
+}
+
+@keyframes bc-community-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--bc-community-primary, var(--bc-green)) 35%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 6px transparent;
+  }
+}
+
+.bc-federation-panel-v3 {
+  border-color: color-mix(in srgb, var(--bc-blue) 28%, transparent);
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--bc-blue) 6%, var(--bc-white)),
+    var(--bc-white)
+  );
+}
+
+.bc-capacitor-panel {
+  border-color: color-mix(in srgb, var(--bc-caramel) 35%, transparent);
+}
+
+.bc-gdpr-panel {
+  border-color: color-mix(in srgb, var(--bc-blue) 25%, transparent);
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--bc-blue) 6%, var(--bc-white)),
+    var(--bc-white)
+  );
+}
+
+@keyframes bc-shimmer-line {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scaleX(0.85);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scaleX(1);
+  }
 }
 
 .bc-search-live {

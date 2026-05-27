@@ -49,6 +49,9 @@ export function MatilhaHealthPanel() {
   const stack = health.stack
     ? [
         health.stack.soketi,
+        health.stack.redis,
+        health.stack.meilisearch,
+        health.stack.minio,
         health.stack.livekit,
         health.stack.turn,
         health.stack.ollama,

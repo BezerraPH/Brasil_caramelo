@@ -15,18 +15,24 @@ const DONE = [
   { icon: "📊", title: "Enquetes no topo da Matilha", phase: "v2.19" },
   { icon: "🇧🇷", title: "Brasil Moderno + Matilhas quentes", phase: "v2.20" },
   { icon: "👑", title: "Dono do Topo no perfil Orkut", phase: "v2.20" },
+  { icon: "💳", title: "Pedigree PIX + Mercado Pago", phase: "v2.21" },
+  { icon: "🎙️", title: "Latidos reações + sala da Matilha", phase: "v2.21" },
+  { icon: "📱", title: "Banner instalar PWA", phase: "v2.21" },
+  { icon: "🏪", title: "Pet shops — mapa por bairro", phase: "v2.22" },
+  { icon: "📡", title: "WebRTC P2P vs TURN (debug)", phase: "v2.22" },
+  { icon: "🔍", title: "Busca Meilisearch", phase: "v2.23" },
+  { icon: "🔔", title: "Push PWA na tailnet", phase: "v2.23" },
+  { icon: "⚡", title: "Redis + CI + backup ops", phase: "v2.24" },
+  { icon: "📦", title: "MinIO / S3 para mídia", phase: "v2.25" },
+  { icon: "🏘️", title: "Comunidades Orkut + export LGPD", phase: "v2.26" },
+  { icon: "🌐", title: "Caramelo-Sync Tailscale + Capacitor", phase: "v2.27" },
   { icon: "🔒", title: "HTTPS / Tailscale / mkcert (CONFIGURACAO.md)" },
   { icon: "🌳", title: "Árvore genealógica DNA" },
   { icon: "🏪", title: "Cupons pet shop regional" },
 ];
 
 /** Espelho dos itens P0/P1 de ROADMAP.md — atualizar ao marcar [x] no roadmap. */
-const FUTURE = [
-  { icon: "💳", title: "Pagamento Pedigree (Pix real)", phase: "v2.21 · R-MON-01" },
-  { icon: "🎙️", title: "Latidos — reações e link ao evento", phase: "v2.21 · R-LIVE" },
-  { icon: "🔍", title: "Busca Meilisearch", phase: "R-INF-01" },
-  { icon: "📱", title: "PWA install + push tailnet", phase: "v2.22 · R-PWA" },
-];
+const FUTURE: { icon: string; title: string; phase?: string }[] = [];
 
 export function RoadmapPanel() {
   return (
@@ -57,22 +63,12 @@ export function RoadmapPanel() {
         </ul>
       </section>
 
-      <section className="bc-card p-4">
-        <h2 className="mb-3 font-bold text-bc-brown">Em breve</h2>
-        <p className="mb-3 text-xs text-bc-brown/80">
-          Checklist completo no repositório: <strong>ROADMAP.md</strong>
+      <section className="bc-card border-bc-green/30 p-4">
+        <h2 className="mb-2 font-bold text-bc-green">Roadmap V3 ✓</h2>
+        <p className="text-xs text-bc-brown">
+          P0–V3 concluídos — pronto para deploy. Novas ideias fora do{" "}
+          <strong>ROADMAP.md</strong> entram como backlog separado.
         </p>
-        <ul className="space-y-2 text-sm text-bc-brown">
-          {FUTURE.map((f) => (
-            <li key={f.title} className="flex gap-2">
-              <span>{f.icon}</span>
-              <span>
-                <strong>{f.title}</strong>
-                <span className="block text-xs opacity-70">{f.phase}</span>
-              </span>
-            </li>
-          ))}
-        </ul>
       </section>
     </aside>
   );

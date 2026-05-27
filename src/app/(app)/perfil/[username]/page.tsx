@@ -11,6 +11,10 @@ import { PetYardVisit } from "@/components/PetYardVisit";
 import { ReputationBar } from "@/components/ReputationBar";
 import { ReputationPButton } from "@/components/ReputationPButton";
 import { AchievementBadges } from "@/components/AchievementBadges";
+import { MatilhaRadarChart } from "@/components/MatilhaRadarChart";
+import { PatioKingBadge } from "@/components/PatioKingBadge";
+import { ProfileMediaGrid } from "@/components/ProfileMediaGrid";
+import { ProfilePetHighlight } from "@/components/ProfilePetHighlight";
 import { CopyProfileLink } from "@/components/CopyProfileLink";
 import { FeedPost } from "@/components/FeedPost";
 import { UserAvatar } from "@/components/UserAvatar";
@@ -19,7 +23,14 @@ import { getCurrentUser } from "@/lib/auth";
 import { areFriends } from "@/lib/friendship";
 import { getPersonalityTheme } from "@/lib/personality-theme";
 import { prisma } from "@/lib/prisma";
-import { VISIBLE_POST_WHERE } from "@/lib/visible-posts";
+import { FoundingMemberBadge } from "@/components/FoundingMemberBadge";
+import { CarameloRadarBadge } from "@/components/CarameloRadarBadge";
+import { CarameloVerificadoBadge } from "@/components/CarameloVerificadoBadge";
+import { computeMatilhaRadar } from "@/lib/matilha-radar";
+import { computeCarameloTier } from "@/lib/caramelo-tier";
+import { isPatioKing, PROFILE_VIBE_LABELS } from "@/lib/profile-vibe";
+import { VISIBLE_POST_WHERE, capsuleVisibleWhere } from "@/lib/visible-posts";
+import { PROFILE_THEME_BY_ID } from "@/lib/profile-themes";
 import { summarizeReputation } from "@/lib/reputation";
 
 type PageProps = {
@@ -43,7 +54,7 @@ export default async function ProfilePage({ params }: PageProps) {
 
   void checkAndUnlockAchievements(profile.id);
 
-  const [friendCount, myReputation, acceptedTestimonials, viewerPrivacy] =
+  const [friendCount, myReputation, acceptedTestimonials, viewerPrivacy, radar, profilePet, mediaPosts, carameloTier] =
     await Promise.all([
     prisma.friendship.count({
       where: {
@@ -72,6 +83,30 @@ export default async function ProfilePage({ params }: PageProps) {
       where: { id: viewer.id },
       select: { showVisits: true },
     }),
+    computeMatilhaRadar(profile.id),
+    prisma.pet.findUnique({ where: { userId: profile.id } }),
+    prisma.post.findMany({
+      where: {
+        authorId: profile.id,
+        communityLevel: null,
+        ...VISIBLE_POST_WHERE,
+        AND: [
+          capsuleVisibleWhere(viewer.id),
+          { OR: [{ imageUrl: { not: null } }, { videoUrl: { not: null } }] },
+        ],
+      },
+      orderBy: { createdAt: "desc" },
+      take: 24,
+      select: {
+        id: true,
+        content: true,
+        imageUrl: true,
+        videoUrl: true,
+        videoHlsUrl: true,
+        createdAt: true,
+      },
+    }),
+    computeCarameloTier(profile.id),
   ]);
 
   const summary = summarizeReputation(
@@ -81,9 +116,17 @@ export default async function ProfilePage({ params }: PageProps) {
   const isFriend =
     !isOwnProfile && (await areFriends(viewer.id, profile.id));
   const theme = getPersonalityTheme(summary.dominant?.level);
+  const palette = PROFILE_THEME_BY_ID[profile.profileTheme] ?? PROFILE_THEME_BY_ID.CLASSIC;
+  const vibe = profile.profileVibe;
+  const showKing = isPatioKing(profile.patioKingUntil);
 
   const recentPosts = await prisma.post.findMany({
-    where: { authorId: profile.id, communityLevel: null, ...VISIBLE_POST_WHERE },
+    where: {
+      authorId: profile.id,
+      communityLevel: null,
+      ...VISIBLE_POST_WHERE,
+      AND: [capsuleVisibleWhere(viewer.id)],
+    },
     orderBy: { createdAt: "desc" },
     take: 5,
     include: {
@@ -107,8 +150,25 @@ export default async function ProfilePage({ params }: PageProps) {
     likedByMe: p.likes.length > 0,
   }));
 
+  const mediaMapped = mediaPosts.map((p) => ({
+    ...p,
+    createdAt: p.createdAt.toISOString(),
+  }));
+
+  const testimonialsBlock = (
+    <TestimonialsSection
+      toUserId={profile.id}
+      toUsername={profile.username}
+      accepted={acceptedTestimonials.map((t) => ({
+        ...t,
+        acceptedAt: t.acceptedAt?.toISOString() ?? null,
+      }))}
+      canWrite={!isOwnProfile && isFriend}
+    />
+  );
+
   return (
-    <PageContainer narrow className="bc-profile-page">
+    <PageContainer narrow className={`bc-profile-page bc-profile-vibe-${vibe.toLowerCase()}`}>
       {!isOwnProfile && (
         <ProfileVisitTracker
           visitedId={profile.id}
@@ -119,14 +179,9 @@ export default async function ProfilePage({ params }: PageProps) {
         <div
           className={`relative h-28 ${summary.dominant?.level === "HUSKY" ? "bc-profile-banner--husky" : ""}`}
           style={{
-            background: theme
-              ? `linear-gradient(120deg, ${theme.accent} 0%, ${theme.accentSoft} 40%, #2d8b57 100%)`
-              : undefined,
+            background: palette.banner,
           }}
         >
-          {!theme && (
-            <div className="absolute inset-0 bg-gradient-to-r from-bc-blue via-bc-green/80 to-bc-caramel/60" />
-          )}
           {theme?.pattern && theme.pattern !== "none" && (
             <div
               className="absolute inset-0 opacity-60"
@@ -148,7 +203,7 @@ export default async function ProfilePage({ params }: PageProps) {
           <div className="-mt-14 mb-3 flex items-end justify-between gap-4">
             <div
               className="rounded-full border-4 border-bc-white shadow-lg"
-              style={theme ? { borderColor: theme.accent } : undefined}
+              style={{ borderColor: palette.accent }}
             >
               <UserAvatar
                 name={profile.name}
@@ -184,13 +239,35 @@ export default async function ProfilePage({ params }: PageProps) {
             </div>
           </div>
 
-          <h1
-            className="text-2xl font-bold"
-            style={{ color: theme?.accent ?? "var(--bc-blue)" }}
-          >
-            {profile.name}
-          </h1>
-          <p className="text-bc-brown">@{profile.username}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <h1
+              className="text-2xl font-bold"
+              style={{ color: palette.accent }}
+            >
+              {profile.name}
+            </h1>
+            {profile.isFoundingMember && <FoundingMemberBadge />}
+            <CarameloVerificadoBadge tier={carameloTier} />
+            {showKing && <PatioKingBadge />}
+          </div>
+          <p className="text-bc-brown">
+            @{profile.username} · Vibe {PROFILE_VIBE_LABELS[vibe]}
+          </p>
+          {vibe === "FEED" &&
+            profile.showLocation &&
+            profile.locationCity && (
+              <div className="mt-2">
+                <CarameloRadarBadge
+                  city={profile.locationCity}
+                  area={profile.locationArea}
+                />
+              </div>
+            )}
+          {isOwnProfile && profile.biscuitBalance > 0 && (
+            <p className="mt-1 text-xs text-bc-caramel">
+              🍪 {profile.biscuitBalance} biscoito{profile.biscuitBalance !== 1 ? "s" : ""} recebidos
+            </p>
+          )}
           {profile.bio && (
             <p className="mt-3 text-sm leading-relaxed text-bc-brown">
               {profile.bio}
@@ -207,6 +284,46 @@ export default async function ProfilePage({ params }: PageProps) {
           {isOwnProfile && <ProfileQuickLinks />}
           {isOwnProfile && <ProfileVisitorsPanel />}
 
+          {vibe === "INSTA" && profilePet && (
+            <ProfilePetHighlight
+              petName={profilePet.name}
+              petColor={profilePet.color}
+              level={profilePet.level}
+            />
+          )}
+
+          {vibe === "INSTA" && (
+            <section className="mt-6">
+              <h2 className="mb-3 font-bold text-bc-blue">Grid de fotos</h2>
+              <ProfileMediaGrid posts={mediaMapped} mode="INSTA" />
+            </section>
+          )}
+
+          {vibe === "REELS" && (
+            <section className="mt-6">
+              <h2 className="mb-3 font-bold text-bc-blue">Vídeos curtos</h2>
+              <ProfileMediaGrid posts={mediaMapped} mode="REELS" />
+            </section>
+          )}
+
+          {vibe === "FEED" && (
+            <>
+              {testimonialsBlock}
+              <section className="mt-4">
+                <Link
+                  href={isOwnProfile ? "/amigos" : `/amigos`}
+                  className="bc-btn-secondary inline-flex text-sm"
+                >
+                  👥 {friendCount} amigo{friendCount !== 1 ? "s" : ""} da matilha
+                </Link>
+              </section>
+            </>
+          )}
+
+          <section className="mt-6">
+            <MatilhaRadarChart stats={radar.stats} />
+          </section>
+
           <section className="mt-6">
             <ReputationBar summary={summary} />
             {!isOwnProfile && (
@@ -219,27 +336,30 @@ export default async function ProfilePage({ params }: PageProps) {
 
           {!isOwnProfile && <PetYardVisit ownerUserId={profile.id} />}
 
-          <TestimonialsSection
-            toUserId={profile.id}
-            toUsername={profile.username}
-            accepted={acceptedTestimonials.map((t) => ({
-              ...t,
-              acceptedAt: t.acceptedAt?.toISOString() ?? null,
-            }))}
-            canWrite={!isOwnProfile && isFriend}
-          />
+          {vibe !== "FEED" && testimonialsBlock}
 
           <AchievementBadges userId={profile.id} />
 
-          {profilePosts.length > 0 && (
+          {(vibe === "FEED" || vibe === "INSTA") && profilePosts.length > 0 && (
             <section className="mt-8 space-y-4 border-t border-bc-blue/10 pt-6">
-              <h2 className="font-bold text-bc-blue">Últimos recados</h2>
+              <h2 className="font-bold text-bc-blue">
+                {vibe === "INSTA" ? "Legenda recente" : "Últimos recados"}
+              </h2>
               {profilePosts.map((post) => (
                 <FeedPost
                   key={post.id}
                   post={post}
                   currentUserId={viewer.id}
                 />
+              ))}
+            </section>
+          )}
+
+          {vibe === "REELS" && profilePosts.filter((p) => p.videoUrl).length === 0 && profilePosts.length > 0 && (
+            <section className="mt-8 space-y-4 border-t border-bc-blue/10 pt-6">
+              <h2 className="font-bold text-bc-blue">Recados</h2>
+              {profilePosts.map((post) => (
+                <FeedPost key={post.id} post={post} currentUserId={viewer.id} />
               ))}
             </section>
           )}

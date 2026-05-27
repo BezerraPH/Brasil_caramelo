@@ -22,6 +22,9 @@ export function notificationIcon(type: NotificationType): string {
     TESTIMONIAL_NEW: "📝",
     TESTIMONIAL_ACCEPTED: "👑",
     PET_POKE: "🐾",
+    BISCUIT_RECEIVED: "🍪",
+    PATIO_DUEL: "⚔️",
+    CAPSULE_RELEASED: "🦴",
   };
   return map[type] ?? "🔔";
 }

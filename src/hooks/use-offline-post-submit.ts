@@ -23,6 +23,7 @@ export function useOfflinePostSubmit() {
         videoUrl?: string;
         videoHlsUrl?: string;
         communityLevel?: string;
+        buryBone?: boolean;
       },
       onError: (msg: string) => void,
     ): Promise<PostSubmitResult> => {

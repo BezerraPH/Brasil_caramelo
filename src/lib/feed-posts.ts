@@ -2,7 +2,7 @@ import type { Prisma } from "@/generated/prisma/client";
 import { getFriendIds } from "./friendship";
 import { expirePostBoosts } from "./post-boost";
 import { prisma } from "./prisma";
-import { VISIBLE_AUTHOR_WHERE, VISIBLE_POST_WHERE } from "./visible-posts";
+import { VISIBLE_AUTHOR_WHERE, VISIBLE_POST_WHERE, capsuleVisibleWhere } from "./visible-posts";
 import { applyPetDecay, petAvatarStatus, type PetAvatarStatus } from "./pet";
 
 export const FEED_PAGE_SIZE = 12;
@@ -116,6 +116,7 @@ export async function fetchFeedPage(
     where: {
       communityLevel: null,
       ...VISIBLE_POST_WHERE,
+      ...capsuleVisibleWhere(viewerId),
       ...(authorFilter ? { author: authorFilter } : {}),
       ...(options?.videosOnly ? { videoUrl: { not: null } } : {}),
     },
@@ -165,6 +166,7 @@ export async function fetchFeedPostById(viewerId: string, postId: string) {
       id: postId,
       communityLevel: null,
       ...VISIBLE_POST_WHERE,
+      ...capsuleVisibleWhere(viewerId),
       author: VISIBLE_AUTHOR_WHERE,
     },
     include: {

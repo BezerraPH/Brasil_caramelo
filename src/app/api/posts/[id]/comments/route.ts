@@ -73,15 +73,23 @@ export async function POST(
 
   try {
     const body = await request.json();
-    const { content } = commentSchema.parse(body);
+    const { content, audioUrl } = commentSchema.parse(body);
 
-    const mod = await moderateTextFull(content);
-    if (!mod.ok) {
-      return NextResponse.json({ error: mod.reason }, { status: 400 });
+    const text = content?.trim() ?? "";
+    if (text) {
+      const mod = await moderateTextFull(text);
+      if (!mod.ok) {
+        return NextResponse.json({ error: mod.reason }, { status: 400 });
+      }
     }
 
     const comment = await prisma.comment.create({
-      data: { postId, authorId: user.id, content },
+      data: {
+        postId,
+        authorId: user.id,
+        content: text || "🎙️ Scrap por voz",
+        audioUrl: audioUrl ?? null,
+      },
       include: {
         author: {
           select: { id: true, name: true, username: true, avatarUrl: true },

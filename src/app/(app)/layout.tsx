@@ -10,6 +10,7 @@ import { NavBar } from "@/components/NavBar";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { ToastProvider } from "@/components/ToastProvider";
 import { ViewModeSwitcher } from "@/components/ViewModeSwitcher";
+import { ModeShell } from "@/components/ModeShell";
 import { getCurrentUser } from "@/lib/auth";
 
 export default async function AppLayout({
@@ -39,7 +40,9 @@ export default async function AppLayout({
         pusherKey={process.env.NEXT_PUBLIC_PUSHER_KEY ?? null}
         pusherCluster={process.env.NEXT_PUBLIC_PUSHER_CLUSTER ?? null}
       />
+      <ModeShell viewMode={user.viewMode}>
       {children}
+      </ModeShell>
       <AppVersionFooter />
       <AppVersionMobileStrip />
       <MobileNav

@@ -27,6 +27,7 @@ const KINDS = new Set<UploadKind>([
   "postVideo",
   "story",
   "chatAttachment",
+  "voiceNote",
 ]);
 
 export async function POST(request: Request) {

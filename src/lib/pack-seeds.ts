@@ -22,6 +22,13 @@ export const OFFICIAL_PACKS = [
       "Matilha raiz de gente boa. Café, conversa fiada e aquele pix simbólico de R$ 2.",
     bannerColor: "#C68642",
   },
+  {
+    slug: "culinaria-da-matilha",
+    name: "Culinária da Matilha",
+    description:
+      "Comida de avó, miojo elevado e debate eterno: pão de queijo é janta?",
+    bannerColor: "#2D8B57",
+  },
 ] as const;
 
 /** Garante Matilhas oficiais do ALPHA (idempotente). */

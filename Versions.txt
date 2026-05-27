@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-23 (v2.12.0-alpha)
-Versão atual do pacote (package.json): 2.12.0-alpha.0
+Última atualização: 2026-05-22 (v2.15.0-alpha)
+Versão atual do pacote (package.json): 2.15.0-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA:
@@ -453,6 +453,84 @@ Remote Gitea:
 ================================================================================
 
 ------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+v2.15.0-alpha.0 — 2026-05-22 (radar, fila, selo ouro, uivo, luar, desafio)
+------------------------------------------------------------------------------
+  APP / UX:
+  + Radar de Caramelo — pin cidade/bairro; selo "circulando por…" no modo Orkut
+  + Fila do Pão de Queijo — sugestões por Matilhas em comum (contador de curiosidade)
+  + Caramelo de Ouro — selo Bronze/Prata/Ouro por perfil, depoimentos e Matilha
+  + Diário de Bordo do Pet — mascot reage ao curtir no Cinelar
+  + Uivo (Whisper) — recado de voz 10s com onda temática
+  + Luar da Matilha — dark mode #0A192F + Caramelo #C68642 (substitui dark genérico)
+  + Desafio de Tópico do Dia — pergunta diária linkando Matilha
+
+  PRISMA:
+  + User: locationCity, locationArea, showLocation (default false)
+
+  API:
+  + GET /api/matilha/friend-queue
+  + PATCH /api/users/me — locationCity, locationArea, showLocation
+
+  MATILHAS:
+  + Seed "Culinária da Matilha" (culinaria-da-matilha)
+
+  * package.json: 2.14.0-alpha.0 → 2.15.0-alpha.0
+
+------------------------------------------------------------------------------
+v2.14.0-alpha.0 — 2026-05-26 (vibe perfil, raio-X, duelo, voz, cápsula)
+------------------------------------------------------------------------------
+  APP / UX:
+  + profileVibe — perfil Orkut / Insta / Cinelar (layout radical por modo)
+  + MatilhaRadarChart — hexágono RPG (Social, Fofoqueiro, Criativo…)
+  + Duelo de Pátio — Rei do Pátio 👑 por 24h
+  + Scraps por voz — 15s em depoimentos e comentários
+  + Lousa de recados — papel Orkut, cursor 🐾 / ▶ por modo
+  + Cápsula do Tempo — 🦴 Enterrar osso (30 dias)
+  + ModeShell — transição suave ao trocar modo (mesma DB, casca muda)
+
+  PRISMA:
+  + User.profileVibe, patioKingUntil
+  + Post.capsuleReleaseAt, Comment/Testimonial.audioUrl
+  + PatioDuel
+
+  API: /api/patio-duel, upload voiceNote, buryBone em posts
+
+  * package.json: 2.13.0-alpha.0 → 2.14.0-alpha.0
+
+------------------------------------------------------------------------------
+v2.13.0-alpha.0 — 2026-05-26 (prestígio matilha, biscoitos, encontros)
+------------------------------------------------------------------------------
+  APP / UX:
+  + Membro Fundador — selo 🐾 001 para contas ALPHA (isFoundingMember)
+  + Calçada da Fama — tópicos de ouro/pinados no topo da Matilha
+  + Arquivos Confidenciais — tópicos arquivados (somente leitura)
+  + Fofoca de Corredor — 1 post anônimo/semana por Matilha
+  + Encontros da Matilha — eventos locais + ingresso virtual com pet
+  + Paleta do perfil (orcutar) — 5 temas via CSS/Tailwind
+  + Biscoitos 🍪 — reação social no feed; biscuitBalance desbloqueia prestígio
+  + Túnel do Tempo — card “há 1 ano você postou…” no feed
+
+  ARQUITETURA:
+  + unstable_cache 60s em pack-cache.ts (Matilhas)
+  + Nota: Redis para Pet documentado como evolução futura (não incluído)
+
+  PRISMA:
+  + ProfileTheme, PostBiscuit, PackEvent, PackEventRsvp
+  + Thread: pinned, isGolden, archived, anonymous
+  + User: isFoundingMember, profileTheme, biscuitBalance
+
+  API:
+  + POST/GET /api/posts/[id]/biscuit
+  + GET/POST /api/packs/[slug]/events
+  + POST/GET /api/packs/events/[eventId]/rsvp
+  + PATCH /api/packs/threads/[threadId] (moderação dono)
+
+  * package.json: 2.12.0-alpha.0 → 2.13.0-alpha.0
+
 ------------------------------------------------------------------------------
 v2.12.0-alpha.0 — 2026-05-23 (features Orkut: depoimentos, visitas, Matilhas)
 ------------------------------------------------------------------------------

@@ -10,10 +10,10 @@ export function ThemeToggle() {
       type="button"
       onClick={toggle}
       className="rounded-lg p-2 text-bc-blue transition hover:bg-bc-blue/10"
-      aria-label={theme === "dark" ? "Modo claro" : "Modo escuro"}
-      title={theme === "dark" ? "Modo claro" : "Modo escuro"}
+      aria-label={theme === "luar" ? "Modo claro" : "Luar da Matilha"}
+      title={theme === "luar" ? "Modo claro" : "Luar da Matilha 🌙"}
     >
-      {theme === "dark" ? "☀️" : "🌙"}
+      {theme === "luar" ? "☀️" : "🌙"}
     </button>
   );
 }

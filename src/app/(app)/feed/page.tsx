@@ -1,5 +1,8 @@
 import Link from "next/link";
+import { TunelDoTempoCard } from "@/components/TunelDoTempoCard";
 import { SorteDoDiaCard } from "@/components/SorteDoDiaCard";
+import { DesafioDoDiaCard } from "@/components/DesafioDoDiaCard";
+import { FilaPaoDeQueijo } from "@/components/FilaPaoDeQueijo";
 import { CreatePostForm } from "@/components/CreatePostForm";
 import { OfflinePostBanner } from "@/components/OfflinePostBanner";
 import { FeedFilterTabs } from "@/components/FeedFilterTabs";
@@ -32,6 +35,7 @@ import {
   parseFeedFilter,
 } from "@/lib/feed-posts";
 import { prisma } from "@/lib/prisma";
+import { getOnThisDayMemory } from "@/lib/memories";
 import { applyPetDecay, petAvatarStatus } from "@/lib/pet";
 
 type FeedPageProps = {
@@ -59,7 +63,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
     }
   }
 
-  const [friendCount, pendingFriends, flashEvent, viewerPet] =
+  const [friendCount, pendingFriends, flashEvent, viewerPet, memoryPost] =
     await Promise.all([
       prisma.friendship.count({
         where: {
@@ -72,6 +76,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
       }),
       getActiveFlashEvent(user.id),
       prisma.pet.findUnique({ where: { userId: user.id } }),
+      getOnThisDayMemory(user.id),
     ]);
 
   let viewerPetStatus = null;
@@ -209,6 +214,11 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
 
           {!isReels && <FeedQuickDock />}
           {!isReels && !isInsta && <SorteDoDiaCard />}
+          {!isReels && !isInsta && <DesafioDoDiaCard />}
+          {!isReels && !isInsta && <FilaPaoDeQueijo />}
+          {!isReels && !isInsta && memoryPost && (
+            <TunelDoTempoCard memory={memoryPost} />
+          )}
           {!isReels && <OfflinePostBanner />}
           {!isReels && <WelcomeBanner />}
           {!isReels && <PetDailyClaimBanner />}
@@ -237,6 +247,11 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
           {isReels ? (
             <ReelsFeed
               currentUserId={user.id}
+              viewerPet={
+                viewerPet
+                  ? { name: viewerPet.name, color: viewerPet.color }
+                  : null
+              }
               posts={mappedPosts
                 .filter((p) => p.videoUrl)
                 .map((p) => ({

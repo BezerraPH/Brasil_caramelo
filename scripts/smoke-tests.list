@@ -102,6 +102,10 @@ auth-guard|Depoimentos|GET|/api/testimonials|401|
 auth-guard|Visitas perfil|GET|/api/profile-visits|401|
 auth-guard|PetPoke|POST|/api/pet-poke|401|
 auth-guard|Matilhas fórum|GET|/api/packs|401|
+auth-guard|Biscoito recado|POST|/api/posts/smoke-test/biscuit|401|
+auth-guard|Encontros matilha|GET|/api/packs/odeio-acordar-cedo/events|401|
+auth-guard|Duelo pátio|POST|/api/patio-duel|401|
+auth-guard|Fila pão de queijo|GET|/api/matilha/friend-queue|401|
 
 # v2.10.0 — explorar hub, audit tailscale
 # v2.9.0 — service status explorar, auth polish, pet-shop, deploy maintenance

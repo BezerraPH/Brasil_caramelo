@@ -4,6 +4,32 @@ import { prisma } from "@/lib/prisma";
 
 type RouteContext = { params: Promise<{ slug: string }> };
 
+function mapThread(t: {
+  id: string;
+  title: string;
+  createdAt: Date;
+  pinned: boolean;
+  isGolden: boolean;
+  archived: boolean;
+  anonymous: boolean;
+  author: { name: string; username: string; avatarUrl: string | null };
+  _count: { replies: number };
+}) {
+  return {
+    id: t.id,
+    title: t.title,
+    createdAt: t.createdAt.toISOString(),
+    pinned: t.pinned,
+    isGolden: t.isGolden,
+    archived: t.archived,
+    anonymous: t.anonymous,
+    replyCount: t._count.replies,
+    author: t.anonymous
+      ? { name: "Um Caramelo Misterioso", username: "misterioso", avatarUrl: null }
+      : t.author,
+  };
+}
+
 export async function GET(_request: Request, context: RouteContext) {
   const user = await getCurrentUser();
   if (!user) {
@@ -18,8 +44,8 @@ export async function GET(_request: Request, context: RouteContext) {
       owner: { select: { name: true, username: true } },
       _count: { select: { members: true } },
       threads: {
-        orderBy: { createdAt: "desc" },
-        take: 50,
+        orderBy: [{ pinned: "desc" }, { isGolden: "desc" }, { createdAt: "desc" }],
+        take: 80,
         include: {
           author: {
             select: { name: true, username: true, avatarUrl: true },
@@ -38,6 +64,8 @@ export async function GET(_request: Request, context: RouteContext) {
     where: { packId_userId: { packId: pack.id, userId: user.id } },
   });
 
+  const mapped = pack.threads.map(mapThread);
+
   return NextResponse.json({
     pack: {
       id: pack.id,
@@ -45,15 +73,13 @@ export async function GET(_request: Request, context: RouteContext) {
       name: pack.name,
       description: pack.description,
       owner: pack.owner,
+      ownerId: pack.ownerId,
+      isOwner: pack.ownerId === user.id,
       memberCount: pack._count.members,
       joined: !!membership,
-      threads: pack.threads.map((t) => ({
-        id: t.id,
-        title: t.title,
-        createdAt: t.createdAt.toISOString(),
-        author: t.author,
-        replyCount: t._count.replies,
-      })),
+      goldenThreads: mapped.filter((t) => !t.archived && (t.isGolden || t.pinned)),
+      activeThreads: mapped.filter((t) => !t.archived && !t.isGolden && !t.pinned),
+      archivedThreads: mapped.filter((t) => t.archived),
     },
   });
 }

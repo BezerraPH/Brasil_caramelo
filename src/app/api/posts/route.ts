@@ -54,7 +54,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { content, imageUrl, videoUrl, videoHlsUrl, communityLevel } =
+    const { content, imageUrl, videoUrl, videoHlsUrl, communityLevel, buryBone } =
       postSchema.parse(body);
 
     const text = content?.trim() ?? "";
@@ -63,6 +63,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: mod.reason }, { status: 400 });
     }
 
+    const capsuleReleaseAt = buryBone
+      ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      : null;
+
     const post = await prisma.post.create({
       data: {
         content: text,
@@ -70,6 +74,7 @@ export async function POST(request: Request) {
         videoUrl: videoUrl ?? null,
         videoHlsUrl: videoHlsUrl ?? null,
         communityLevel: communityLevel ?? null,
+        capsuleReleaseAt,
         authorId: user.id,
       },
       include: {

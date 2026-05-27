@@ -9,6 +9,7 @@ import { CommentSection } from "./CommentSection";
 import { DeletePostButton } from "./DeletePostButton";
 import { EditPostButton } from "./EditPostButton";
 import { PostContent } from "./PostContent";
+import { BiscuitButton } from "./BiscuitButton";
 import { ReactionPicker } from "./ReactionPicker";
 import { ReportPostButton } from "./ReportPostButton";
 import { SavePostButton } from "./SavePostButton";
@@ -147,6 +148,11 @@ export function FeedPost({
             initialReaction={myReaction ?? (post.likedByMe ? "HEART" : null)}
             initialCount={post._count.likes}
             onUpdate={() => router.refresh()}
+          />
+          <BiscuitButton
+            postId={post.id}
+            authorId={post.author.id}
+            currentUserId={currentUserId}
           />
           <SavePostButton postId={post.id} initialSaved={savedByMe} />
           <SharePostButton postId={post.id} />

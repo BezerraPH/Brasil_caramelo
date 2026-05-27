@@ -21,6 +21,7 @@ export function ViewModeSwitcher({ currentMode }: ViewModeSwitcherProps) {
 
     setSaving(true);
     setOpen(false);
+    document.body.classList.add("bc-mode-switching");
     const res = await fetch("/api/users/me", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { validationMessage } from "@/lib/api-error";
 import { prisma } from "@/lib/prisma";
-import { updateProfileSchema, viewModeSchema, privacySchema } from "@/lib/validators";
+import { updateProfileSchema, viewModeSchema, privacySchema, profileThemeSchema, locationSchema } from "@/lib/validators";
 
 export async function GET() {
   const user = await getCurrentUser();
@@ -25,8 +25,8 @@ export async function PATCH(request: Request) {
       const { viewMode } = viewModeSchema.parse(body);
       const updated = await prisma.user.update({
         where: { id: user.id },
-        data: { viewMode },
-        select: { id: true, viewMode: true },
+        data: { viewMode, profileVibe: viewMode },
+        select: { id: true, viewMode: true, profileVibe: true },
       });
       return NextResponse.json(updated);
     }
@@ -37,6 +37,43 @@ export async function PATCH(request: Request) {
         where: { id: user.id },
         data: { showVisits },
         select: { id: true, showVisits: true },
+      });
+      return NextResponse.json(updated);
+    }
+
+    if (body.profileTheme !== undefined) {
+      const { profileTheme } = profileThemeSchema.parse(body);
+      const updated = await prisma.user.update({
+        where: { id: user.id },
+        data: { profileTheme },
+        select: { id: true, profileTheme: true },
+      });
+      return NextResponse.json(updated);
+    }
+
+    if (
+      body.locationCity !== undefined ||
+      body.locationArea !== undefined ||
+      body.showLocation !== undefined
+    ) {
+      const data = locationSchema.parse(body);
+      const updated = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          ...(data.locationCity !== undefined
+            ? { locationCity: data.locationCity?.trim() || null }
+            : {}),
+          ...(data.locationArea !== undefined
+            ? { locationArea: data.locationArea?.trim() || null }
+            : {}),
+          ...(data.showLocation !== undefined ? { showLocation: data.showLocation } : {}),
+        },
+        select: {
+          id: true,
+          locationCity: true,
+          locationArea: true,
+          showLocation: true,
+        },
       });
       return NextResponse.json(updated);
     }

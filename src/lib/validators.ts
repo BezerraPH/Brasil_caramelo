@@ -33,6 +33,7 @@ export const postSchema = z
     videoUrl: mediaUrlSchema.optional(),
     videoHlsUrl: mediaUrlSchema.optional(),
     communityLevel: z.enum(DOG_REPUTATION_LEVELS).optional(),
+    buryBone: z.boolean().optional(),
   })
   .refine(
     (d) =>
@@ -78,9 +79,14 @@ export const startChatSchema = z.object({
   username: z.string().min(3).max(30),
 });
 
-export const commentSchema = z.object({
-  content: z.string().min(1).max(500),
-});
+export const commentSchema = z
+  .object({
+    content: z.string().max(500).optional(),
+    audioUrl: mediaUrlSchema.optional(),
+  })
+  .refine((d) => (d.content?.trim().length ?? 0) > 0 || d.audioUrl, {
+    message: "Escreva ou grave um áudio.",
+  });
 
 export const friendRequestSchema = z.object({
   username: z.string().min(3).max(30),
@@ -117,6 +123,7 @@ export const petTreatSchema = z.object({
 export const testimonialSchema = z.object({
   toUserId: z.string().min(1),
   content: z.string().min(1).max(1000),
+  audioUrl: mediaUrlSchema.optional(),
 });
 
 export const testimonialActionSchema = z.object({
@@ -139,8 +146,32 @@ export const privacySchema = z.object({
 export const packThreadSchema = z.object({
   title: z.string().min(3).max(120),
   content: z.string().min(1).max(4000),
+  anonymous: z.boolean().optional(),
+});
+
+export const packEventSchema = z.object({
+  title: z.string().min(3).max(120),
+  description: z.string().max(500).optional(),
+  location: z.string().min(3).max(200),
+  startsAt: z.string().min(1),
+});
+
+export const threadModerationSchema = z.object({
+  pinned: z.boolean().optional(),
+  isGolden: z.boolean().optional(),
+  archived: z.boolean().optional(),
+});
+
+export const profileThemeSchema = z.object({
+  profileTheme: z.enum(["CLASSIC", "SUNSET", "TROPICAL", "CARAMELO", "NIGHT"]),
 });
 
 export const packReplySchema = z.object({
   content: z.string().min(1).max(4000),
+});
+
+export const locationSchema = z.object({
+  locationCity: z.string().max(80).optional().nullable(),
+  locationArea: z.string().max(80).optional().nullable(),
+  showLocation: z.boolean().optional(),
 });

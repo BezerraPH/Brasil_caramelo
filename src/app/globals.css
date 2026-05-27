@@ -24,6 +24,36 @@ html.dark {
   --bc-glass: rgba(26, 36, 32, 0.85);
 }
 
+/* Luar da Matilha — modo escuro com identidade Caramelo (#C68642) + azul marinho (#0A192F) */
+html.luar {
+  --bc-white: #132031;
+  --bc-blue: #5eb3e8;
+  --bc-green: #4cb87a;
+  --bc-brown: #e0c9a8;
+  --bc-caramel: #c68642;
+  --bc-gold: #f0c040;
+  --background: #0a192f;
+  --foreground: #e8f0ec;
+  --bc-glass: rgba(10, 25, 47, 0.92);
+}
+
+html.luar body {
+  background-image:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(198, 134, 66, 0.18), transparent),
+    radial-gradient(ellipse 50% 40% at 90% 20%, rgba(94, 179, 232, 0.1), transparent),
+    radial-gradient(ellipse 40% 30% at 10% 80%, rgba(198, 134, 66, 0.08), transparent);
+}
+
+html.luar .bc-card {
+  @apply border-bc-caramel/25 bg-bc-white;
+  box-shadow: 0 0 24px rgba(198, 134, 66, 0.06);
+}
+
+html.luar .bc-shimmer-text {
+  background: linear-gradient(90deg, var(--bc-caramel), var(--bc-blue), var(--bc-caramel));
+  background-size: 200% auto;
+}
+
 html.dark body {
   background-image:
     radial-gradient(ellipse 100% 80% at 50% -30%, rgba(45, 139, 87, 0.08), transparent),
@@ -188,6 +218,54 @@ body {
   background: linear-gradient(90deg, var(--bc-caramel), var(--bc-gold));
   transition: width 0.15s linear;
   box-shadow: 0 0 8px color-mix(in srgb, var(--bc-caramel) 55%, transparent);
+}
+
+.bc-pet-mascot-pop {
+  animation: bc-pet-mascot-jump 0.65s ease forwards;
+}
+
+.bc-pet-mascot-bark {
+  animation: bc-pet-mascot-fade 0.65s ease forwards;
+}
+
+@keyframes bc-pet-mascot-jump {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.6);
+  }
+  35% {
+    opacity: 1;
+    transform: translateY(-8px) scale(1.08);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-16px) scale(1);
+  }
+}
+
+@keyframes bc-pet-mascot-fade {
+  0%,
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.bc-uivo-bar--active {
+  animation: bc-uivo-pulse 0.45s ease-in-out infinite alternate;
+}
+
+@keyframes bc-uivo-pulse {
+  from {
+    opacity: 0.45;
+    transform: scaleY(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1.15);
+  }
 }
 
 .bc-story-ring {
@@ -1109,4 +1187,50 @@ html.dark .bc-hero-bg {
     transform: none !important;
     transition: none !important;
   }
+}
+
+/* Lousa de recados — estilo Orkut / Insta / Cinelar */
+.bc-lousa-orkut {
+  transform: rotate(-0.4deg);
+  box-shadow: 4px 4px 0 color-mix(in srgb, var(--bc-brown) 15%, transparent);
+}
+
+.bc-lousa-insta {
+  border-radius: 1.25rem;
+}
+
+.bc-lousa-reels {
+  border-left: 4px solid var(--bc-caramel);
+}
+
+/* Cursor por modo */
+body.bc-mode-feed,
+body.bc-mode-feed .bc-lousa-textarea {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ctext y='18' font-size='16'%3E🐾%3C/text%3E%3C/svg%3E") 8 8, auto;
+}
+
+body.bc-mode-insta .bc-lousa-textarea {
+  cursor: text;
+}
+
+body.bc-mode-reels .bc-lousa-textarea {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ctext y='18' font-size='14'%3E▶%3C/text%3E%3C/svg%3E") 8 8, text;
+}
+
+.bc-mode-switching .bc-mode-shell {
+  animation: bc-mode-fade 0.35s ease;
+}
+
+@keyframes bc-mode-fade {
+  0% { opacity: 0.85; transform: scale(0.995); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.bc-patio-king-badge {
+  animation: bc-king-pulse 2s ease-in-out infinite;
+}
+
+@keyframes bc-king-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--bc-gold) 40%, transparent); }
+  50% { box-shadow: 0 0 8px 2px color-mix(in srgb, var(--bc-gold) 50%, transparent); }
 }

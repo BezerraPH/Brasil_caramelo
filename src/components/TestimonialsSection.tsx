@@ -2,11 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { VoiceNoteRecorder } from "@/components/VoiceNoteRecorder";
+import { UivoPlayer } from "@/components/UivoPlayer";
 import { UserAvatar } from "@/components/UserAvatar";
 
 type TestimonialItem = {
   id: string;
   content: string;
+  audioUrl?: string | null;
   acceptedAt: string | null;
   fromUser: {
     id: string;
@@ -31,6 +34,7 @@ export function TestimonialsSection({
 }: TestimonialsSectionProps) {
   const router = useRouter();
   const [content, setContent] = useState("");
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -45,7 +49,7 @@ export function TestimonialsSection({
       const res = await fetch("/api/testimonials", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ toUserId, content: content.trim() }),
+        body: JSON.stringify({ toUserId, content: content.trim(), audioUrl }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -53,6 +57,7 @@ export function TestimonialsSection({
         return;
       }
       setContent("");
+      setAudioUrl(null);
       setMessage("Depoimento enviado! Aguardando aceite.");
       router.refresh();
     } catch {
@@ -85,6 +90,9 @@ export function TestimonialsSection({
               <p className="mt-2 text-sm leading-relaxed text-bc-brown">
                 {top.content}
               </p>
+              {top.audioUrl && (
+                <UivoPlayer src={top.audioUrl} className="mt-2 max-w-xs" />
+              )}
             </div>
           </div>
         </article>
@@ -108,6 +116,9 @@ export function TestimonialsSection({
                     {t.fromUser.name}
                   </p>
                   <p className="text-sm text-bc-brown">{t.content}</p>
+                  {t.audioUrl && (
+                    <UivoPlayer src={t.audioUrl} className="mt-2" />
+                  )}
                 </div>
               </div>
             </li>
@@ -133,6 +144,12 @@ export function TestimonialsSection({
             maxLength={1000}
             placeholder="Conte o que essa pessoa significa na matilha…"
             className="bc-input resize-none text-sm"
+          />
+          <VoiceNoteRecorder
+            audioUrl={audioUrl}
+            onRecorded={setAudioUrl}
+            onClear={() => setAudioUrl(null)}
+            maxSeconds={10}
           />
           <button
             type="button"

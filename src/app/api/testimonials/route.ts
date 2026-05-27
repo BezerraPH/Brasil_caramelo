@@ -52,7 +52,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { toUserId, content } = testimonialSchema.parse(body);
+    const { toUserId, content, audioUrl } = testimonialSchema.parse(body);
 
     if (toUserId === user.id) {
       return NextResponse.json(
@@ -74,6 +74,7 @@ export async function POST(request: Request) {
         fromUserId: user.id,
         toUserId,
         content: content.trim(),
+        audioUrl: audioUrl ?? null,
         accepted: false,
       },
     });

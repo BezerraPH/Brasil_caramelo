@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
+import { startOfWeekUtc } from "@/lib/pack-mystery";
 import { prisma } from "@/lib/prisma";
 import { packThreadSchema } from "@/lib/validators";
 
@@ -29,13 +30,32 @@ export async function POST(request: Request, context: RouteContext) {
 
   try {
     const body = await request.json();
-    const { title, content } = packThreadSchema.parse(body);
+    const { title, content, anonymous } = packThreadSchema.parse(body);
+
+    if (anonymous) {
+      const weekStart = startOfWeekUtc();
+      const recent = await prisma.thread.count({
+        where: {
+          packId: pack.id,
+          authorId: user.id,
+          anonymous: true,
+          createdAt: { gte: weekStart },
+        },
+      });
+      if (recent >= 1) {
+        return NextResponse.json(
+          { error: "Só 1 fofoca anônima por semana nesta Matilha." },
+          { status: 429 },
+        );
+      }
+    }
 
     const thread = await prisma.thread.create({
       data: {
         packId: pack.id,
         title: title.trim(),
         authorId: user.id,
+        anonymous: Boolean(anonymous),
         replies: {
           create: {
             authorId: user.id,

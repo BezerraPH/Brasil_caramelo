@@ -9,7 +9,8 @@ export type UploadKind =
   | "postImage"
   | "postVideo"
   | "story"
-  | "chatAttachment";
+  | "chatAttachment"
+  | "voiceNote";
 
 const MIME_EXT: Record<string, string> = {
   "image/jpeg": ".jpg",
@@ -19,6 +20,9 @@ const MIME_EXT: Record<string, string> = {
   "video/mp4": ".mp4",
   "video/webm": ".webm",
   "video/quicktime": ".mov",
+  "audio/webm": ".webm",
+  "audio/ogg": ".ogg",
+  "audio/mpeg": ".mp3",
 };
 
 const LIMITS: Record<
@@ -58,6 +62,10 @@ const LIMITS: Record<
       "image/gif",
       "application/pdf",
     ]),
+  },
+  voiceNote: {
+    maxBytes: 512 * 1024,
+    mimes: new Set(["audio/webm", "audio/ogg", "audio/mpeg"]),
   },
 };
 

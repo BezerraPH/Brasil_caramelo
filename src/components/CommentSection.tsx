@@ -4,9 +4,12 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { UserAvatar } from "./UserAvatar";
 
+import { VoiceNoteRecorder } from "./VoiceNoteRecorder";
+
 type Comment = {
   id: string;
   content: string;
+  audioUrl?: string | null;
   createdAt: string;
   author: {
     id: string;
@@ -26,6 +29,7 @@ export function CommentSection({ postId, initialCount }: CommentSectionProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [count, setCount] = useState(initialCount);
   const [content, setContent] = useState("");
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -37,19 +41,20 @@ export function CommentSection({ postId, initialCount }: CommentSectionProps) {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!content.trim()) return;
+    if (!content.trim() && !audioUrl) return;
     setLoading(true);
     try {
       const res = await fetch(`/api/posts/${postId}/comments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content }),
+        body: JSON.stringify({ content: content.trim() || "🎙️", audioUrl }),
       });
       const data = await res.json();
       if (res.ok) {
         setComments((c) => [...c, data.comment]);
         setCount((n) => n + 1);
         setContent("");
+        setAudioUrl(null);
       }
     } finally {
       setLoading(false);
@@ -87,23 +92,31 @@ export function CommentSection({ postId, initialCount }: CommentSectionProps) {
                       {c.author.name}
                     </Link>
                     <p className="text-sm leading-snug">{c.content}</p>
+                    {c.audioUrl && (
+                      <audio src={c.audioUrl} controls className="mt-1 h-7 max-w-full" />
+                    )}
                   </div>
                 </li>
               ))
             )}
           </ul>
-          <form onSubmit={submit} className="flex gap-2">
+          <form onSubmit={submit} className="space-y-2">
             <input
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Escreva um comentário..."
               maxLength={500}
-              className="bc-input flex-1 py-2 text-sm"
+              className="bc-input w-full py-2 text-sm"
+            />
+            <VoiceNoteRecorder
+              audioUrl={audioUrl}
+              onRecorded={setAudioUrl}
+              onClear={() => setAudioUrl(null)}
             />
             <button
               type="submit"
-              disabled={loading || !content.trim()}
-              className="bc-btn-primary shrink-0 px-4"
+              disabled={loading || (!content.trim() && !audioUrl)}
+              className="bc-btn-primary px-4"
             >
               {loading ? "…" : "Enviar"}
             </button>

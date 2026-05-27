@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { PostContent } from "./PostContent";
 import { BcVideo } from "./BcVideo";
+import { PetMascotBurst } from "./PetMascotBurst";
 import { useToast } from "./ToastProvider";
 import { UserAvatar } from "./UserAvatar";
 
@@ -25,11 +26,11 @@ type ReelPost = {
 
 type ReelsFeedProps = {
   posts: ReelPost[];
-  /** Reservado para ações do autor no futuro */
   currentUserId?: string;
+  viewerPet?: { name: string; color: string } | null;
 };
 
-export function ReelsFeed({ posts }: ReelsFeedProps) {
+export function ReelsFeed({ posts, viewerPet }: ReelsFeedProps) {
   const withVideo = posts.filter((p) => p.videoUrl);
 
   if (withVideo.length === 0) {
@@ -61,6 +62,7 @@ export function ReelsFeed({ posts }: ReelsFeedProps) {
             post={post}
             index={i}
             allPosts={withVideo}
+            viewerPet={viewerPet}
           />
         ))}
       </div>
@@ -72,10 +74,12 @@ function ReelItem({
   post,
   index,
   allPosts,
+  viewerPet,
 }: {
   post: ReelPost;
   index: number;
   allPosts: ReelPost[];
+  viewerPet?: { name: string; color: string } | null;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -89,6 +93,7 @@ function ReelItem({
   const [showHeart, setShowHeart] = useState(false);
   const [progress, setProgress] = useState(0);
   const [commentsOpen, setCommentsOpen] = useState(false);
+  const [petBurst, setPetBurst] = useState(false);
   const [comments, setComments] = useState<
     { id: string; content: string; author: { name: string; username: string } }[]
   >([]);
@@ -134,7 +139,11 @@ function ReelItem({
     const data = await res.json();
     setLiked(data.liked);
     setLikeCount((c) => (data.liked ? c + 1 : Math.max(0, c - 1)));
-  }, [post.id]);
+    if (data.liked && viewerPet) {
+      setPetBurst(true);
+      setTimeout(() => setPetBurst(false), 700);
+    }
+  }, [post.id, viewerPet]);
 
   function onVideoTap() {
     const now = Date.now();
@@ -208,6 +217,14 @@ function ReelItem({
         <span className="bc-cinelar-heart-pop pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-7xl">
           ❤️
         </span>
+      )}
+
+      {viewerPet && (
+        <PetMascotBurst
+          petName={viewerPet.name}
+          petColor={viewerPet.color}
+          show={petBurst}
+        />
       )}
 
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40" />

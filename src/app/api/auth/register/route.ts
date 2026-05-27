@@ -9,6 +9,7 @@ import {
   getClientIp,
   rateLimitKey,
 } from "@/lib/rate-limit";
+import { isPrerelease } from "@/lib/app-version";
 import { registerSchema } from "@/lib/validators";
 
 export async function POST(request: Request) {
@@ -56,6 +57,8 @@ export async function POST(request: Request) {
         username: data.username,
         email: data.email,
         passwordHash,
+        isFoundingMember: isPrerelease(),
+        profileVibe: "FEED",
         pet: { create: {} },
       },
     });

@@ -13,6 +13,14 @@ enum ViewMode {
   REELS
 }
 
+enum ProfileTheme {
+  CLASSIC
+  SUNSET
+  TROPICAL
+  CARAMELO
+  NIGHT
+}
+
 enum FriendshipStatus {
   PENDING
   ACCEPTED
@@ -62,6 +70,9 @@ enum NotificationType {
   TESTIMONIAL_NEW
   TESTIMONIAL_ACCEPTED
   PET_POKE
+  BISCUIT_RECEIVED
+  PATIO_DUEL
+  CAPSULE_RELEASED
 }
 
 enum PetPokeAction {
@@ -95,8 +106,16 @@ model User {
   username     String    @unique
   bio          String?
   avatarUrl    String?
-  viewMode     ViewMode  @default(FEED)
-  showVisits   Boolean   @default(true)
+  viewMode          ViewMode     @default(FEED)
+  profileVibe       ViewMode     @default(FEED)
+  showVisits        Boolean      @default(true)
+  isFoundingMember  Boolean      @default(false)
+  profileTheme      ProfileTheme @default(CLASSIC)
+  biscuitBalance    Int          @default(0)
+  patioKingUntil    DateTime?
+  locationCity      String?
+  locationArea      String?
+  showLocation      Boolean      @default(false)
   isPremium    Boolean   @default(false)
   premiumUntil DateTime?
   createdAt    DateTime  @default(now())
@@ -140,10 +159,15 @@ model User {
   profileVisitsReceived ProfileVisit[]    @relation("ProfileVisited")
   petPokesSent        PetPoke[]           @relation("PetPokeFrom")
   petPokesReceived    PetPoke[]           @relation("PetPokeTo")
+  patioDuelsChallenged PatioDuel[]        @relation("PatioDuelChallenger")
+  patioDuelsOpposed   PatioDuel[]         @relation("PatioDuelOpponent")
   ownedPacks          Pack[]              @relation("OwnedPacks")
   packMemberships     PackMember[]
   threadsAuthored     Thread[]
   repliesAuthored     Reply[]
+  postBiscuitsGiven   PostBiscuit[]     @relation("BiscuitFrom")
+  packEventsCreated   PackEvent[]       @relation("PackEventCreator")
+  packEventRsvps      PackEventRsvp[]
 }
 
 model Session {
@@ -165,6 +189,8 @@ model Post {
   imageUrl       String?
   videoUrl       String?
   videoHlsUrl    String?
+  audioUrl       String?
+  capsuleReleaseAt DateTime?
   communityLevel DogReputationLevel?
   boostedUntil   DateTime?
   boostPriority  Int                 @default(0)
@@ -174,6 +200,7 @@ model Post {
   likes          Like[]
   savedBy        SavedPost[]
   reports        PostReport[]
+  biscuits       PostBiscuit[]
   tribunalCase   PostTribunalCase?
   tribunalHidden Boolean            @default(false)
 
@@ -190,6 +217,7 @@ model Comment {
   authorId  String
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   content   String
+  audioUrl  String?
   createdAt DateTime @default(now())
 
   @@index([postId])
@@ -205,6 +233,18 @@ model Like {
   createdAt DateTime     @default(now())
 
   @@unique([postId, userId])
+}
+
+model PostBiscuit {
+  id         String   @id @default(cuid())
+  postId     String
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  fromUserId String
+  fromUser   User     @relation("BiscuitFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([postId, fromUserId])
+  @@index([postId])
 }
 
 model PostReport {
@@ -600,6 +640,7 @@ model Testimonial {
   fromUserId String
   toUserId   String
   content    String
+  audioUrl   String?
   accepted   Boolean   @default(false)
   createdAt  DateTime  @default(now())
   acceptedAt DateTime?
@@ -622,6 +663,20 @@ model ProfileVisit {
 
   @@unique([visitorId, visitedId])
   @@index([visitedId, visitedAt])
+}
+
+model PatioDuel {
+  id           String   @id @default(cuid())
+  challengerId String
+  opponentId   String
+  winnerId     String?
+  createdAt    DateTime @default(now())
+
+  challenger User @relation("PatioDuelChallenger", fields: [challengerId], references: [id], onDelete: Cascade)
+  opponent   User @relation("PatioDuelOpponent", fields: [opponentId], references: [id], onDelete: Cascade)
+
+  @@index([challengerId, createdAt])
+  @@index([opponentId, createdAt])
 }
 
 model PetPoke {
@@ -651,6 +706,7 @@ model Pack {
   owner   User         @relation("OwnedPacks", fields: [ownerId], references: [id])
   members PackMember[]
   threads Thread[]
+  events  PackEvent[]
 
   @@index([createdAt])
 }
@@ -669,17 +725,22 @@ model PackMember {
 }
 
 model Thread {
-  id        String   @id @default(cuid())
-  packId    String
-  title     String
-  authorId  String
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  packId     String
+  title      String
+  authorId   String
+  pinned     Boolean  @default(false)
+  isGolden   Boolean  @default(false)
+  archived   Boolean  @default(false)
+  anonymous  Boolean  @default(false)
+  createdAt  DateTime @default(now())
 
   pack    Pack    @relation(fields: [packId], references: [id], onDelete: Cascade)
   author  User    @relation(fields: [authorId], references: [id])
   replies Reply[]
 
-  @@index([packId, createdAt])
+  @@index([packId, pinned, isGolden])
+  @@index([packId, archived, createdAt])
 }
 
 model Reply {
@@ -693,4 +754,35 @@ model Reply {
   author User   @relation(fields: [authorId], references: [id])
 
   @@index([threadId, createdAt])
+}
+
+model PackEvent {
+  id          String   @id @default(cuid())
+  packId      String
+  creatorId   String
+  title       String
+  description String?
+  location    String
+  startsAt    DateTime
+  createdAt   DateTime @default(now())
+
+  pack    Pack            @relation(fields: [packId], references: [id], onDelete: Cascade)
+  creator User            @relation("PackEventCreator", fields: [creatorId], references: [id])
+  rsvps   PackEventRsvp[]
+
+  @@index([packId, startsAt])
+}
+
+model PackEventRsvp {
+  id          String   @id @default(cuid())
+  eventId     String
+  userId      String
+  ticketToken String   @unique
+  createdAt   DateTime @default(now())
+
+  event PackEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([userId])
 }

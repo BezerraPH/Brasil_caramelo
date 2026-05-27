@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
+import { PatioDuelPanel } from "@/components/PatioDuelPanel";
 import { PetPokePanel } from "@/components/PetPokePanel";
 
 type VisitData = {
@@ -144,6 +145,10 @@ export function PetYardVisit({ ownerUserId }: PetYardVisitProps) {
 
       {data.canPoke && (
         <PetPokePanel toUserId={ownerUserId} canSniff={data.canSniff} />
+      )}
+
+      {data.canTreat && (
+        <PatioDuelPanel opponentId={ownerUserId} opponentName={data.owner.name} />
       )}
     </section>
   );

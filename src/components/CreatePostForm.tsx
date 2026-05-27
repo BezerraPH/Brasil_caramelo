@@ -25,6 +25,8 @@ export function CreatePostForm({
   communityLevel,
 }: CreatePostFormProps) {
   const [content, setContent] = useState("");
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [buryBone, setBuryBone] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [videoHlsUrl, setVideoHlsUrl] = useState<string | null>(null);
@@ -53,6 +55,7 @@ export function CreatePostForm({
           videoUrl: videoUrl ?? undefined,
           videoHlsUrl: videoHlsUrl ?? undefined,
           communityLevel,
+          buryBone: buryBone && !instaMode && !reelsMode ? true : undefined,
         },
         (msg) => setError(msg),
       );
@@ -78,8 +81,14 @@ export function CreatePostForm({
     }
   }
 
+  const lousaClass = reelsMode
+    ? "bc-lousa-reels"
+    : instaMode
+      ? "bc-lousa-insta"
+      : "bc-lousa-orkut";
+
   return (
-    <form onSubmit={handleSubmit} className="bc-card p-5">
+    <form onSubmit={handleSubmit} className={`bc-card p-5 ${lousaClass}`}>
       <label htmlFor="recado" className="mb-2 block text-sm font-semibold text-bc-blue">
         {reelsMode
           ? "Novo Cinelar"
@@ -129,7 +138,13 @@ export function CreatePostForm({
               ? "Legenda da foto (opcional)…"
               : "O que você está aprontando hoje?"
         }
-        className="w-full resize-none rounded-lg border border-bc-brown/30 p-3 text-sm focus:border-bc-green focus:outline-none focus:ring-2 focus:ring-bc-green/30"
+        className={`bc-lousa-textarea w-full resize-none rounded-lg border p-3 text-sm focus:outline-none focus:ring-2 ${
+          reelsMode
+            ? "border-bc-caramel/40 focus:border-bc-caramel focus:ring-bc-caramel/30"
+            : instaMode
+              ? "border-bc-blue/20 focus:border-bc-blue focus:ring-bc-blue/20"
+              : "border-dashed border-bc-brown/40 bg-[#fffef8] focus:border-bc-green focus:ring-bc-green/30 shadow-inner"
+        }`}
       />
       <p
         className={`mt-1 text-right text-[10px] tabular-nums ${
@@ -173,6 +188,16 @@ export function CreatePostForm({
           />
         )}
         <AiCaptionButton onCaption={setContent} hint={content || "cachorro"} />
+        {!instaMode && !reelsMode && (
+          <label className="flex items-center gap-2 text-xs text-bc-brown">
+            <input
+              type="checkbox"
+              checked={buryBone}
+              onChange={(e) => setBuryBone(e.target.checked)}
+            />
+            🦴 Enterrar osso (libera em 30 dias)
+          </label>
+        )}
         <button
           type="submit"
           disabled={loading || (!content.trim() && !hasMedia)}

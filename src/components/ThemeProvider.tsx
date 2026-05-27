@@ -9,17 +9,23 @@ import {
 } from "react";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
 
-type Theme = "light" | "dark";
+/** light = dia · luar = Luar da Matilha (modo escuro especial) */
+type Theme = "light" | "luar";
 
 const ThemeContext = createContext<{
   theme: Theme;
   toggle: () => void;
+  isLuar: boolean;
 } | null>(null);
 
 const STORAGE_KEY = "bc_theme";
 
 function applyTheme(theme: Theme) {
-  document.documentElement.classList.toggle("dark", theme === "dark");
+  const root = document.documentElement;
+  root.classList.remove("dark", "luar");
+  if (theme === "luar") {
+    root.classList.add("luar");
+  }
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
@@ -27,15 +33,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useAsyncEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
+    const stored = localStorage.getItem(STORAGE_KEY);
     const prefersDark =
       window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const initial: Theme =
-      stored === "dark" || stored === "light"
-        ? stored
-        : prefersDark
-          ? "dark"
-          : "light";
+    let initial: Theme = "light";
+    if (stored === "luar" || stored === "dark") {
+      initial = "luar";
+    } else if (stored === "light") {
+      initial = "light";
+    } else if (prefersDark) {
+      initial = "luar";
+    }
     setTheme(initial);
     applyTheme(initial);
     setReady(true);
@@ -43,15 +51,19 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const toggle = useCallback(() => {
     setTheme((prev) => {
-      const next = prev === "light" ? "dark" : "light";
+      const next: Theme = prev === "light" ? "luar" : "light";
       localStorage.setItem(STORAGE_KEY, next);
       applyTheme(next);
       return next;
     });
   }, []);
 
+  const resolved = ready ? theme : "light";
+
   return (
-    <ThemeContext.Provider value={{ theme: ready ? theme : "light", toggle }}>
+    <ThemeContext.Provider
+      value={{ theme: resolved, toggle, isLuar: resolved === "luar" }}
+    >
       {children}
     </ThemeContext.Provider>
   );
@@ -60,7 +72,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 export function useTheme() {
   const ctx = useContext(ThemeContext);
   if (!ctx) {
-    return { theme: "light" as Theme, toggle: () => {} };
+    return { theme: "light" as Theme, toggle: () => {}, isLuar: false };
   }
   return ctx;
 }

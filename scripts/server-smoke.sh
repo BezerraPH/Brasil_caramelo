@@ -59,10 +59,13 @@ run_http_smoke() {
     return
   fi
 
-  if [ -n "$body_need" ] && ! grep -qF "$body_need" "$SMOKE_BODY" 2>/dev/null; then
-    printf '  [FAIL] %-28s %s %s → HTTP %s sem "%s" no corpo\n' "$name" "$method" "$path" "$code" "$body_need"
-    FAIL=$((FAIL + 1))
-    return
+  # Corpo só em 2xx (403/401 podem ter JSON de erro sem o campo de sucesso)
+  if [ -n "$body_need" ] && [[ "$code" == 2* ]]; then
+    if ! grep -qF "$body_need" "$SMOKE_BODY" 2>/dev/null; then
+      printf '  [FAIL] %-28s %s %s → HTTP %s sem "%s" no corpo\n' "$name" "$method" "$path" "$code" "$body_need"
+      FAIL=$((FAIL + 1))
+      return
+    fi
   fi
 
   printf '  [OK]   %-28s %s %s → HTTP %s\n' "$name" "$method" "$path" "$code"

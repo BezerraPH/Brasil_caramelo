@@ -75,6 +75,17 @@ Smoke (v2.29): comunidades mural/fórum/hot, `GET /api/premium/orders/admin` (40
 
 Configure `PREMIUM_ADMIN_USERNAMES=seu_user` para painel PIX em `/premium`.
 
+Template `.env` completo (Tailscale ntek-servidor):
+
+```bash
+cp deploy/env/ntek-servidor.env.example .env
+nano .env
+bash scripts/generate-vapid-keys.sh
+docker compose up -d --build
+bash scripts/setup-minio-bucket.sh
+bash scripts/reindex-meilisearch.sh
+```
+
 Após atualizar para **v2.26+**:
 
 ```bash

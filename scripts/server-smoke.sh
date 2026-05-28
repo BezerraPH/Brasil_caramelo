@@ -216,6 +216,18 @@ run_upload_smoke() {
 
   printf '\n── Upload autenticado (mídia) ──\n'
 
+  json_get() {
+    # Uso: json_get <arquivo> <chave>
+    # Preferimos Node (parse real) e caímos para sed simples se necessário.
+    local file="$1"
+    local key="$2"
+    if command -v node >/dev/null 2>&1; then
+      node -e "const fs=require('fs');const p=process.argv[1];const k=process.argv[2];try{const j=JSON.parse(fs.readFileSync(p,'utf8'));const v=j?.[k];if(typeof v==='string')process.stdout.write(v);}catch{}" "$file" "$key" 2>/dev/null
+      return 0
+    fi
+    sed -n "s/.*\"${key}\":\"\\([^\"]*\\)\".*/\\1/p" "$file" | head -n 1
+  }
+
   local code
   code="$(bc_curl_smoke -sS -o "$SMOKE_BODY" -w '%{http_code}' -m 20 \
     -b "$SMOKE_COOKIE" -c "$SMOKE_COOKIE" \
@@ -269,7 +281,7 @@ run_upload_smoke() {
     PASS=$((PASS + 1))
     # Também valida o fluxo real: criar um post com videoUrl (agenda HLS em background).
     local video_url post_code
-    video_url="$(sed -n 's/.*"url":"\\([^"]*\\)".*/\\1/p' "$SMOKE_BODY" | head -n 1)"
+    video_url="$(json_get "$SMOKE_BODY" "url")"
     if [ -n "$video_url" ]; then
       post_code="$(bc_curl_smoke -sS -o "$SMOKE_BODY" -w '%{http_code}' -m 20 \
         -b "$SMOKE_COOKIE" -c "$SMOKE_COOKIE" \

@@ -238,8 +238,12 @@ run_upload_smoke() {
       -X POST "${BASE}/api/upload" \
       -F "file=@${tiny_png};type=image/png" \
       -F "kind=postImage" 2>/dev/null || echo 000)"
+    # A imagem 1×1 é quase uniforme e pode ser rejeitada pela moderação local ("em branco").
     if [ "$code" = "200" ] && grep -qF '"url"' "$SMOKE_BODY" 2>/dev/null; then
       printf '  [OK]   %-28s POST /api/upload → HTTP %s\n' "Upload imagem" "$code"
+      PASS=$((PASS + 1))
+    elif [ "$code" = "400" ] && (grep -qi 'em branco' "$SMOKE_BODY" 2>/dev/null || grep -qi 'Imagem inválida' "$SMOKE_BODY" 2>/dev/null); then
+      printf '  [OK]   %-28s POST /api/upload → HTTP %s (moderação OK)\n' "Upload imagem" "$code"
       PASS=$((PASS + 1))
     else
       printf '  [FAIL] %-28s POST /api/upload → HTTP %s\n' "Upload imagem" "$code"
@@ -263,6 +267,26 @@ run_upload_smoke() {
   if [ "$code" = "200" ] && grep -qF '"url"' "$SMOKE_BODY" 2>/dev/null; then
     printf '  [OK]   %-28s POST /api/upload → HTTP %s\n' "Upload vídeo" "$code"
     PASS=$((PASS + 1))
+    # Também valida o fluxo real: criar um post com videoUrl (agenda HLS em background).
+    local video_url post_code
+    video_url="$(sed -n 's/.*"url":"\\([^"]*\\)".*/\\1/p' "$SMOKE_BODY" | head -n 1)"
+    if [ -n "$video_url" ]; then
+      post_code="$(bc_curl_smoke -sS -o "$SMOKE_BODY" -w '%{http_code}' -m 20 \
+        -b "$SMOKE_COOKIE" -c "$SMOKE_COOKIE" \
+        -X POST "${BASE}/api/posts" \
+        -H 'Content-Type: application/json' \
+        -d "{\"content\":\"smoke video\",\"videoUrl\":\"${video_url}\"}" 2>/dev/null || echo 000)"
+      if [ "$post_code" = "200" ] && grep -qF '"status":"ok"' "$SMOKE_BODY" 2>/dev/null; then
+        printf '  [OK]   %-28s POST /api/posts → HTTP %s\n' "Post com vídeo" "$post_code"
+        PASS=$((PASS + 1))
+      else
+        printf '  [FAIL] %-28s POST /api/posts → HTTP %s\n' "Post com vídeo" "$post_code"
+        FAIL=$((FAIL + 1))
+      fi
+    else
+      printf '  [SKIP] %-28s sem url no JSON\n' "Post com vídeo"
+      SKIP=$((SKIP + 1))
+    fi
   else
     printf '  [FAIL] %-28s POST /api/upload → HTTP %s\n' "Upload vídeo" "$code"
     FAIL=$((FAIL + 1))

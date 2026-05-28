@@ -161,7 +161,7 @@ export function CreatePostForm({
         {!reelsMode && (
           <LocalMediaUpload
             kind="postImage"
-            accept="image/jpeg,image/png,image/webp,image/gif"
+            accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,.heic,.heif"
             label="📷 Foto"
             className="rounded-lg border-2 border-bc-blue/30 bg-bc-white px-3 py-1.5 text-xs font-semibold text-bc-blue"
             onUploaded={(url) => {

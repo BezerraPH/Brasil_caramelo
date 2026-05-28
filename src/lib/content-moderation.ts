@@ -170,3 +170,16 @@ export async function moderateImageWithOpenAI(
     return { ok: true };
   }
 }
+
+/** Moderação OpenAI via buffer (evita fetch à APP_URL dentro do Docker). */
+export async function moderateImageWithOpenAIBuffer(
+  buffer: Buffer,
+  mime: string,
+): Promise<ModerationResult> {
+  const key = process.env.OPENAI_API_KEY?.trim();
+  if (!key) return { ok: true };
+
+  const safeMime = mime.startsWith("image/") ? mime : "image/jpeg";
+  const dataUrl = `data:${safeMime};base64,${buffer.toString("base64")}`;
+  return moderateImageWithOpenAI(dataUrl);
+}

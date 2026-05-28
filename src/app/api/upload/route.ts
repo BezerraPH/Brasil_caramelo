@@ -9,13 +9,12 @@ import {
 import {
   moderateImageBuffer,
   moderateImageWithOllama,
-  moderateImageWithOpenAI,
+  moderateImageWithOpenAIBuffer,
   moderateTextFull,
 } from "@/lib/content-moderation";
 import {
   deleteMediaByUrl,
   ensureUploadDirWritable,
-  readMediaBytes,
   saveUploadedFile,
   type UploadKind,
 } from "@/lib/storage";
@@ -81,32 +80,21 @@ export async function POST(request: Request) {
     const saved = await saveUploadedFile(file, user.id, kind);
 
     if (saved.mime.startsWith("image/") && saved.mime !== "image/gif") {
-      try {
-        const buf = await readMediaBytes(saved.relativePath);
-        if (buf) {
-          const modLocal = await moderateImageBuffer(buf);
-          if (!modLocal.ok) {
-            await deleteMediaByUrl(saved.url);
-            return NextResponse.json({ error: modLocal.reason }, { status: 400 });
-          }
-          const modOllama = await moderateImageWithOllama(buf);
-          if (!modOllama.ok) {
-            await deleteMediaByUrl(saved.url);
-            return NextResponse.json({ error: modOllama.reason }, { status: 400 });
-          }
-        }
-      } catch {
-        /* ignore */
+      const buf = saved.buffer;
+      const modLocal = await moderateImageBuffer(buf);
+      if (!modLocal.ok) {
+        await deleteMediaByUrl(saved.url);
+        return NextResponse.json({ error: modLocal.reason }, { status: 400 });
       }
-      const appUrl = process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL;
-      if (appUrl) {
-        const modAi = await moderateImageWithOpenAI(
-          `${appUrl.replace(/\/$/, "")}${saved.url}`,
-        );
-        if (!modAi.ok) {
-          await deleteMediaByUrl(saved.url);
-          return NextResponse.json({ error: modAi.reason }, { status: 400 });
-        }
+      const modOllama = await moderateImageWithOllama(buf);
+      if (!modOllama.ok) {
+        await deleteMediaByUrl(saved.url);
+        return NextResponse.json({ error: modOllama.reason }, { status: 400 });
+      }
+      const modAi = await moderateImageWithOpenAIBuffer(buf, saved.mime);
+      if (!modAi.ok) {
+        await deleteMediaByUrl(saved.url);
+        return NextResponse.json({ error: modAi.reason }, { status: 400 });
       }
     }
 

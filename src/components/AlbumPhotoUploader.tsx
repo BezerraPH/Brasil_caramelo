@@ -58,7 +58,7 @@ export function AlbumPhotoUploader({ albumId }: AlbumPhotoUploaderProps) {
       />
       <LocalMediaUpload
         kind="albumPhoto"
-        accept="image/jpeg,image/png,image/webp,image/gif"
+        accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,.heic,.heif"
         label={saving ? "Salvando…" : "📷 Escolher foto"}
         disabled={saving}
         onError={setError}

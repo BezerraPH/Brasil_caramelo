@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-22 (v2.29.0-alpha)
-Versão atual do pacote (package.json): 2.29.1-alpha.0
+Última atualização: 2026-05-22 (v2.29.2-alpha)
+Versão atual do pacote (package.json): 2.29.2-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
@@ -546,6 +546,12 @@ Remote Gitea:
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+v2.29.2-alpha.0 — 2026-05-22 (upload de imagem + conquistas)
+------------------------------------------------------------------------------
+  FIX: upload — MIME vazio/HEIC (iOS), moderação no buffer (sem fetch APP_URL)
+  FIX: unlockAchievement — createMany skipDuplicates (fim dos erros LATIDOS_FIRST no PG)
+
 ------------------------------------------------------------------------------
 v2.29.1-alpha.0 — 2026-05-22 (fix build mural comunidade)
 ------------------------------------------------------------------------------

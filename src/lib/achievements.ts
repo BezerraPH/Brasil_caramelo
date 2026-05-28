@@ -8,14 +8,11 @@ export async function unlockAchievement(
   userId: string,
   key: AchievementKey,
 ): Promise<boolean> {
-  try {
-    await prisma.userAchievement.create({
-      data: { userId, key },
-    });
-    return true;
-  } catch {
-    return false;
-  }
+  const { count } = await prisma.userAchievement.createMany({
+    data: [{ userId, key }],
+    skipDuplicates: true,
+  });
+  return count > 0;
 }
 
 export async function checkAndUnlockAchievements(userId: string) {

@@ -30,6 +30,8 @@ const MIME_EXT: Record<string, string> = {
   "image/png": ".png",
   "image/webp": ".webp",
   "image/gif": ".gif",
+  "image/heic": ".heic",
+  "image/heif": ".heif",
   "video/mp4": ".mp4",
   "video/webm": ".webm",
   "video/quicktime": ".mov",
@@ -44,11 +46,11 @@ const LIMITS: Record<
 > = {
   avatar: {
     maxBytes: 4 * 1024 * 1024,
-    mimes: new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]),
+    mimes: imageUploadMimes(),
   },
   postImage: {
     maxBytes: 8 * 1024 * 1024,
-    mimes: new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]),
+    mimes: imageUploadMimes(),
   },
   postVideo: {
     maxBytes: 32 * 1024 * 1024,
@@ -57,10 +59,7 @@ const LIMITS: Record<
   story: {
     maxBytes: 16 * 1024 * 1024,
     mimes: new Set([
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-      "image/gif",
+      ...imageUploadMimes(),
       "video/mp4",
       "video/webm",
       "video/quicktime",
@@ -69,10 +68,7 @@ const LIMITS: Record<
   chatAttachment: {
     maxBytes: 8 * 1024 * 1024,
     mimes: new Set([
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-      "image/gif",
+      ...imageUploadMimes(),
       "application/pdf",
     ]),
   },
@@ -82,9 +78,56 @@ const LIMITS: Record<
   },
   albumPhoto: {
     maxBytes: 8 * 1024 * 1024,
-    mimes: new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]),
+    mimes: imageUploadMimes(),
   },
 };
+
+const EXT_TO_MIME: Record<string, string> = {
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".png": "image/png",
+  ".webp": "image/webp",
+  ".gif": "image/gif",
+  ".heic": "image/heic",
+  ".heif": "image/heif",
+};
+
+function imageUploadMimes(): Set<string> {
+  return new Set([
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/gif",
+    "image/heic",
+    "image/heif",
+  ]);
+}
+
+/** MIME do File (Safari/iOS às veis envia type vazio). */
+async function resolveUploadMime(file: File, buffer: Buffer): Promise<string> {
+  const declared = file.type?.trim();
+  if (declared && declared !== "application/octet-stream") return declared;
+
+  const ext = path.extname(file.name ?? "").toLowerCase();
+  if (ext && EXT_TO_MIME[ext]) return EXT_TO_MIME[ext];
+
+  try {
+    const sharp = (await import("sharp")).default;
+    const format = (await sharp(buffer).metadata()).format;
+    const fromSharp: Record<string, string> = {
+      jpeg: "image/jpeg",
+      png: "image/png",
+      webp: "image/webp",
+      gif: "image/gif",
+      heif: "image/heic",
+    };
+    if (format && fromSharp[format]) return fromSharp[format];
+  } catch {
+    /* formato desconhecido */
+  }
+
+  return declared || "application/octet-stream";
+}
 
 const DEFAULT_UPLOAD_SUBDIR = "data/uploads";
 
@@ -307,22 +350,31 @@ export async function saveUploadedFile(
   file: File,
   userId: string,
   kind: UploadKind,
-): Promise<{ url: string; relativePath: string; mime: string; thumbUrl?: string }> {
+): Promise<{
+  url: string;
+  relativePath: string;
+  mime: string;
+  thumbUrl?: string;
+  buffer: Buffer;
+}> {
   const rules = LIMITS[kind];
-  if (!rules.mimes.has(file.type)) {
-    throw new Error("Tipo de arquivo não permitido.");
-  }
   if (file.size > rules.maxBytes) {
     throw new Error(
       `Arquivo muito grande. Máximo: ${Math.round(rules.maxBytes / (1024 * 1024))} MB.`,
     );
   }
 
-  let mime = file.type;
-  let ext = MIME_EXT[file.type];
-  if (!ext) throw new Error("Extensão não suportada.");
-
   let buffer: Buffer = Buffer.from(await file.arrayBuffer());
+  let mime = await resolveUploadMime(file, buffer);
+
+  if (!rules.mimes.has(mime)) {
+    throw new Error(
+      "Tipo de arquivo não permitido. Use JPG, PNG, WebP ou GIF.",
+    );
+  }
+
+  let ext = MIME_EXT[mime];
+  if (!ext) throw new Error("Extensão não suportada.");
 
   const shouldOptimize =
     kind === "avatar" ||
@@ -366,5 +418,6 @@ export async function saveUploadedFile(
     relativePath,
     mime,
     thumbUrl,
+    buffer,
   };
 }

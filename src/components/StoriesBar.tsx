@@ -58,7 +58,7 @@ export function StoriesBar({ currentUserId }: { currentUserId: string }) {
             <div className="bc-story-ring rounded-full">
               <LocalMediaUpload
                 kind="story"
-                accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime"
+                accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,.heic,.heif,video/mp4,video/webm,video/quicktime"
                 label="+"
                 className="flex h-16 w-16 items-center justify-center rounded-full bg-bc-white text-2xl font-bold text-bc-blue"
                 onUploaded={async (url, mime) => {

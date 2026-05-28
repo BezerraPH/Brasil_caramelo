@@ -26,7 +26,7 @@ export function AvatarUpload({ name, avatarUrl }: AvatarUploadProps) {
         <div className="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start">
           <LocalMediaUpload
             kind="avatar"
-            accept="image/jpeg,image/png,image/webp,image/gif"
+            accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif,.heic,.heif"
             label="Enviar foto"
             className="bc-btn-primary"
             onUploaded={(uploaded) => {

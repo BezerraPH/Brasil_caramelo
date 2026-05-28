@@ -7,6 +7,8 @@ const OPTIMIZE_MIMES = new Set([
   "image/jpeg",
   "image/png",
   "image/webp",
+  "image/heic",
+  "image/heif",
 ]);
 
 /** Redimensiona e converte imagens raster para WebP (GIF animado não é alterado). */

@@ -12,7 +12,7 @@ cd ~/brasil_caramelo
 
 Ou: `cp .env.example .env` → `docker compose up -d --build`
 
-## Stack (5 containers)
+## Stack (8 serviços Docker)
 
 | Serviço | Porta |
 |---------|-------|
@@ -21,6 +21,9 @@ Ou: `cp .env.example .env` → `docker compose up -d --build`
 | Soketi (tempo real) | 6001 |
 | coturn (WebRTC) | 3478 |
 | LiveKit (Latidos) | 7880 |
+| Meilisearch | 7700 |
+| Redis | 6379 (interno) |
+| MinIO (mídia S3) | 9000 |
 
 **Sem serviços externos** (OpenAI, Pusher cloud, etc.).
 

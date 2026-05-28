@@ -195,10 +195,84 @@ if command -v docker >/dev/null 2>&1 && docker compose ps --status running app 2
   fi
 fi
 
+if grep -qE '^S3_ENDPOINT=.+' .env 2>/dev/null; then
+  probe_tcp "127.0.0.1" 9000 "MinIO API (localhost)"
+  if command -v docker >/dev/null 2>&1 && docker compose ps --status running minio 2>/dev/null | grep -q .; then
+    printf '  [OK]   %-28s container minio\n' "MinIO stack"
+    PASS=$((PASS + 1))
+  else
+    printf '  [SKIP] %-28s rode setup-minio-bucket.sh\n' "MinIO stack"
+    SKIP=$((SKIP + 1))
+  fi
+else
+  printf '  [SKIP] %-28s S3_ENDPOINT vazio\n' "MinIO"
+  SKIP=$((SKIP + 1))
+fi
+
 run_list_file "scripts/smoke-tests.list" "HTTP sem login"
+
+run_upload_smoke() {
+  [ "${SMOKE_USE_COOKIE:-}" = "1" ] || return 0
+
+  printf '\n── Upload autenticado (mídia) ──\n'
+
+  local code
+  code="$(bc_curl_smoke -sS -o "$SMOKE_BODY" -w '%{http_code}' -m 20 \
+    -b "$SMOKE_COOKIE" -c "$SMOKE_COOKIE" \
+    -X POST "${BASE}/api/upload" \
+    -F "kind=postImage" 2>/dev/null || echo 000)"
+  if [ "$code" = "400" ]; then
+    printf '  [OK]   %-28s POST /api/upload → HTTP %s\n' "Upload sem arquivo" "$code"
+    PASS=$((PASS + 1))
+  else
+    printf '  [FAIL] %-28s POST /api/upload → HTTP %s (esperado 400)\n' "Upload sem arquivo" "$code"
+    FAIL=$((FAIL + 1))
+  fi
+
+  local tiny_png
+  tiny_png="$(mktemp /tmp/bc-smoke-png.XXXXXX)"
+  echo 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==' | base64 -d >"$tiny_png" 2>/dev/null || true
+  if [ -s "$tiny_png" ]; then
+    code="$(bc_curl_smoke -sS -o "$SMOKE_BODY" -w '%{http_code}' -m 30 \
+      -b "$SMOKE_COOKIE" -c "$SMOKE_COOKIE" \
+      -X POST "${BASE}/api/upload" \
+      -F "file=@${tiny_png};type=image/png" \
+      -F "kind=postImage" 2>/dev/null || echo 000)"
+    if [ "$code" = "200" ] && grep -qF '"url"' "$SMOKE_BODY" 2>/dev/null; then
+      printf '  [OK]   %-28s POST /api/upload → HTTP %s\n' "Upload imagem" "$code"
+      PASS=$((PASS + 1))
+    else
+      printf '  [FAIL] %-28s POST /api/upload → HTTP %s\n' "Upload imagem" "$code"
+      FAIL=$((FAIL + 1))
+    fi
+  else
+    printf '  [SKIP] %-28s base64 indisponível\n' "Upload imagem"
+    SKIP=$((SKIP + 1))
+  fi
+  rm -f "$tiny_png"
+
+  local tiny_mp4
+  tiny_mp4="$(mktemp /tmp/bc-smoke-mp4.XXXXXX)"
+  # MP4 mínimo (ftyp) — valida MIME .mov vazio no iOS
+  printf '\x00\x00\x00\x20ftypisom\x00\x00\x02\x00isomiso2mp41\x00\x00\x00\x08mdat\x00\x00\x00\x00' >"$tiny_mp4"
+  code="$(bc_curl_smoke -sS -o "$SMOKE_BODY" -w '%{http_code}' -m 30 \
+    -b "$SMOKE_COOKIE" -c "$SMOKE_COOKIE" \
+    -X POST "${BASE}/api/upload" \
+    -F "file=@${tiny_mp4};type=application/octet-stream" \
+    -F "kind=postVideo" 2>/dev/null || echo 000)"
+  if [ "$code" = "200" ] && grep -qF '"url"' "$SMOKE_BODY" 2>/dev/null; then
+    printf '  [OK]   %-28s POST /api/upload → HTTP %s\n' "Upload vídeo" "$code"
+    PASS=$((PASS + 1))
+  else
+    printf '  [FAIL] %-28s POST /api/upload → HTTP %s\n' "Upload vídeo" "$code"
+    FAIL=$((FAIL + 1))
+  fi
+  rm -f "$tiny_mp4"
+}
 
 if try_auth_login; then
   run_list_file "scripts/smoke-tests-auth.list" "HTTP com login"
+  run_upload_smoke
 fi
 
 printf '\n── Resumo ──\n'

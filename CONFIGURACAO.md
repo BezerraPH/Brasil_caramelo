@@ -80,16 +80,27 @@ brasil_caramelo/
     nginx/                 ← configs nginx (LAN, túnel, tailscale)
   scripts/
     README.md              ← índice de todos os scripts
+    smoke-tests.list       ← rotas HTTP públicas (smoke)
+    smoke-tests-auth.list  ← rotas com sessão smoke
+    lib/server-common.sh   ← funções shell compartilhadas
     setup-env.sh           ← gera .env com IP
     deploy-brasil-caramelo.sh ← deploy completo (--mode http|https|tailscale)
     deploy-ubuntu.sh       ← alias do deploy acima
+    check-production-env.sh
+    setup-production-stack.sh
+    setup-minio-bucket.sh
     setup-https-lan.sh     ← HTTPS mkcert na LAN
     setup-tailscale.sh     ← Tailscale + serve
     setup-cloudflare-tunnel.sh
-    server-audit.sh          ← auditoria + smoke
-    server-smoke.sh
-    cron-maintenance.example  ← cron horário (batalhas, stories, trending)
+    server-audit.sh        ← auditoria + smoke
+    server-smoke.sh        ← smoke + upload imagem/vídeo
+    setup-smoke-account.sh
+    generate-vapid-keys.sh
+    reindex-meilisearch.sh
+    setup-capacitor.sh
+    cron-maintenance.example
     cron-backup.example
+  deploy/env/ntek-servidor.env.example  ← template .env Tailscale
 ```
 
 ---
@@ -649,11 +660,22 @@ bash scripts/server-audit.sh --smoke-only
 bash scripts/server-smoke.sh
 ```
 
-Variáveis opcionais: `BC_SMOKE_EMAIL`, `BC_SMOKE_PASSWORD` no `.env`.
+Variáveis opcionais: `BC_SMOKE_EMAIL`, `BC_SMOKE_PASSWORD` no `.env` (rode `./scripts/setup-smoke-account.sh` antes).
 
-**Auditoria OK esperada:** `WARN=0 FAIL=0`, smoke `57 OK` (com HTTPS e DNS/hosts corretos).
+Validação das listas (CI/local): `npm run validate:smoke`.
+
+O `server-smoke.sh` executa:
+
+- Probes TCP (app, Soketi, LiveKit, coturn, PostgreSQL, MinIO se `S3_ENDPOINT`)
+- `ffmpeg` no container **app** (transcode HLS)
+- `smoke-tests.list` (~100 rotas HTTP)
+- Com login: `smoke-tests-auth.list` + **upload real** (imagem PNG 1×1 e vídeo MP4 mínimo)
+
+**Auditoria OK esperada:** `WARN=0 FAIL=0`, smoke `FAIL=0` (contagem varia conforme SKIP de Ollama/nginx).
 
 Se `brasilcaramelo.com` não resolve no servidor: `bash scripts/setup-https-lan.sh` ou smoke usa `127.0.0.1` + header Host automaticamente.
+
+Deploy com smoke + MinIO: `./scripts/deploy-brasil-caramelo.sh --smoke` sobe o bucket quando `S3_ENDPOINT` está no `.env`.
 
 ---
 
@@ -677,6 +699,9 @@ Se `brasilcaramelo.com` não resolve no servidor: `bash scripts/setup-https-lan.
 | Smoke FAIL em register/reputation/premium | `git pull` (v2.9.2+) e `docker compose up -d --build` |
 | `nginx.service failed` no deploy Tailscale | `sudo bash scripts/fix-nginx-tailscale.sh` — só porta **8780** (sem vhosts 80/443) |
 | Cinelar sem ordem “For You” | Migração v2.19: `docker compose exec -T app npx prisma migrate deploy` |
+| Foto sobe, vídeo não | iPhone envia `.mov` sem MIME — atualize para **v2.29.3+**; formatos: MP4, WebM, MOV (até 32 MB) |
+| Vídeo publica mas não toca HLS | `docker compose logs app` — procure `[bc] ffmpeg transcode`; confirme `ffmpeg` no container |
+| Upload 503 | MinIO: `bash scripts/setup-minio-bucket.sh` e `S3_*` no `.env` |
 
 ---
 
@@ -793,9 +818,21 @@ git reset --hard origin/main
 
 ---
 
-## 16. Vídeo HLS (opcional)
+## 16. Vídeo e HLS
 
-Com `ffmpeg` no container (já incluso), após publicar vídeo o servidor pode gerar `playlist.m3u8`. Opcional no `.env`: `FFMPEG_PATH=/usr/bin/ffmpeg`.
+### Upload de vídeo (feed / reels)
+
+1. Botão **Vídeo** → `POST /api/upload` com `kind=postVideo` (máx. **32 MB**).
+2. Formatos: **MP4**, **WebM**, **MOV** (inclui iPhone com `file.type` vazio — detectamos por extensão e cabeçalho `ftyp`).
+3. Publicar o post com `videoUrl` retornado.
+
+### Transcode HLS (opcional, após publicar)
+
+Com `ffmpeg` no container (já incluso no Dockerfile), o servidor gera `videoHlsUrl` (`playlist.m3u8`) em background (até ~5 min). Badge “Otimizando…” some quando pronto.
+
+`.env` opcional: `FFMPEG_PATH=/usr/bin/ffmpeg` (padrão no Alpine: `ffmpeg` no PATH).
+
+Logs úteis: `docker compose logs app | grep '\[bc\]'`
 
 Cron (com `CRON_SECRET` no `.env`):
 

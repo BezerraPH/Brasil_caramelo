@@ -15,7 +15,8 @@ brasil_caramelo/
 ├── prisma/               # Schema e migrações
 ├── scripts/              # Deploy, smoke, HTTPS, backup
 │   ├── README.md         # Índice dos scripts
-│   └── lib/              # Funções shell compartilhadas
+│   ├── smoke-tests.list / smoke-tests-auth.list
+│   └── lib/server-common.sh
 ├── deploy/               # Nginx, LiveKit, Gitea
 ├── public/               # PWA, ícones estáticos
 ├── docs/                 # Índice e esta estrutura

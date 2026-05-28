@@ -18,7 +18,9 @@ export function schedulePostVideoTranscode(
   postId: string,
   videoUrl: string,
 ): void {
-  void transcodePostVideo(postId, videoUrl).catch(() => {});
+  void transcodePostVideo(postId, videoUrl).catch((err) => {
+    console.error("[bc] transcode post video failed:", postId, err);
+  });
 }
 
 async function materializeVideoForFfmpeg(

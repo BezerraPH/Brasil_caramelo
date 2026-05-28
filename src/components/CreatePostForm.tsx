@@ -175,7 +175,7 @@ export function CreatePostForm({
         {(reelsMode || !instaMode) && (
           <LocalMediaUpload
             kind="postVideo"
-            accept="video/mp4,video/webm,video/quicktime"
+            accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov,.m4v"
             label="🎬 Vídeo"
             className="rounded-lg border-2 border-bc-caramel/40 bg-bc-white px-3 py-1.5 text-xs font-semibold text-bc-caramel"
             onUploaded={(url, _mime, extra) => {

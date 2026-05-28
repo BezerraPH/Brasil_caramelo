@@ -32,3 +32,5 @@ auth-session|Comunidades mural|GET|/api/communities/musica-brasileira/posts|200|
 auth-session|Comunidades hot|GET|/api/communities?sort=hot|200|communities
 auth-session|Premium admin|GET|/api/premium/orders/admin|200,403|orders
 # 403 = smoke user não está em PREMIUM_ADMIN_USERNAMES (esperado)
+# Upload multipart (imagem + vídeo) — scripts/server-smoke.sh run_upload_smoke
+auth-session|Post vídeo status|GET|/api/posts/smoke-nonexistent-id/video|404|

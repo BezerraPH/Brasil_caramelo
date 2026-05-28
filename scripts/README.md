@@ -13,7 +13,7 @@
 | setup-tailscale.sh | Tailscale + `tailscale serve` (recomendado no celular) |
 | setup-cloudflare-tunnel.sh | Túnel Cloudflare (público, WebRTC limitado) |
 | server-audit.sh | Auditoria completa + smoke tests |
-| server-smoke.sh | Smoke tests HTTP (listas em `smoke-tests*.list`) |
+| server-smoke.sh | Smoke HTTP + MinIO/ffmpeg + upload imagem/vídeo autenticado |
 | server-report.sh | Alias → `server-audit.sh` |
 | setup-smoke-account.sh | Conta de teste para smoke autenticado |
 | backup-matilha.sh | Backup PostgreSQL + uploads (retenção RETENTION_DAYS) |

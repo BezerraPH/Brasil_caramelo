@@ -111,10 +111,12 @@ if [ "$SKIP_MIGRATE" -eq 0 ]; then
   docker compose exec -T app npx prisma migrate deploy
 fi
 
-if [ "$RUN_AUDIT" -eq 1 ] && grep -qE '^S3_ENDPOINT=.+' .env 2>/dev/null; then
-  echo "==> MinIO (deploy --full)..."
-  docker compose up -d minio 2>/dev/null || true
-  bash scripts/setup-minio-bucket.sh 2>/dev/null || echo "    [AVISO] MinIO — configure S3_* e rode setup-minio-bucket.sh"
+if grep -qE '^S3_ENDPOINT=.+' .env 2>/dev/null; then
+  if [ "$RUN_AUDIT" -eq 1 ] || [ "$RUN_SMOKE" -eq 1 ]; then
+    echo "==> MinIO (S3_ENDPOINT no .env)..."
+    docker compose up -d minio 2>/dev/null || true
+    bash scripts/setup-minio-bucket.sh 2>/dev/null || echo "    [AVISO] MinIO — configure S3_* e rode setup-minio-bucket.sh"
+  fi
 fi
 
 CRON_SECRET_VAL="$(grep -E '^CRON_SECRET=' .env 2>/dev/null | cut -d= -f2- | tr -d '"' || true)"

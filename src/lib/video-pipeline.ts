@@ -71,10 +71,12 @@ export async function maybeTranscodeToHls(
         path.join(outDir, "seg_%03d.ts"),
         playlist,
       ],
-      { timeout: 120_000 },
+      { timeout: 300_000, maxBuffer: 8 * 1024 * 1024 },
     );
     return `/api/media/${hlsRelative}`;
-  } catch {
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[bc] ffmpeg transcode failed:", mediaRelativePath, msg);
     return null;
   }
 }

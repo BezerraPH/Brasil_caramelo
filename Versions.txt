@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-22 (v2.29.2-alpha)
-Versão atual do pacote (package.json): 2.29.2-alpha.0
+Última atualização: 2026-05-22 (v2.29.3-alpha)
+Versão atual do pacote (package.json): 2.29.3-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
@@ -546,6 +546,15 @@ Remote Gitea:
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+v2.29.3-alpha.0 — 2026-05-22 (upload vídeo + smoke/deploy/docs)
+------------------------------------------------------------------------------
+  FIX: upload vídeo — MIME .mov/.mp4 vazio (sniff ftyp), mensagens de erro por tipo
+  FIX: transcode HLS — log ffmpeg, timeout 5 min
+  OPS: server-smoke — upload imagem+vídeo, MinIO :9000, media 404
+  OPS: deploy --smoke sobe MinIO; coturn sem --no-cli deprecado
+  DOC: CONFIGURACAO, README, docs, scripts/README, ESTRUTURA
+
 ------------------------------------------------------------------------------
 v2.29.2-alpha.0 — 2026-05-22 (upload de imagem + conquistas)
 ------------------------------------------------------------------------------

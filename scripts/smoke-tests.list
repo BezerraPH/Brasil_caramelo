@@ -77,6 +77,7 @@ auth-guard|LiveKit token sala|GET|/api/livekit/token?room=pitbull|401|
 auth-guard|Batalhas|GET|/api/battles|401|
 auth-guard|Eventos|GET|/api/events|401|
 auth-guard|Storage stats|GET|/api/storage/stats|401|
+public-api|Media inexistente|GET|/api/media/__smoke_missing__/file.bin|404|
 auth-guard|Federação peers|GET|/api/federation/peers|401|
 
 auth-guard|Chats não lidos|GET|/api/chats/unread|401|
@@ -126,7 +127,6 @@ auth-guard|Push subscribe|POST|/api/push/subscribe|401|
 public-api|Cron maintenance reindex param|POST|/api/cron/maintenance?reindex=1|401|
 auth-guard|Ops metrics|GET|/api/ops/metrics|401|
 auth-guard|Ops event|POST|/api/ops/event|401|
-auth-guard|Storage stats|GET|/api/storage/stats|401|
 auth-guard|GDPR export|GET|/api/users/me/export|401|
 public-api|Comunidades list|GET|/api/communities|200|communities
 auth-guard|Comunidades fórum|GET|/api/communities/musica-brasileira/threads|401|

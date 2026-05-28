@@ -19,8 +19,8 @@ bash scripts/sync-from-git.sh
 sudo bash scripts/deploy-brasil-caramelo.sh --mode tailscale --full
 
 # Testes (no servidor ou com app no ar)
-bash scripts/server-smoke.sh
-bash scripts/server-smoke.sh --auth   # com BC_SMOKE_EMAIL no .env
+bash scripts/server-smoke.sh   # inclui upload imagem+vídeo se BC_SMOKE_* no .env
+npm run validate:smoke       # valida formato das listas (sem subir app)
 ```
 
 ## Versão atual

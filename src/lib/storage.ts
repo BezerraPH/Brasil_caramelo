@@ -90,6 +90,10 @@ const EXT_TO_MIME: Record<string, string> = {
   ".gif": "image/gif",
   ".heic": "image/heic",
   ".heif": "image/heif",
+  ".mp4": "video/mp4",
+  ".m4v": "video/mp4",
+  ".webm": "video/webm",
+  ".mov": "video/quicktime",
 };
 
 function imageUploadMimes(): Set<string> {
@@ -103,6 +107,39 @@ function imageUploadMimes(): Set<string> {
   ]);
 }
 
+/** Detecta vídeo pelo cabeçalho (iOS costuma enviar .mov sem MIME). */
+function sniffVideoMime(buffer: Buffer): string | null {
+  if (buffer.length < 12) return null;
+  if (buffer.subarray(4, 8).toString("ascii") === "ftyp") {
+    return "video/mp4";
+  }
+  if (
+    buffer[0] === 0x1a &&
+    buffer[1] === 0x45 &&
+    buffer[2] === 0xdf &&
+    buffer[3] === 0xa3
+  ) {
+    return "video/webm";
+  }
+  return null;
+}
+
+function mimeRejectMessage(kind: UploadKind): string {
+  const mimes = LIMITS[kind].mimes;
+  const hasVideo = [...mimes].some((m) => m.startsWith("video/"));
+  const hasPdf = mimes.has("application/pdf");
+  if (hasVideo && hasPdf) {
+    return "Tipo não permitido. Use JPG/PNG/WebP/GIF, MP4/WebM/MOV ou PDF.";
+  }
+  if (hasVideo) {
+    return "Tipo não permitido. Use MP4, WebM ou MOV.";
+  }
+  if (hasPdf) {
+    return "Tipo não permitido. Use JPG, PNG, WebP, GIF ou PDF.";
+  }
+  return "Tipo não permitido. Use JPG, PNG, WebP ou GIF.";
+}
+
 /** MIME do File (Safari/iOS às veis envia type vazio). */
 async function resolveUploadMime(file: File, buffer: Buffer): Promise<string> {
   const declared = file.type?.trim();
@@ -110,6 +147,9 @@ async function resolveUploadMime(file: File, buffer: Buffer): Promise<string> {
 
   const ext = path.extname(file.name ?? "").toLowerCase();
   if (ext && EXT_TO_MIME[ext]) return EXT_TO_MIME[ext];
+
+  const video = sniffVideoMime(buffer);
+  if (video) return video;
 
   try {
     const sharp = (await import("sharp")).default;
@@ -123,7 +163,7 @@ async function resolveUploadMime(file: File, buffer: Buffer): Promise<string> {
     };
     if (format && fromSharp[format]) return fromSharp[format];
   } catch {
-    /* formato desconhecido */
+    /* não é imagem raster */
   }
 
   return declared || "application/octet-stream";
@@ -368,9 +408,7 @@ export async function saveUploadedFile(
   let mime = await resolveUploadMime(file, buffer);
 
   if (!rules.mimes.has(mime)) {
-    throw new Error(
-      "Tipo de arquivo não permitido. Use JPG, PNG, WebP ou GIF.",
-    );
+    throw new Error(mimeRejectMessage(kind));
   }
 
   let ext = MIME_EXT[mime];

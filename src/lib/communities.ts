@@ -212,7 +212,6 @@ export async function getCommunityBySlug(slug: string, userId: string | null) {
     isMember: Boolean(
       userId && Array.isArray(c.members) && c.members.length > 0,
     ),
-    memberRole,
     ...access,
   };
 }

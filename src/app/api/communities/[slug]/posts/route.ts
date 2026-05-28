@@ -4,7 +4,7 @@ import { validationMessage } from "@/lib/api-error";
 import { moderateTextFull } from "@/lib/content-moderation";
 import { getCommunityBySlug } from "@/lib/communities";
 import { prisma } from "@/lib/prisma";
-import { postSchema } from "@/lib/validators";
+import { communityPostSchema } from "@/lib/validators";
 
 type RouteContext = { params: Promise<{ slug: string }> };
 
@@ -66,7 +66,7 @@ export async function POST(request: Request, context: RouteContext) {
 
   try {
     const body = await request.json();
-    const { content } = postSchema.parse(body);
+    const { content } = communityPostSchema.parse(body);
     const text = content.trim();
 
     const mod = await moderateTextFull(text);

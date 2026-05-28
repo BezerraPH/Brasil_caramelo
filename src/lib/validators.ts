@@ -172,6 +172,10 @@ export const communityThreadSchema = packThreadSchema.pick({
   content: true,
 });
 
+export const communityPostSchema = z.object({
+  content: z.string().min(1).max(2000),
+});
+
 export const communityRulesSchema = z.object({
   pinnedRules: z.string().min(3).max(2000),
 });

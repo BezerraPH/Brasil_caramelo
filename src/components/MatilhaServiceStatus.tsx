@@ -2,16 +2,10 @@
 
 import { useCallback, useState } from "react";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
-
-type StackHealth = {
-  soketi?: { configured: boolean; label: string };
-  livekit?: { configured: boolean; label: string };
-  turn?: { configured: boolean; label: string };
-  ollama?: { configured: boolean; label: string };
-};
+import type { StackHealthSnapshot } from "@/lib/stack-health";
 
 export function MatilhaServiceStatus() {
-  const [stack, setStack] = useState<StackHealth | null>(null);
+  const [stack, setStack] = useState<StackHealthSnapshot | null>(null);
 
   const load = useCallback(async () => {
     const res = await fetch("/api/matilha/connection");

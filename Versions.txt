@@ -3,7 +3,7 @@
 ================================================================================
 
 Última atualização: 2026-05-22 (v2.27.0-alpha)
-Versão atual do pacote (package.json): 2.27.0-alpha.0
+Versão atual do pacote (package.json): 2.27.1-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
@@ -538,6 +538,15 @@ Remote Gitea:
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+v2.27.1-alpha.0 — 2026-05-22 (fix build Docker)
+------------------------------------------------------------------------------
+  FIX:
+  + CommunitiesExplorer não importa mais prisma (communities-types.ts)
+  + server-only em prisma.ts e communities.ts
+  + next build --webpack (evita Turbopack + pg no client)
+  + serverExternalPackages: pg, redis, web-push, @prisma/adapter-pg
+
 ------------------------------------------------------------------------------
 v2.27.0-alpha.0 — 2026-05-22 (Federação Tailscale + Capacitor — fim V3)
 ------------------------------------------------------------------------------

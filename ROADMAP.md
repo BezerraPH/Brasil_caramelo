@@ -97,4 +97,4 @@ Legenda: **P0** crítico · **P1** alto valor · **P2** polish · **P3** infra �
 
 ---
 
-*Última revisão: 2026-05-22 · versão de referência: v2.27.0-alpha.0 · **Roadmap fechado para deploy***
+*Última revisão: 2026-05-22 · versão de referência: v2.27.1-alpha.0 · **Roadmap fechado para deploy***

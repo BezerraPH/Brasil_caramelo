@@ -1,18 +1,9 @@
-import { prisma } from "@/lib/prisma";
+import "server-only";
 
-export type CommunityCard = {
-  id: string;
-  slug: string;
-  name: string;
-  description: string;
-  emoji: string;
-  category: string;
-  themePrimary: string;
-  themeAccent: string;
-  memberCount: number;
-  packSlug: string | null;
-  isMember: boolean;
-};
+import { prisma } from "@/lib/prisma";
+import type { CommunityCard } from "@/lib/communities-types";
+
+export type { CommunityCard } from "@/lib/communities-types";
 
 export async function ensureCommunitiesSeeded(): Promise<void> {
   const count = await prisma.community.count();
@@ -166,12 +157,3 @@ export async function leaveCommunity(
   });
 }
 
-export const COMMUNITY_CATEGORIES = [
-  { id: "todos", label: "Todas" },
-  { id: "musica", label: "Música" },
-  { id: "pets", label: "Pets" },
-  { id: "games", label: "Games" },
-  { id: "esportes", label: "Esportes" },
-  { id: "humor", label: "Humor" },
-  { id: "outros", label: "Outros" },
-] as const;

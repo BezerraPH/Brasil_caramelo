@@ -4,8 +4,8 @@ import type { CSSProperties } from "react";
 import Link from "next/link";
 import { useCallback, useState } from "react";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
-import type { CommunityCard } from "@/lib/communities";
-import { COMMUNITY_CATEGORIES } from "@/lib/communities";
+import type { CommunityCard } from "@/lib/communities-types";
+import { COMMUNITY_CATEGORIES } from "@/lib/communities-types";
 
 export function CommunitiesExplorer() {
   const [category, setCategory] = useState("todos");

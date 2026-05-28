@@ -27,6 +27,9 @@ export function MatilhaServiceStatus() {
     { key: "soketi", icon: "💬" },
     { key: "livekit", icon: "🎙️" },
     { key: "turn", icon: "📹" },
+    { key: "redis", icon: "⚡" },
+    { key: "meilisearch", icon: "🔍" },
+    { key: "minio", icon: "📦" },
     { key: "ollama", icon: "🤖" },
   ] as const;
 

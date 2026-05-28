@@ -5,6 +5,8 @@
 | Script | Função |
 |--------|--------|
 | **deploy-brasil-caramelo.sh** | Deploy completo (`--mode`, `--audit`, `--smoke`, `--full`) |
+| **check-production-env.sh** | Audita `.env` (Premium, VAPID, Meili, S3, Redis…) |
+| **setup-production-stack.sh** | Passos opcionais pós-deploy (v2.28+ P0) |
 | deploy-ubuntu.sh | Alias → `deploy-brasil-caramelo.sh` |
 | setup-env.sh | Cria `.env` com IP detectado |
 | setup-https-lan.sh | HTTPS mkcert na LAN (`brasilcaramelo.com`) |
@@ -62,6 +64,16 @@ docker compose exec -T app npx prisma migrate deploy
 ```
 
 Smoke (v2.27): `POST /api/federation/peers/probe-test/probe` (401).
+
+Após atualizar para **v2.29+**:
+
+```bash
+docker compose exec -T app npx prisma migrate deploy
+```
+
+Smoke (v2.29): comunidades mural/fórum/hot, `GET /api/premium/orders/admin` (403 se não admin).
+
+Configure `PREMIUM_ADMIN_USERNAMES=seu_user` para painel PIX em `/premium`.
 
 Após atualizar para **v2.26+**:
 

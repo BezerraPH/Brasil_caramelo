@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-22 (v2.27.0-alpha)
-Versão atual do pacote (package.json): 2.27.1-alpha.0
+Última atualização: 2026-05-22 (v2.29.0-alpha)
+Versão atual do pacote (package.json): 2.29.0-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
@@ -28,9 +28,17 @@ INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
 ================================================================================
 
 Arquivo mestre: ROADMAP.md
-Progresso (manual — atualizar ao marcar itens): P0 4/4 · P1 15/15 · P2 8/8 · P3 6/6 · V3 4/4
+Progresso v2.28+: P0 10/10 · P1 Comunidades 5/6 · Monetização 2/3 · (ver ROADMAP.md)
 
-**Roadmap P0–V3: FECHADO** — pronto para deploy.
+**Onda v2.19–v2.27: FECHADA.** **v2.29: comunidades profundas + Pedigree admin.**
+
+Concluído v2.29:
+  [x] R-COM-02..04,06 Moderadores, mural, ranking quente, busca
+  [x] R-MON-03/04 PIX manual admin + dashboard pedidos
+  [x] R-028-01..10 P0 scripts/doc (check-production-env, setup-production-stack, §18)
+  [x] R-OPS-05/06 Backup/alertas doc
+
+Pendente próximo: R-COM-05 criar comunidade · R-SOC-* · R-QA-* testes
 
 Concluído em v2.27 (V3):
   [x] R-V3-03 Federação Tailscale (networkType, probe, timeout 20s)
@@ -538,6 +546,39 @@ Remote Gitea:
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
 ------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+v2.29.0-alpha.0 — 2026-05-22 (comunidades profundas + Pedigree admin)
+------------------------------------------------------------------------------
+  COMUNIDADES:
+  + R-COM-02 ownerId, pinnedRules, role MODERATOR, painéis regras/mods
+  + R-COM-03 mural POST/GET /api/communities/[slug]/posts
+  + R-COM-04 sort=hot · R-COM-06 busca q= na UI
+  + Moderação fórum: PATCH .../threads/[id]/moderate
+
+  MONETIZAÇÃO:
+  + PREMIUM_ADMIN_USERNAMES · GET /api/premium/orders/admin
+  + POST /api/premium/orders/[id]/confirm · PremiumAdminPanel
+
+  OPS / DESIGN:
+  + setup-production-stack.sh · CONFIGURACAO.md §18
+  + MatilhaServiceStatus: Redis, Meili, MinIO
+  + CSS comunidades (regras, mural, grid hover)
+  + deploy --full: MinIO automático se S3_* no .env
+  + Smoke: mural, hot, premium admin
+
+------------------------------------------------------------------------------
+v2.28.0-alpha.0 — 2026-05-22 (fórum comunidades + checklist .env)
+------------------------------------------------------------------------------
+  COMUNIDADES (R-COM-01):
+  + CommunityThread / CommunityReply (Prisma)
+  + GET/POST /api/communities/[slug]/threads
+  + GET/POST /api/communities/[slug]/threads/[threadId]
+  + CommunityForum em /comunidades/[slug]
+
+  OPS (R-028-10):
+  + scripts/check-production-env.sh (deploy chama ao final)
+  + Smoke Tailscale SKIP 443/7443/6443 · webhooks 401/503/400
+
 ------------------------------------------------------------------------------
 v2.27.1-alpha.0 — 2026-05-22 (fix build Docker)
 ------------------------------------------------------------------------------

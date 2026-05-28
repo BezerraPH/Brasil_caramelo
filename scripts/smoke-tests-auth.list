@@ -27,3 +27,7 @@ auth-session|Reputação|GET|/api/reputation|200|
 auth-session|Premium|GET|/api/premium|200|
 auth-session|Storage|GET|/api/storage/stats|200|
 auth-session|Eventos|GET|/api/events|200|
+auth-session|Comunidades fórum|GET|/api/communities/musica-brasileira/threads|200|threads
+auth-session|Comunidades mural|GET|/api/communities/musica-brasileira/posts|200|posts
+auth-session|Comunidades hot|GET|/api/communities?sort=hot|200|communities
+auth-session|Premium admin|GET|/api/premium/orders/admin|200,403|orders

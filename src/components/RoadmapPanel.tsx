@@ -24,15 +24,23 @@ const DONE = [
   { icon: "🔔", title: "Push PWA na tailnet", phase: "v2.23" },
   { icon: "⚡", title: "Redis + CI + backup ops", phase: "v2.24" },
   { icon: "📦", title: "MinIO / S3 para mídia", phase: "v2.25" },
-  { icon: "🏘️", title: "Comunidades Orkut + export LGPD", phase: "v2.26" },
+  { icon: "🏘️", title: "Comunidades: fórum, mural, mods, ranking", phase: "v2.29" },
+  { icon: "💳", title: "Pedigree admin PIX manual", phase: "v2.29" },
+  { icon: "📤", title: "Export LGPD JSON", phase: "v2.26" },
   { icon: "🌐", title: "Caramelo-Sync Tailscale + Capacitor", phase: "v2.27" },
   { icon: "🔒", title: "HTTPS / Tailscale / mkcert (CONFIGURACAO.md)" },
   { icon: "🌳", title: "Árvore genealógica DNA" },
   { icon: "🏪", title: "Cupons pet shop regional" },
 ];
 
-/** Espelho dos itens P0/P1 de ROADMAP.md — atualizar ao marcar [x] no roadmap. */
-const FUTURE: { icon: string; title: string; phase?: string }[] = [];
+/** Próximos itens de ROADMAP.md (onda v2.28+) — atualizar ao marcar [x]. */
+const FUTURE: { icon: string; title: string; phase?: string }[] = [
+  { icon: "➕", title: "Criar comunidade (usuário)", phase: "v2.29" },
+  { icon: "💬", title: "Scrapbook com threads em depoimentos", phase: "v2.29" },
+  { icon: "📌", title: "Recado fixado no perfil Orkut", phase: "v2.29" },
+  { icon: "🔄", title: "Federação: sync agendado e preview", phase: "v2.30" },
+  { icon: "🧪", title: "Testes Vitest + Playwright", phase: "P3" },
+];
 
 export function RoadmapPanel() {
   return (
@@ -63,11 +71,29 @@ export function RoadmapPanel() {
         </ul>
       </section>
 
+      {FUTURE.length > 0 && (
+        <section className="bc-card border-bc-yellow/40 p-4">
+          <h2 className="mb-3 font-bold text-bc-blue">Em breve (v2.28+)</h2>
+          <ul className="space-y-2 text-sm text-bc-brown">
+            {FUTURE.map((f) => (
+              <li key={f.title} className="flex gap-2">
+                <span>{f.icon}</span>
+                <span>
+                  {f.title}
+                  {f.phase ? (
+                    <span className="ml-1 text-xs text-bc-brown/70">({f.phase})</span>
+                  ) : null}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <section className="bc-card border-bc-green/30 p-4">
-        <h2 className="mb-2 font-bold text-bc-green">Roadmap V3 ✓</h2>
+        <h2 className="mb-2 font-bold text-bc-green">Roadmap</h2>
         <p className="text-xs text-bc-brown">
-          P0–V3 concluídos — pronto para deploy. Novas ideias fora do{" "}
-          <strong>ROADMAP.md</strong> entram como backlog separado.
+          Detalhes em <strong>ROADMAP.md</strong> — onda v2.28+ em andamento.
         </p>
       </section>
     </aside>

@@ -2,6 +2,7 @@ import { PageContainer } from "@/components/PageContainer";
 import { PedigreePaymentCard } from "@/components/PedigreePaymentCard";
 import { PetShopCoupons } from "@/components/PetShopCoupons";
 import { PremiumActivate } from "@/components/PremiumActivate";
+import { PremiumAdminPanel } from "@/components/PremiumAdminPanel";
 import { PREMIUM_PERKS } from "@/lib/constants";
 import { getCurrentUser } from "@/lib/auth";
 
@@ -48,6 +49,8 @@ export default async function PremiumPage() {
           Recife ou Caruaru) no servidor.
         </p>
       )}
+
+      <PremiumAdminPanel />
 
       <ul className="bc-card mt-6 space-y-3 p-6 text-sm">
         <li>★ Selo dourado no perfil</li>

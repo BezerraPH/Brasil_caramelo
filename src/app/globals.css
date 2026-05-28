@@ -851,6 +851,45 @@ body {
   animation: bc-community-pulse 2s ease-in-out infinite;
 }
 
+.bc-community-rules {
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--bc-community-primary, var(--bc-green)) 8%, var(--bc-white)),
+    var(--bc-white)
+  );
+  animation: bc-fade-in-up 0.45s ease both;
+}
+
+.bc-community-mural-item {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bc-community-mural-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--bc-community-primary, var(--bc-green)) 12%, transparent);
+}
+
+.bc-community-toolbar input:focus {
+  animation: bc-search-glow 0.35s ease both;
+}
+
+@keyframes bc-search-glow {
+  from {
+    box-shadow: 0 0 0 0 transparent;
+  }
+  to {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--bc-green) 22%, transparent);
+  }
+}
+
+.bc-community-grid .bc-community-card {
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.bc-community-grid .bc-community-card:hover {
+  transform: translateY(-4px) scale(1.01);
+}
+
 @keyframes bc-community-pulse {
   0%,
   100% {

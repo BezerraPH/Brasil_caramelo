@@ -28,6 +28,7 @@ Stack: **um** `docker-compose.yml` + **um** `.env` → app, PostgreSQL, Soketi, 
 15. [Testes manuais](#15-testes-manuais) (incl. Cinelar FYP v2.19)
 16. [Vídeo HLS (opcional)](#16-vídeo-hls-opcional)
 17. [Histórico e Gitea](#17-histórico-e-gitea)
+18. [Checklist produção v2.28+](#18-checklist-produção-v228) (Premium, push, Meili, MinIO…)
 
 ---
 
@@ -805,6 +806,39 @@ curl -X POST http://127.0.0.1:3000/api/cron/trending -H "Authorization: Bearer S
 # Manutenção completa (batalhas + stories + trending) — preferível
 curl -X POST http://127.0.0.1:3000/api/cron/maintenance -H "x-cron-secret: SEU_CRON_SECRET"
 ```
+
+---
+
+## 18. Checklist produção v2.28+
+
+Antes do deploy final, rode no servidor:
+
+```bash
+bash scripts/check-production-env.sh
+bash scripts/setup-production-stack.sh   # dicas + passos opcionais
+```
+
+| Variável | Para quê |
+|----------|----------|
+| `PREMIUM_WEBHOOK_SECRET` | Webhook PIX automático (`POST /api/premium/webhook`) |
+| `PEDIGREE_PIX_KEY` | Chave PIX exibida em `/premium` |
+| `MERCADOPAGO_ACCESS_TOKEN` | Checkout Mercado Pago |
+| `PREMIUM_ADMIN_USERNAMES` | Quem confirma PIX manual (`/premium` painel admin) |
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` + `VAPID_PRIVATE_KEY` | Push PWA — `./scripts/generate-vapid-keys.sh` |
+| `MEILISEARCH_HOST` + `MEILISEARCH_MASTER_KEY` | Busca rápida — depois `./scripts/reindex-meilisearch.sh` |
+| `S3_*` | MinIO — `docker compose up -d minio` + `./scripts/setup-minio-bucket.sh` |
+| `REDIS_URL` | Cache e rate limit (`redis://host:6379`) |
+| `OLLAMA_BASE_URL` | Cão de Guarda local (opcional) |
+| `BC_SMOKE_EMAIL` + `BC_SMOKE_PASSWORD` | Smoke autenticado — `./scripts/setup-smoke-account.sh` |
+
+**Alertas (cron na tailnet):**
+
+```bash
+# A cada 5 min (crontab -e)
+*/5 * * * * curl -fsS https://SEU-HOST.ts.net/api/health >/dev/null || logger "BC health FAIL"
+```
+
+**Backup restore de prova:** extraia um `backup-matilha-*.tar.gz` em pasta temporária e valide `pg_restore --list` no dump SQL.
 
 ---
 

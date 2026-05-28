@@ -197,6 +197,9 @@ model User {
   postInteractions    PostInteraction[]
   premiumOrders       PremiumOrder[]
   communityMemberships CommunityMember[]
+  communityThreadsAuthored CommunityThread[]
+  communityRepliesAuthored CommunityReply[]
+  ownedCommunities     Community[]         @relation("CommunityOwner")
 }
 
 model Session {
@@ -235,8 +238,11 @@ model Post {
   tribunalHidden Boolean            @default(false)
   reelScore      Float              @default(0)
   interactions   PostInteraction[]
+  communityId    String?
+  community      Community?          @relation(fields: [communityId], references: [id], onDelete: Cascade)
 
   @@index([authorId, createdAt])
+  @@index([communityId, createdAt])
   @@index([communityLevel, createdAt])
   @@index([createdAt, id])
   @@index([boostPriority, createdAt])
@@ -790,6 +796,11 @@ model Pack {
   @@index([createdAt])
 }
 
+enum CommunityMemberRole {
+  MEMBER
+  MODERATOR
+}
+
 model Community {
   id           String   @id @default(cuid())
   slug         String   @unique
@@ -799,20 +810,56 @@ model Community {
   category     String   @default("outros")
   themePrimary String   @default("#005f38")
   themeAccent  String   @default("#ffc72c")
+  pinnedRules  String   @default("")
+  ownerId      String?
   packId       String?  @unique
   createdAt    DateTime @default(now())
 
+  owner   User?              @relation("CommunityOwner", fields: [ownerId], references: [id], onDelete: SetNull)
   pack    Pack?              @relation(fields: [packId], references: [id], onDelete: SetNull)
   members CommunityMember[]
+  threads CommunityThread[]
+  posts   Post[]
 
   @@index([category])
 }
 
-model CommunityMember {
+model CommunityThread {
   id          String   @id @default(cuid())
   communityId String
+  title       String
+  authorId    String
+  pinned      Boolean  @default(false)
+  archived    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  community Community        @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  author    User               @relation(fields: [authorId], references: [id])
+  replies   CommunityReply[]
+
+  @@index([communityId, pinned, createdAt])
+  @@index([communityId, archived, createdAt])
+}
+
+model CommunityReply {
+  id        String   @id @default(cuid())
+  threadId  String
+  authorId  String
+  content   String
+  createdAt DateTime @default(now())
+
+  thread CommunityThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  author User            @relation(fields: [authorId], references: [id])
+
+  @@index([threadId, createdAt])
+}
+
+model CommunityMember {
+  id          String               @id @default(cuid())
+  communityId String
   userId      String
-  joinedAt    DateTime @default(now())
+  role        CommunityMemberRole  @default(MEMBER)
+  joinedAt    DateTime             @default(now())
 
   community Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)

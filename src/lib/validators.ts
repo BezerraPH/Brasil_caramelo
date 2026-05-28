@@ -167,6 +167,25 @@ export const packThreadSchema = z.object({
   pollOptions: z.array(z.string().min(1).max(80)).min(2).max(6).optional(),
 });
 
+export const communityThreadSchema = packThreadSchema.pick({
+  title: true,
+  content: true,
+});
+
+export const communityRulesSchema = z.object({
+  pinnedRules: z.string().min(3).max(2000),
+});
+
+export const communityModeratorSchema = z.object({
+  username: z.string().min(2).max(40),
+  action: z.enum(["promote", "demote"]),
+});
+
+export const communityThreadModerationSchema = z.object({
+  pinned: z.boolean().optional(),
+  archived: z.boolean().optional(),
+});
+
 export const pollVoteSchema = z.object({
   optionId: z.string().min(1),
 });

@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { CommunityForum } from "@/components/CommunityForum";
 import { CommunityJoinButton } from "@/components/CommunityJoinButton";
+import { CommunityModsPanel } from "@/components/CommunityModsPanel";
+import { CommunityMural } from "@/components/CommunityMural";
+import { CommunityRulesPanel } from "@/components/CommunityRulesPanel";
 import { PageContainer } from "@/components/PageContainer";
 import { getCommunityBySlug } from "@/lib/communities";
 import { getCurrentUser } from "@/lib/auth";
@@ -45,6 +49,8 @@ export default async function CommunityPage({ params }: PageProps) {
           <p className="mt-2 text-xs text-bc-brown/80">
             {community.memberCount} participante
             {community.memberCount === 1 ? "" : "s"} · {community.category}
+            {community.isModerator && " · você modera"}
+            {community.isOwner && " · você é o dono"}
           </p>
           <div className="mt-5 flex flex-wrap justify-center gap-3">
             <CommunityJoinButton
@@ -62,19 +68,40 @@ export default async function CommunityPage({ params }: PageProps) {
           </div>
         </header>
 
-        <section className="bc-card p-5">
-          <h2 className="font-bold text-bc-blue">Sobre esta comunidade</h2>
-          <p className="mt-2 text-sm text-bc-brown">
-            Participe para aparecer na lista de membros. Use a Matilha ligada
-            para debates longos, enquetes e encontros com Latidos.
-          </p>
+        <CommunityRulesPanel
+          slug={community.slug}
+          initialRules={community.pinnedRules || ""}
+          canEdit={community.canModerate}
+          themePrimary={community.themePrimary}
+        />
+
+        <CommunityModsPanel
+          slug={community.slug}
+          isOwner={community.isOwner}
+          themePrimary={community.themePrimary}
+        />
+
+        <CommunityMural
+          slug={community.slug}
+          isMember={community.isMember}
+          themePrimary={community.themePrimary}
+        />
+
+        <CommunityForum
+          slug={community.slug}
+          isMember={community.isMember}
+          canModerate={community.canModerate}
+          themePrimary={community.themePrimary}
+        />
+
+        <p className="mt-6 text-center">
           <Link
             href="/comunidades"
-            className="mt-4 inline-block text-xs text-bc-blue hover:underline"
+            className="text-xs text-bc-blue hover:underline"
           >
             ← Todas as comunidades
           </Link>
-        </section>
+        </p>
       </div>
     </PageContainer>
   );

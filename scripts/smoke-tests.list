@@ -113,8 +113,8 @@ auth-guard|Reels view|POST|/api/posts/smoke-test/reels-view|401|
 auth-guard|Polls feed matilha|GET|/api/packs/odeio-acordar-cedo/polls-feed|401|
 auth-guard|Matilhas quentes|GET|/api/packs?sort=hot|401|
 auth-guard|Premium pedido PIX|POST|/api/premium/orders|401|
-auth-guard|Premium webhook|POST|/api/premium/webhook|401|
-auth-guard|Premium webhook MP|POST|/api/premium/webhook/mercadopago|401|
+auth-guard|Premium webhook|POST|/api/premium/webhook|401,503|
+auth-guard|Premium webhook MP|POST|/api/premium/webhook/mercadopago|400,401|
 auth-guard|LiveKit matilha|GET|/api/livekit/token?room=matilha:odeio-acordar-cedo|401|
 middleware|Latidos matilha exige sessão|GET|/latidos/m/odeio-acordar-cedo|307,302|
 middleware|Pet shops exige sessão|GET|/pet-shops|307,302|
@@ -129,6 +129,11 @@ auth-guard|Ops event|POST|/api/ops/event|401|
 auth-guard|Storage stats|GET|/api/storage/stats|401|
 auth-guard|GDPR export|GET|/api/users/me/export|401|
 public-api|Comunidades list|GET|/api/communities|200|communities
+auth-guard|Comunidades fórum|GET|/api/communities/musica-brasileira/threads|401|
+auth-guard|Comunidades mural|GET|/api/communities/musica-brasileira/posts|401|
+auth-guard|Comunidades settings|PATCH|/api/communities/musica-brasileira/settings|401|
+public-api|Comunidades hot|GET|/api/communities?sort=hot|200|communities
+auth-guard|Premium admin pedidos|GET|/api/premium/orders/admin|401,403|
 middleware|Comunidades página|GET|/comunidades|307,302|
 auth-guard|Federation probe|POST|/api/federation/peers/probe-test/probe|401|
 middleware|Fotos exige sessão|GET|/fotos|307,302|

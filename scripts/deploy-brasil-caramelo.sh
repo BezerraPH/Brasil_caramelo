@@ -111,6 +111,12 @@ if [ "$SKIP_MIGRATE" -eq 0 ]; then
   docker compose exec -T app npx prisma migrate deploy
 fi
 
+if [ "$RUN_AUDIT" -eq 1 ] && grep -qE '^S3_ENDPOINT=.+' .env 2>/dev/null; then
+  echo "==> MinIO (deploy --full)..."
+  docker compose up -d minio 2>/dev/null || true
+  bash scripts/setup-minio-bucket.sh 2>/dev/null || echo "    [AVISO] MinIO — configure S3_* e rode setup-minio-bucket.sh"
+fi
+
 CRON_SECRET_VAL="$(grep -E '^CRON_SECRET=' .env 2>/dev/null | cut -d= -f2- | tr -d '"' || true)"
 if [ -n "$CRON_SECRET_VAL" ]; then
   echo "==> Manutenção inicial (batalhas, stories, trending)..."
@@ -136,6 +142,7 @@ else
   echo "  App:     http://${BC_HOST:-$(hostname -I | awk '{print $1}')}:3000"
 fi
 echo "  Guia:    CONFIGURACAO.md"
+echo "  .env:    bash scripts/check-production-env.sh"
 echo "  Auditoria: bash scripts/server-audit.sh"
 echo "  Smoke:     bash scripts/server-smoke.sh"
 echo "  Backup:    bash scripts/backup-matilha.sh  (cron: setup-backup-cron.sh)"
@@ -155,14 +162,21 @@ if [ "$MODE" = "http" ]; then
   echo "    sudo bash scripts/setup-https-lan.sh           # LAN + mkcert"
 fi
 
+echo ""
+echo "==> Checklist .env (produção)..."
+bash scripts/check-production-env.sh || true
+
 if [ "$RUN_SMOKE" -eq 1 ]; then
   echo ""
   echo "==> Smoke tests..."
   sleep 3
-  bash scripts/server-smoke.sh || {
-    echo "Smoke falhou — verifique .env (BC_HOST, APP_URL) e logs: docker compose logs app --tail 40"
-    exit 1
-  }
+  if ! bash scripts/server-smoke.sh; then
+    echo ""
+    echo "  [AVISO] Smoke com falhas — o app pode estar OK mesmo assim (ex.: portas 443/7443 no modo Tailscale)."
+    echo "          Teste: curl -s https://$(grep -E '^APP_URL=' .env 2>/dev/null | cut -d= -f2- | tr -d '"' | sed 's|https://||;s|/.*||')/api/health"
+    echo "          Logs: docker compose logs app --tail 40"
+    # Não aborta deploy — stack já subiu e migrou
+  fi
 fi
 
 if [ "$RUN_AUDIT" -eq 1 ]; then

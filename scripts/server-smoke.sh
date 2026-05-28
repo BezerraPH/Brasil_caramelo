@@ -124,15 +124,24 @@ probe_tcp "$BC_LAN_IP" 7880 "LiveKit"
 probe_tcp "$BC_LAN_IP" 7881 "LiveKit RTC TCP"
 probe_tcp "$BC_LAN_IP" 3478 "coturn TURN"
 probe_tcp "127.0.0.1" 5432 "PostgreSQL (localhost)"
-probe_tcp "127.0.0.1" 443 "nginx HTTPS"
-probe_tcp "127.0.0.1" 7443 "LiveKit WSS"
-probe_tcp "127.0.0.1" 6443 "Soketi WSS"
-if bc_port_in_use 8780 | grep -q .; then
-  probe_tcp "127.0.0.1" 8780 "nginx origem única (Tailscale/túnel)"
-fi
+TS_SERVE=0
 if command -v tailscale >/dev/null 2>&1 && tailscale serve status 2>/dev/null | grep -q proxy; then
+  TS_SERVE=1
   printf '  [OK]   %-28s tailscale serve ativo\n' "Tailscale HTTPS"
   PASS=$((PASS + 1))
+fi
+if [ "$TS_SERVE" -eq 1 ]; then
+  printf '  [SKIP] %-28s use Tailscale :443 → :8780\n' "nginx HTTPS :443 local"
+  printf '  [SKIP] %-28s use nginx :8780 /livekit\n' "LiveKit WSS :7443 local"
+  printf '  [SKIP] %-28s use nginx :8780 /soketi\n' "Soketi WSS :6443 local"
+  SKIP=$((SKIP + 3))
+else
+  probe_tcp "127.0.0.1" 443 "nginx HTTPS"
+  probe_tcp "127.0.0.1" 7443 "LiveKit WSS"
+  probe_tcp "127.0.0.1" 6443 "Soketi WSS"
+fi
+if bc_port_in_use 8780 | grep -q .; then
+  probe_tcp "127.0.0.1" 8780 "nginx origem única (Tailscale/túnel)"
 fi
 
 if command -v ss >/dev/null 2>&1; then

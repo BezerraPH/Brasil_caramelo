@@ -52,3 +52,7 @@ next-env.d.ts
 
 # uploads locais (mídia dos usuários)
 /data/uploads
+
+# notas e dados locais
+dados_uteis.xml
+*.local.xml

@@ -26,7 +26,6 @@ import { areFriends } from "@/lib/friendship";
 import { getPersonalityTheme } from "@/lib/personality-theme";
 import { prisma } from "@/lib/prisma";
 import { FoundingMemberBadge } from "@/components/FoundingMemberBadge";
-import { CarameloRadarBadge } from "@/components/CarameloRadarBadge";
 import { CarameloVerificadoBadge } from "@/components/CarameloVerificadoBadge";
 import {
   ProfileOrkutView,

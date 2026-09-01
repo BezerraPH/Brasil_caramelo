@@ -52,7 +52,17 @@ export function PedigreePaymentCard() {
   }
 
   useEffect(() => {
-    void loadCheckout();
+    let active = true;
+    fetch("/api/premium/checkout")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (active && data) setInfo(data);
+      })
+      .catch(() => null);
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   const display = order ?? info;

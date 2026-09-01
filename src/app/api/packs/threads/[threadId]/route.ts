@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
-import { validationMessage } from "@/lib/api-error";
 import { getThreadPollResults } from "@/lib/thread-poll";
 import { prisma } from "@/lib/prisma";
 import { packReplySchema, threadModerationSchema } from "@/lib/validators";

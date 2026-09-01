@@ -67,7 +67,6 @@ export function MatilhaEventsPanel({ slug, joined }: MatilhaEventsPanelProps) {
   async function rsvp(eventId: string) {
     setBusy(eventId);
     const res = await fetch(`/api/packs/events/${eventId}/rsvp`, { method: "POST" });
-    const data = await res.json();
     if (res.ok) {
       const ticketRes = await fetch(`/api/packs/events/${eventId}/rsvp`);
       const ticketData = await ticketRes.json();

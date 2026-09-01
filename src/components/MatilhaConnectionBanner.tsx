@@ -11,18 +11,27 @@ type ConnectionPayload = {
 
 export function MatilhaConnectionBanner() {
   const [payload, setPayload] = useState<ConnectionPayload | null>(null);
-  const [dismissed, setDismissed] = useState(false);
+  const [dismissed, setDismissed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return sessionStorage.getItem("bc-connection-banner-dismiss") === "1";
+  });
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (sessionStorage.getItem("bc-connection-banner-dismiss") === "1") {
-      setDismissed(true);
       return;
     }
+    let active = true;
     fetch("/api/matilha/connection")
       .then((r) => (r.ok ? r.json() : null))
-      .then((data) => setPayload(data))
+      .then((data) => {
+        if (active && data) setPayload(data);
+      })
       .catch(() => null);
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   if (dismissed || !payload) return null;

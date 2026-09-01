@@ -25,7 +25,6 @@ export function CreatePostForm({
   communityLevel,
 }: CreatePostFormProps) {
   const [content, setContent] = useState("");
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [buryBone, setBuryBone] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);

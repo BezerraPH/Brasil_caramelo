@@ -9,18 +9,16 @@ type BeforeInstallPromptEvent = Event & {
 
 export function PwaInstallBanner() {
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
-  const [dismissed, setDismissed] = useState(false);
-  const [installed, setInstalled] = useState(false);
+  const [dismissed, setDismissed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("bc_pwa_install_dismiss") === "1";
+  });
+  const [installed, setInstalled] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(display-mode: standalone)").matches;
+  });
 
   useEffect(() => {
-    if (window.matchMedia("(display-mode: standalone)").matches) {
-      setInstalled(true);
-      return;
-    }
-    if (localStorage.getItem("bc_pwa_install_dismiss") === "1") {
-      setDismissed(true);
-    }
-
     const onBip = (e: Event) => {
       e.preventDefault();
       setDeferred(e as BeforeInstallPromptEvent);

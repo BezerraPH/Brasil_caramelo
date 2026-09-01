@@ -279,24 +279,27 @@ export function LatidosRoomClient({ room }: Props) {
     }
   }
 
-  async function sendReaction(emoji: string, label: string) {
-    const lkRoom = roomRef.current;
-    if (!lkRoom || status !== "connected") return;
-    const name = lkRoom.localParticipant.name || "Caramelo";
-    try {
-      await lkRoom.localParticipant.publishData(
-        encodeLatidosReaction({ type: "reaction", emoji, name }),
-        { reliable: true },
-      );
-      const id = `local-${Date.now()}`;
-      setReactions((prev) => [...prev.slice(-12), { id, emoji, name: `${name} · ${label}` }]);
-      setTimeout(() => {
-        setReactions((prev) => prev.filter((r) => r.id !== id));
-      }, 2800);
-    } catch {
-      /* sala cheia */
-    }
-  }
+  const sendReaction = useCallback(
+    async (emoji: string, label: string) => {
+      const lkRoom = roomRef.current;
+      if (!lkRoom || status !== "connected") return;
+      const name = lkRoom.localParticipant.name || "Caramelo";
+      try {
+        await lkRoom.localParticipant.publishData(
+          encodeLatidosReaction({ type: "reaction", emoji, name }),
+          { reliable: true },
+        );
+        const id = `local-${Date.now()}`;
+        setReactions((prev) => [...prev.slice(-12), { id, emoji, name: `${name} · ${label}` }]);
+        setTimeout(() => {
+          setReactions((prev) => prev.filter((r) => r.id !== id));
+        }, 2800);
+      } catch {
+        /* sala cheia */
+      }
+    },
+    [status],
+  );
 
   async function toggleMic() {
     const room = roomRef.current;

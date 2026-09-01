@@ -2,20 +2,17 @@ import Link from "next/link";
 import { EXPLORAR_HUB } from "@/lib/explorar-hub";
 
 export function ExplorarHubGrid() {
-  let delay = 0;
-
   return (
     <div className="space-y-8">
-      {EXPLORAR_HUB.map((section) => (
+      {EXPLORAR_HUB.map((section, sectionIdx) => (
         <section key={section.id} className="bc-hub-section bc-animate-in">
           <h2 className="bc-hub-section-title mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-bc-blue">
             <span aria-hidden>{section.emoji}</span>
             {section.title}
           </h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {section.items.map((item) => {
-              const d = delay;
-              delay += 1;
+            {section.items.map((item, itemIdx) => {
+              const d = sectionIdx * 3 + itemIdx;
               return (
                 <Link
                   key={item.href}

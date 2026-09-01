@@ -161,8 +161,8 @@ export async function listCommunities(
     mapped.sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  return mapped.map((row) => {
-    const { _hot, ...card } = row;
+  return mapped.map(({ _hot, ...card }) => {
+    void _hot;
     return card;
   });
 }

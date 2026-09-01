@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-05-22 (v2.29.3-alpha)
-Versão atual do pacote (package.json): 2.29.3-alpha.0
+Última atualização: 2026-09-01 (v2.30.0-alpha.0 - Versão Nostr Descentralizada)
+Versão atual do pacote (package.json): 2.30.0-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
@@ -28,9 +28,13 @@ INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
 ================================================================================
 
 Arquivo mestre: ROADMAP.md
-Progresso v2.28+: P0 10/10 · P1 Comunidades 5/6 · Monetização 2/3 · (ver ROADMAP.md)
+Progresso v2.28+: P0 10/10 · P1 Comunidades 5/6 · Federação Nostr 1/5 · Monetização 2/3
 
-**Onda v2.19–v2.27: FECHADA.** **v2.29: comunidades profundas + Pedigree admin.**
+**v2.30.0: Integração Descentralizada Nostr (NIP-01/05/07/10/57) + Relays WebSockets.**
+
+Concluído v2.30:
+  [x] R-FED-05 Protocolo Nostr descentralizado, chaves npub/nsec, relays pool, feed e NIP-05
+  [x] Bugfixes de compilação Next 16 e conformidade com regras de linter React 19
 
 Concluído v2.29:
   [x] R-COM-02..04,06 Moderadores, mural, ranking quente, busca
@@ -540,12 +544,18 @@ Remote Gitea:
 ================================================================================
 
 ------------------------------------------------------------------------------
+v2.30.0-alpha.0 — 2026-09-01 (Integração Descentralizada Nostr)
 ------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
-------------------------------------------------------------------------------
+  FEAT: protocolo Nostr completo (nostr-tools v2, NIP-01, NIP-05, NIP-07, NIP-10, NIP-57)
+  FEAT: gerenciamento de chaves criptográficas (secp256k1, Schnorr, npub, nsec)
+  FEAT: pool de múltiplos Relays WebSockets com verificação de latência e conexão em tempo real
+  FEAT: Feed Nostr descentralizado (/nostr) com tags #brasilcaramelo, #viralata, #matilha
+  FEAT: publicação de notas (Kind 1) e reações/biscoitos (Kind 7) com assinatura criptográfica
+  FEAT: NIP-05 DNS identifier endpoint em /.well-known/nostr.json
+  FEAT: modal de autenticação Nostr (extensões Alby/nos2x, nsec/npub, ou criação 1-clique)
+  FIX: correções de linter React 19 (imutabilidade de render e efeitos síncronos)
+  FIX: safeguard de compilação Next 16 webpack polyfill-nomodule no postinstall
+
 ------------------------------------------------------------------------------
 v2.29.3-alpha.0 — 2026-05-22 (upload vídeo + smoke/deploy/docs)
 ------------------------------------------------------------------------------

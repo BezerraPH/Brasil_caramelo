@@ -11,6 +11,7 @@ import { NotificationBell } from "./NotificationBell";
 import { AppVersionBadge } from "./AppVersionBadge";
 import { ThemeToggle } from "./ThemeToggle";
 import { TribunalOpenDot } from "./TribunalOpenDot";
+import { NostrRelayStatus } from "./nostr/NostrRelayStatus";
 
 type NavBarProps = {
   user: { id: string; name: string; username: string };
@@ -100,6 +101,7 @@ export function NavBar({ user, pusherKey, pusherCluster }: NavBarProps) {
               pusherCluster={pusherCluster}
             />
           </Link>
+          <NostrRelayStatus />
           <ThemeToggle />
           <NotificationBell
             userId={user.id}

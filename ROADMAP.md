@@ -98,6 +98,7 @@ Checklist de **produção** — scripts e doc prontos; configure `.env` no host 
 | R-FED-02 | **Conflitos** — política ao importar recado duplicado | v2.30 | [ ] |
 | R-FED-03 | **Preview** — resumo do que será importado antes de aplicar | v2.30 | [ ] |
 | R-FED-04 | **Opt-in** — sync só de matilhas marcadas públicas | v2.30 | [ ] |
+| R-FED-05 | **Nostr Descentralizado** — protocolo Nostr (NIP-01/05/07/10/57), relays WebSockets, chaves npub/nsec e feed | v2.30 | [x] 2026-09-01 (v2.30.0) |
 
 ---
 

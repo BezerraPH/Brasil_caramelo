@@ -19,6 +19,7 @@ export const EXPLORAR_HUB: HubSection[] = [
     emoji: "📰",
     items: [
       { href: "/feed", icon: "📰", title: "Feed & Cinelar FYP", desc: "Recados, Insta e For You" },
+      { href: "/nostr", icon: "⚡", title: "Nostr Descentralizado", desc: "Feed e notas imutáveis via Relays" },
       { href: "/matilhas", icon: "🐾", title: "Matilhas", desc: "Fórum, enquetes e eventos" },
       { href: "/fotos", icon: "📷", title: "Fotos", desc: "Álbuns estilo Orkut" },
       { href: "/depoimentos", icon: "💬", title: "Depoimentos", desc: "Inbox estilo Orkut" },

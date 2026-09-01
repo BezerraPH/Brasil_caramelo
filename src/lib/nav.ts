@@ -8,6 +8,7 @@ export type NavItem = {
 
 export const DESKTOP_NAV: NavItem[] = [
   { href: "/feed", label: "Feed", icon: "📰" },
+  { href: "/nostr", label: "Nostr ⚡", icon: "⚡", matchPrefixes: ["/nostr"] },
   { href: "/explorar", label: "Explorar", icon: "🧭" },
   {
     href: "/casinhas",

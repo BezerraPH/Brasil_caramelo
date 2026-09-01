@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import { PWARegister } from "@/components/PWARegister";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { getVersionDisplay, RELEASE_STAGE } from "@/lib/app-version";
+import { NostrAuthProvider } from "@/lib/nostr/auth-context";
 import "./globals.css";
 
 const geist = Geist({
@@ -11,13 +12,13 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Brasil Caramelo",
-  description: `Rede social brasileira (${getVersionDisplay()}, ${RELEASE_STAGE}) — Feed, Insta, Reels e reputação canina.`,
+  title: "Brasil Caramelo Nostr",
+  description: `Rede social brasileira descentralizada (${getVersionDisplay()}, ${RELEASE_STAGE}) — Feed Nostr, Matilhas, Reels e identidade criptográfica.`,
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Caramelo",
+    title: "Caramelo Nostr",
   },
 };
 
@@ -37,8 +38,10 @@ export default function RootLayout({
       </head>
       <body className="min-h-full antialiased transition-colors duration-300">
         <ThemeProvider>
-          {children}
-          <PWARegister />
+          <NostrAuthProvider>
+            {children}
+            <PWARegister />
+          </NostrAuthProvider>
         </ThemeProvider>
       </body>
     </html>

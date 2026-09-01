@@ -1,6 +1,6 @@
 {
-  "name": "brasil_caramelo",
-  "version": "2.29.3-alpha.0",
+  "name": "brasil_caramelo_nostr",
+  "version": "2.30.0-alpha.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -26,6 +26,7 @@
     "livekit-server-sdk": "^2.15.3",
     "lru-cache": "^11.3.6",
     "next": "16.2.6",
+    "nostr-tools": "^2.25.1",
     "pg": "^8.20.0",
     "prisma": "^7.8.0",
     "pusher": "^5.3.3",

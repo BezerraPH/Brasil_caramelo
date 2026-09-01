@@ -27,7 +27,7 @@ const DONE = [
   { icon: "🏘️", title: "Comunidades: fórum, mural, mods, ranking", phase: "v2.29" },
   { icon: "💳", title: "Pedigree admin PIX manual", phase: "v2.29" },
   { icon: "📤", title: "Export LGPD JSON", phase: "v2.26" },
-  { icon: "🌐", title: "Caramelo-Sync Tailscale + Capacitor", phase: "v2.27" },
+  { icon: "⚡", title: "Nostr Descentralizado (relays + npub)", phase: "v2.30" },
   { icon: "🔒", title: "HTTPS / Tailscale / mkcert (CONFIGURACAO.md)" },
   { icon: "🌳", title: "Árvore genealógica DNA" },
   { icon: "🏪", title: "Cupons pet shop regional" },

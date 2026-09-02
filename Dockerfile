@@ -39,4 +39,4 @@ EXPOSE 3000
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
 
-CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]
+CMD ["sh", "-c", "npx prisma migrate deploy && npx prisma db push --skip-generate && npm start"]

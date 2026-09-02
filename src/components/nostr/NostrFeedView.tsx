@@ -1,21 +1,39 @@
 "use client";
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useNostrAuth } from "@/lib/nostr/auth-context";
 import { getNostrPool } from "@/lib/nostr/relays";
 import { formatNostrPost } from "@/lib/nostr/events";
 import { NostrPostCard } from "./NostrPostCard";
 import { NostrCreatePost } from "./NostrCreatePost";
 import { NostrAuthModal } from "./NostrAuthModal";
+import { NostrProfileModal } from "./NostrProfileModal";
+import { NostrRelayManager } from "./NostrRelayManager";
 import { NostrRelayStatus } from "./NostrRelayStatus";
 import type { Filter, NostrEvent, NostrPost, NostrProfileMetadata } from "@/lib/nostr/types";
 
+const TOPIC_TAGS = [
+  { id: "brasilcaramelo", label: "🐕 #brasilcaramelo" },
+  { id: "viralata", label: "🐾 #viralata" },
+  { id: "matilha", label: "🐺 #matilha" },
+  { id: "pet", label: "🦴 #pet" },
+  { id: "bitcoin", label: "⚡ #bitcoin" },
+  { id: "", label: "🌐 Todas as Notas" },
+];
+
 export function NostrFeedView() {
-  const { relays } = useNostrAuth();
+  const { identity, relays } = useNostrAuth();
   const [posts, setPosts] = useState<NostrPost[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Modals state
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isRelayManagerOpen, setIsRelayManagerOpen] = useState(false);
+
+  // Search & Filter state
   const [filterTag, setFilterTag] = useState<string>("brasilcaramelo");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const profilesMapRef = useRef<Map<string, NostrProfileMetadata>>(new Map());
   const reactionsMapRef = useRef<Map<string, number>>(new Map());
@@ -88,27 +106,60 @@ export function NostrFeedView() {
     };
   }, [relays, filterTag, refreshTrigger]);
 
+  // Filtragem no cliente por texto de busca
+  const filteredPosts = useMemo(() => {
+    if (!searchQuery.trim()) return posts;
+    const q = searchQuery.toLowerCase();
+    return posts.filter(
+      (p) =>
+        p.content.toLowerCase().includes(q) ||
+        p.npub.toLowerCase().includes(q) ||
+        p.profile?.name?.toLowerCase().includes(q) ||
+        p.profile?.display_name?.toLowerCase().includes(q),
+    );
+  }, [posts, searchQuery]);
+
   return (
     <div className="mx-auto max-w-2xl space-y-6 px-4 py-6">
       {/* Header Descentralizado */}
-      <div className="bc-card bc-glass flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-bc-caramel/30 bg-bc-white p-4 shadow-md">
+      <div className="bc-card bc-glass flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-bc-caramel/30 bg-bc-white p-5 shadow-lg">
         <div>
           <h1 className="flex items-center gap-2 text-xl font-extrabold text-bc-blue">
             <span>⚡</span>
             <span>Feed Nostr Descentralizado</span>
           </h1>
-          <p className="text-xs text-bc-brown">
-            Posts imutáveis transmitidos diretamente via Relays WebSocket.
+          <p className="mt-0.5 text-xs text-bc-brown/80">
+            Rede imutável, aberta e resistente à censura via WebSockets P2P.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <NostrRelayStatus />
+        <div className="flex flex-wrap items-center gap-2">
+          <div onClick={() => setIsRelayManagerOpen(true)} className="cursor-pointer">
+            <NostrRelayStatus />
+          </div>
+
+          {identity ? (
+            <button
+              onClick={() => setIsProfileModalOpen(true)}
+              className="rounded-xl border border-bc-caramel/30 bg-bc-cream/60 px-3 py-1.5 text-xs font-bold text-bc-brown hover:bg-bc-cream transition-colors"
+            >
+              🐾 Perfil
+            </button>
+          ) : (
+            <button
+              onClick={() => setIsAuthModalOpen(true)}
+              className="bc-btn-primary rounded-xl px-3 py-1.5 text-xs font-bold"
+            >
+              Entrar no Nostr ⚡
+            </button>
+          )}
+
           <button
-            onClick={() => setIsAuthModalOpen(true)}
-            className="bc-btn-primary px-3 py-1.5 text-xs font-bold"
+            onClick={() => setIsRelayManagerOpen(true)}
+            className="rounded-xl border border-bc-caramel/30 p-1.5 text-xs text-bc-brown/70 hover:bg-black/5"
+            title="Configurar Relays"
           >
-            Identidade 🐾
+            ⚙️
           </button>
         </div>
       </div>
@@ -119,63 +170,95 @@ export function NostrFeedView() {
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
       />
 
-      {/* Filtros de Tags */}
-      <div className="flex items-center justify-between">
-        <div className="flex flex-wrap gap-2 text-xs">
-          {[
-            { id: "brasilcaramelo", label: "#brasilcaramelo" },
-            { id: "viralata", label: "#viralata" },
-            { id: "matilha", label: "#matilha" },
-            { id: "", label: "Todas as Notas" },
-          ].map((tag) => (
+      {/* Barra de Busca e Tópicos */}
+      <div className="space-y-3">
+        <div className="relative">
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="🔍 Buscar notas, palavras-chave ou @npub..."
+            className="w-full rounded-2xl border border-bc-caramel/30 bg-bc-white px-4 py-2.5 text-xs text-bc-brown shadow-xs focus:border-bc-blue focus:outline-none"
+          />
+          {searchQuery && (
             <button
-              key={tag.id}
-              onClick={() => setFilterTag(tag.id)}
-              className={`rounded-full px-3 py-1 font-bold transition-all ${
-                filterTag === tag.id
-                  ? "bg-bc-blue text-white shadow-sm"
-                  : "border border-bc-caramel/25 bg-bc-white/80 text-bc-brown hover:bg-bc-white"
-              }`}
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-2.5 text-xs text-bc-brown/50 hover:text-bc-brown"
             >
-              {tag.label}
+              ✕
             </button>
-          ))}
+          )}
         </div>
 
-        <button
-          onClick={refreshFeed}
-          disabled={loading}
-          className="text-xs font-bold text-bc-green hover:underline"
-        >
-          {loading ? "Sincronizando…" : "↻ Atualizar"}
-        </button>
+        {/* Filtros de Tags */}
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-wrap gap-1.5 text-xs">
+            {TOPIC_TAGS.map((tag) => (
+              <button
+                key={tag.id}
+                onClick={() => setFilterTag(tag.id)}
+                className={`rounded-full px-3 py-1 text-xs font-bold transition-all ${
+                  filterTag === tag.id
+                    ? "bg-bc-blue text-white shadow-sm scale-105"
+                    : "border border-bc-caramel/25 bg-bc-white/80 text-bc-brown hover:bg-bc-white"
+                }`}
+              >
+                {tag.label}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={refreshFeed}
+            disabled={loading}
+            className="shrink-0 text-xs font-bold text-bc-green hover:underline"
+          >
+            {loading ? "Sincronizando…" : "↻ Atualizar"}
+          </button>
+        </div>
       </div>
 
       {/* Lista de Posts */}
-      {loading && posts.length === 0 ? (
-        <div className="bc-card bc-glass rounded-2xl border border-bc-caramel/20 bg-bc-white p-8 text-center">
-          <p className="text-2xl animate-bounce">🐕</p>
-          <p className="mt-2 text-sm font-bold text-bc-blue">Sintonizando com a rede Nostr…</p>
-          <p className="text-xs text-bc-brown/70">Consultando relays WebSocket globais</p>
+      {loading && filteredPosts.length === 0 ? (
+        <div className="bc-card bc-glass rounded-3xl border border-bc-caramel/20 bg-bc-white p-8 text-center shadow-md">
+          <p className="text-3xl animate-bounce">🐕</p>
+          <p className="mt-2 text-sm font-bold text-bc-blue">Sintonizando com os relays Nostr…</p>
+          <p className="text-xs text-bc-brown/70">Assinaturas criptográficas Schnorr ativas</p>
         </div>
-      ) : posts.length === 0 ? (
-        <div className="bc-card bc-glass rounded-2xl border border-bc-caramel/20 bg-bc-white p-8 text-center">
-          <p className="text-2xl">🐾</p>
-          <p className="mt-2 text-sm font-bold text-bc-blue">Nenhum latido encontrado nesta tag.</p>
+      ) : filteredPosts.length === 0 ? (
+        <div className="bc-card bc-glass rounded-3xl border border-bc-caramel/20 bg-bc-white p-8 text-center shadow-md">
+          <p className="text-3xl">🐾</p>
+          <p className="mt-2 text-sm font-bold text-bc-blue">Nenhum latido encontrado.</p>
           <p className="text-xs text-bc-brown/70">
-            Seja o primeiro a publicar usando o formulário acima!
+            {searchQuery
+              ? "Tente buscar por outro termo ou hashtag."
+              : "Seja o primeiro a publicar usando o formulário acima!"}
           </p>
         </div>
       ) : (
         <div className="space-y-4">
-          {posts.map((post) => (
-            <NostrPostCard key={post.id} post={post} onReaction={refreshFeed} />
+          {filteredPosts.map((post) => (
+            <NostrPostCard
+              key={post.id}
+              post={post}
+              onReaction={refreshFeed}
+              onReplyPublished={refreshFeed}
+            />
           ))}
         </div>
       )}
 
-      {/* Modal de Conexão */}
+      {/* Modais */}
       <NostrAuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      <NostrProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        onProfileUpdated={refreshFeed}
+      />
+      <NostrRelayManager
+        isOpen={isRelayManagerOpen}
+        onClose={() => setIsRelayManagerOpen(false)}
+      />
     </div>
   );
 }

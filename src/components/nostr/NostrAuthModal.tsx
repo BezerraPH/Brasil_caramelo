@@ -124,6 +124,31 @@ export function NostrAuthModal({ isOpen, onClose }: Props) {
                     : "Copiar Chave Privada (Nsec - Guarde em segredo!)"}
                 </button>
               )}
+
+              <button
+                type="button"
+                onClick={() => {
+                  const data = {
+                    client: "Brasil Caramelo Nostr",
+                    npub: identity.npub,
+                    nsec: identity.nsec ?? "gerenciado por extensao",
+                    pubkey: identity.pubkey,
+                    exportedAt: new Date().toISOString(),
+                  };
+                  const blob = new Blob([JSON.stringify(data, null, 2)], {
+                    type: "application/json",
+                  });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `brasil-caramelo-nostr-${identity.npub.slice(0, 10)}.json`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="rounded-xl border border-bc-caramel/30 bg-bc-cream/40 w-full py-2 text-xs font-semibold text-bc-brown hover:bg-bc-cream transition-colors"
+              >
+                💾 Baixar Backup de Segurança (.json)
+              </button>
             </div>
 
             <button

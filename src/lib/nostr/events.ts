@@ -58,12 +58,14 @@ export async function publishNostrNote({
   content,
   identity,
   replyToEventId,
+  replyToPubkey,
   tags = [],
   relays,
 }: {
   content: string;
   identity: NostrIdentity;
   replyToEventId?: string;
+  replyToPubkey?: string;
   tags?: string[][];
   relays?: string[];
 }): Promise<NostrEvent> {
@@ -75,6 +77,9 @@ export async function publishNostrNote({
 
   if (replyToEventId) {
     eventTags.push(["e", replyToEventId, "", "reply"]);
+  }
+  if (replyToPubkey) {
+    eventTags.push(["p", replyToPubkey]);
   }
 
   const template: EventTemplate = {

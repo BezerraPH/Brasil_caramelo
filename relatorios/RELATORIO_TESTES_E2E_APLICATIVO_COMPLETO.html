@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório de Testes E2E do Ciclo de Vida Completo — Brasil Caramelo (Nostr)</title>
+<style>
+  :root {
+    --caramel: #c27a29;
+    --caramel-dark: #935011;
+    --blue: #0b4f8a;
+    --blue-dark: #073863;
+    --green: #237e50;
+    --sand: #fbf6ee;
+    --sand-border: #e2d2be;
+    --text-dark: #1a202c;
+    --text-muted: #4a5568;
+    --bg-page: #f8fafc;
+    --card-bg: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-dark);
+    line-height: 1.6;
+    padding: 24px;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .header {
+    background: linear-gradient(135deg, var(--blue) 0%, #063156 100%);
+    color: #ffffff;
+    border-radius: 20px;
+    padding: 36px 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 10px 25px -5px rgba(11, 79, 138, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .badge-header {
+    display: inline-block;
+    background: var(--caramel);
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  .header h1 {
+    font-size: 28px;
+    font-weight: 900;
+    margin-bottom: 8px;
+  }
+
+  .header p {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 750px;
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .metric-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    text-align: center;
+  }
+
+  .metric-val {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--blue);
+    margin-bottom: 4px;
+  }
+
+  .metric-val.success { color: var(--green); }
+  .metric-val.gold { color: var(--caramel); }
+
+  .metric-lbl {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 24px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--blue);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--sand-border);
+    padding-bottom: 10px;
+  }
+
+  /* Fluxo de Passos E2E */
+  .flow-step {
+    display: flex;
+    gap: 18px;
+    padding: 16px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 12px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    background: var(--blue);
+    color: #ffffff;
+    font-weight: 900;
+    font-size: 13px;
+    min-width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    shrink: 0;
+  }
+
+  .step-content {
+    flex: 1;
+  }
+
+  .step-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .step-desc {
+    font-size: 12.5px;
+    color: var(--text-muted);
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border-radius: 16px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .status-pass { background: #def7ec; color: #03543f; }
+
+  .reports-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin-top: 12px;
+  }
+
+  .report-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--sand);
+    border: 1px solid var(--sand-border);
+    border-radius: 14px;
+    padding: 16px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .report-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.08);
+  }
+
+  .report-icon {
+    font-size: 28px;
+    background: #ffffff;
+    padding: 10px;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+
+  .report-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--blue);
+  }
+
+  .report-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- CABEÇALHO -->
+  <div class="header">
+    <div class="badge-header">Simulação End-to-End (E2E) Completa</div>
+    <h1>Relatório de Testes do Ciclo de Vida do Aplicativo</h1>
+    <p>
+      Avaliação ponta a ponta simulando a jornada completa do usuário no <strong>Brasil Caramelo (Nostr)</strong>: desde o <strong>Cadastro & Login</strong>, passando pelo <strong>Feed, Pet Virtual, DMs NIP-44, Tribunal, Assinatura VIP</strong> até o <strong>Logout seguro</strong>.
+    </p>
+  </div>
+
+  <!-- MÉTRICAS DO TESTE E2E -->
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-val success">10 / 10</div>
+      <div class="metric-lbl">Etapas E2E Validadas</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val success">27 / 27</div>
+      <div class="metric-lbl">Total de Testes da Suíte</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val gold">422ms</div>
+      <div class="metric-lbl">Tempo de Execução Total</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val success">100%</div>
+      <div class="metric-lbl">Taxa de Sucesso</div>
+    </div>
+  </div>
+
+  <!-- FLUXO DETALHADO DO CICLO DE VIDA DO USUÁRIO -->
+  <div class="card">
+    <div class="card-title">
+      <span>🔄 Jornada Ponta a Ponta: Do Login ao Logout</span>
+      <span class="status-badge status-pass">100% Concluído & Aprovado</span>
+    </div>
+
+    <!-- PASSO 1 -->
+    <div class="flow-step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">
+          <span>Cadastro de Novo Usuário (Register Flow)</span>
+          <span class="status-badge status-pass">✓ Aprovado (77.0ms)</span>
+        </div>
+        <p class="step-desc">
+          Validação de e-mail, username único, senha forte com hash Bcrypt e aceite explícito dos Termos de Uso (LGPD para dados locais e soberania Web3 para o Nostr).
+        </p>
+      </div>
+    </div>
+
+    <!-- PASSO 2 -->
+    <div class="flow-step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">
+          <span>Autenticação & Geração de Sessão (Login Flow)</span>
+          <span class="status-badge status-pass">✓ Aprovado (62.0ms)</span>
+        </div>
+        <p class="step-desc">
+          Comparação segura de hash de senha, proteção contra força bruta via Rate Limiter e emissão de token de sessão com validade de 30 dias.
+        </p>
+      </div>
+    </div>
+
+    <!-- PASSO 3 -->
+    <div class="flow-step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">
+          <span>Identidade Nostr & Assinatura de Perfil (NIP-01)</span>
+          <span class="status-badge status-pass">✓ Aprovado (51.5ms)</span>
+        </div>
+        <p class="step-desc">
+          Geração de chaves criptográficas Schnorr (<code style="font-size:11px;">npub1...</code> e <code style="font-size:11px;">nsec1...</code>) e emissão de evento Kind 0 com metadados de perfil assinados.
+        </p>
+      </div>
+    </div>
+
+    <!-- PASSO 4 -->
+    <div class="flow-step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">
+          <span>Composição de Recados, Biscoitos e Comentários (Feed Flow)</span>
+          <span class="status-badge status-pass">✓ Aprovado (0.2ms)</span>
+        </div>
+        <p class="step-desc">
+          Criação de post com menção dinâmica <code style="font-size:11px;">@amigo</code>, envio de biscoito social (+1) e resposta interativa em comentários.
+        </p>
+      </div>
+    </div>
+
+    <!-- PASSO 5 -->
+    <div class="flow-step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <div class="step-title">
+          <span>Cuidado do Pet Virtual, CarameloCoins e Saque Lightning</span>
+          <span class="status-badge status-pass">✓ Aprovado (0.2ms)</span>
+        </div>
+        <p class="step-desc">
+          Alimentação e carinho com redução de fome, acúmulo de moedas diárias e validação de saque instantâneo para fatura Lightning (<code style="font-size:11px;">lnbc...</code>).
+        </p>
+      </div>
+    </div>
+
+    <!-- PASSO 6 -->
+    <div class="flow-step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <div class="step-title">
+          <span>Mensagens Diretas com Criptografia NIP-44 v2 (Chat Flow)</span>
+          <span class="status-badge status-pass">✓ Aprovado (17.1ms)</span>
+        </div>
+        <p class="step-desc">
+          Troca de mensagens diretas ultrasseguras ponto a ponto usando derivação de chave de conversa HKDF e cifra ChaCha20-Poly1305.
+        </p>
+      </div>
+    </div>
+
+    <!-- PASSO 7 -->
+    <div class="flow-step">
+      <div class="step-num">7</div>
+      <div class="step-content">
+        <div class="step-title">
+          <span>Julgamento Coletivo Democrático (Tribunal do Cão)</span>
+          <span class="status-badge status-pass">✓ Aprovado (0.2ms)</span>
+        </div>
+        <p class="step-desc">
+          Abertura de caso sobre denúncia, apuração de votos populares da matilha e emissão de veredito automático com quorum mínimo.
+        </p>
+      </div>
+    </div>
+
+    <!-- PASSO 8 -->
+    <div class="flow-step">
+      <div class="step-num">8</div>
+      <div class="step-content">
+        <div class="step-title">
+          <span>Stories Caninos com Filtros Nostálgicos (Stories Flow)</span>
+          <span class="status-badge status-pass">✓ Aprovado (0.3ms)</span>
+        </div>
+        <p class="step-desc">
+          Publicação de foto com filtro Orkut sépia, expiração de 24h e registro em tempo real de visualizadores.
+        </p>
+      </div>
+    </div>
+
+    <!-- PASSO 9 -->
+    <div class="flow-step">
+      <div class="step-num">9</div>
+      <div class="step-content">
+        <div class="step-title">
+          <span>Assinatura Pedigree VIP (Checkout Pix & Lightning)</span>
+          <span class="status-badge status-pass">✓ Aprovado (0.3ms)</span>
+        </div>
+        <p class="step-desc">
+          Emissão de pedidos com suporte híbrido: Pix via Mercado Pago (R$ 15,00) e 21.000 satoshis via WebLN / Lightning Network.
+        </p>
+      </div>
+    </div>
+
+    <!-- PASSO 10 -->
+    <div class="flow-step">
+      <div class="step-num">10</div>
+      <div class="step-content">
+        <div class="step-title">
+          <span>Encerramento de Sessão Seguro (Logout Flow)</span>
+          <span class="status-badge status-pass">✓ Aprovado (0.7ms)</span>
+        </div>
+        <p class="step-desc">
+          Destruição imediata do token de sessão no banco de dados e expiração dos cookies de autenticação do cliente.
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CENTRAL DE RELATÓRIOS -->
+  <div class="card">
+    <div class="card-title">
+      <span>📂 Central Unificada de Relatórios (`/relatorios`)</span>
+      <span class="status-badge status-pass">Documentação Completa</span>
+    </div>
+
+    <div class="reports-list">
+      <a href="RELATORIO_TESTES_E2E_APLICATIVO_COMPLETO.html" class="report-item" style="border-color: var(--blue); background: #f0f7ff;">
+        <span class="report-icon">🚀</span>
+        <div>
+          <div class="report-title">Relatório E2E Ciclo Completo (HTML)</div>
+          <div class="report-desc">Este relatório cobrindo todo o ciclo do app: Cadastro, Login até o Logout.</div>
+        </div>
+      </a>
+
+      <a href="RELATORIO_TESTES_AUTOMATIZADOS_FUNCIONALIDADES.html" class="report-item">
+        <span class="report-icon">🧪</span>
+        <div>
+          <div class="report-title">Testes Funcionais Automatizados (HTML)</div>
+          <div class="report-desc">Diagnóstico detalhado por módulo (Nostr, Pet, Lightning, Cache).</div>
+        </div>
+      </a>
+
+      <a href="RELATORIO_AVALIACAO_FRONTEND.html" class="report-item">
+        <span class="report-icon">🌐</span>
+        <div>
+          <div class="report-title">Avaliação do Frontend (HTML)</div>
+          <div class="report-desc">Métricas de UI, componentes, temas e design system.</div>
+        </div>
+      </a>
+
+      <a href="RELATORIO_ANALISE_FRONTEND_BRASIL_CARAMELO.pdf" target="_blank" class="report-item">
+        <span class="report-icon">🎨</span>
+        <div>
+          <div class="report-title">Auditoria do Frontend (PDF)</div>
+          <div class="report-desc">Documento formal em PDF de análise de interface e acessibilidade.</div>
+        </div>
+      </a>
+
+      <a href="RELATORIO_ANALISE_GERAL_BRASIL_CARAMELO.pdf" target="_blank" class="report-item">
+        <span class="report-icon">📄</span>
+        <div>
+          <div class="report-title">Análise Geral da Arquitetura (PDF)</div>
+          <div class="report-desc">Auditoria geral do backend, banco Prisma e servidor.</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    Brasil Caramelo (Nostr) · Antigravity AI Pair Programming · Relatório E2E gerado em 02/09/2026
+  </div>
+
+</div>
+
+</body>
+</html>

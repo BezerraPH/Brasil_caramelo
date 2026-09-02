@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-09-02 (v2.37.0-alpha.0 - Tema Tri-State, Sound FX Retrô, Mini-Widget do Pet, Stories Orkut e Autocomplete @amigo)
-Versão atual do pacote (package.json): 2.37.0-alpha.0
+Última atualização: 2026-09-02 (v2.38.0-alpha.0 - Login 1-Clique Nostr Anônimo, Sanitização NIP-01, Backoff+Jitter e SSH no .env)
+Versão atual do pacote (package.json): 2.38.0-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
@@ -28,9 +28,16 @@ INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
 ================================================================================
 
 Arquivo mestre: ROADMAP.md
-Progresso: Nostr P0 9/9 · P0 Infra 10/10 · P1 Comunidades 5/6 · P0 UX 2/2 · P0 PWA 1/1 · P0 Otimizações 1/1
+Progresso: Nostr P0 10/10 · P0 Infra 10/10 · P1 Comunidades 5/6 · P0 UX 2/2 · P0 PWA 1/1 · P0 Otimizações 1/1
 
-**v2.37.0: Frontend & UX Orkut, Sound FX e Mini-Widget do Pet.**
+**v2.38.0: Nostr Anônimo 1-Clique, Sanitização NIP-01, Backoff+Jitter e SSH no .env.**
+
+Concluído v2.38:
+  [x] R-NOS-10 Cadastro e Login 100% Anônimo via Nostr NIP-07 (Alby/npub) sem necessidade de e-mail ou senha
+  [x] Sanitização rigorosa de links Nostr bloqueando protocolos perigosos (javascript:, data:) com segmentação segura
+  [x] Algoritmo de Exponential Backoff com Jitter aleatório para reconexão resiliente de relays Nostr e WebSockets
+  [x] Automação de SSH remoto lendo SSH_HOST, SSH_USER, SSH_PASSWORD do .env em scripts/remote_ssh.py
+  [x] Suíte de 31 testes automatizados (100% verde) cobrindo autenticação, Nostr NIP-01/NIP-44, E2E e sanitização
 
 Concluído v2.37:
   [x] R-UI-02 Tema Tri-State: Automático (sistema), Claro e Escuro OLED

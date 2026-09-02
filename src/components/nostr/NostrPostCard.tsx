@@ -7,6 +7,7 @@ import { nip19 } from "nostr-tools";
 import { useNostrAuth } from "@/lib/nostr/auth-context";
 import { publishNostrNote, publishNostrReaction } from "@/lib/nostr/events";
 import { shortenNpub } from "@/lib/nostr/keys";
+import { parseNostrContent } from "@/lib/nostr/content-parser";
 import { isPostBookmarked, removeBookmark, saveBookmark } from "./NostrBookmarks";
 import { NostrZapModal } from "./NostrZapModal";
 import type { NostrPost } from "@/lib/nostr/types";
@@ -164,9 +165,46 @@ export function NostrPostCard({ post, onReaction, onReplyPublished }: Props) {
           </div>
         </div>
 
-        {/* Conteúdo da Nota */}
+        {/* Conteúdo da Nota com Sanitização */}
         <div className="mt-3 text-sm text-bc-brown/90 whitespace-pre-line break-words leading-relaxed">
-          {post.content}
+          {parseNostrContent(post.content).map((segment, idx) => {
+            if (segment.type === "link") {
+              return (
+                <a
+                  key={idx}
+                  href={segment.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-bc-blue hover:underline font-medium break-all"
+                >
+                  {segment.content}
+                </a>
+              );
+            }
+            if (segment.type === "hashtag") {
+              return (
+                <Link
+                  key={idx}
+                  href={segment.url!}
+                  className="text-bc-green font-bold hover:underline"
+                >
+                  {segment.content}
+                </Link>
+              );
+            }
+            if (segment.type === "nostr") {
+              return (
+                <Link
+                  key={idx}
+                  href={segment.url!}
+                  className="inline-flex items-center gap-1 rounded bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 text-xs font-semibold hover:underline"
+                >
+                  {segment.content}
+                </Link>
+              );
+            }
+            return <span key={idx}>{segment.content}</span>;
+          })}
         </div>
 
         {/* Mídias / Imagens */}

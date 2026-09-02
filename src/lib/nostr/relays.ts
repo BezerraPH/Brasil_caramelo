@@ -11,6 +11,9 @@ export const DEFAULT_NOSTR_RELAYS: string[] = [
 
 const LOCAL_STORAGE_RELAYS_KEY = "bc_nostr_relays";
 
+// Cache em memória de latência e saúde dos relays
+const relayHealthCache = new Map<string, { latencyMs: number; lastChecked: number; state: "connected" | "error" }>();
+
 export function getSavedRelays(): string[] {
   if (typeof window === "undefined") return DEFAULT_NOSTR_RELAYS;
   try {
@@ -33,6 +36,16 @@ export function saveRelays(relays: string[]): void {
   }
 }
 
+/**
+ * Calcula o tempo de espera para reconexão usando Exponential Backoff com Jitter aleatório.
+ * Previne "thundering herd" (tempestade de reconexões simultâneas).
+ */
+export function calculateBackoffDelay(attempt: number, baseMs = 1000, maxMs = 30000): number {
+  const exp = Math.min(maxMs, baseMs * Math.pow(2, attempt));
+  const jitter = Math.random() * 0.3 * exp; // 30% jitter
+  return Math.floor(exp + jitter);
+}
+
 // Singleton SimplePool para reutilização de WebSockets
 let poolInstance: SimplePool | null = null;
 
@@ -44,9 +57,21 @@ export function getNostrPool(): SimplePool {
 }
 
 /**
- * Testa a latência e conectividade com um relay WebSocket.
+ * Testa a latência e conectividade com um relay WebSocket com cache de 30 segundos.
  */
 export async function testRelayConnection(url: string, timeoutMs = 3000): Promise<RelayInfo> {
+  const now = Date.now();
+  const cached = relayHealthCache.get(url);
+  if (cached && now - cached.lastChecked < 30000) {
+    return {
+      url,
+      read: true,
+      write: true,
+      state: cached.state,
+      latencyMs: cached.latencyMs,
+    };
+  }
+
   const start = Date.now();
   if (typeof window === "undefined") {
     return { url, read: true, write: true, state: "connected", latencyMs: 50 };
@@ -61,12 +86,13 @@ export async function testRelayConnection(url: string, timeoutMs = 3000): Promis
       if (ws) {
         ws.onopen = null;
         ws.onerror = null;
-        ws.close();
+        try { ws.close(); } catch {}
       }
     };
 
     timer = setTimeout(() => {
       cleanup();
+      relayHealthCache.set(url, { latencyMs: timeoutMs, lastChecked: Date.now(), state: "error" });
       resolve({ url, read: true, write: true, state: "error", latencyMs: timeoutMs });
     }, timeoutMs);
 
@@ -75,14 +101,17 @@ export async function testRelayConnection(url: string, timeoutMs = 3000): Promis
       ws.onopen = () => {
         const latencyMs = Date.now() - start;
         cleanup();
+        relayHealthCache.set(url, { latencyMs, lastChecked: Date.now(), state: "connected" });
         resolve({ url, read: true, write: true, state: "connected", latencyMs });
       };
       ws.onerror = () => {
         cleanup();
+        relayHealthCache.set(url, { latencyMs: timeoutMs, lastChecked: Date.now(), state: "error" });
         resolve({ url, read: true, write: true, state: "error", latencyMs: timeoutMs });
       };
     } catch {
       cleanup();
+      relayHealthCache.set(url, { latencyMs: timeoutMs, lastChecked: Date.now(), state: "error" });
       resolve({ url, read: true, write: true, state: "error" });
     }
   });

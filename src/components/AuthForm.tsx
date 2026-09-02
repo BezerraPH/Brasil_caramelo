@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { safeRedirectPath } from "@/lib/safe-redirect";
 import { AppVersionBadge } from "./AppVersionBadge";
+import { NostrExtensionLogin } from "./NostrExtensionLogin";
 
 type AuthFormProps = {
   mode: "login" | "register";
@@ -148,6 +149,8 @@ export function AuthForm({ mode }: AuthFormProps) {
           )}
         </p>
       </form>
+
+      <NostrExtensionLogin />
     </div>
   );
 }

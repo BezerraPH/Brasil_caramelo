@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useNostrAuth } from "@/lib/nostr/auth-context";
 import { getNostrPool } from "@/lib/nostr/relays";
 import { formatNostrPost } from "@/lib/nostr/events";
-import { decodeNostrKey, shortenNpub } from "@/lib/nostr/keys";
+import { decodeNostrKey, pubkeyToNpub, shortenNpub } from "@/lib/nostr/keys";
 import { NostrPostCard } from "./NostrPostCard";
 import { NostrQrModal } from "./NostrQrModal";
 import { NostrZapModal } from "./NostrZapModal";
@@ -30,6 +30,10 @@ export function NostrUserProfileView({ rawPubkeyOrNpub }: Props) {
       return rawPubkeyOrNpub;
     }
   }, [rawPubkeyOrNpub]);
+
+  const npub = useMemo(() => {
+    return pubkeyHex ? pubkeyToNpub(pubkeyHex) : rawPubkeyOrNpub;
+  }, [pubkeyHex, rawPubkeyOrNpub]);
 
   const [profile, setProfile] = useState<NostrProfileMetadata | null>(null);
   const [posts, setPosts] = useState<NostrPost[]>([]);

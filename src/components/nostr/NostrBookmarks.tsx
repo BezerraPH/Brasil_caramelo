@@ -50,11 +50,11 @@ export function NostrBookmarks() {
 
   if (bookmarks.length === 0) {
     return (
-      <div className="bc-card rounded-2xl border border-bc-caramel/20 bg-bc-white p-8 text-center shadow-md">
+      <div className="bc-card rounded-3xl border border-bc-caramel/20 bg-bc-white p-8 text-center shadow-xs">
         <p className="text-3xl">🔖</p>
         <p className="mt-2 text-sm font-bold text-bc-blue">Nenhuma nota salva ainda.</p>
         <p className="mt-1 text-xs text-bc-brown/70">
-          Clique no ícone de marcador (🔖) em qualquer post do feed para salvar aqui!
+          Clique no botão de marcador (🔖 Salvar) em qualquer nota do feed para guardá-la aqui!
         </p>
       </div>
     );
@@ -62,7 +62,7 @@ export function NostrBookmarks() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between text-xs font-bold text-bc-brown">
+      <div className="flex items-center justify-between px-1 text-xs font-bold text-bc-brown">
         <span>Notas Salvas ({bookmarks.length})</span>
         <button
           onClick={() => {
@@ -71,13 +71,13 @@ export function NostrBookmarks() {
               setBookmarks([]);
             }
           }}
-          className="text-red-500 hover:underline"
+          className="text-red-500 hover:underline text-[11px]"
         >
           Limpar Salvos
         </button>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3.5">
         {bookmarks.map((post) => (
           <NostrPostCard
             key={post.id}

@@ -98,15 +98,16 @@ body {
 
 /* Padrão visual */
 .bc-card {
-  @apply rounded-2xl border-2 border-bc-blue/12 bg-bc-white shadow-sm;
+  @apply rounded-3xl border border-bc-caramel/15 bg-bc-white/95 shadow-sm;
   transition:
-    box-shadow 0.25s ease,
-    transform 0.25s ease,
-    border-color 0.25s ease;
+    box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s ease;
 }
 
 .bc-card:hover {
-  @apply border-bc-blue/25 shadow-md;
+  @apply border-bc-caramel/30;
+  box-shadow: 0 8px 24px -4px rgba(198, 134, 66, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
 }
 
 .bc-card-interactive:hover {
@@ -118,29 +119,29 @@ body {
 }
 
 .bc-input {
-  @apply w-full rounded-xl border border-bc-brown/25 bg-bc-white px-4 py-2.5 text-sm transition focus:border-bc-green focus:outline-none focus:ring-2 focus:ring-bc-green/25;
+  @apply w-full rounded-2xl border border-bc-caramel/25 bg-bc-white px-4 py-2.5 text-sm transition-all duration-200 focus:border-bc-blue focus:bg-white focus:outline-none focus:ring-2 focus:ring-bc-blue/20;
 }
 
 .bc-btn-primary {
-  @apply rounded-xl bg-bc-green px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-bc-green/90 hover:shadow-md active:scale-[0.98] disabled:opacity-50;
+  @apply rounded-2xl bg-bc-green px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-all duration-200 hover:bg-bc-green/90 hover:shadow-md hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50;
 }
 
 .bc-btn-secondary {
-  @apply rounded-xl border-2 border-bc-blue/30 bg-bc-white px-4 py-2 font-medium text-bc-blue transition hover:border-bc-blue hover:bg-bc-blue/5 active:scale-[0.98];
+  @apply rounded-2xl border border-bc-blue/30 bg-bc-white px-4 py-2 font-semibold text-bc-blue transition-all duration-200 hover:border-bc-blue hover:bg-bc-blue/5 hover:scale-[1.02] active:scale-[0.98];
 }
 
 .bc-btn-ghost {
-  @apply rounded-lg px-3 py-1.5 text-sm font-medium text-bc-blue transition hover:bg-bc-blue/10;
+  @apply rounded-xl px-3 py-1.5 text-sm font-medium text-bc-blue transition hover:bg-bc-blue/10;
 }
 
 .bc-glass {
-  background: var(--bc-glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .bc-btn-gold {
-  @apply rounded-xl bg-gradient-to-r from-bc-gold to-bc-caramel px-5 py-2.5 text-sm font-bold text-white shadow-md transition hover:shadow-lg active:scale-[0.98];
+  @apply rounded-2xl bg-gradient-to-r from-bc-gold to-bc-caramel px-5 py-2.5 text-sm font-bold text-white shadow-md transition-all duration-200 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98];
 }
 
 .bc-badge-premium {

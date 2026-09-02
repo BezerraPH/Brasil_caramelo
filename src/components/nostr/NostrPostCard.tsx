@@ -35,7 +35,7 @@ export function NostrPostCard({ post, onReaction, onReplyPublished }: Props) {
 
   const authorName = post.profile?.name || post.profile?.display_name || shortenNpub(post.npub, 6);
   const avatarUrl = post.profile?.picture;
-  const breedBadge = post.profile?.dog_breed || "Caramelo Nostr";
+  const breedBadge = post.profile?.dog_breed;
 
   async function handleLike() {
     if (!identity) {
@@ -112,13 +112,13 @@ export function NostrPostCard({ post, onReaction, onReplyPublished }: Props) {
 
   return (
     <>
-      <article className="bc-card bc-card-interactive bc-glass rounded-2xl border border-bc-caramel/25 bg-bc-white p-4 shadow-md transition-all hover:shadow-lg">
+      <article className="bc-card rounded-3xl border border-bc-caramel/15 bg-bc-white/95 p-4 sm:p-5 shadow-xs hover:shadow-md transition-all">
         {/* Header do Autor */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-3 min-w-0">
             <Link
               href={`/nostr/p/${post.npub}`}
-              className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-bc-caramel/40 to-bc-green/30 hover:opacity-90 transition-opacity"
+              className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-bc-caramel/30 to-bc-green/20 border border-bc-caramel/20 hover:opacity-90 transition-opacity"
             >
               {avatarUrl ? (
                 <Image
@@ -133,38 +133,39 @@ export function NostrPostCard({ post, onReaction, onReplyPublished }: Props) {
               )}
             </Link>
 
-            <div>
-              <div className="flex items-center gap-2">
+            <div className="min-w-0 truncate">
+              <div className="flex items-center gap-1.5 truncate">
                 <Link
                   href={`/nostr/p/${post.npub}`}
-                  className="font-bold text-bc-blue hover:underline"
+                  className="font-bold text-sm text-bc-blue hover:underline truncate"
                 >
                   {authorName}
                 </Link>
-                <span className="bc-badge bg-bc-caramel/15 text-[10px] text-bc-brown">
-                  {breedBadge}
-                </span>
+                {breedBadge && (
+                  <span className="rounded-full bg-bc-caramel/10 px-2 py-0.5 text-[10px] font-medium text-bc-brown shrink-0">
+                    {breedBadge}
+                  </span>
+                )}
                 {post.profile?.nip05 && (
                   <span
-                    className="text-[11px] text-emerald-600 font-bold"
-                    title={`Verificado NIP-05: ${post.profile.nip05}`}
+                    className="text-[11px] text-emerald-600 font-bold shrink-0"
+                    title={`NIP-05: ${post.profile.nip05}`}
                   >
                     ✓
                   </span>
                 )}
               </div>
-              <p className="font-mono text-[11px] text-bc-brown/70">{shortenNpub(post.npub, 6)}</p>
+              <p className="font-mono text-[11px] text-bc-brown/60 truncate">{shortenNpub(post.npub, 6)}</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 text-xs text-bc-brown/60">
-            <span title="Assinatura criptográfica Schnorr verificada">🛡️</span>
+          <div className="flex items-center gap-1 text-[11px] text-bc-brown/60 shrink-0">
             <span>{formattedDate}</span>
           </div>
         </div>
 
         {/* Conteúdo da Nota */}
-        <div className="mt-3 text-sm text-bc-brown whitespace-pre-line break-words leading-relaxed">
+        <div className="mt-3 text-sm text-bc-brown/90 whitespace-pre-line break-words leading-relaxed">
           {post.content}
         </div>
 
@@ -172,16 +173,16 @@ export function NostrPostCard({ post, onReaction, onReplyPublished }: Props) {
         {post.mediaUrls.length > 0 && (
           <div className="mt-3 grid gap-2">
             {post.mediaUrls.map((url) => (
-              <div key={url} className="relative max-h-96 overflow-hidden rounded-xl bg-black/5">
+              <div key={url} className="relative max-h-96 overflow-hidden rounded-2xl bg-black/5 border border-bc-caramel/15">
                 {url.endsWith(".mp4") || url.endsWith(".webm") ? (
-                  <video src={url} controls className="w-full rounded-xl" />
+                  <video src={url} controls className="w-full rounded-2xl" />
                 ) : (
                   <div className="relative h-64 w-full">
                     <Image
                       src={url}
                       alt="Mídia Nostr"
                       fill
-                      className="rounded-xl object-contain"
+                      className="rounded-2xl object-contain"
                       unoptimized
                     />
                   </div>
@@ -192,24 +193,24 @@ export function NostrPostCard({ post, onReaction, onReplyPublished }: Props) {
         )}
 
         {/* Barra de Ações (Biscoito, Responder, Zap, Salvar, Compartilhar) */}
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-bc-caramel/15 pt-3 text-xs text-bc-brown">
-          <div className="flex flex-wrap items-center gap-1.5 sm:gap-3">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-1.5 border-t border-bc-caramel/10 pt-3 text-xs text-bc-brown">
+          <div className="flex flex-wrap items-center gap-1 sm:gap-2">
             <button
               onClick={handleLike}
               disabled={reacting}
-              className={`flex items-center gap-1.5 rounded-full px-3 py-1 font-bold transition-all ${
+              className={`flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold transition-all ${
                 hasLiked
-                  ? "bg-bc-caramel/25 text-bc-brown"
-                  : "hover:bg-bc-caramel/15 hover:text-bc-blue"
+                  ? "bg-amber-500/20 text-amber-900"
+                  : "hover:bg-amber-500/10 hover:text-amber-800"
               }`}
             >
               <span>🐾</span>
-              <span>{likes > 0 ? `${likes} Biscoitos` : "Dar Biscoito"}</span>
+              <span>{likes > 0 ? `${likes} Biscoitos` : "Biscoito"}</span>
             </button>
 
             <button
               onClick={() => setShowReplyBox((v) => !v)}
-              className="flex items-center gap-1.5 rounded-full px-3 py-1 font-bold hover:bg-bc-cream hover:text-bc-blue transition-all"
+              className="flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold hover:bg-bc-blue/10 hover:text-bc-blue transition-all"
             >
               <span>💬</span>
               <span>Responder</span>
@@ -218,8 +219,8 @@ export function NostrPostCard({ post, onReaction, onReplyPublished }: Props) {
             <button
               type="button"
               onClick={() => setShowZapModal(true)}
-              className="flex items-center gap-1 rounded-full px-3 py-1 font-bold text-amber-600 hover:bg-amber-500/15 transition-all"
-              title="Enviar Zap Lightning em satoshis"
+              className="flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold text-amber-700 hover:bg-amber-500/15 transition-all"
+              title="Enviar Zap em satoshis via Lightning"
             >
               <span>⚡</span>
               <span>Zap</span>
@@ -236,10 +237,10 @@ export function NostrPostCard({ post, onReaction, onReplyPublished }: Props) {
                   setBookmarked(true);
                 }
               }}
-              className={`flex items-center gap-1 rounded-full px-2.5 py-1 font-bold transition-all ${
+              className={`flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold transition-all ${
                 bookmarked
-                  ? "bg-bc-green/15 text-bc-green"
-                  : "hover:bg-bc-cream hover:text-bc-blue"
+                  ? "bg-emerald-500/15 text-emerald-800"
+                  : "hover:bg-emerald-500/10 hover:text-emerald-800"
               }`}
               title={bookmarked ? "Remover dos salvos" : "Salvar nota"}
             >
@@ -249,29 +250,30 @@ export function NostrPostCard({ post, onReaction, onReplyPublished }: Props) {
 
           <button
             onClick={copyNoteId}
-            className="text-[11px] text-bc-brown/60 hover:text-bc-blue hover:underline"
+            className="text-[11px] text-bc-brown/60 hover:text-bc-blue hover:underline px-1 py-0.5"
           >
-            {copied ? "✓ ID Copiado" : "Compartilhar Note"}
+            {copied ? "✓ ID Copiado" : "Compartilhar"}
           </button>
         </div>
 
         {/* Caixa de Resposta Rápida (Inline) */}
         {showReplyBox && (
-          <form onSubmit={handleSendReply} className="mt-3 border-t border-bc-caramel/15 pt-3">
+          <form onSubmit={handleSendReply} className="mt-3 border-t border-bc-caramel/10 pt-3">
             <div className="flex gap-2">
               <input
                 type="text"
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 placeholder={`Respondendo a @${authorName}...`}
-                className="flex-1 rounded-xl border border-bc-caramel/30 bg-bc-sand/40 px-3 py-2 text-xs text-bc-brown focus:border-bc-blue focus:bg-bc-white focus:outline-none"
+                className="flex-1 rounded-xl border border-bc-caramel/25 bg-bc-sand/30 px-3 py-1.5 text-xs text-bc-brown focus:border-bc-blue focus:bg-white focus:outline-none"
+                autoFocus
               />
               <button
                 type="submit"
                 disabled={publishingReply || !replyText.trim()}
-                className="rounded-xl bg-bc-blue px-4 py-2 text-xs font-bold text-white hover:bg-bc-blue/90 disabled:opacity-50"
+                className="rounded-xl bg-bc-blue px-3.5 py-1.5 text-xs font-bold text-white hover:bg-bc-blue/90 disabled:opacity-50"
               >
-                {publishingReply ? "Enviando..." : "Latir"}
+                {publishingReply ? "..." : "Enviar"}
               </button>
             </div>
           </form>

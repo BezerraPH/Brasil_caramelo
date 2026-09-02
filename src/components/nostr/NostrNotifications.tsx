@@ -74,10 +74,13 @@ export function NostrNotifications() {
 
   if (!identity) {
     return (
-      <div className="bc-card rounded-2xl border border-bc-caramel/20 bg-bc-white p-8 text-center">
-        <p className="text-2xl">🔔</p>
+      <div className="bc-card rounded-3xl border border-bc-caramel/20 bg-bc-white p-8 text-center shadow-xs">
+        <p className="text-3xl">🔔</p>
         <p className="mt-2 text-sm font-bold text-bc-blue">
           Conecte sua identidade Nostr para ver menções e notificações.
+        </p>
+        <p className="mt-1 text-xs text-bc-brown/70">
+          Você será avisado sempre que outro caramelo interagir com suas notas.
         </p>
       </div>
     );
@@ -85,8 +88,8 @@ export function NostrNotifications() {
 
   if (loading && notifications.length === 0) {
     return (
-      <div className="bc-card rounded-2xl border border-bc-caramel/20 bg-bc-white p-8 text-center">
-        <p className="text-2xl animate-bounce">🔔</p>
+      <div className="bc-card rounded-3xl border border-bc-caramel/20 bg-bc-white p-8 text-center shadow-xs">
+        <p className="text-3xl animate-bounce">🔔</p>
         <p className="mt-2 text-xs font-bold text-bc-blue">Buscando interações na rede Nostr...</p>
       </div>
     );
@@ -94,11 +97,11 @@ export function NostrNotifications() {
 
   if (notifications.length === 0) {
     return (
-      <div className="bc-card rounded-2xl border border-bc-caramel/20 bg-bc-white p-8 text-center">
-        <p className="text-2xl">🐾</p>
+      <div className="bc-card rounded-3xl border border-bc-caramel/20 bg-bc-white p-8 text-center shadow-xs">
+        <p className="text-3xl">🐾</p>
         <p className="mt-2 text-sm font-bold text-bc-blue">Nenhuma notificação recente.</p>
         <p className="text-xs text-bc-brown/70 mt-1">
-          Quando alguém responder ou reagir a uma nota sua, ela aparecerá aqui!
+          Quando alguém responder ou reagir a uma nota sua nos relays, ela aparecerá aqui!
         </p>
       </div>
     );
@@ -120,10 +123,13 @@ export function NostrNotifications() {
         return (
           <div
             key={notif.id}
-            className="bc-card bc-card-interactive rounded-2xl border border-bc-caramel/20 bg-bc-white p-4 shadow-sm"
+            className="bc-card rounded-2xl border border-bc-caramel/15 bg-bc-white/95 p-4 shadow-xs hover:shadow-md transition-all"
           >
             <div className="flex items-start gap-3">
-              <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-bc-caramel/40 to-bc-green/30">
+              <Link
+                href={`/nostr/p/${notif.pubkey}`}
+                className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-bc-caramel/30 to-bc-green/20 border border-bc-caramel/20 hover:opacity-90 transition-opacity"
+              >
                 {profile?.picture ? (
                   <Image
                     src={profile.picture}
@@ -133,11 +139,11 @@ export function NostrNotifications() {
                     unoptimized
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-lg">
+                  <div className="flex h-full w-full items-center justify-center text-base">
                     {isReaction ? "🐾" : "💬"}
                   </div>
                 )}
-              </div>
+              </Link>
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
@@ -152,11 +158,11 @@ export function NostrNotifications() {
 
                 <div className="text-xs text-bc-brown mt-1">
                   {isReaction ? (
-                    <span className="flex items-center gap-1 font-semibold text-amber-700">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2.5 py-0.5 font-semibold text-amber-900 text-[11px]">
                       <span>🐾 Deu um biscoito na sua nota</span>
                     </span>
                   ) : (
-                    <span>{notif.content}</span>
+                    <p className="line-clamp-3 leading-relaxed text-bc-brown/90">{notif.content}</p>
                   )}
                 </div>
               </div>

@@ -244,3 +244,63 @@ export async function getCommunityForModeration(slug: string, userId: string) {
   if (!community.canModerate) return null;
   return community;
 }
+
+export async function createCommunity(
+  userId: string,
+  input: {
+    name: string;
+    description: string;
+    category?: string;
+    emoji?: string;
+    themePrimary?: string;
+    themeAccent?: string;
+    pinnedRules?: string;
+  },
+) {
+  const name = input.name.trim();
+  if (!name || name.length < 3) {
+    throw new Error("O nome da comunidade deve ter pelo menos 3 caracteres.");
+  }
+  const description = input.description.trim();
+  if (!description) {
+    throw new Error("A descrição da comunidade é obrigatória.");
+  }
+
+  let baseSlug = name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  if (!baseSlug) baseSlug = "comunidade";
+
+  let slug = baseSlug;
+  let counter = 1;
+  while (await prisma.community.findUnique({ where: { slug } })) {
+    slug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+
+  const community = await prisma.community.create({
+    data: {
+      slug,
+      name,
+      description,
+      category: input.category || "outros",
+      emoji: input.emoji || "🏘️",
+      themePrimary: input.themePrimary || "#005f38",
+      themeAccent: input.themeAccent || "#ffc72c",
+      pinnedRules: input.pinnedRules?.trim() || DEFAULT_RULES,
+      ownerId: userId,
+      members: {
+        create: {
+          userId,
+          role: "MODERATOR",
+        },
+      },
+    },
+  });
+
+  return community;
+}

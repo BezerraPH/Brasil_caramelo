@@ -36,6 +36,8 @@ Concluído v2.30:
   [x] R-FED-05 Protocolo Nostr descentralizado, chaves npub/nsec, relays pool, feed e NIP-05
   [x] R-FED-06 Visualização de Perfil Público Nostr (/nostr/p/[pubkey]), Zaps NIP-57 e histórico de notas
   [x] R-FED-07 Central de Notificações Nostr (Kind 1 e 7) e Sistema de Notas Salvas/Favoritos
+  [x] R-COM-05 Criação de comunidades pelo usuário com modal, paleta e moderação
+  [x] R-SOC-04 Painel de visitantes do perfil estilo Orkut com privacidade recíproca
   [x] Bugfixes de compilação Next 16 e conformidade com regras de linter React 19
 
 Concluído v2.29:
@@ -44,7 +46,7 @@ Concluído v2.29:
   [x] R-028-01..10 P0 scripts/doc (check-production-env, setup-production-stack, §18)
   [x] R-OPS-05/06 Backup/alertas doc
 
-Pendente próximo: R-COM-05 criar comunidade · R-SOC-* · R-QA-* testes
+Pendente próximo: R-SOC-* · R-QA-* testes
 
 Concluído em v2.27 (V3):
   [x] R-V3-03 Federação Tailscale (networkType, probe, timeout 20s)

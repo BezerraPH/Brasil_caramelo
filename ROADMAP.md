@@ -61,7 +61,7 @@ Checklist de **produção** — scripts e doc prontos; configure `.env` no host 
 | R-COM-02 | **Moderadores** — dono/mod, regras fixadas no topo | v2.29 | [x] 2026-05-22 |
 | R-COM-03 | **Mural** — recados só da comunidade (feed scoped) | v2.29 | [x] 2026-05-22 |
 | R-COM-04 | **Ranking** — comunidades quentes (membros + atividade) | v2.29 | [x] 2026-05-22 |
-| R-COM-05 | **Criar comunidade** — formulário usuário + moderação leve | v2.29 | [ ] |
+| R-COM-05 | **Criar comunidade** — formulário usuário + moderação leve | v2.30 | [x] 2026-09-01 (v2.30.0) |
 | R-COM-06 | **Explorar** — busca e filtro por categoria na UI | v2.29 | [x] 2026-05-22 |
 
 ---
@@ -73,7 +73,7 @@ Checklist de **produção** — scripts e doc prontos; configure `.env` no host 
 | R-SOC-01 | **Scrapbook** — comentários/respostas em depoimentos (thread) | v2.29 | [ ] |
 | R-SOC-02 | **Álbuns** — permissões amigos / matilha / público | v2.29 | [ ] |
 | R-SOC-03 | **Recado fixado** — “recado do dia” no topo do perfil Orkut | v2.29 | [ ] |
-| R-SOC-04 | **Visitas** — lista ou mini-gráfico de quem visitou o perfil | v2.29 | [ ] |
+| R-SOC-04 | **Visitas** — lista ou mini-gráfico de quem visitou o perfil | v2.29 | [x] 2026-09-01 (v2.30.0) |
 | R-DIS-01 | **Cinelar** — filtros por matilha e hashtag | v2.30 | [ ] |
 | R-DIS-02 | **Cinelar** — seguir criador / feed de seguidos | v2.30 | [ ] |
 | R-DIS-03 | **Amigos** — sugestões por `interests` do perfil | v2.30 | [ ] |

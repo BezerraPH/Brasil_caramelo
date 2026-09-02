@@ -7,12 +7,15 @@ import { useAsyncEffect } from "@/hooks/use-async-effect";
 import type { CommunityCard } from "@/lib/communities-types";
 import { COMMUNITY_CATEGORIES } from "@/lib/communities-types";
 
+import { CreateCommunityModal } from "./CreateCommunityModal";
+
 export function CommunitiesExplorer() {
   const [category, setCategory] = useState("todos");
   const [sort, setSort] = useState<"name" | "hot">("hot");
   const [query, setQuery] = useState("");
   const [items, setItems] = useState<CommunityCard[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -46,7 +49,7 @@ export function CommunitiesExplorer() {
             onChange={(e) => setQuery(e.target.value)}
           />
         </label>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => setSort("hot")}
@@ -68,6 +71,14 @@ export function CommunitiesExplorer() {
             }`}
           >
             A–Z
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsCreateModalOpen(true)}
+            className="bc-btn-primary flex items-center gap-1 rounded-full px-4 py-1.5 text-xs font-bold shadow-md hover:scale-105 transition-all"
+          >
+            <span>➕</span>
+            <span>Criar Comunidade</span>
           </button>
         </div>
       </div>
@@ -143,6 +154,12 @@ export function CommunitiesExplorer() {
           Nenhuma comunidade encontrada.
         </p>
       )}
+
+      <CreateCommunityModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onCreated={() => void load()}
+      />
     </div>
   );
 }

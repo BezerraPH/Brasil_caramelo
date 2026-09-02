@@ -24,10 +24,10 @@ const DONE = [
   { icon: "🔔", title: "Push PWA na tailnet", phase: "v2.23" },
   { icon: "⚡", title: "Redis + CI + backup ops", phase: "v2.24" },
   { icon: "📦", title: "MinIO / S3 para mídia", phase: "v2.25" },
-  { icon: "🏘️", title: "Comunidades: fórum, mural, mods, ranking", phase: "v2.29" },
+  { icon: "🏘️", title: "Comunidades: criar comunidade, fórum, mural, mods, ranking", phase: "v2.30" },
   { icon: "💳", title: "Pedigree admin PIX manual", phase: "v2.29" },
   { icon: "📤", title: "Export LGPD JSON", phase: "v2.26" },
-  { icon: "⚡", title: "Nostr Descentralizado (relays + npub)", phase: "v2.30" },
+  { icon: "⚡", title: "Nostr Descentralizado (perfis, zaps, notificações, favoritos)", phase: "v2.30" },
   { icon: "🔒", title: "HTTPS / Tailscale / mkcert (CONFIGURACAO.md)" },
   { icon: "🌳", title: "Árvore genealógica DNA" },
   { icon: "🏪", title: "Cupons pet shop regional" },
@@ -35,10 +35,9 @@ const DONE = [
 
 /** Próximos itens de ROADMAP.md (onda v2.28+) — atualizar ao marcar [x]. */
 const FUTURE: { icon: string; title: string; phase?: string }[] = [
-  { icon: "➕", title: "Criar comunidade (usuário)", phase: "v2.29" },
-  { icon: "💬", title: "Scrapbook com threads em depoimentos", phase: "v2.29" },
-  { icon: "📌", title: "Recado fixado no perfil Orkut", phase: "v2.29" },
-  { icon: "🔄", title: "Federação: sync agendado e preview", phase: "v2.30" },
+  { icon: "💬", title: "Scrapbook com threads em depoimentos", phase: "v2.31" },
+  { icon: "📌", title: "Recado fixado no perfil Orkut", phase: "v2.31" },
+  { icon: "🔄", title: "Federação: sync agendado e preview", phase: "v2.31" },
   { icon: "🧪", title: "Testes Vitest + Playwright", phase: "P3" },
 ];
 

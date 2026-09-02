@@ -18,3 +18,32 @@ export async function GET(request: Request) {
   });
   return NextResponse.json({ communities });
 }
+
+export async function POST(request: Request) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json(
+      { error: "Você precisa estar conectado para criar uma comunidade." },
+      { status: 401 },
+    );
+  }
+
+  try {
+    const body = await request.json();
+    const { createCommunity } = await import("@/lib/communities");
+    const community = await createCommunity(user.id, {
+      name: body.name ?? "",
+      description: body.description ?? "",
+      category: body.category ?? "outros",
+      emoji: body.emoji ?? "🏘️",
+      themePrimary: body.themePrimary ?? "#005f38",
+      themeAccent: body.themeAccent ?? "#ffc72c",
+      pinnedRules: body.pinnedRules ?? "",
+    });
+
+    return NextResponse.json({ ok: true, community });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Erro ao criar comunidade.";
+    return NextResponse.json({ error: msg }, { status: 400 });
+  }
+}

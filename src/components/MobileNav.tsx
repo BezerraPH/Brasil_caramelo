@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { MOBILE_NAV, isNavActive } from "@/lib/nav";
 import { ChatUnreadBadge } from "./ChatUnreadBadge";
 import { NotificationUnreadDot } from "./NotificationUnreadDot";
+import { PetMiniWidget } from "./PetMiniWidget";
 
 type MobileNavProps = {
   userId: string;
@@ -69,6 +70,9 @@ export function MobileNav({
             </li>
           );
         })}
+        <li>
+          <PetMiniWidget />
+        </li>
       </ul>
     </nav>
   );

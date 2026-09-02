@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { playBarkSound } from "@/lib/sound-fx";
 
 type BiscuitButtonProps = {
   postId: string;
@@ -25,6 +26,7 @@ export function BiscuitButton({
     if (given || busy) return;
     setBusy(true);
     try {
+      playBarkSound();
       const res = await fetch(`/api/posts/${postId}/biscuit`, { method: "POST" });
       const data = await res.json();
       if (res.ok) {

@@ -9,6 +9,7 @@ import { ChatUnreadBadge } from "./ChatUnreadBadge";
 import { PetDailyNavDot } from "./PetDailyNavDot";
 import { NotificationBell } from "./NotificationBell";
 import { ThemeToggle } from "./ThemeToggle";
+import { SoundToggle } from "./SoundToggle";
 import { TribunalOpenDot } from "./TribunalOpenDot";
 import { NostrRelayStatus } from "./nostr/NostrRelayStatus";
 
@@ -99,6 +100,7 @@ export function NavBar({ user, pusherKey, pusherCluster }: NavBarProps) {
           </Link>
           <NostrRelayStatus />
           <ThemeToggle />
+          <SoundToggle />
           <NotificationBell
             userId={user.id}
             pusherKey={pusherKey}

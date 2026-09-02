@@ -67,6 +67,7 @@ Checklist de **produção** — scripts e doc prontos; configure `.env` no host 
 | R-UX-01 | **Redesign Mobile-First & Acessibilidade** — Bottom nav bar, header enxuto, WCAG 4.5:1+, Cinelar scrim e busca autocomplete | v2.34 | [x] 2026-09-02 (v2.34.0) |
 | R-PWA-01 | **PWA Offline & NIP-44 & Hostinger Deploy** — Service Worker offline, criptografia NIP-44 ChaCha20, Termos LGPD e checkout híbrido Pix/Lightning | v2.35 | [x] 2026-09-02 (v2.35.0) |
 | R-OPT-01 | **Otimizações Globais do Relatório** — Índices compostos Prisma, Rate Limiting, TTL Caching, WebCrypto AES-GCM, Saque Lightning e Filtros de Stories | v2.36 | [x] 2026-09-02 (v2.36.0) |
+| R-UI-02 | **Frontend V2.37 & Experiência Orkut** — Tema Tri-State (Auto/Claro/Escuro), Sound FX retrô sintetizado, Mini-Widget do Pet no BottomNav e autocomplete @amigo | v2.37 | [x] 2026-09-02 (v2.37.0) |
 
 ---
 

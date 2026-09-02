@@ -34,16 +34,17 @@ const DONE = [
   { icon: "📱", title: "Redesign Mobile-First: bottom nav bar, busca dinâmica, alto contraste WCAG", phase: "v2.34" },
   { icon: "⚡", title: "PWA Offline + NIP-44 Criptografia + Checkout Pix/Lightning + Hostinger Deploy", phase: "v2.35" },
   { icon: "🚀", title: "Otimizações do Relatório: Índices Prisma, Rate Limiting, TTL Caching, WebCrypto AES-GCM, Saque Lightning e Filtros de Stories", phase: "v2.36" },
+  { icon: "🎨", title: "Frontend v2.37: Tema Tri-State (Auto/Claro/Escuro), Sound FX Retrô, Mini-Widget do Pet no BottomNav e Autocomplete @amigo", phase: "v2.37" },
   { icon: "🔒", title: "HTTPS / Tailscale / mkcert (CONFIGURACAO.md)" },
   { icon: "🌳", title: "Árvore genealógica DNA" },
   { icon: "🏪", title: "Cupons pet shop regional" },
 ];
 
-/** Próximos itens de ROADMAP.md (onda v2.37+) — atualizar ao marcar [x]. */
+/** Próximos itens de ROADMAP.md (onda v2.38+) — atualizar ao marcar [x]. */
 const FUTURE: { icon: string; title: string; phase?: string }[] = [
-  { icon: "💬", title: "Scrapbook com threads em depoimentos", phase: "v2.37" },
-  { icon: "📌", title: "Recado fixado no perfil Orkut", phase: "v2.37" },
-  { icon: "🔄", title: "Federação: sync agendado e preview", phase: "v2.37" },
+  { icon: "💬", title: "Scrapbook com threads em depoimentos", phase: "v2.38" },
+  { icon: "📌", title: "Recado fixado no perfil Orkut", phase: "v2.38" },
+  { icon: "🔄", title: "Federação: sync agendado e preview", phase: "v2.38" },
   { icon: "🧪", title: "Testes Vitest + Playwright", phase: "P3" },
 ];
 

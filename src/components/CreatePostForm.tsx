@@ -10,6 +10,7 @@ import { AiCaptionButton } from "./AiCaptionButton";
 import { LocalMediaUpload } from "./LocalMediaUpload";
 import { BcImage } from "./BcImage";
 import { useToast } from "./ToastProvider";
+import { MentionAutocomplete } from "./MentionAutocomplete";
 
 type CreatePostFormProps = {
   instaMode?: boolean;
@@ -124,27 +125,37 @@ export function CreatePostForm({
         </div>
       )}
 
-      <textarea
-        id="recado"
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        rows={instaMode || reelsMode ? 2 : 3}
-        maxLength={MAX_POST_CHARS}
-        placeholder={
-          reelsMode
-            ? "Legenda do vídeo…"
-            : instaMode
-              ? "Legenda da foto (opcional)…"
-              : "O que você está aprontando hoje?"
-        }
-        className={`bc-lousa-textarea w-full resize-none rounded-lg border p-3 text-sm focus:outline-none focus:ring-2 ${
-          reelsMode
-            ? "border-bc-caramel/40 focus:border-bc-caramel focus:ring-bc-caramel/30"
-            : instaMode
-              ? "border-bc-blue/20 focus:border-bc-blue focus:ring-bc-blue/20"
-              : "border-dashed border-bc-brown/40 bg-[#fffef8] focus:border-bc-green focus:ring-bc-green/30 shadow-inner"
-        }`}
-      />
+      <div className="relative">
+        {content.match(/@(\w*)$/) && (
+          <MentionAutocomplete
+            query={content.match(/@(\w*)$/)![1]}
+            onSelect={(username) => {
+              setContent((prev) => prev.replace(/@(\w*)$/, `@${username} `));
+            }}
+          />
+        )}
+        <textarea
+          id="recado"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          rows={instaMode || reelsMode ? 2 : 3}
+          maxLength={MAX_POST_CHARS}
+          placeholder={
+            reelsMode
+              ? "Legenda do vídeo…"
+              : instaMode
+                ? "Legenda da foto (opcional)…"
+                : "O que você está aprontando hoje? Use @ para marcar amigos!"
+          }
+          className={`bc-lousa-textarea w-full resize-none rounded-lg border p-3 text-sm focus:outline-none focus:ring-2 ${
+            reelsMode
+              ? "border-bc-caramel/40 focus:border-bc-caramel focus:ring-bc-caramel/30"
+              : instaMode
+                ? "border-bc-blue/20 focus:border-bc-blue focus:ring-bc-blue/20"
+                : "border-dashed border-bc-brown/40 bg-[#fffef8] focus:border-bc-green focus:ring-bc-green/30 shadow-inner dark:bg-slate-900 dark:border-white/20"
+          }`}
+        />
+      </div>
       <p
         className={`mt-1 text-right text-[10px] tabular-nums ${
           content.length > MAX_POST_CHARS * 0.9

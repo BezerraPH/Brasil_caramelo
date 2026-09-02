@@ -9,6 +9,8 @@ import { PrivacyVisitsToggle } from "./PrivacyVisitsToggle";
 import { LocationPinForm } from "./LocationPinForm";
 import { PushNotificationPanel } from "./PushNotificationPanel";
 import { ProfileThemePicker } from "./ProfileThemePicker";
+import { ThemeToggle } from "./ThemeToggle";
+import { SoundToggle } from "./SoundToggle";
 import { ShareMatilhaLink } from "./ShareMatilhaLink";
 import { GdprExportPanel } from "./GdprExportPanel";
 import { FederationPanel } from "./FederationPanel";
@@ -93,6 +95,26 @@ export function SettingsTabbedView({ full }: SettingsTabbedViewProps) {
       {/* Conteúdo da Aba 3: Aparência */}
       {activeTab === "aparencia" && (
         <div className="space-y-6 animate-fade-in">
+          <div className="rounded-3xl border border-bc-caramel/25 bg-bc-white p-5 shadow-xs dark:bg-slate-900 dark:border-white/10 space-y-4">
+            <h3 className="text-sm font-black text-bc-blue flex items-center gap-2 dark:text-amber-400">
+              <span>🖥️</span> Modo de Exibição (Tema)
+            </h3>
+            <p className="text-xs text-bc-brown/80 dark:text-slate-300">
+              Escolha entre o modo que acompanha as configurações do seu celular, o modo claro nostálgico ou o modo escuro OLED para economizar bateria.
+            </p>
+            <ThemeToggle />
+          </div>
+
+          <div className="rounded-3xl border border-bc-caramel/25 bg-bc-white p-5 shadow-xs dark:bg-slate-900 dark:border-white/10 space-y-4">
+            <h3 className="text-sm font-black text-bc-blue flex items-center gap-2 dark:text-amber-400">
+              <span>🔊</span> Efeitos Sonoros Retrô
+            </h3>
+            <p className="text-xs text-bc-brown/80 dark:text-slate-300">
+              Sons sintetizados clássicos ao dar biscoito nos recados, receber zaps Lightning e bater o martelo do Tribunal do Cão.
+            </p>
+            <SoundToggle />
+          </div>
+
           <ProfileThemePicker initialTheme={full.profileTheme} />
           <ShareMatilhaLink />
         </div>

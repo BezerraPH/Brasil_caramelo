@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-09-02 (v2.36.0-alpha.0 - Índices Prisma, Rate Limiting, TTL Caching, WebCrypto AES-GCM, Saque Lightning e Filtros de Stories)
-Versão atual do pacote (package.json): 2.36.0-alpha.0
+Última atualização: 2026-09-02 (v2.37.0-alpha.0 - Tema Tri-State, Sound FX Retrô, Mini-Widget do Pet, Stories Orkut e Autocomplete @amigo)
+Versão atual do pacote (package.json): 2.37.0-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
@@ -28,9 +28,17 @@ INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
 ================================================================================
 
 Arquivo mestre: ROADMAP.md
-Progresso: Nostr P0 9/9 · P0 Infra 10/10 · P1 Comunidades 5/6 · P0 UX 1/1 · P0 PWA 1/1 · P0 Otimizações 1/1
+Progresso: Nostr P0 9/9 · P0 Infra 10/10 · P1 Comunidades 5/6 · P0 UX 2/2 · P0 PWA 1/1 · P0 Otimizações 1/1
 
-**v2.36.0: Implementação Integral das Otimizações e Recursos do Relatório.**
+**v2.37.0: Frontend & UX Orkut, Sound FX e Mini-Widget do Pet.**
+
+Concluído v2.37:
+  [x] R-UI-02 Tema Tri-State: Automático (sistema), Claro e Escuro OLED
+  [x] Sistema de Efeitos Sonoros Retrô Sintetizados (Web Audio API) com toggle no Header e Configurações
+  [x] Mini-Widget Dinâmico do Pet Caramelo no BottomNav com humor em tempo real
+  [x] Carrossel de Stories da Matilha em formato circular estilo Orkut
+  [x] Autocomplete dinâmico de amigos ao digitar @ no criador de posts
+  [x] Som de biscoito/latido ao curtir e som de moedas ao enviar Zaps Lightning
 
 Concluído v2.36:
   [x] R-OPT-01 Índices compostos de alta performance no Prisma (Post, Friendship, Reputation)

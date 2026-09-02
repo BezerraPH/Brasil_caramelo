@@ -215,10 +215,6 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
             </Suspense>
           )}
 
-          <div className="bc-animate-in bc-stagger-1">
-            <CreatePostForm instaMode={isInsta} reelsMode={isReels} />
-          </div>
-
           {isReels ? (
             <CinelarFeed
               currentUserId={user.id}

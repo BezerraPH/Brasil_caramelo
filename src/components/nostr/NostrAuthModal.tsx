@@ -225,6 +225,12 @@ export function NostrAuthModal({ isOpen, onClose }: Props) {
               <span>Conectar com Extensão (Alby / NIP-07)</span>
             </button>
 
+            {typeof window !== "undefined" && !window.isSecureContext && window.location.hostname !== "localhost" && (
+              <div className="rounded-xl border border-amber-400/30 bg-amber-500/10 p-2.5 text-[11px] text-amber-900 leading-relaxed">
+                💡 <strong>Dica de Navegador (HTTP):</strong> Extensões de carteira (Alby/nos2x) exigem HTTPS para conectar. Em IP local HTTP, utilize <strong>Entrar com Chave</strong> ou gere uma nova conta abaixo com 1 clique!
+              </div>
+            )}
+
             <div className="relative flex items-center justify-center">
               <div className="w-full border-t border-bc-caramel/20" />
               <span className="bg-bc-white px-2 text-xs text-bc-brown">ou com chave privada</span>

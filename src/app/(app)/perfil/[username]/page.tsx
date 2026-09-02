@@ -174,14 +174,14 @@ export default async function ProfilePage({ params }: PageProps) {
 
   const profilePosts = recentPosts.map((p) => ({
     ...p,
-    createdAt: p.createdAt.toISOString(),
-    boostedUntil: p.boostedUntil?.toISOString() ?? null,
-    likedByMe: p.likes.length > 0,
+    createdAt: p.createdAt ? (p.createdAt instanceof Date ? p.createdAt.toISOString() : new Date(p.createdAt).toISOString()) : new Date().toISOString(),
+    boostedUntil: p.boostedUntil ? new Date(p.boostedUntil).toISOString() : null,
+    likedByMe: (p.likes ?? []).length > 0,
   }));
 
   const mediaMapped = mediaPosts.map((p) => ({
     ...p,
-    createdAt: p.createdAt.toISOString(),
+    createdAt: p.createdAt ? (p.createdAt instanceof Date ? p.createdAt.toISOString() : new Date(p.createdAt).toISOString()) : new Date().toISOString(),
   }));
 
   const topTestimonial =
@@ -198,7 +198,7 @@ export default async function ProfilePage({ params }: PageProps) {
       toUsername={profile.username}
       accepted={acceptedTestimonials.map((t) => ({
         ...t,
-        acceptedAt: t.acceptedAt?.toISOString() ?? null,
+        acceptedAt: t.acceptedAt ? new Date(t.acceptedAt).toISOString() : null,
       }))}
       canWrite={!isOwnProfile && isFriend}
     />

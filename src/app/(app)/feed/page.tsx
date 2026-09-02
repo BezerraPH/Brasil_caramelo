@@ -79,13 +79,16 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
   if (viewerPet) {
     viewerPetStatus = petAvatarStatus(
       applyPetDecay({
-        ...viewerPet,
         id: viewerPet.id,
         name: viewerPet.name,
         color: viewerPet.color,
-        level: viewerPet.level,
-        experience: viewerPet.experience,
-        coins: viewerPet.coins,
+        hunger: viewerPet.hunger ?? 80,
+        happiness: viewerPet.happiness ?? 80,
+        energy: viewerPet.energy ?? 80,
+        level: viewerPet.level ?? 1,
+        experience: viewerPet.experience ?? 0,
+        coins: viewerPet.coins ?? 0,
+        lastCareAt: viewerPet.lastCareAt ? new Date(viewerPet.lastCareAt) : new Date(),
       }),
     );
   }
@@ -197,7 +200,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
               title={flashEvent.title}
               message={flashEvent.message}
               coinMultiplier={flashEvent.coinMultiplier}
-              endsAt={flashEvent.endsAt.toISOString()}
+              endsAt={flashEvent.endsAt ? new Date(flashEvent.endsAt).toISOString() : new Date().toISOString()}
             />
           )}
 

@@ -51,38 +51,45 @@ export type FeedPostRow = {
 };
 
 function mapAuthorPet(
-  author: {
+  author?: {
     id: string;
     name: string;
     username: string;
     avatarUrl: string | null;
-    isPremium: boolean;
-    pet: {
-      hunger: number;
-      happiness: number;
-      energy: number;
-      lastCareAt: Date;
+    isPremium?: boolean;
+    pet?: {
+      hunger?: number;
+      happiness?: number;
+      energy?: number;
+      lastCareAt?: Date | string | null;
     } | null;
-  },
+  } | null,
 ): FeedPostRow["author"] {
   let petStatus: PetAvatarStatus | null = null;
-  if (author.pet) {
+  if (author?.pet) {
     const decayed = applyPetDecay({
-      ...author.pet,
       id: "",
       name: "",
       color: "",
+      hunger: author.pet.hunger ?? 80,
+      happiness: author.pet.happiness ?? 80,
+      energy: author.pet.energy ?? 80,
       level: 1,
       experience: 0,
       coins: 0,
+      lastCareAt: author.pet.lastCareAt ? new Date(author.pet.lastCareAt) : new Date(),
     });
     petStatus = petAvatarStatus(decayed);
   }
   return {
-    id: author.id,
-    name: author.name,
-    username: author.username,
-    avatarUrl: author.avatarUrl,
+    id: author?.id ?? "",
+    name: author?.name ?? "Membro",
+    username: author?.username ?? "anon",
+    avatarUrl: author?.avatarUrl ?? null,
+    isPremium: Boolean(author?.isPremium),
+    petStatus,
+  };
+}
     isPremium: author.isPremium,
     petStatus,
   };
@@ -144,13 +151,13 @@ export async function fetchFeedPage(
     imageUrl: p.imageUrl,
     videoUrl: p.videoUrl,
     videoHlsUrl: p.videoHlsUrl,
-    boostedUntil: p.boostedUntil?.toISOString() ?? null,
+    boostedUntil: p.boostedUntil ? new Date(p.boostedUntil).toISOString() : null,
     tribunalOpen: p.tribunalCase?.status === "OPEN",
-    createdAt: p.createdAt.toISOString(),
+    createdAt: p.createdAt ? (p.createdAt instanceof Date ? p.createdAt.toISOString() : new Date(p.createdAt).toISOString()) : new Date().toISOString(),
     author: mapAuthorPet(p.author),
-    _count: p._count,
-    likedByMe: p.likes.length > 0,
-    myReaction: p.likes[0]?.reaction ?? null,
+    _count: p._count ?? { likes: 0, comments: 0 },
+    likedByMe: (p.likes ?? []).length > 0,
+    myReaction: p.likes?.[0]?.reaction ?? null,
     savedByMe: false as boolean,
   }));
 

@@ -50,38 +50,42 @@ export async function RecentActivity({ userId }: { userId: string }) {
   ]);
 
   const items = [
-    ...likes.map((l) => ({
-      id: `like-${l.id}`,
-      at: l.createdAt,
-      postId: l.post.id,
-      text: (
-        <>
-          <Link
-            href={`/perfil/${l.user.username}`}
-            className="font-semibold text-bc-blue hover:underline"
-          >
-            {l.user.name}
-          </Link>{" "}
-          curtiu um recado
-        </>
-      ),
-    })),
-    ...comments.map((c) => ({
-      id: `comment-${c.id}`,
-      at: c.createdAt,
-      postId: c.post.id,
-      text: (
-        <>
-          <Link
-            href={`/perfil/${c.author.username}`}
-            className="font-semibold text-bc-blue hover:underline"
-          >
-            {c.author.name}
-          </Link>{" "}
-          comentou
-        </>
-      ),
-    })),
+    ...likes
+      .filter((l) => l?.post?.id && l?.user?.username)
+      .map((l) => ({
+        id: `like-${l.id}`,
+        at: l.createdAt instanceof Date ? l.createdAt : new Date(l.createdAt),
+        postId: l.post.id,
+        text: (
+          <>
+            <Link
+              href={`/perfil/${l.user.username}`}
+              className="font-semibold text-bc-blue hover:underline"
+            >
+              {l.user.name}
+            </Link>{" "}
+            curtiu um recado
+          </>
+        ),
+      })),
+    ...comments
+      .filter((c) => c?.post?.id && c?.author?.username)
+      .map((c) => ({
+        id: `comment-${c.id}`,
+        at: c.createdAt instanceof Date ? c.createdAt : new Date(c.createdAt),
+        postId: c.post.id,
+        text: (
+          <>
+            <Link
+              href={`/perfil/${c.author.username}`}
+              className="font-semibold text-bc-blue hover:underline"
+            >
+              {c.author.name}
+            </Link>{" "}
+            comentou
+          </>
+        ),
+      })),
   ]
     .sort((a, b) => b.at.getTime() - a.at.getTime())
     .slice(0, 6);

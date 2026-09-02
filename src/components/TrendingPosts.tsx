@@ -35,12 +35,12 @@ export async function TrendingPosts() {
               className="block rounded-lg px-2 py-1.5 text-xs transition hover:bg-bc-green/10"
             >
               <span className="font-bold text-bc-caramel">#{i + 1}</span>{" "}
-              <span className="text-bc-blue">{p.author.name}</span>
+              <span className="text-bc-blue">{p.author?.name ?? "Membro"}</span>
               <p className="truncate text-bc-brown">
-                {p.content.slice(0, 60) || "📷 mídia"}
+                {p.content?.slice(0, 60) || "📷 mídia"}
               </p>
               <p className="text-[10px] text-bc-brown/80">
-                ❤️ {p._count.likes} · 💬 {p._count.comments}
+                ❤️ {p._count?.likes ?? 0} · 💬 {p._count?.comments ?? 0}
               </p>
             </Link>
           </li>

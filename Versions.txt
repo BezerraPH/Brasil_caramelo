@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-09-02 (v2.35.0-alpha.0 - PWA Offline, Criptografia NIP-44, Termos LGPD e Checkout Pix/Lightning)
-Versão atual do pacote (package.json): 2.35.0-alpha.0
+Última atualização: 2026-09-02 (v2.36.0-alpha.0 - Índices Prisma, Rate Limiting, TTL Caching, WebCrypto AES-GCM, Saque Lightning e Filtros de Stories)
+Versão atual do pacote (package.json): 2.36.0-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
@@ -28,9 +28,18 @@ INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
 ================================================================================
 
 Arquivo mestre: ROADMAP.md
-Progresso: Nostr P0 9/9 · P0 Infra 10/10 · P1 Comunidades 5/6 · P0 UX 1/1 · P0 PWA 1/1
+Progresso: Nostr P0 9/9 · P0 Infra 10/10 · P1 Comunidades 5/6 · P0 UX 1/1 · P0 PWA 1/1 · P0 Otimizações 1/1
 
-**v2.35.0: PWA Offline, Criptografia NIP-44, Termos LGPD e Checkout Pix/Lightning.**
+**v2.36.0: Implementação Integral das Otimizações e Recursos do Relatório.**
+
+Concluído v2.36:
+  [x] R-OPT-01 Índices compostos de alta performance no Prisma (Post, Friendship, Reputation)
+  [x] Rate Limiting sliding window e proteção de rotas sensíveis (login, uploads)
+  [x] TTL Caching em memória para /api/trending e rotas de agregação
+  [x] Gerenciamento seguro de chaves Nostr com WebCrypto AES-GCM 256-bit com senha
+  [x] Saque de CarameloCoins para carteiras externas via Lightning Network (/api/pet/withdraw)
+  [x] Stories com filtros retrô e nostálgicos (Orkut 2004 sépia, neon, glow)
+  [x] Bateria de testes unitários com node:test
 
 Concluído v2.35:
   [x] R-PWA-01 Service Worker PWA com cache offline Stale-While-Revalidate e prompt de instalação

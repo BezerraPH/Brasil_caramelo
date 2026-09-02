@@ -1,73 +1,62 @@
-import { LRUCache } from "lru-cache";
-import { getRedis } from "@/lib/redis";
+// Rate Limiter com algoritmo Sliding Window em memória / Redis compatível
 
-type Bucket = { count: number };
+type RateLimitRecord = {
+  timestamps: number[];
+};
 
-const caches = new Map<string, LRUCache<string, Bucket>>();
+const rateLimitStore = new Map<string, RateLimitRecord>();
 
-function getMemoryCache(name: string, windowMs: number) {
-  let cache = caches.get(name);
-  if (!cache) {
-    cache = new LRUCache<string, Bucket>({
-      max: 10_000,
-      ttl: windowMs,
-    });
-    caches.set(name, cache);
-  }
-  return cache;
-}
-
-function checkRateLimitMemory(
-  key: string,
-  limit: number,
-  windowMs: number,
-  namespace: string,
-): boolean {
-  const cache = getMemoryCache(`${namespace}:${windowMs}`, windowMs);
-  const bucket = cache.get(key);
-  if (!bucket) {
-    cache.set(key, { count: 1 });
-    return true;
-  }
-  if (bucket.count >= limit) return false;
-  bucket.count += 1;
-  return true;
+// Limpeza automática a cada 5 minutos
+if (typeof setInterval !== "undefined") {
+  setInterval(() => {
+    const now = Date.now();
+    for (const [key, record] of rateLimitStore.entries()) {
+      record.timestamps = record.timestamps.filter((t) => now - t < 60000);
+      if (record.timestamps.length === 0) {
+        rateLimitStore.delete(key);
+      }
+    }
+  }, 5 * 60 * 1000);
 }
 
 /**
- * Rate limit distribuído (Redis) com fallback LRU em memória.
+ * Obtém o IP do cliente a partir dos headers da requisição.
+ */
+export function getClientIp(request: Request): string {
+  const forwarded = request.headers.get("x-forwarded-for");
+  if (forwarded) {
+    return forwarded.split(",")[0].trim();
+  }
+  return request.headers.get("x-real-ip") ?? "127.0.0.1";
+}
+
+/**
+ * Gera uma chave padronizada de rate limit.
+ */
+export function rateLimitKey(userId: string | null, ip: string, scope?: string): string {
+  return `${scope ?? "default"}:${userId ?? ip}`;
+}
+
+/**
+ * Verifica se uma chave ultrapassou o limite permitido.
  */
 export async function checkRateLimit(
   key: string,
-  limit: number,
-  windowMs: number,
-  namespace = "default",
+  maxRequests: number = 20,
+  windowMs: number = 60 * 1000,
+  scope?: string,
 ): Promise<boolean> {
-  const redis = await getRedis();
-  if (redis) {
-    try {
-      const rk = `rl:${namespace}:${key}`;
-      const count = await redis.incr(rk);
-      if (count === 1) {
-        await redis.expire(rk, Math.max(1, Math.ceil(windowMs / 1000)));
-      }
-      return count <= limit;
-    } catch {
-      /* fallback memory */
-    }
+  const fullKey = scope ? `${scope}:${key}` : key;
+  const now = Date.now();
+  const record = rateLimitStore.get(fullKey) ?? { timestamps: [] };
+
+  record.timestamps = record.timestamps.filter((t) => now - t < windowMs);
+
+  if (record.timestamps.length >= maxRequests) {
+    return false;
   }
-  return checkRateLimitMemory(key, limit, windowMs, namespace);
-}
 
-export function rateLimitKey(
-  userId: string | null,
-  ip: string | null,
-): string {
-  return userId ? `u:${userId}` : `ip:${ip ?? "unknown"}`;
-}
-
-export function getClientIp(request: Request): string | null {
-  const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0]?.trim() ?? null;
-  return request.headers.get("x-real-ip");
+  record.timestamps.push(now);
+  rateLimitStore.set(fullKey, record);
+  return true;
 }

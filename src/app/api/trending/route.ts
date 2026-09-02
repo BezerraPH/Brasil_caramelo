@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { getMatilhaTrends } from "@/lib/trending";
+import { getOrSetCache } from "@/lib/cache";
 
 export async function GET() {
   const user = await getCurrentUser();
@@ -8,7 +9,8 @@ export async function GET() {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
   }
 
-  const trends = await getMatilhaTrends(20);
+  const trends = await getOrSetCache("matilha:trending:20", 60, () => getMatilhaTrends(20));
+
   return NextResponse.json({
     trends: trends.map((t) => ({
       tag: t.tag,

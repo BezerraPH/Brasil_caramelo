@@ -240,6 +240,7 @@ model Post {
   interactions   PostInteraction[]
   communityId    String?
   community      Community?          @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  nostrEventId   String?
 
   @@index([authorId, createdAt])
   @@index([communityId, createdAt])
@@ -247,6 +248,7 @@ model Post {
   @@index([createdAt, id])
   @@index([boostPriority, createdAt])
   @@index([reelScore, createdAt])
+  @@index([nostrEventId])
 }
 
 model PostInteraction {
@@ -354,6 +356,8 @@ model Friendship {
   createdAt        DateTime         @default(now())
 
   @@unique([requesterId, addresseeId])
+  @@index([status, requesterId])
+  @@index([status, addresseeId])
 }
 
 model Pet {

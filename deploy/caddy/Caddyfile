@@ -1,13 +1,13 @@
-# Brasil Caramelo — Caddyfile (Proxy Reverso HTTPS Local & Domínio)
+# Brasil Caramelo — Caddyfile (Proxy Reverso Universal HTTPS)
 {
     admin off
 }
 
-http://brasilcaramelo.com, http://brasilcaramelo.com.br, http://brasilcaramelo.local, http://192.168.1.6, http://100.94.55.27, http://localhost, http://127.0.0.1 {
+:80 {
     redir https://{host}{uri} permanent
 }
 
-https://brasilcaramelo.com, https://brasilcaramelo.com.br, https://brasilcaramelo.local, https://192.168.1.6, https://100.94.55.27, https://localhost, https://127.0.0.1 {
+:443 {
     tls internal
 
     # Soketi / Pusher endpoints

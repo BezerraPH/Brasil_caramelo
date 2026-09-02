@@ -1,0 +1,45 @@
+# Brasil Caramelo — Caddyfile (Proxy Reverso HTTPS Local & Domínio)
+{
+    admin off
+}
+
+# Suporte a brasilcaramelo.com, brasilcaramelo.local, IP local e IP Tailscale
+http://brasilcaramelo.com, http://brasilcaramelo.local, http://192.168.1.6, http://100.94.55.27, http://localhost {
+    redir https://{host}{uri} permanent
+}
+
+https://brasilcaramelo.com, https://brasilcaramelo.local, https://192.168.1.6, https://100.94.55.27, https://localhost {
+    tls internal
+
+    # WebSockets do Soketi (Pusher)
+    @websockets {
+        header Connection *Upgrade*
+        header Upgrade websocket
+    }
+    handle @websockets {
+        reverse_proxy soketi:6001
+    }
+
+    handle /app/* {
+        reverse_proxy soketi:6001
+    }
+
+    handle /apps/* {
+        reverse_proxy soketi:6001
+    }
+
+    # Proxy LiveKit WebRTC
+    handle /rtc/* {
+        reverse_proxy livekit:7880
+    }
+
+    # Proxy Principal da Aplicação Next.js
+    handle {
+        reverse_proxy app:3000 {
+            header_up Host {host}
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+}

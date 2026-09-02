@@ -1,98 +1,91 @@
 # 📋 Plano de Ação & Implementação — Brasil Caramelo (Nostr)
 **Versão Planejada:** `v2.38.0`  
 **Data:** 02 de Setembro de 2026  
-**Status:** Aguardando Aprovação do Usuário  
+**Status:** Decisões do Usuário Incorporadas & Pronto para Execução  
 
 ---
 
-## 🎯 Visão Geral do Plano
+## 🎯 Decisões Estratégicas Alinhadas com o Usuário
 
-Este plano organiza as entregas para a evolução da rede social **Brasil Caramelo**, priorizando estabilidade, alta performance no feed, segurança na camada Web3/Nostr e novos recursos nostálgicos e descentralizados.
+1. **Automação SSH via `.env`:** Adicionar variáveis `SSH_HOST`, `SSH_PORT`, `SSH_USER` e `SSH_PASSWORD` no `.env` para que os scripts de teste e deploy executem sem solicitar credenciais no terminal.
+2. **Relé Nostr & Upload de Mídia/Imagens (NIP-96 + Blossom + MinIO):**
+   - Para envio de eventos e notas: Utilizar relé de desenvolvimento integrado ou relé local.
+   - Para upload de fotos, áudios e vídeos no padrão Nostr: Implementar os endpoints oficiais **NIP-96** e **Blossom Server** integrados ao nosso container **MinIO / S3** local. Qualquer cliente Nostr (Damus, Amethyst, Snort) poderá fazer upload diretamente na nossa infraestrutura soberana.
+3. **Cadastro 100% Anônimo:** Usuários poderão criar conta instantaneamente apenas com sua chave pública Nostr (`npub` via NIP-07 / Alby), sem obrigatoriedade de informar e-mail ou senha.
+4. **Monetização de Zaps em Carteira Interna:** Os Satoshis recebidos via Zaps acumulam no saldo de CarameloCoins da plataforma e ficam disponíveis para saque a qualquer momento para carteiras Lightning pessoais via fatura bolt11.
 
 ---
 
-## 🔴 Fase 1: Prioridade CRÍTICA (Segurança, Conexões & Resiliência)
+## 🔴 Fase 1: Prioridade CRÍTICA (Segurança, SSH no .env & Cadastro Anônimo)
 
-> **Objetivo:** Blindar a plataforma contra falhas de conexão, mitigar riscos de segurança e garantir estabilidade operacional.
+> **Objetivo:** Blindar a plataforma, automatizar testes remotos via `.env` e viabilizar acesso anônimo soberano via Nostr.
 
-- [ ] **1.1. Sanitização Rigorosa de Links Nostr (NIP-01)**
-  - *Descrição:* Adicionar parser defensivo para bloquear esquemas maliciosos (`javascript:`, `data:`) em notas externas recebidas de relays públicos, permitindo apenas `https://` e `nostr:`.
+- [ ] **1.1. Suporte a Credenciais SSH no `.env` para Diagnósticos Automáticos**
+  - *Descrição:* Criar utilitário `scripts/remote_ssh.py` que lê `SSH_HOST`, `SSH_USER`, `SSH_PASSWORD` do `.env` local e executa comandos/testes diretamente no servidor Ubuntu `192.168.1.6`.
+  - *Arquivos:* `.env.example`, `scripts/remote_ssh.py`.
+
+- [ ] **1.2. Cadastro e Login 100% Anônimo via Nostr (NIP-07)**
+  - *Descrição:* Permitir que o usuário clique em "Entrar com Nostr" e acesse o app instantaneamente sem e-mail ou senha, gerando sessão autenticada vinculada à sua chave pública `npub`.
+  - *Arquivos:* `src/app/api/auth/nostr-login/route.ts`, `src/components/NostrExtensionLogin.tsx`, `src/app/(auth)/login/page.tsx`.
+
+- [ ] **1.3. Sanitização Rigorosa de Links Nostr (NIP-01)**
+  - *Descrição:* Parser defensivo para neutralizar esquemas perigosos (`javascript:`, `data:`) em notas vindas de relays públicos.
   - *Arquivos:* `src/lib/nostr/content-parser.ts`, `src/components/nostr/NostrEventCard.tsx`.
-  - *Critério de Aceite:* 100% dos links externos abrem com `rel="noopener noreferrer"` e URLs perigosas são neutralizadas.
 
-- [ ] **1.2. Resiliência de WebSockets com Exponential Backoff + Jitter**
-  - *Descrição:* Implementar reconexão inteligente no `SimplePool` para relays Nostr e canais `Soketi`, prevenindo picos de reconexão simultânea em redes móveis instáveis.
+- [ ] **1.4. Resiliência de WebSockets com Exponential Backoff + Jitter**
+  - *Descrição:* Reconexão suave de relays Nostr e canais Soketi em redes móveis instáveis.
   - *Arquivos:* `src/lib/nostr/relays.ts`, `src/lib/realtime.ts`.
-  - *Critério de Aceite:* Quedas temporárias de rede reconectam suavemente sem travar a interface do usuário.
-
-- [ ] **1.3. Ajuste de Chave Pública SSH no Servidor (192.168.1.6)**
-  - *Descrição:* Orientar/configurar a autorização da chave SSH local em `~/.ssh/authorized_keys` no servidor Ubuntu para viabilizar deploys remotos contínuos sem rejeição de senha.
-  - *Arquivos:* `scripts/deploy-brasil-caramelo.sh`, `scripts/setup-ssh-key.sh`.
 
 ---
 
-## 🟡 Fase 2: Prioridade IMPORTANTE (Performance & UX Mobile-First)
+## 🟡 Fase 2: Prioridade IMPORTANTE (Upload de Mídia NIP-96/Blossom & Performance)
 
-> **Objetivo:** Garantir tempo de carregamento sub-50ms e uso eficiente de memória RAM em smartphones.
+> **Objetivo:** Upload descentralizado de fotos/vídeos no padrão Nostr e carregamento sub-50ms no feed.
 
-- [ ] **2.1. Cache Local de Eventos Nostr em IndexedDB**
-  - *Descrição:* Persistir notas, perfis e feeds Nostr em cache local IndexedDB no navegador do usuário, evitando requisições repetidas aos relays externos.
+- [ ] **2.1. Servidor de Mídia Nostr NIP-96 & Blossom integrado ao MinIO**
+  - *Descrição:* Implementar endpoints `/api/nostr/nip96` e `/api/blossom/upload` que recebem uploads autenticados por assinatura Nostr (Kind 24242 / Auth Header), gravam no MinIO S3 local e retornam URLs públicas hash SHA-256.
+  - *Arquivos:* `src/app/api/nostr/nip96/route.ts`, `src/app/api/blossom/upload/route.ts`, `src/lib/s3.ts`.
+
+- [ ] **2.2. Cache Local de Eventos Nostr em IndexedDB**
+  - *Descrição:* Persistência de notas, perfis e feeds Nostr em IndexedDB local no navegador, reduzindo 80% do tráfego aos relays.
   - *Arquivos:* `src/lib/nostr/storage-cache.ts`, `src/lib/nostr/events.ts`.
-  - *Critério de Aceite:* Renderização instantânea de notas já baixadas mesmo em modo offline/queda de sinal.
 
-- [ ] **2.2. Virtualização de Listas no Feed Principal**
-  - *Descrição:* Integrar `@tanstack/react-virtual` no `FeedInfinite.tsx` para renderizar apenas os elementos visíveis na janela de visualização do usuário.
+- [ ] **2.3. Virtualização de Listas no Feed Principal**
+  - *Descrição:* Rolagem fluida a 60 FPS com `@tanstack/react-virtual` no `FeedInfinite.tsx`.
   - *Arquivos:* `src/components/FeedInfinite.tsx`, `src/components/PostCard.tsx`.
-  - *Critério de Aceite:* Rolagem contínua fluida a 60 FPS com centenas de postagens no feed mobile.
 
-- [ ] **2.3. Sessão de Áudio Persistente em Background para "Latidos ao Vivo"**
-  - *Descrição:* Mover o player WebRTC/LiveKit para o layout global (`src/app/layout.tsx`), permitindo que os participantes continuem ouvindo e falando enquanto navegam por outras páginas e casinhas.
+- [ ] **2.4. Sessão de Áudio Persistente em Background para "Latidos ao Vivo"**
+  - *Descrição:* Player WebRTC flutuante no layout global para navegar pelo feed sem interromper o áudio.
   - *Arquivos:* `src/components/LiveVoiceRoom.tsx`, `src/components/GlobalAudioFloatingBar.tsx`.
-  - *Critério de Aceite:* Mudança de rota não desconecta nem interrompe a transmissão de áudio.
 
 ---
 
-## 🟢 Fase 3: Prioridade DESEJÁVEL (Novas Funcionalidades Nostr & Retrô)
+## 🟢 Fase 3: Prioridade DESEJÁVEL (Zaps em Moedas, Scrapbook & Relé Local)
 
-> **Objetivo:** Aumentar retenção, engajamento e aprofundar a integração com o ecossistema Nostr mundial.
+> **Objetivo:** Monetização de criadores, nostalgia interativa e infraestrutura soberana de relé.
 
-- [ ] **3.1. Scrapbook com Threads em Depoimentos**
-  - *Descrição:* Permitir que amigos respondam diretamente aos depoimentos recebidos no perfil, criando uma conversa encadeada no clássico estilo Orkut 2004.
+- [ ] **3.1. Acúmulo de Zaps em CarameloCoins & Saque Lightning**
+  - *Descrição:* Converter Zaps recebidos (sats) em saldo da carteira da plataforma com botão de saque instantâneo para carteiras externas via fatura bolt11.
+  - *Arquivos:* `src/app/api/nostr/zap-receiver/route.ts`, `src/app/api/pet/withdraw/route.ts`, `src/components/WalletCoinsCard.tsx`.
+
+- [ ] **3.2. Scrapbook com Threads em Depoimentos**
+  - *Descrição:* Respostas encadeadas aos depoimentos deixados no perfil no clássico formato Orkut 2004.
   - *Arquivos:* `src/components/ScrapbookThreadView.tsx`, `src/app/api/testimonials/reply/route.ts`.
-  - *Critério de Aceite:* Interface retrô com botão "Responder Depoimento" e histórico encadeado.
 
-- [ ] **3.2. Recado Fixado no Perfil do Usuário**
-  - *Descrição:* Permitir que o dono do perfil escolha um recado ou frase de status para fixar no topo com moldura dourada caramelo.
+- [ ] **3.3. Recado Fixado no Perfil**
+  - *Descrição:* Recado favorito fixado no topo do perfil com moldura dourada.
   - *Arquivos:* `src/components/ProfileHeader.tsx`, `src/app/api/profile/pin-post/route.ts`.
-  - *Critério de Aceite:* Recado fixado visível imediatamente no topo do perfil para todos os visitantes.
 
-- [ ] **3.3. Descoberta Automática de Relays (NIP-65 Relay List Metadata)**
-  - *Descrição:* Sincronizar e publicar automaticamente a lista de relays favoritos do usuário na rede Nostr para máxima interoperabilidade com outros clientes (Damus, Amethyst, Snort, Coracle).
-  - *Arquivos:* `src/lib/nostr/nip65.ts`, `src/components/nostr/RelayManager.tsx`.
-  - *Critério de Aceite:* Perfis leem e salvam eventos Kind 10002 de lista de relays.
-
-- [ ] **3.4. Container de Relé Nostr Nativo no Docker Compose (Opcional)**
-  - *Descrição:* Adicionar um relé local ultrarrápido (`khatru` ou `strfry`) ao cluster Docker do servidor para oferecer latência sub-10ms em `wss://relay.brasilcaramelo.com`.
+- [ ] **3.4. Relé Nostr Local no Docker Compose (Khatru / Nosflare)**
+  - *Descrição:* Adicionar serviço de relé local no `docker-compose.yml` para comunicação interna ultrarrápida (sub-10ms).
   - *Arquivos:* `docker-compose.yml`, `Caddyfile`.
 
 ---
 
-## 📊 Matriz de Esforço vs. Impacto
+## 📊 Matriz de Execução
 
-```
-      ALTO IMPACTO
-           ▲
-           │   [2.1] Cache IndexedDB      [1.1] Sanitização Links
-           │   [2.2] Virtualização Feed   [1.2] Backoff WebSockets
-           │   [3.1] Scrapbook Threads    [2.3] Áudio Background
-           │
-           │   [3.2] Recado Fixado        [3.4] Relé Docker Local
-           │   [3.3] NIP-65 Discovery     [1.3] Chave SSH Servidor
-           │
-           └─────────────────────────────────────────────────────►
-           BAIXO ESFORÇO                           ALTO ESFORÇO
-```
-
----
-
-> **Aviso:** O código da aplicação não foi modificado nesta etapa de diagnóstico, conforme instrução. Aguardando sua validação sobre as prioridades e dúvidas para iniciarmos a implementação da versão `v2.38.0`.
+| Fase | Prazo Estimado | Foco Principal | Entregáveis Chave |
+|:---:|:---:|:---|:---|
+| **Fase 1 (Crítico)** | Imediato | Segurança, SSH `.env` & Cadastro Anônimo | SSH automatizado, login Nostr 1-clique, sanitização |
+| **Fase 2 (Importante)**| Curto Prazo | Upload NIP-96/MinIO & Performance | Upload de fotos Nostr, cache IndexedDB, virtualização |
+| **Fase 3 (Desejável)** | Médio Prazo | Zaps na Carteira, Scrapbook & Relé | Zaps -> Moedas, depoimentos em thread, relé Docker |

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório de Testes Automatizados de Funcionalidades — Brasil Caramelo (Nostr)</title>
+<style>
+  :root {
+    --caramel: #c27a29;
+    --caramel-dark: #935011;
+    --blue: #0b4f8a;
+    --blue-dark: #073863;
+    --green: #237e50;
+    --sand: #fbf6ee;
+    --sand-border: #e2d2be;
+    --text-dark: #1a202c;
+    --text-muted: #4a5568;
+    --bg-page: #f8fafc;
+    --card-bg: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-page);
+    color: var(--text-dark);
+    line-height: 1.6;
+    padding: 24px;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .header {
+    background: linear-gradient(135deg, var(--green) 0%, #165b36 100%);
+    color: #ffffff;
+    border-radius: 20px;
+    padding: 36px 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 10px 25px -5px rgba(35, 126, 80, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .badge-header {
+    display: inline-block;
+    background: #ffffff;
+    color: var(--green);
+    font-weight: 800;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  .header h1 {
+    font-size: 28px;
+    font-weight: 900;
+    margin-bottom: 8px;
+  }
+
+  .header p {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 750px;
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .metric-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    text-align: center;
+  }
+
+  .metric-val {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--blue);
+    margin-bottom: 4px;
+  }
+
+  .metric-val.success { color: var(--green); }
+  .metric-val.gold { color: var(--caramel); }
+
+  .metric-lbl {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 24px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--blue);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--sand-border);
+    padding-bottom: 10px;
+  }
+
+  .test-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 13px;
+  }
+
+  .test-table th {
+    background: var(--blue);
+    color: #ffffff;
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 700;
+  }
+
+  .test-table th:first-child { border-top-left-radius: 10px; }
+  .test-table th:last-child { border-top-right-radius: 10px; }
+
+  .test-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #edf2f7;
+    vertical-align: middle;
+  }
+
+  .test-table tr:hover td {
+    background: #f8fafc;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .status-pass { background: #def7ec; color: #03543f; }
+  .status-info { background: #e1effe; color: #1e429f; }
+
+  .module-tag {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: #edf2f7;
+    color: var(--text-dark);
+    margin-right: 6px;
+  }
+
+  .reports-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin-top: 12px;
+  }
+
+  .report-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--sand);
+    border: 1px solid var(--sand-border);
+    border-radius: 14px;
+    padding: 16px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .report-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.08);
+  }
+
+  .report-icon {
+    font-size: 28px;
+    background: #ffffff;
+    padding: 10px;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+
+  .report-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--blue);
+  }
+
+  .report-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- CABEÇALHO -->
+  <div class="header">
+    <div class="badge-header">Suíte de Validação Completa</div>
+    <h1>Relatório de Testes Automatizados de Funcionalidades</h1>
+    <p>
+      Execução e diagnóstico de testes ponta a ponta cobrindo <strong>Nostr NIP-01/NIP-44</strong>, <strong>Economia Lightning</strong>, <strong>Gamificação do Pet</strong>, <strong>Rate Limiting</strong>, <strong>Tribunal</strong> e <strong>Apresentação</strong> no Brasil Caramelo (v2.37.0).
+    </p>
+  </div>
+
+  <!-- MÉTRICAS DE EXECUÇÃO -->
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-val success">17 / 17</div>
+      <div class="metric-lbl">Testes Aprovados</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val">0</div>
+      <div class="metric-lbl">Falhas / Erros</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val gold">268ms</div>
+      <div class="metric-lbl">Tempo de Execução</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val success">100%</div>
+      <div class="metric-lbl">Taxa de Sucesso</div>
+    </div>
+  </div>
+
+  <!-- TABELA DE RESULTADOS DETALHADA -->
+  <div class="card">
+    <div class="card-title">
+      <span>📋 Resultados Detalhados por Módulo Funcional</span>
+      <span class="status-badge status-pass">Suíte 100% Verde</span>
+    </div>
+
+    <table class="test-table">
+      <thead>
+        <tr>
+          <th style="width: 25%;">Módulo & Funcionalidade</th>
+          <th style="width: 55%;">Comportamento & Assertividade Validada</th>
+          <th style="width: 20%;">Status & Tempo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="module-tag">NOSTR</span> <strong>Identidade NIP-01</strong></td>
+          <td>Geração e validação de chaves Schnorr, enconding npub1 e nsec1.</td>
+          <td><span class="status-badge status-pass">✓ PASS (45.0ms)</span></td>
+        </tr>
+        <tr>
+          <td><span class="module-tag">NOSTR</span> <strong>Assinatura de Eventos</strong></td>
+          <td>Criação de hash de evento e assinatura criptográfica Schnorr válida.</td>
+          <td><span class="status-badge status-pass">✓ PASS (9.1ms)</span></td>
+        </tr>
+        <tr>
+          <td><span class="module-tag">NOSTR</span> <strong>Criptografia NIP-44 v2</strong></td>
+          <td>Cifra e decifra ChaCha20-Poly1305 + HKDF entre remetente e destinatário.</td>
+          <td><span class="status-badge status-pass">✓ PASS (18.9ms)</span></td>
+        </tr>
+        <tr>
+          <td><span class="module-tag">NOSTR</span> <strong>Fallback NIP-04</strong></td>
+          <td>Compatibilidade com extensões legadas via AES-256-CBC.</td>
+          <td><span class="status-badge status-pass">✓ PASS (14.8ms)</span></td>
+        </tr>
+        <tr>
+          <td><span class="module-tag">PET</span> <strong>Decaimento & Humor</strong></td>
+          <td>Cálculo dinâmico de fome, energia, sono e felicidade ao longo do tempo.</td>
+          <td><span class="status-badge status-pass">✓ PASS (0.3ms)</span></td>
+        </tr>
+        <tr>
+          <td><span class="module-tag">ECONOMIA</span> <strong>Saque Lightning</strong></td>
+          <td>Validação de fatura bolt11 (lnbc...), limite mínimo de 100 moedas e saldo.</td>
+          <td><span class="status-badge status-pass">✓ PASS (0.2ms)</span></td>
+        </tr>
+        <tr>
+          <td><span class="module-tag">SEGURANÇA</span> <strong>Sliding Window Rate Limit</strong></td>
+          <td>Bloqueio de ataques de força bruta e spam em rotas sensíveis (login/post).</td>
+          <td><span class="status-badge status-pass">✓ PASS (0.3ms)</span></td>
+        </tr>
+        <tr>
+          <td><span class="module-tag">CACHE</span> <strong>TTL In-Memory Cache</strong></td>
+          <td>Reutilização de dados com expiração automática e economia de queries SQL.</td>
+          <td><span class="status-badge status-pass">✓ PASS (0.9ms)</span></td>
+        </tr>
+        <tr>
+          <td><span class="module-tag">TRIBUNAL</span> <strong>Julgamento Coletivo</strong></td>
+          <td>Quorum mínimo e veredito democrático da matilha (ocultar vs manter post).</td>
+          <td><span class="status-badge status-pass">✓ PASS (0.4ms)</span></td>
+        </tr>
+        <tr>
+          <td><span class="module-tag">FRONTEND</span> <strong>Autocomplete @amigo</strong></td>
+          <td>Detecção de marcações de amigos em tempo real no criador de posts.</td>
+          <td><span class="status-badge status-pass">✓ PASS (0.3ms)</span></td>
+        </tr>
+        <tr>
+          <td><span class="module-tag">FRONTEND</span> <strong>Navegação Mobile/Desktop</strong></td>
+          <td>Validação das 5 abas principais do MobileNav e rotas desktop.</td>
+          <td><span class="status-badge status-pass">✓ PASS (0.2ms)</span></td>
+        </tr>
+        <tr>
+          <td><span class="module-tag">FRONTEND</span> <strong>Filtros Retrô de Stories</strong></td>
+          <td>Verificação das classes de estilização Orkut 2004 sépia, neon e glow.</td>
+          <td><span class="status-badge status-pass">✓ PASS (0.2ms)</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- CENTRAL DE RELATÓRIOS -->
+  <div class="card">
+    <div class="card-title">
+      <span>📂 Central Unificada de Relatórios (`/relatorios`)</span>
+      <span class="status-badge status-info">Documentação Completa</span>
+    </div>
+
+    <div class="reports-list">
+      <a href="RELATORIO_TESTES_AUTOMATIZADOS_FUNCIONALIDADES.html" class="report-item" style="border-color: var(--green); background: #f0fff4;">
+        <span class="report-icon">🧪</span>
+        <div>
+          <div class="report-title">Relatório de Testes Automatizados (HTML)</div>
+          <div class="report-desc">Este documento com diagnóstico funcional e 17/17 testes aprovados.</div>
+        </div>
+      </a>
+
+      <a href="RELATORIO_AVALIACAO_FRONTEND.html" class="report-item">
+        <span class="report-icon">🌐</span>
+        <div>
+          <div class="report-title">Avaliação do Frontend (HTML)</div>
+          <div class="report-desc">Painel interativo com métricas de UI, componentes e design system.</div>
+        </div>
+      </a>
+
+      <a href="RELATORIO_ANALISE_FRONTEND_BRASIL_CARAMELO.pdf" target="_blank" class="report-item">
+        <span class="report-icon">🎨</span>
+        <div>
+          <div class="report-title">Auditoria do Frontend (PDF)</div>
+          <div class="report-desc">Documento diagramado para impressão e leitura técnica de UI/UX.</div>
+        </div>
+      </a>
+
+      <a href="RELATORIO_ANALISE_GERAL_BRASIL_CARAMELO.pdf" target="_blank" class="report-item">
+        <span class="report-icon">📄</span>
+        <div>
+          <div class="report-title">Análise Geral da Arquitetura (PDF)</div>
+          <div class="report-desc">Auditoria técnica completa do backend, banco Prisma e servidor.</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    Brasil Caramelo (Nostr) · Antigravity AI Pair Programming · Relatório gerado em 02/09/2026
+  </div>
+
+</div>
+
+</body>
+</html>

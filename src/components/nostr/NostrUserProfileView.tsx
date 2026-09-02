@@ -8,6 +8,7 @@ import { getNostrPool } from "@/lib/nostr/relays";
 import { formatNostrPost } from "@/lib/nostr/events";
 import { decodeNostrKey, shortenNpub } from "@/lib/nostr/keys";
 import { NostrPostCard } from "./NostrPostCard";
+import { NostrQrModal } from "./NostrQrModal";
 import { NostrZapModal } from "./NostrZapModal";
 import type { NostrEvent, NostrPost, NostrProfileMetadata } from "@/lib/nostr/types";
 
@@ -34,6 +35,7 @@ export function NostrUserProfileView({ rawPubkeyOrNpub }: Props) {
   const [posts, setPosts] = useState<NostrPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [showZapModal, setShowZapModal] = useState(false);
+  const [showQrModal, setShowQrModal] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const rawEventsRef = useRef<NostrEvent[]>([]);
@@ -153,13 +155,22 @@ export function NostrUserProfileView({ rawPubkeyOrNpub }: Props) {
               )}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowQrModal(true)}
+                className="rounded-xl border border-bc-caramel/30 px-3 py-1.5 text-xs font-semibold text-bc-brown hover:bg-bc-cream transition-colors"
+                title="Ver QR Code do perfil Nostr"
+              >
+                📱 QR Code
+              </button>
+
               <button
                 type="button"
                 onClick={copyNpub}
                 className="rounded-xl border border-bc-caramel/30 px-3 py-1.5 text-xs font-semibold text-bc-brown hover:bg-bc-cream transition-colors"
               >
-                {copied ? "✓ Npub Copiado" : "Copiar Chave"}
+                {copied ? "✓ Copiado" : "Copiar Npub"}
               </button>
 
               <button
@@ -244,6 +255,15 @@ export function NostrUserProfileView({ rawPubkeyOrNpub }: Props) {
         onClose={() => setShowZapModal(false)}
         targetPubkey={pubkeyHex}
         targetProfile={profile ?? undefined}
+      />
+
+      {/* Modal de QR Code */}
+      <NostrQrModal
+        isOpen={showQrModal}
+        onClose={() => setShowQrModal(false)}
+        title={`QR Code de @${authorName}`}
+        description="Escaneie com qualquer cliente Nostr (Damus, Amethyst, Snort, Primal) para seguir!"
+        data={npub}
       />
     </div>
   );

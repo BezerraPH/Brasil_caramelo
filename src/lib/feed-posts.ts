@@ -90,10 +90,6 @@ function mapAuthorPet(
     petStatus,
   };
 }
-    isPremium: author.isPremium,
-    petStatus,
-  };
-}
 
 export async function fetchFeedPage(
   viewerId: string,

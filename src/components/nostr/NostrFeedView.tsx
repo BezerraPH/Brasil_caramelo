@@ -10,7 +10,11 @@ import { NostrAuthModal } from "./NostrAuthModal";
 import { NostrProfileModal } from "./NostrProfileModal";
 import { NostrRelayManager } from "./NostrRelayManager";
 import { NostrRelayStatus } from "./NostrRelayStatus";
+import { NostrNotifications } from "./NostrNotifications";
+import { NostrBookmarks } from "./NostrBookmarks";
 import type { Filter, NostrEvent, NostrPost, NostrProfileMetadata } from "@/lib/nostr/types";
+
+type TabType = "feed" | "notifications" | "bookmarks";
 
 const TOPIC_TAGS = [
   { id: "brasilcaramelo", label: "🐕 #brasilcaramelo" },
@@ -23,6 +27,7 @@ const TOPIC_TAGS = [
 
 export function NostrFeedView() {
   const { identity, relays } = useNostrAuth();
+  const [activeTab, setActiveTab] = useState<TabType>("feed");
   const [posts, setPosts] = useState<NostrPost[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -164,87 +169,134 @@ export function NostrFeedView() {
         </div>
       </div>
 
-      {/* Caixa de Criação de Post Nostr */}
-      <NostrCreatePost
-        onPostPublished={refreshFeed}
-        onOpenAuthModal={() => setIsAuthModalOpen(true)}
-      />
+      {/* Navegação por Abas */}
+      <div className="flex items-center gap-2 border-b border-bc-caramel/20 pb-2">
+        <button
+          onClick={() => setActiveTab("feed")}
+          className={`flex items-center gap-1.5 rounded-2xl px-4 py-2 text-xs font-bold transition-all ${
+            activeTab === "feed"
+              ? "bg-bc-blue text-white shadow-md scale-105"
+              : "bg-bc-white text-bc-brown hover:bg-bc-cream border border-bc-caramel/20"
+          }`}
+        >
+          <span>🔥</span>
+          <span>Feed Global</span>
+        </button>
 
-      {/* Barra de Busca e Tópicos */}
-      <div className="space-y-3">
-        <div className="relative">
-          <input
-            type="search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="🔍 Buscar notas, palavras-chave ou @npub..."
-            className="w-full rounded-2xl border border-bc-caramel/30 bg-bc-white px-4 py-2.5 text-xs text-bc-brown shadow-xs focus:border-bc-blue focus:outline-none"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-2.5 text-xs text-bc-brown/50 hover:text-bc-brown"
-            >
-              ✕
-            </button>
-          )}
-        </div>
+        <button
+          onClick={() => setActiveTab("notifications")}
+          className={`flex items-center gap-1.5 rounded-2xl px-4 py-2 text-xs font-bold transition-all ${
+            activeTab === "notifications"
+              ? "bg-bc-blue text-white shadow-md scale-105"
+              : "bg-bc-white text-bc-brown hover:bg-bc-cream border border-bc-caramel/20"
+          }`}
+        >
+          <span>🔔</span>
+          <span>Menções & Alertas</span>
+        </button>
 
-        {/* Filtros de Tags */}
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex flex-wrap gap-1.5 text-xs">
-            {TOPIC_TAGS.map((tag) => (
-              <button
-                key={tag.id}
-                onClick={() => setFilterTag(tag.id)}
-                className={`rounded-full px-3 py-1 text-xs font-bold transition-all ${
-                  filterTag === tag.id
-                    ? "bg-bc-blue text-white shadow-sm scale-105"
-                    : "border border-bc-caramel/25 bg-bc-white/80 text-bc-brown hover:bg-bc-white"
-                }`}
-              >
-                {tag.label}
-              </button>
-            ))}
-          </div>
-
-          <button
-            onClick={refreshFeed}
-            disabled={loading}
-            className="shrink-0 text-xs font-bold text-bc-green hover:underline"
-          >
-            {loading ? "Sincronizando…" : "↻ Atualizar"}
-          </button>
-        </div>
+        <button
+          onClick={() => setActiveTab("bookmarks")}
+          className={`flex items-center gap-1.5 rounded-2xl px-4 py-2 text-xs font-bold transition-all ${
+            activeTab === "bookmarks"
+              ? "bg-bc-blue text-white shadow-md scale-105"
+              : "bg-bc-white text-bc-brown hover:bg-bc-cream border border-bc-caramel/20"
+          }`}
+        >
+          <span>🔖</span>
+          <span>Notas Salvas</span>
+        </button>
       </div>
 
-      {/* Lista de Posts */}
-      {loading && filteredPosts.length === 0 ? (
-        <div className="bc-card bc-glass rounded-3xl border border-bc-caramel/20 bg-bc-white p-8 text-center shadow-md">
-          <p className="text-3xl animate-bounce">🐕</p>
-          <p className="mt-2 text-sm font-bold text-bc-blue">Sintonizando com os relays Nostr…</p>
-          <p className="text-xs text-bc-brown/70">Assinaturas criptográficas Schnorr ativas</p>
-        </div>
-      ) : filteredPosts.length === 0 ? (
-        <div className="bc-card bc-glass rounded-3xl border border-bc-caramel/20 bg-bc-white p-8 text-center shadow-md">
-          <p className="text-3xl">🐾</p>
-          <p className="mt-2 text-sm font-bold text-bc-blue">Nenhum latido encontrado.</p>
-          <p className="text-xs text-bc-brown/70">
-            {searchQuery
-              ? "Tente buscar por outro termo ou hashtag."
-              : "Seja o primeiro a publicar usando o formulário acima!"}
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {filteredPosts.map((post) => (
-            <NostrPostCard
-              key={post.id}
-              post={post}
-              onReaction={refreshFeed}
-              onReplyPublished={refreshFeed}
-            />
-          ))}
+      {activeTab === "notifications" && <NostrNotifications />}
+
+      {activeTab === "bookmarks" && <NostrBookmarks />}
+
+      {activeTab === "feed" && (
+        <div className="space-y-6">
+          {/* Caixa de Criação de Post Nostr */}
+          <NostrCreatePost
+            onPostPublished={refreshFeed}
+            onOpenAuthModal={() => setIsAuthModalOpen(true)}
+          />
+
+          {/* Barra de Busca e Tópicos */}
+          <div className="space-y-3">
+            <div className="relative">
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="🔍 Buscar notas, palavras-chave ou @npub..."
+                className="w-full rounded-2xl border border-bc-caramel/30 bg-bc-white px-4 py-2.5 text-xs text-bc-brown shadow-xs focus:border-bc-blue focus:outline-none"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-2.5 text-xs text-bc-brown/50 hover:text-bc-brown"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* Filtros de Tags */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex flex-wrap gap-1.5 text-xs">
+                {TOPIC_TAGS.map((tag) => (
+                  <button
+                    key={tag.id}
+                    onClick={() => setFilterTag(tag.id)}
+                    className={`rounded-full px-3 py-1 text-xs font-bold transition-all ${
+                      filterTag === tag.id
+                        ? "bg-bc-blue text-white shadow-sm scale-105"
+                        : "border border-bc-caramel/25 bg-bc-white/80 text-bc-brown hover:bg-bc-white"
+                    }`}
+                  >
+                    {tag.label}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={refreshFeed}
+                disabled={loading}
+                className="shrink-0 text-xs font-bold text-bc-green hover:underline"
+              >
+                {loading ? "Sincronizando…" : "↻ Atualizar"}
+              </button>
+            </div>
+          </div>
+
+          {/* Lista de Posts */}
+          {loading && filteredPosts.length === 0 ? (
+            <div className="bc-card bc-glass rounded-3xl border border-bc-caramel/20 bg-bc-white p-8 text-center shadow-md">
+              <p className="text-3xl animate-bounce">🐕</p>
+              <p className="mt-2 text-sm font-bold text-bc-blue">Sintonizando com os relays Nostr…</p>
+              <p className="text-xs text-bc-brown/70">Assinaturas criptográficas Schnorr ativas</p>
+            </div>
+          ) : filteredPosts.length === 0 ? (
+            <div className="bc-card bc-glass rounded-3xl border border-bc-caramel/20 bg-bc-white p-8 text-center shadow-md">
+              <p className="text-3xl">🐾</p>
+              <p className="mt-2 text-sm font-bold text-bc-blue">Nenhum latido encontrado.</p>
+              <p className="text-xs text-bc-brown/70">
+                {searchQuery
+                  ? "Tente buscar por outro termo ou hashtag."
+                  : "Seja o primeiro a publicar usando o formulário acima!"}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredPosts.map((post) => (
+                <NostrPostCard
+                  key={post.id}
+                  post={post}
+                  onReaction={refreshFeed}
+                  onReplyPublished={refreshFeed}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
 

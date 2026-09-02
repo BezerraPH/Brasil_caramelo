@@ -99,6 +99,8 @@ Checklist de **produção** — scripts e doc prontos; configure `.env` no host 
 | R-FED-03 | **Preview** — resumo do que será importado antes de aplicar | v2.30 | [ ] |
 | R-FED-04 | **Opt-in** — sync só de matilhas marcadas públicas | v2.30 | [ ] |
 | R-FED-05 | **Nostr Descentralizado** — protocolo Nostr (NIP-01/05/07/10/57), relays WebSockets, chaves npub/nsec e feed | v2.30 | [x] 2026-09-01 (v2.30.0) |
+| R-FED-06 | **Nostr Perfil & Zap** — perfil público (`/nostr/p/[pubkey]`), histórico de notas e Lightning satoshi zaps | v2.30 | [x] 2026-09-01 (v2.30.0) |
+| R-FED-07 | **Nostr Notificações & Salvos** — abas de menções/reações (Kind 1/7) e bookmarks salvos com persistência local | v2.30 | [x] 2026-09-01 (v2.30.0) |
 
 ---
 

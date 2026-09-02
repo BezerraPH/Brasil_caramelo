@@ -34,6 +34,8 @@ Progresso v2.28+: P0 10/10 · P1 Comunidades 5/6 · Federação Nostr 1/5 · Mon
 
 Concluído v2.30:
   [x] R-FED-05 Protocolo Nostr descentralizado, chaves npub/nsec, relays pool, feed e NIP-05
+  [x] R-FED-06 Visualização de Perfil Público Nostr (/nostr/p/[pubkey]), Zaps NIP-57 e histórico de notas
+  [x] R-FED-07 Central de Notificações Nostr (Kind 1 e 7) e Sistema de Notas Salvas/Favoritos
   [x] Bugfixes de compilação Next 16 e conformidade com regras de linter React 19
 
 Concluído v2.29:

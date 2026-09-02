@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { nip19 } from "nostr-tools";
 import { useNostrAuth } from "@/lib/nostr/auth-context";
 import { publishNostrNote, publishNostrReaction } from "@/lib/nostr/events";
 import { shortenNpub } from "@/lib/nostr/keys";
+import { isPostBookmarked, removeBookmark, saveBookmark } from "./NostrBookmarks";
 import { NostrZapModal } from "./NostrZapModal";
 import type { NostrPost } from "@/lib/nostr/types";
 
@@ -21,6 +23,7 @@ export function NostrPostCard({ post, onReaction, onReplyPublished }: Props) {
   const [hasLiked, setHasLiked] = useState(false);
   const [reacting, setReacting] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [bookmarked, setBookmarked] = useState(() => isPostBookmarked(post.id));
 
   // Reply state
   const [showReplyBox, setShowReplyBox] = useState(false);
@@ -113,7 +116,10 @@ export function NostrPostCard({ post, onReaction, onReplyPublished }: Props) {
         {/* Header do Autor */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-bc-caramel/40 to-bc-green/30">
+            <Link
+              href={`/nostr/p/${post.npub}`}
+              className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-bc-caramel/40 to-bc-green/30 hover:opacity-90 transition-opacity"
+            >
               {avatarUrl ? (
                 <Image
                   src={avatarUrl}
@@ -125,17 +131,22 @@ export function NostrPostCard({ post, onReaction, onReplyPublished }: Props) {
               ) : (
                 <div className="flex h-full w-full items-center justify-center text-lg">🐕</div>
               )}
-            </div>
+            </Link>
 
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-bc-blue">{authorName}</span>
+                <Link
+                  href={`/nostr/p/${post.npub}`}
+                  className="font-bold text-bc-blue hover:underline"
+                >
+                  {authorName}
+                </Link>
                 <span className="bc-badge bg-bc-caramel/15 text-[10px] text-bc-brown">
                   {breedBadge}
                 </span>
                 {post.profile?.nip05 && (
                   <span
-                    className="text-[11px] text-emerald-600"
+                    className="text-[11px] text-emerald-600 font-bold"
                     title={`Verificado NIP-05: ${post.profile.nip05}`}
                   >
                     ✓
@@ -180,9 +191,9 @@ export function NostrPostCard({ post, onReaction, onReplyPublished }: Props) {
           </div>
         )}
 
-        {/* Barra de Ações (Biscoito, Responder, Zap, Compartilhar) */}
+        {/* Barra de Ações (Biscoito, Responder, Zap, Salvar, Compartilhar) */}
         <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-bc-caramel/15 pt-3 text-xs text-bc-brown">
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-3">
             <button
               onClick={handleLike}
               disabled={reacting}
@@ -212,6 +223,27 @@ export function NostrPostCard({ post, onReaction, onReplyPublished }: Props) {
             >
               <span>⚡</span>
               <span>Zap</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (bookmarked) {
+                  removeBookmark(post.id);
+                  setBookmarked(false);
+                } else {
+                  saveBookmark(post);
+                  setBookmarked(true);
+                }
+              }}
+              className={`flex items-center gap-1 rounded-full px-2.5 py-1 font-bold transition-all ${
+                bookmarked
+                  ? "bg-bc-green/15 text-bc-green"
+                  : "hover:bg-bc-cream hover:text-bc-blue"
+              }`}
+              title={bookmarked ? "Remover dos salvos" : "Salvar nota"}
+            >
+              <span>{bookmarked ? "🔖 Salvo" : "🔖 Salvar"}</span>
             </button>
           </div>
 

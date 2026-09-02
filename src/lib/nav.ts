@@ -7,43 +7,37 @@ export type NavItem = {
 };
 
 export const DESKTOP_NAV: NavItem[] = [
-  { href: "/feed", label: "Feed", icon: "📰" },
-  { href: "/nostr", label: "Nostr ⚡", icon: "⚡", matchPrefixes: ["/nostr"] },
-  { href: "/explorar", label: "Explorar", icon: "🧭" },
+  { href: "/feed", label: "Início", icon: "📰" },
+  {
+    href: "/explorar",
+    label: "Explorar",
+    icon: "🧭",
+    matchPrefixes: [
+      "/buscar",
+      "/ranking",
+      "/batalha",
+      "/rolezinho",
+      "/tribunal",
+      "/latidos",
+      "/pet-shops",
+      "/salvos",
+    ],
+  },
+  { href: "/nostr", label: "Modo Livre ⚡", icon: "⚡", matchPrefixes: ["/nostr"] },
   {
     href: "/casinhas",
     label: "Casinhas",
     icon: "🏠",
-    matchPrefixes: ["/casinha"],
+    matchPrefixes: ["/casinha", "/comunidades", "/matilhas"],
   },
-  {
-    href: "/latidos",
-    label: "Latidos",
-    icon: "🎙️",
-    matchPrefixes: ["/latidos"],
-  },
-  {
-    href: "/tribunal",
-    label: "Tribunal",
-    icon: "⚖️",
-    matchPrefixes: ["/tribunal"],
-  },
-  { href: "/ranking", label: "Matilha", icon: "🏆" },
-  { href: "/rolezinho", label: "Eventos", icon: "🎉" },
+  { href: "/cachorro", label: "Pet", icon: "🐕", matchPrefixes: ["/cachorro"] },
 ];
 
 export const MOBILE_NAV: NavItem[] = [
   { href: "/feed", label: "Início", icon: "📰" },
-  { href: "/mensagens", label: "Chat", icon: "💬" },
-  {
-    href: "/latidos",
-    label: "Latidos",
-    icon: "🎙️",
-    matchPrefixes: ["/latidos"],
-  },
   {
     href: "/explorar",
-    label: "Mais",
+    label: "Explorar",
     icon: "🧭",
     matchPrefixes: [
       "/notificacoes",
@@ -57,11 +51,15 @@ export const MOBILE_NAV: NavItem[] = [
       "/tribunal",
       "/casinhas",
       "/casinha",
+      "/latidos",
       "/amigos",
-      "/configuracoes",
+      "/comunidades",
+      "/matilhas",
     ],
   },
-  { href: "/cachorro", label: "Pet", icon: "🐕" },
+  { href: "/feed?criar=1", label: "Criar", icon: "➕" },
+  { href: "/mensagens", label: "Chat", icon: "💬", matchPrefixes: ["/mensagens"] },
+  { href: "/perfil", label: "Perfil", icon: "👤", matchPrefixes: ["/perfil", "/configuracoes"] },
 ];
 
 export function isNavActive(pathname: string, item: NavItem): boolean {

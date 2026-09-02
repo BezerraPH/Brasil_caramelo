@@ -31,16 +31,17 @@ const DONE = [
   { icon: "🐾", title: "Nostr: feed exclusivo de seguidos + detecção HTTPS seguro", phase: "v2.31" },
   { icon: "📖", title: "Nostr: manuais caninos e artigos long-form (NIP-23)", phase: "v2.32" },
   { icon: "⚡", title: "Nostr: WebLN zaps 1-clique + monitor de latência de relays", phase: "v2.33" },
+  { icon: "📱", title: "Redesign Mobile-First: bottom nav bar, busca dinâmica, alto contraste WCAG", phase: "v2.34" },
   { icon: "🔒", title: "HTTPS / Tailscale / mkcert (CONFIGURACAO.md)" },
   { icon: "🌳", title: "Árvore genealógica DNA" },
   { icon: "🏪", title: "Cupons pet shop regional" },
 ];
 
-/** Próximos itens de ROADMAP.md (onda v2.34+) — atualizar ao marcar [x]. */
+/** Próximos itens de ROADMAP.md (onda v2.35+) — atualizar ao marcar [x]. */
 const FUTURE: { icon: string; title: string; phase?: string }[] = [
-  { icon: "💬", title: "Scrapbook com threads em depoimentos", phase: "v2.34" },
-  { icon: "📌", title: "Recado fixado no perfil Orkut", phase: "v2.34" },
-  { icon: "🔄", title: "Federação: sync agendado e preview", phase: "v2.34" },
+  { icon: "💬", title: "Scrapbook com threads em depoimentos", phase: "v2.35" },
+  { icon: "📌", title: "Recado fixado no perfil Orkut", phase: "v2.35" },
+  { icon: "🔄", title: "Federação: sync agendado e preview", phase: "v2.35" },
   { icon: "🧪", title: "Testes Vitest + Playwright", phase: "P3" },
 ];
 

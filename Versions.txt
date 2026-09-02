@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-09-01 (v2.33.0-alpha.0 - WebLN 1-Clique, Monitor de Latência de Relays e Testes de Servidor)
-Versão atual do pacote (package.json): 2.33.0-alpha.0
+Última atualização: 2026-09-02 (v2.34.0-alpha.0 - Redesign Mobile-First Nacional, Acessibilidade WCAG e Limpeza Visual)
+Versão atual do pacote (package.json): 2.34.0-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
@@ -28,14 +28,20 @@ INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
 ================================================================================
 
 Arquivo mestre: ROADMAP.md
-Progresso: Nostr P0 9/9 · P0 Infra 10/10 · P1 Comunidades 5/6
+Progresso: Nostr P0 9/9 · P0 Infra 10/10 · P1 Comunidades 5/6 · P0 UX 1/1
 
-**v2.33.0: WebLN 1-Clique para Zaps, Monitor Dinâmico de Relays e Testes.**
+**v2.34.0: Redesign Mobile-First Nacional, Acessibilidade WCAG e Limpeza Visual.**
+
+Concluído v2.34:
+  [x] R-UX-01 Bottom navigation bar fixa com botão central FAB (+), menu superior enxuto de 5 abas
+  [x] Cores com contraste acessível (WCAG 4.5:1+) e remoção de poluição de versão do usuário comum
+  [x] Cinelar com layout lateral no desktop e scrim gradiente nos botões de interação
+  [x] Explorar reformulado com busca dinâmica e cards categorizados sem poluição DevOps
+  [x] Chat DMs com autocomplete em tempo real e estados vazios acolhedores e educativos no Tribunal
 
 Concluído v2.33:
   [x] R-NOS-08 Pagamentos Lightning WebLN em 1-clique diretamente no navegador
   [x] R-NOS-09 Monitor de latência ping/ms para WebSockets Nostr com relays sugeridos
-  [x] Testes de conectividade do servidor e documentação de logs de containers
 
 Concluído v2.32:
   [x] R-NOS-07 Publicações Long-Form e Manuais Caninos (NIP-23) com leitor rico e formulário de publicação

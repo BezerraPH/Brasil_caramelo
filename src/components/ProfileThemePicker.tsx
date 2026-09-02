@@ -5,11 +5,11 @@ import { PROFILE_THEMES } from "@/lib/profile-themes";
 import type { ProfileTheme } from "@/generated/prisma/enums";
 
 type ProfileThemePickerProps = {
-  initialTheme: ProfileTheme;
+  initialTheme?: ProfileTheme | null;
 };
 
 export function ProfileThemePicker({ initialTheme }: ProfileThemePickerProps) {
-  const [theme, setTheme] = useState(initialTheme);
+  const [theme, setTheme] = useState<ProfileTheme>(initialTheme ?? "CARAMELO");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 

@@ -2,35 +2,35 @@
 
 :root {
   --bc-white: #ffffff;
-  --bc-blue: #1b6ca8;
-  --bc-green: #2d8b57;
-  --bc-brown: #8b5e3c;
-  --bc-caramel: #c68642;
-  --bc-gold: #d4a017;
-  --background: #e8f0ec;
-  --foreground: #1a2e24;
-  --bc-glass: rgba(255, 255, 255, 0.72);
-  /* Brasil Moderno (new_orkut.html) */
-  --brasil-bg: #f4f7f5;
-  --brasil-primary: #005f38;
-  --brasil-primary-hover: #004427;
-  --brasil-secondary: #ffc72c;
-  --brasil-accent-blue: #002776;
-  --brasil-text: #1a2420;
-  --brasil-muted: #60726a;
-  --brasil-border: #e2eae5;
+  --bc-blue: #0b4f8a;
+  --bc-green: #176336;
+  --bc-brown: #4a2c17;
+  --bc-caramel: #ab5d18;
+  --bc-gold: #c28b08;
+  --background: #f5f7f6;
+  --foreground: #121c17;
+  --bc-glass: rgba(255, 255, 255, 0.85);
+  /* Brasil Moderno */
+  --brasil-bg: #f5f7f6;
+  --brasil-primary: #004d2c;
+  --brasil-primary-hover: #00361f;
+  --brasil-secondary: #e6a800;
+  --brasil-accent-blue: #001f5c;
+  --brasil-text: #121c17;
+  --brasil-muted: #4a5c53;
+  --brasil-border: #d4e0d9;
 }
 
 html.dark {
-  --bc-white: #1a2420;
-  --bc-blue: #5eb3e8;
-  --bc-green: #4cb87a;
-  --bc-brown: #c9a882;
-  --bc-caramel: #e0a86a;
-  --bc-gold: #f0c040;
-  --background: #0d1410;
-  --foreground: #e8f0ec;
-  --bc-glass: rgba(26, 36, 32, 0.85);
+  --bc-white: #17221c;
+  --bc-blue: #6ab8ea;
+  --bc-green: #56c285;
+  --bc-brown: #d8baa0;
+  --bc-caramel: #e6b078;
+  --bc-gold: #f5cb5c;
+  --background: #0b120e;
+  --foreground: #f0f4f2;
+  --bc-glass: rgba(23, 34, 28, 0.88);
 }
 
 /* Luar da Matilha — modo escuro com identidade Caramelo (#C68642) + azul marinho (#0A192F) */
@@ -198,7 +198,7 @@ body {
 }
 
 .bc-cinelar-action {
-  @apply flex flex-col items-center gap-0.5 text-[11px] font-semibold text-white drop-shadow-md transition active:scale-90;
+  @apply flex flex-col items-center gap-1 rounded-full bg-black/45 p-2 text-[11px] font-bold text-white shadow-xl backdrop-blur-md border border-white/20 transition active:scale-90 hover:bg-black/65;
 }
 
 .bc-cinelar-heart-pop {

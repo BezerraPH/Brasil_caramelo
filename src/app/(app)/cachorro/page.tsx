@@ -25,16 +25,20 @@ export default async function CachorroPage() {
   );
 
   return (
-    <PageContainer narrow>
+    <PageContainer>
       <header className="bc-animate-in mb-6 text-center">
-        <h1 className="text-2xl font-bold text-bc-blue">Meu Caramelo</h1>
-        <p className="text-sm text-bc-brown">
-          Cuide do seu companheiro virtual todo dia
+        <h1 className="text-3xl font-black text-bc-blue sm:text-4xl">Meu Caramelo Virtual</h1>
+        <p className="mt-1 text-sm font-semibold text-bc-brown">
+          Cuide do seu pet virtual, personalize acessórios e ganhe recompensas diárias
         </p>
       </header>
+
       <PetGame />
-      <PetBreedingPanel friends={friends} />
-      <PetGenealogyPanel />
+
+      <div className="mt-8 space-y-6">
+        <PetBreedingPanel friends={friends} />
+        <PetGenealogyPanel />
+      </div>
     </PageContainer>
   );
 }

@@ -101,10 +101,33 @@ export function ChatApp({
   const [loadingChat, setLoadingChat] = useState(false);
   const [sending, setSending] = useState(false);
   const [newChatUser, setNewChatUser] = useState("");
+  const [userSuggestions, setUserSuggestions] = useState<
+    { id: string; name: string; username: string; avatarUrl: string | null }[]
+  >([]);
   const [error, setError] = useState<string | null>(null);
   const [typingLabel, setTypingLabel] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const typingClearRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const q = newChatUser.trim();
+    const timer = setTimeout(async () => {
+      if (q.length < 2) {
+        setUserSuggestions([]);
+        return;
+      }
+      try {
+        const res = await fetch(`/api/users/search?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        if (res.ok) {
+          setUserSuggestions(data.users ?? []);
+        }
+      } catch {
+        // ignore
+      }
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [newChatUser]);
 
   const activeConv = conversations.find((c) => c.id === activeConvId);
   const panelOpen = mode === "dm" ? Boolean(activeConvId) : Boolean(roomSlug);
@@ -415,17 +438,46 @@ export function ChatApp({
       </div>
 
       {mode === "dm" && (
-        <form onSubmit={startChat} className="bc-card mb-4 flex gap-2 p-3">
-          <input
-            value={newChatUser}
-            onChange={(e) => setNewChatUser(e.target.value)}
-            placeholder="@usuário do amigo"
-            className="bc-input flex-1"
-          />
-          <button type="submit" className="bc-btn-primary shrink-0">
-            Nova conversa
-          </button>
-        </form>
+        <div className="relative mb-4">
+          <form onSubmit={startChat} className="bc-card flex gap-2 p-3">
+            <input
+              value={newChatUser}
+              onChange={(e) => setNewChatUser(e.target.value)}
+              placeholder="Buscar amigo por nome ou @username…"
+              className="bc-input flex-1 text-xs font-semibold"
+            />
+            <button type="submit" className="bc-btn-primary shrink-0 text-xs font-bold">
+              Conversar
+            </button>
+          </form>
+
+          {userSuggestions.length > 0 && (
+            <div className="absolute left-0 right-0 top-full z-20 mt-1 max-h-48 overflow-y-auto rounded-2xl border border-bc-caramel/25 bg-bc-white p-2 shadow-xl">
+              <p className="px-2 py-1 text-[10px] font-bold text-bc-brown/70 uppercase">
+                Amigos encontrados ({userSuggestions.length}):
+              </p>
+              {userSuggestions.map((u) => (
+                <button
+                  key={u.id}
+                  type="button"
+                  onClick={() => {
+                    setNewChatUser(u.username);
+                    setUserSuggestions([]);
+                    router.push(`/mensagens?with=${encodeURIComponent(u.username)}`);
+                  }}
+                  className="flex w-full items-center gap-2.5 rounded-xl p-2 text-left transition hover:bg-bc-green/10"
+                >
+                  <UserAvatar name={u.name} avatarUrl={u.avatarUrl} size="sm" />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-xs text-bc-blue truncate">{u.name}</p>
+                    <p className="text-[11px] text-bc-brown">@{u.username}</p>
+                  </div>
+                  <span className="text-xs font-bold text-bc-green">Conversar →</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       )}
 
       {error && (

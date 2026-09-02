@@ -64,6 +64,7 @@ Checklist de **produção** — scripts e doc prontos; configure `.env` no host 
 | R-NOS-07 | **Nostr Manuais & Artigos** — NIP-23 (Publicações long-form ricas imutáveis) | v2.32 | [x] 2026-09-01 (v2.32.0) |
 | R-NOS-08 | **Nostr WebLN 1-Clique** — Pagamento direto e instantâneo de zaps sem copiar faturas | v2.33 | [x] 2026-09-01 (v2.33.0) |
 | R-NOS-09 | **Nostr Monitor de Relays** — Diagnóstico de latência ping/ms e relays recomendados | v2.33 | [x] 2026-09-01 (v2.33.0) |
+| R-UX-01 | **Redesign Mobile-First & Acessibilidade** — Bottom nav bar, header enxuto, WCAG 4.5:1+, Cinelar scrim e busca autocomplete | v2.34 | [x] 2026-09-02 (v2.34.0) |
 
 ---
 

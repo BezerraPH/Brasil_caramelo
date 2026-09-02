@@ -8,55 +8,48 @@ export function LatidosAoVivoPanel() {
 
   return (
     <div className="space-y-6">
-      <section className="bc-card bc-latidos-header bc-animate-in p-6 text-center">
-        <h2 className="bc-shimmer-text text-2xl font-bold text-bc-blue">
+      <section className="bc-card bc-latidos-header bc-animate-in p-6 text-center shadow-sm">
+        <h2 className="bc-shimmer-text text-2xl font-black text-bc-blue sm:text-3xl">
           🎙️ Latidos ao Vivo
         </h2>
-        <p className="mt-2 text-sm text-bc-brown">
-          Salas de áudio por casinha — estilo rádio da matilha (Clubhouse/Twitter
-          Spaces).
+        <p className="mt-2 text-sm font-semibold text-bc-brown">
+          Salas de bate-papo em áudio da matilha em tempo real
         </p>
-        {!livekitConfigured && (
-          <p className="mt-3 rounded-lg bg-bc-caramel/10 px-3 py-2 text-xs text-bc-brown">
-            Configure <code className="text-[10px]">NEXT_PUBLIC_LIVEKIT_URL</code>{" "}
-            no servidor para ativar salas ao vivo. Veja CONFIGURACAO.md. WebRTC 1:1 já
-            funciona em{" "}
-            <Link href="/mensagens" className="text-bc-blue underline">
-              Mensagens
-            </Link>
-            .
-          </p>
-        )}
       </section>
 
       <div className="grid gap-3 sm:grid-cols-2">
         {CASINHAS.map((c, i) => (
           <article
             key={c.slug}
-            className="bc-latidos-room bc-card bc-animate-in-up p-4"
+            className="bc-card bc-card-interactive bc-animate-in-up flex flex-col justify-between p-5 border border-bc-caramel/25 shadow-xs"
             style={{ animationDelay: `${i * 0.04}s` }}
           >
-            <p className="text-2xl">{c.emoji}</p>
-            <h3 className="font-bold text-bc-blue">{c.name}</h3>
-            <p className="mt-1 text-xs text-bc-brown">{c.tagline}</p>
-            <p className="mt-2 text-[10px] text-bc-brown/70">
-              {livekitConfigured ? "Sala ao vivo disponível" : "Aguardando LiveKit"}
-            </p>
-            {livekitConfigured ? (
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-bc-sand/40 text-2xl shadow-xs">
+                  {c.emoji}
+                </span>
+                <span className="rounded-full bg-emerald-500/15 px-2.5 py-1 text-[11px] font-bold text-emerald-800 flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                  Sala Aberta
+                </span>
+              </div>
+
+              <h3 className="mt-3 text-base font-black text-bc-blue">{c.name}</h3>
+              <p className="mt-1 text-xs font-semibold text-bc-brown">{c.tagline}</p>
+            </div>
+
+            <div className="mt-4 border-t border-bc-caramel/15 pt-3 flex items-center justify-between">
+              <span className="text-[11px] font-bold text-bc-brown/70">
+                🎧 Áudio P2P WebRTC
+              </span>
               <Link
-                href={`/latidos/${c.slug}`}
-                className="bc-btn-primary bc-latidos-join-btn mt-3 inline-block text-xs"
+                href={livekitConfigured ? `/latidos/${c.slug}` : `/casinha/${c.slug}`}
+                className="rounded-xl bg-gradient-to-r from-bc-green to-bc-caramel px-3.5 py-1.5 text-xs font-bold text-white shadow-xs hover:opacity-90 active:scale-95 transition"
               >
-                🎙️ Entrar na sala
+                🎙️ Entrar na Sala
               </Link>
-            ) : (
-              <Link
-                href={`/casinha/${c.slug}`}
-                className="mt-3 inline-block text-xs font-medium text-bc-green hover:underline"
-              >
-                Ver casinha →
-              </Link>
-            )}
+            </div>
           </article>
         ))}
       </div>

@@ -1,14 +1,8 @@
 import Link from "next/link";
-import { TunelDoTempoCard } from "@/components/TunelDoTempoCard";
-import { SorteDoDiaCard } from "@/components/SorteDoDiaCard";
-import { DesafioDoDiaCard } from "@/components/DesafioDoDiaCard";
-import { FilaPaoDeQueijo } from "@/components/FilaPaoDeQueijo";
 import { CreatePostForm } from "@/components/CreatePostForm";
-import { OfflinePostBanner } from "@/components/OfflinePostBanner";
 import { FeedFilterTabs } from "@/components/FeedFilterTabs";
 import { FeedInfinite } from "@/components/FeedInfinite";
 import { MatilhaDayGreeting } from "@/components/MatilhaDayGreeting";
-import { MatilhaStatsCards } from "@/components/MatilhaStatsCards";
 import { NotificationPeek } from "@/components/NotificationPeek";
 import { FeedTrendingTags } from "@/components/FeedTrendingTags";
 import { FeedRefreshButton } from "@/components/FeedRefreshButton";
@@ -21,9 +15,6 @@ import { PostScrollOnLoad } from "@/components/PostScrollOnLoad";
 import { RecentActivity } from "@/components/RecentActivity";
 import { TrendingPosts } from "@/components/TrendingPosts";
 import { PetCareBanner } from "@/components/PetCareBanner";
-import { FeedQuickDock } from "@/components/FeedQuickDock";
-import { PetDailyClaimBanner } from "@/components/PetDailyClaimBanner";
-import { WelcomeBanner } from "@/components/WelcomeBanner";
 import { Suspense } from "react";
 import { UserAvatar } from "@/components/UserAvatar";
 import { getCurrentUser } from "@/lib/auth";
@@ -36,7 +27,6 @@ import {
 } from "@/lib/feed-posts";
 import { fetchCinelarFeed } from "@/lib/cinelar-fyp";
 import { prisma } from "@/lib/prisma";
-import { getOnThisDayMemory } from "@/lib/memories";
 import { applyPetDecay, petAvatarStatus } from "@/lib/pet";
 
 type FeedPageProps = {
@@ -70,7 +60,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
     }
   }
 
-  const [friendCount, pendingFriends, flashEvent, viewerPet, memoryPost] =
+  const [friendCount, pendingFriends, flashEvent, viewerPet] =
     await Promise.all([
       prisma.friendship.count({
         where: {
@@ -83,7 +73,6 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
       }),
       getActiveFlashEvent(user.id),
       prisma.pet.findUnique({ where: { userId: user.id } }),
-      getOnThisDayMemory(user.id),
     ]);
 
   let viewerPetStatus = null;
@@ -141,54 +130,38 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
                   petStatus={viewerPetStatus}
                 />
               </Link>
-              <p className="font-bold text-bc-blue">{user.name}</p>
-              <p className="text-xs text-bc-brown">@{user.username}</p>
+              <p className="font-extrabold text-bc-blue">{user.name}</p>
+              <p className="text-xs font-semibold text-bc-brown">@{user.username}</p>
               {user.isPremium && (
-                <p className="mt-1 text-xs font-semibold text-bc-gold">
+                <p className="mt-1 text-xs font-black text-bc-gold">
                   ★ Pedigree
                 </p>
               )}
-              <p className="mt-2 text-xs text-bc-green">
+              <p className="mt-2 text-xs font-bold text-bc-green">
                 {friendCount} amigo{friendCount !== 1 ? "s" : ""}
               </p>
               {pendingFriends > 0 && (
                 <Link
                   href="/amigos"
-                  className="mt-2 block rounded-lg bg-bc-caramel/20 px-2 py-1 text-xs font-medium text-bc-brown"
+                  className="mt-2 block rounded-xl bg-bc-caramel/20 px-2 py-1.5 text-xs font-bold text-bc-brown"
                 >
-                  {pendingFriends} pedido{pendingFriends !== 1 ? "s" : ""}
+                  {pendingFriends} pedido{pendingFriends !== 1 ? "s" : ""} de amizade
                 </Link>
               )}
-              <Link
-                href="/casinhas"
-                className="mt-3 block rounded-lg bg-bc-blue/10 px-2 py-2 text-xs font-medium text-bc-blue hover:bg-bc-blue/15"
-              >
-                🏠 Casinhas
-              </Link>
-              <Link
-                href="/rolezinho"
-                className="mt-2 block rounded-lg bg-bc-gold/15 px-2 py-2 text-xs font-medium text-bc-brown"
-              >
-                🎉 Rolezinho
-              </Link>
-              <Link
-                href="/batalha"
-                className="mt-2 block rounded-lg bg-bc-caramel/15 px-2 py-2 text-xs font-medium text-bc-brown"
-              >
-                ⚔️ Batalha de pets
-              </Link>
-              <Link
-                href="/latidos"
-                className="mt-2 block rounded-lg bg-bc-green/10 px-2 py-2 text-xs font-medium text-bc-green hover:bg-bc-green/15"
-              >
-                🎙️ Latidos ao vivo
-              </Link>
-              <Link
-                href="/tribunal"
-                className="mt-2 block rounded-lg bg-bc-blue/10 px-2 py-2 text-xs font-medium text-bc-blue hover:bg-bc-blue/15"
-              >
-                ⚖️ Tribunal do Cão
-              </Link>
+              <div className="mt-4 flex flex-col gap-2">
+                <Link
+                  href={`/perfil/${user.username}`}
+                  className="rounded-xl border border-bc-caramel/20 bg-bc-sand/30 py-2 text-xs font-bold text-bc-brown hover:bg-bc-sand/60 transition"
+                >
+                  👤 Ver Meu Perfil
+                </Link>
+                <Link
+                  href="/cachorro"
+                  className="rounded-xl border border-bc-green/20 bg-bc-green/10 py-2 text-xs font-bold text-bc-green hover:bg-bc-green/20 transition"
+                >
+                  🐕 Cuidar do Meu Pet
+                </Link>
+              </div>
             </section>
           </aside>
         )}
@@ -199,10 +172,10 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
           </Suspense>
           <header className="bc-page-header bc-animate-in flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h1 className="bc-shimmer-text text-2xl font-bold sm:text-3xl">
+              <h1 className="bc-shimmer-text text-2xl font-black sm:text-3xl">
                 {title}
               </h1>
-              <p className="mt-1 text-sm text-bc-brown">{subtitle}</p>
+              <p className="mt-1 text-sm font-semibold text-bc-brown">{subtitle}</p>
               {!isReels && <MatilhaDayGreeting name={user.name} />}
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -210,7 +183,7 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
               {!isReels && (
                 <Link
                   href="/buscar"
-                  className="bc-btn-ghost text-xs"
+                  className="bc-btn-ghost text-xs font-bold"
                   title="Buscar na matilha"
                 >
                   🔍 Buscar
@@ -218,17 +191,6 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
               )}
             </div>
           </header>
-
-          {!isReels && <FeedQuickDock />}
-          {!isReels && !isInsta && <SorteDoDiaCard />}
-          {!isReels && !isInsta && <DesafioDoDiaCard />}
-          {!isReels && !isInsta && <FilaPaoDeQueijo />}
-          {!isReels && !isInsta && memoryPost && (
-            <TunelDoTempoCard memory={memoryPost} />
-          )}
-          {!isReels && <OfflinePostBanner />}
-          {!isReels && <WelcomeBanner />}
-          {!isReels && <PetDailyClaimBanner />}
 
           {!isReels && flashEvent && (
             <FlashEventBanner
@@ -240,6 +202,12 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
           )}
 
           {!isReels && <StoriesBar currentUserId={user.id} />}
+
+          {!isReels && (
+            <div className="bc-animate-in bc-stagger-1">
+              <CreatePostForm instaMode={isInsta} reelsMode={isReels} />
+            </div>
+          )}
 
           {!isReels && !isInsta && (
             <Suspense fallback={null}>
@@ -287,18 +255,17 @@ export default async function FeedPage({ searchParams }: FeedPageProps) {
         {!isReels && (
           <aside className="hidden lg:block">
             <div className="bc-animate-in bc-stagger-2 space-y-4">
-              <MatilhaStatsCards layout="sidebar" />
               <NotificationPeek userId={user.id} />
               <FeedTrendingTags />
-              <RecentActivity userId={user.id} />
               <TrendingPosts />
+              <RecentActivity userId={user.id} />
               <Link
                 href="/premium"
                 className="bc-card block p-4 text-center transition hover:border-bc-gold/40"
               >
                 <span className="text-2xl">👑</span>
                 <p className="mt-2 font-bold text-bc-gold">Pedigree</p>
-                <p className="text-xs text-bc-brown">Apoie a matilha</p>
+                <p className="text-xs font-semibold text-bc-brown">Apoie o Brasil Caramelo</p>
               </Link>
             </div>
           </aside>

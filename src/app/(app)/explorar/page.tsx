@@ -1,15 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { AppVersionBadge } from "@/components/AppVersionBadge";
-import { MatilhaConnectionChip } from "@/components/MatilhaConnectionChip";
+import { ExplorarSearchHero } from "@/components/ExplorarSearchHero";
 import { ExplorarHubGrid } from "@/components/ExplorarHubGrid";
-import { FederationFeed } from "@/components/FederationFeed";
-import { MatilhaSearchStrip } from "@/components/MatilhaSearchStrip";
-import { RoadmapPanel } from "@/components/RoadmapPanel";
-import { FederationSyncButton } from "@/components/FederationSyncButton";
-import { MatilhaHealthPanel } from "@/components/MatilhaHealthPanel";
-import { MatilhaServiceStatus } from "@/components/MatilhaServiceStatus";
-import { MatilhaStatsCards } from "@/components/MatilhaStatsCards";
 import { PageContainer } from "@/components/PageContainer";
 import { TrendingCloud } from "@/components/TrendingCloud";
 import { getCurrentUser } from "@/lib/auth";
@@ -24,74 +16,78 @@ export default async function ExplorarPage() {
 
   return (
     <PageContainer>
-      <header className="bc-explorar-hero mb-8 text-center bc-animate-in">
-        <h1 className="bc-shimmer-text text-3xl font-bold text-bc-blue">
-          Explorar
-        </h1>
-        <p className="mt-2 text-bc-brown">Tudo que o Brasil Caramelo oferece</p>
-        <p className="mt-3 flex flex-wrap items-center justify-center gap-2">
-          <AppVersionBadge showStage />
-          <MatilhaConnectionChip />
-        </p>
-      </header>
+      <ExplorarSearchHero />
 
-      <MatilhaStatsCards />
-
-      <MatilhaHealthPanel />
-
-      <MatilhaServiceStatus />
-
-      <section className="bc-card bc-animate-in mb-8 p-5">
-        <h2 className="font-bold text-bc-blue">🌐 Caramelo-Sync</h2>
-        <p className="mt-1 text-xs text-bc-brown">
-          Importe recados de outros servidores na LAN ou na tailnet Tailscale
-        </p>
-        <FederationSyncButton className="mt-4" fullWidth />
-      </section>
-
+      {/* Tendências da Matilha */}
       <section className="bc-card bc-animate-in mb-8 p-6">
-        <h2 className="mb-2 text-center font-bold text-bc-blue">
-          🔥 Trending da matilha
-        </h2>
-        <p className="mb-4 text-center text-xs text-bc-brown">
-          Hashtags e palavras quentes dos últimos 7 dias
-        </p>
+        <div className="flex items-center justify-between border-b border-bc-caramel/15 pb-3 mb-4">
+          <div>
+            <h2 className="text-lg font-black text-bc-blue flex items-center gap-2">
+              <span>🔥</span> Tendências da Semana
+            </h2>
+            <p className="text-xs font-medium text-bc-brown">
+              Assuntos, hashtags e temas mais comentados na matilha
+            </p>
+          </div>
+          <Link href="/buscar" className="text-xs font-bold text-bc-green hover:underline">
+            Ver todas →
+          </Link>
+        </div>
+
         <Suspense
           fallback={
-            <p className="text-center text-sm text-bc-brown">Farejando…</p>
+            <p className="text-center text-sm text-bc-brown py-4 font-semibold">Farejando tendências…</p>
           }
         >
           <TrendingCloud />
         </Suspense>
       </section>
 
-      <MatilhaSearchStrip />
+      {/* Casinhas em Destaque */}
+      <section className="bc-card bc-animate-in mb-8 p-6">
+        <div className="flex items-center justify-between border-b border-bc-caramel/15 pb-3 mb-4">
+          <div>
+            <h2 className="text-lg font-black text-bc-blue flex items-center gap-2">
+              <span>🏠</span> Casinhas da Matilha
+            </h2>
+            <p className="text-xs font-medium text-bc-brown">
+              Comunidades temáticas organizadas por personalidade canina
+            </p>
+          </div>
+          <Link href="/casinhas" className="text-xs font-bold text-bc-green hover:underline">
+            Ver todas as 10 casinhas →
+          </Link>
+        </div>
 
-      <ExplorarHubGrid />
-
-      <section className="bc-card mt-8 p-5">
-        <h2 className="mb-3 font-bold text-bc-blue">Casinhas em destaque</h2>
-        <div className="flex flex-wrap gap-2">
-          {CASINHAS.slice(0, 5).map((c) => (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {CASINHAS.slice(0, 6).map((c) => (
             <Link
               key={c.slug}
               href={`/casinha/${c.slug}`}
-              className="rounded-full border border-bc-blue/20 bg-bc-white px-3 py-1 text-xs font-medium text-bc-blue hover:bg-bc-green/10"
+              className="flex items-center gap-3 rounded-2xl border border-bc-caramel/20 bg-bc-sand/20 p-3.5 transition hover:border-bc-green hover:bg-bc-green/5 hover:scale-[1.01]"
             >
-              {c.emoji} {c.name}
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-bc-white text-2xl shadow-sm">
+                {c.emoji}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="font-black text-sm text-bc-blue truncate">{c.name}</p>
+                <p className="text-xs font-medium text-bc-brown line-clamp-1">{c.tagline}</p>
+                <span className="mt-1 inline-block text-[10px] font-bold text-bc-green">
+                  🟢 Comunidade ativa
+                </span>
+              </div>
             </Link>
           ))}
         </div>
       </section>
 
-      <section className="mt-8">
-        <h2 className="mb-4 text-center text-lg font-bold text-bc-blue">
-          Roadmap da matilha
+      {/* Catálogo de Recursos e Jogos */}
+      <section className="mb-8">
+        <h2 className="text-lg font-black text-bc-blue mb-4 flex items-center gap-2">
+          <span>🧭</span> Central de Recursos & Jogos
         </h2>
-        <RoadmapPanel />
+        <ExplorarHubGrid />
       </section>
-
-      <FederationFeed />
     </PageContainer>
   );
 }

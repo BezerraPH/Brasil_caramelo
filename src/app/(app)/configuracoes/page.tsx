@@ -1,19 +1,5 @@
 import Link from "next/link";
-import { AppAboutCard } from "@/components/AppAboutCard";
-import { ShareMatilhaLink } from "@/components/ShareMatilhaLink";
-import { GuardDogAssistant } from "@/components/GuardDogAssistant";
-import { FederationPanel } from "@/components/FederationPanel";
-import { AvatarUpload } from "@/components/AvatarUpload";
-import { CapacitorNativePanel } from "@/components/CapacitorNativePanel";
-import { GdprExportPanel } from "@/components/GdprExportPanel";
-import { StoragePanel } from "@/components/StoragePanel";
-import { ProfileThemePicker } from "@/components/ProfileThemePicker";
-import { PrivacyVisitsToggle } from "@/components/PrivacyVisitsToggle";
-import { LocationPinForm } from "@/components/LocationPinForm";
-import { PushNotificationPanel } from "@/components/PushNotificationPanel";
-import { WebRTCDebugPanel } from "@/components/WebRTCDebugPanel";
-import { ProfileInterestsEditor } from "@/components/ProfileInterestsEditor";
-import { EditProfileForm } from "@/components/EditProfileForm";
+import { SettingsTabbedView } from "@/components/SettingsTabbedView";
 import { PageContainer } from "@/components/PageContainer";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -48,39 +34,22 @@ export default async function SettingsPage() {
       <header className="bc-page-header bc-animate-in mb-6">
         <Link
           href={`/perfil/${user.username}`}
-          className="text-sm text-bc-blue hover:underline"
+          className="text-xs font-bold text-bc-blue hover:underline"
         >
-          ← Voltar ao perfil
+          ← Voltar ao meu perfil
         </Link>
-        <h1 className="mt-2 text-2xl font-bold text-bc-blue">Editar perfil</h1>
-        <p className="text-sm text-bc-brown">
-          Atualize como você aparece no Brasil Caramelo.
+        <h1 className="mt-2 text-2xl font-black text-bc-blue sm:text-3xl">
+          Configurações da Conta
+        </h1>
+        <p className="mt-1 text-xs font-semibold text-bc-brown">
+          Gerencie suas informações pessoais, privacidade e preferências da matilha
         </p>
       </header>
 
-      <ShareMatilhaLink className="mb-6" />
-      <LocationPinForm
-        initialCity={full.locationCity}
-        initialArea={full.locationArea}
-        initialShow={full.showLocation}
-      />
-      <PrivacyVisitsToggle initialShowVisits={full.showVisits} />
-      <ProfileThemePicker initialTheme={full.profileTheme} />
-      <CapacitorNativePanel />
-      <PushNotificationPanel />
-      <WebRTCDebugPanel />
-      <GdprExportPanel />
-      <StoragePanel />
-      <AvatarUpload name={full.name} avatarUrl={full.avatarUrl} />
-      <ProfileInterestsEditor initialInterests={full.interests} />
-      <EditProfileForm user={full} />
+      <SettingsTabbedView full={full} />
 
-      <FederationPanel />
-      <GuardDogAssistant />
-      <AppAboutCard />
-
-      <p className="mt-4 text-center text-xs text-bc-brown/70">
-        E-mail da conta: {full.email}
+      <p className="mt-6 text-center text-xs font-medium text-bc-brown/70">
+        E-mail da conta: <strong>{full.email}</strong>
       </p>
     </PageContainer>
   );

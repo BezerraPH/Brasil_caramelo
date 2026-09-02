@@ -8,7 +8,6 @@ import { LogoutButton } from "./LogoutButton";
 import { ChatUnreadBadge } from "./ChatUnreadBadge";
 import { PetDailyNavDot } from "./PetDailyNavDot";
 import { NotificationBell } from "./NotificationBell";
-import { AppVersionBadge } from "./AppVersionBadge";
 import { ThemeToggle } from "./ThemeToggle";
 import { TribunalOpenDot } from "./TribunalOpenDot";
 import { NostrRelayStatus } from "./nostr/NostrRelayStatus";
@@ -34,11 +33,8 @@ export function NavBar({ user, pusherKey, pusherCluster }: NavBarProps) {
             🐕
           </span>
           <span className="hidden sm:inline">
-            <span className="font-bold text-bc-blue">
-              Brasil <span className="text-bc-brown">Caramelo</span>
-            </span>
-            <span className="mt-0.5 hidden lg:block">
-              <AppVersionBadge showStage className="opacity-90" />
+            <span className="text-base font-extrabold text-bc-blue">
+              Brasil <span className="text-bc-caramel">Caramelo</span>
             </span>
           </span>
         </Link>

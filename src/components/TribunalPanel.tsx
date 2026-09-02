@@ -138,17 +138,37 @@ export function TribunalPanel() {
       </div>
 
       {loading ? (
-        <p className="bc-card bc-animate-pulse p-8 text-center text-bc-brown">
-          Abrindo o Tribunal…
+        <p className="bc-card bc-animate-pulse p-8 text-center text-sm font-bold text-bc-brown">
+          Abrindo o Tribunal da Matilha…
         </p>
       ) : cases.length === 0 ? (
-        <p className="bc-card p-10 text-center text-bc-brown">
-          {tab === "open"
-            ? "Nenhum caso aberto — a matilha está em paz. 🐕"
-            : tab === "history"
-              ? "Nenhum julgamento encerrado ainda."
-              : "Nenhum dos seus recados está no Tribunal."}
-        </p>
+        <div className="bc-card p-8 text-center border border-bc-caramel/25 bg-bc-white">
+          <span className="text-4xl">🐕⚖️</span>
+          <h3 className="mt-3 text-lg font-black text-bc-blue">
+            {tab === "open"
+              ? "Nenhum caso aberto — A matilha está em harmonia!"
+              : tab === "history"
+                ? "Nenhum julgamento encerrado registrado."
+                : "Nenhum dos seus recados está sob moderação comunitária."}
+          </h3>
+          <p className="mx-auto mt-2 max-w-md text-xs font-semibold text-bc-brown">
+            No Brasil Caramelo, a moderação é democrática e descentralizada. Posts com 3+ denúncias da comunidade são avaliados por jurados eleitos pela reputação na matilha.
+          </p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+            <Link
+              href="/feed"
+              className="rounded-xl bg-gradient-to-r from-bc-green to-bc-caramel px-4 py-2 text-xs font-bold text-white shadow-xs"
+            >
+              Voltar ao Feed
+            </Link>
+            <Link
+              href="/ranking"
+              className="rounded-xl border border-bc-caramel/30 bg-bc-sand/20 px-4 py-2 text-xs font-bold text-bc-brown hover:bg-bc-sand/40"
+            >
+              Ver Ranking de Reputação
+            </Link>
+          </div>
+        </div>
       ) : (
         cases.map((c, i) => (
           <article

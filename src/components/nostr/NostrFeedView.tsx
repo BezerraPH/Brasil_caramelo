@@ -9,7 +9,6 @@ import { NostrCreatePost } from "./NostrCreatePost";
 import { NostrAuthModal } from "./NostrAuthModal";
 import { NostrProfileModal } from "./NostrProfileModal";
 import { NostrRelayManager } from "./NostrRelayManager";
-import { NostrRelayStatus } from "./NostrRelayStatus";
 import { NostrNotifications } from "./NostrNotifications";
 import { NostrBookmarks } from "./NostrBookmarks";
 import { NostrDirectMessages } from "./NostrDirectMessages";
@@ -157,46 +156,42 @@ export function NostrFeedView() {
   return (
     <div className="mx-auto max-w-2xl space-y-5 px-4 py-4 sm:py-6">
       {/* Header Unificado e Limpo */}
-      <div className="bc-card flex flex-wrap items-center justify-between gap-3 p-4 shadow-xs">
+      <div className="bc-card flex flex-wrap items-center justify-between gap-3 p-4 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500/15 text-xl">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-xl text-white shadow-sm">
             ⚡
           </div>
           <div>
-            <h1 className="text-base font-black text-bc-blue">Rede Nostr Descentralizada</h1>
-            <p className="text-[11px] text-bc-brown/70">
-              WebSockets P2P sem intermediários nem censura.
+            <h1 className="text-base font-black text-bc-blue">Modo Livre Descentralizado</h1>
+            <p className="text-xs font-semibold text-bc-brown">
+              Publicações livres e imutáveis da matilha no protocolo Nostr
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <div onClick={() => setIsRelayManagerOpen(true)} className="cursor-pointer">
-            <NostrRelayStatus />
-          </div>
-
           {identity ? (
             <button
               onClick={() => setIsProfileModalOpen(true)}
-              className="rounded-xl border border-bc-caramel/30 bg-bc-cream/60 px-3 py-1.5 text-xs font-bold text-bc-brown hover:bg-bc-cream transition-colors"
+              className="rounded-xl border border-bc-caramel/30 bg-bc-white px-3 py-1.5 text-xs font-bold text-bc-brown hover:bg-bc-sand/30 shadow-xs transition-colors"
             >
-              🐾 Perfil
+              🐾 Meu Perfil
             </button>
           ) : (
             <button
               onClick={() => setIsAuthModalOpen(true)}
-              className="bc-btn-primary rounded-xl px-3.5 py-1.5 text-xs font-bold"
+              className="rounded-xl bg-gradient-to-r from-bc-green to-bc-caramel px-4 py-2 text-xs font-bold text-white shadow-md hover:opacity-95 active:scale-95 transition"
             >
-              Entrar ⚡
+              Entrar Fácil com Chave ⚡
             </button>
           )}
 
           <button
             onClick={() => setIsRelayManagerOpen(true)}
-            className="rounded-xl border border-bc-caramel/25 p-1.5 text-xs text-bc-brown/70 hover:bg-black/5 hover:text-bc-blue transition-colors"
-            title="Configurar Relays WebSockets"
+            className="rounded-xl border border-bc-caramel/25 bg-bc-white p-2 text-xs text-bc-brown hover:bg-black/5 hover:text-bc-blue transition-colors"
+            title="Gerenciar Servidores de Rede"
           >
-            ⚙️
+            🌐 Servidores
           </button>
         </div>
       </div>

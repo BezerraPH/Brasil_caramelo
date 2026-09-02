@@ -266,6 +266,54 @@ export async function publishEncryptedDirectMessage({
 }
 
 /**
+ * Publica um Artigo Long-Form / Manual Canino (NIP-23 Kind 30023).
+ */
+export async function publishNostrArticle({
+  title,
+  summary,
+  image,
+  content,
+  tags = [],
+  identity,
+  relays,
+}: {
+  title: string;
+  summary?: string;
+  image?: string;
+  content: string;
+  tags?: string[][];
+  identity: NostrIdentity;
+  relays?: string[];
+}): Promise<NostrEvent> {
+  const dTag = `artigo-${Date.now()}`;
+  const eventTags: string[][] = [
+    ["d", dTag],
+    ["title", title],
+    ["t", "brasilcaramelo"],
+    ["client", "Brasil Caramelo Nostr"],
+    ...tags,
+  ];
+
+  if (summary) {
+    eventTags.push(["summary", summary]);
+  }
+  if (image) {
+    eventTags.push(["image", image]);
+  }
+
+  const template: EventTemplate = {
+    kind: NOSTR_KINDS.LONG_FORM_CONTENT,
+    created_at: Math.floor(Date.now() / 1000),
+    tags: eventTags,
+    content: content.trim(),
+  };
+
+  const signed = await signNostrEvent(template, identity);
+  await broadcastNostrEvent(signed, relays);
+  return signed;
+}
+
+/**
  * Converte um evento bruto Kind 1 em um objeto NostrPost formatado para a UI.
  */
 export function formatNostrPost(

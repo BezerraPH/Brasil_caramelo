@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-09-01 (v2.31.0-alpha.0 - Chat Privado E2E, Seguidores e Feed da Matilha Nostr)
-Versão atual do pacote (package.json): 2.31.0-alpha.0
+Última atualização: 2026-09-01 (v2.32.0-alpha.0 - Artigos Long-Form NIP-23 e Manuais da Matilha Nostr)
+Versão atual do pacote (package.json): 2.32.0-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
@@ -28,9 +28,14 @@ INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
 ================================================================================
 
 Arquivo mestre: ROADMAP.md
-Progresso: Nostr P0 6/6 · P0 Infra 10/10 · P1 Comunidades 5/6
+Progresso: Nostr P0 7/7 · P0 Infra 10/10 · P1 Comunidades 5/6
 
-**v2.31.0: Chat Privado Criptografado (NIP-04 E2E), Gestão de Matilha Seguidos (NIP-02) e Feed Seguindo.**
+**v2.32.0: Artigos Long-Form e Manuais da Matilha (NIP-23 Kind 30023).**
+
+Concluído v2.32:
+  [x] R-NOS-07 Publicações Long-Form e Manuais Caninos (NIP-23) com leitor rico e formulário de publicação
+  [x] Aba dedicada "📖 Artigos" no painel principal da rede Nostr
+  [x] Integração de WebSockets e tags de metadados para artigos e guias
 
 Concluído v2.31:
   [x] R-NOS-04 Gestão de Contatos Nostr (NIP-02) — botão Seguir/Deixar de seguir matilhas e sincronização com relays

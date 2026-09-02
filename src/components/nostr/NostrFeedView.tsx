@@ -13,9 +13,10 @@ import { NostrRelayStatus } from "./NostrRelayStatus";
 import { NostrNotifications } from "./NostrNotifications";
 import { NostrBookmarks } from "./NostrBookmarks";
 import { NostrDirectMessages } from "./NostrDirectMessages";
+import { NostrArticlesView } from "./NostrArticlesView";
 import type { Filter, NostrEvent, NostrPost, NostrProfileMetadata } from "@/lib/nostr/types";
 
-type TabType = "feed" | "following" | "notifications" | "dms" | "bookmarks";
+type TabType = "feed" | "following" | "articles" | "notifications" | "dms" | "bookmarks";
 
 const TOPIC_TAGS = [
   { id: "brasilcaramelo", label: "🐕 #brasilcaramelo" },
@@ -227,6 +228,18 @@ export function NostrFeedView() {
         </button>
 
         <button
+          onClick={() => setActiveTab("articles")}
+          className={`flex flex-1 min-w-[75px] items-center justify-center gap-1 rounded-xl py-2 font-bold transition-all ${
+            activeTab === "articles"
+              ? "bg-bc-white text-bc-blue shadow-xs"
+              : "text-bc-brown/70 hover:text-bc-blue"
+          }`}
+        >
+          <span>📖</span>
+          <span>Artigos</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab("dms")}
           className={`flex flex-1 min-w-[75px] items-center justify-center gap-1 rounded-xl py-2 font-bold transition-all ${
             activeTab === "dms"
@@ -262,6 +275,8 @@ export function NostrFeedView() {
           <span>Salvos</span>
         </button>
       </div>
+
+      {activeTab === "articles" && <NostrArticlesView />}
 
       {activeTab === "dms" && <NostrDirectMessages />}
 

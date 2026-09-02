@@ -61,6 +61,7 @@ Checklist de **produção** — scripts e doc prontos; configure `.env` no host 
 | R-NOS-04 | **Nostr Seguir** — NIP-02 (Lista de contatos e matilhas seguidas) | v2.31 | [x] 2026-09-01 (v2.31.0) |
 | R-NOS-05 | **Nostr Chat DM** — NIP-04 (Mensagens privadas ponta-a-ponta criptografadas) | v2.31 | [x] 2026-09-01 (v2.31.0) |
 | R-NOS-06 | **Nostr Feed Seguindo** — Aba com stream exclusivo de notas da matilha | v2.31 | [x] 2026-09-01 (v2.31.0) |
+| R-NOS-07 | **Nostr Manuais & Artigos** — NIP-23 (Publicações long-form ricas imutáveis) | v2.32 | [x] 2026-09-01 (v2.32.0) |
 
 ---
 

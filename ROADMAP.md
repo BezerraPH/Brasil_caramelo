@@ -62,6 +62,8 @@ Checklist de **produção** — scripts e doc prontos; configure `.env` no host 
 | R-NOS-05 | **Nostr Chat DM** — NIP-04 (Mensagens privadas ponta-a-ponta criptografadas) | v2.31 | [x] 2026-09-01 (v2.31.0) |
 | R-NOS-06 | **Nostr Feed Seguindo** — Aba com stream exclusivo de notas da matilha | v2.31 | [x] 2026-09-01 (v2.31.0) |
 | R-NOS-07 | **Nostr Manuais & Artigos** — NIP-23 (Publicações long-form ricas imutáveis) | v2.32 | [x] 2026-09-01 (v2.32.0) |
+| R-NOS-08 | **Nostr WebLN 1-Clique** — Pagamento direto e instantâneo de zaps sem copiar faturas | v2.33 | [x] 2026-09-01 (v2.33.0) |
+| R-NOS-09 | **Nostr Monitor de Relays** — Diagnóstico de latência ping/ms e relays recomendados | v2.33 | [x] 2026-09-01 (v2.33.0) |
 
 ---
 

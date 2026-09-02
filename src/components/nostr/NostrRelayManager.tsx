@@ -10,6 +10,14 @@ type Props = {
   onClose: () => void;
 };
 
+const SUGGESTED_RELAYS = [
+  { url: "wss://relay.damus.io", label: "Damus Global" },
+  { url: "wss://nos.lol", label: "Nos.lol Global" },
+  { url: "wss://relay.nostr.band", label: "Nostr Band" },
+  { url: "wss://nostr.mom", label: "Nostr Mom" },
+  { url: "wss://nostr.oxtr.dev", label: "Oxtr Dev" },
+];
+
 export function NostrRelayManager({ isOpen, onClose }: Props) {
   const { relays, setRelays } = useNostrAuth();
   const [relayList, setRelayList] = useState<RelayInfo[]>([]);
@@ -56,6 +64,15 @@ export function NostrRelayManager({ isOpen, onClose }: Props) {
     setNewRelayUrl("");
   }
 
+  function handleAddSuggested(url: string) {
+    setError(null);
+    if (relays.includes(url)) {
+      setError("Este relay já está na sua lista.");
+      return;
+    }
+    setRelays([...relays, url]);
+  }
+
   function handleRemoveRelay(urlToRemove: string) {
     if (relays.length <= 1) {
       setError("Você precisa ter pelo menos um relay configurado.");
@@ -99,81 +116,59 @@ export function NostrRelayManager({ isOpen, onClose }: Props) {
         </div>
 
         {error && (
-          <div className="mt-4 rounded-xl bg-red-500/10 p-3 text-xs font-semibold text-red-600">
+          <div className="mt-3 rounded-xl border border-red-500/20 bg-red-500/10 p-2.5 text-xs text-red-700">
             {error}
           </div>
         )}
 
-        {/* Adicionar Novo Relay */}
-        <form onSubmit={handleAddRelay} className="mt-4 flex gap-2">
-          <input
-            type="text"
-            value={newRelayUrl}
-            onChange={(e) => setNewRelayUrl(e.target.value)}
-            placeholder="wss://meu-relay-personalizado.com"
-            className="flex-1 rounded-xl border border-bc-caramel/30 bg-bc-white px-3 py-2 text-xs text-bc-brown focus:border-bc-blue focus:outline-none"
-          />
-          <button
-            type="submit"
-            className="rounded-xl bg-bc-blue px-4 py-2 text-xs font-bold text-white hover:bg-bc-blue/90"
-          >
-            Adicionar
-          </button>
-        </form>
-
-        {/* Lista de Relays */}
-        <div className="mt-5 space-y-2">
-          <div className="flex items-center justify-between text-xs font-bold text-bc-brown">
-            <span>Relays Conectados ({relays.length})</span>
+        {/* Lista de Relays Configurados */}
+        <div className="mt-5 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase text-bc-blue">
+              Relays Ativos ({relays.length})
+            </span>
             <button
-              type="button"
               onClick={handleRefreshDiagnostics}
               disabled={testing}
-              className="text-[11px] text-bc-blue hover:underline disabled:opacity-50"
+              className="text-xs font-semibold text-bc-green hover:underline"
             >
-              {testing ? "Testando..." : "↻ Testar Conexão"}
+              {testing ? "Testando latência…" : "↻ Testar Conexão"}
             </button>
           </div>
 
-          <div className="divide-y divide-bc-caramel/15 rounded-2xl border border-bc-caramel/20 bg-bc-cream/30">
+          <div className="space-y-2">
             {relays.map((url) => {
               const diag = relayList.find((r) => r.url === url);
-              const isConnected = diag?.state === "connected";
-              const isError = diag?.state === "error";
+              const isConnected = diag ? diag.state === "connected" : true;
+              const latency = diag?.latencyMs;
 
               return (
                 <div
                   key={url}
-                  className="flex items-center justify-between p-3 text-xs transition-colors hover:bg-bc-white/60"
+                  className="flex items-center justify-between rounded-2xl border border-bc-caramel/15 bg-bc-sand/20 p-3 text-xs"
                 >
-                  <div className="flex items-center gap-2.5 truncate pr-2">
+                  <div className="flex items-center gap-2.5 min-w-0">
                     <span
                       className={`h-2.5 w-2.5 shrink-0 rounded-full ${
-                        testing
-                          ? "bg-amber-400 animate-pulse"
-                          : isConnected
-                          ? "bg-emerald-500 shadow-xs shadow-emerald-500/50"
-                          : isError
-                          ? "bg-red-500"
-                          : "bg-gray-400"
+                        isConnected ? "bg-emerald-500" : "bg-red-500"
                       }`}
-                      title={diag?.state || "Aguardando diagnóstico"}
                     />
-                    <div className="truncate">
-                      <p className="font-mono text-xs font-semibold text-bc-blue truncate">{url}</p>
-                      {diag?.latencyMs !== undefined && (
-                        <p className="text-[10px] text-bc-brown/60">{diag.latencyMs}ms latência</p>
-                      )}
+                    <div className="min-w-0">
+                      <p className="font-mono text-xs font-semibold text-bc-brown truncate">{url}</p>
+                      <p className="text-[10px] text-bc-brown/60">
+                        {isConnected
+                          ? `Conectado ${latency !== undefined ? `• ${latency}ms` : ""}`
+                          : "Erro ao conectar via WebSocket"}
+                      </p>
                     </div>
                   </div>
 
                   <button
-                    type="button"
                     onClick={() => handleRemoveRelay(url)}
-                    className="shrink-0 rounded-lg p-1 text-xs text-bc-brown/40 hover:bg-red-500/10 hover:text-red-600"
-                    title="Remover Relay"
+                    className="ml-2 shrink-0 rounded-lg p-1.5 text-xs text-red-500 hover:bg-red-500/10"
+                    title="Remover relay"
                   >
-                    🗑️
+                    ✕
                   </button>
                 </div>
               );
@@ -181,20 +176,54 @@ export function NostrRelayManager({ isOpen, onClose }: Props) {
           </div>
         </div>
 
-        {/* Rodapé e Restauração */}
-        <div className="mt-5 flex items-center justify-between border-t border-bc-caramel/15 pt-4">
+        {/* Sugestões Rápidas */}
+        <div className="mt-5 border-t border-bc-caramel/15 pt-3">
+          <label className="bc-label">Relays Recomendados</label>
+          <div className="mt-1 flex flex-wrap gap-1.5">
+            {SUGGESTED_RELAYS.map((s) => (
+              <button
+                key={s.url}
+                type="button"
+                onClick={() => handleAddSuggested(s.url)}
+                disabled={relays.includes(s.url)}
+                className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-all ${
+                  relays.includes(s.url)
+                    ? "bg-black/5 text-bc-brown/40 cursor-not-allowed"
+                    : "border border-bc-caramel/20 bg-bc-white text-bc-brown hover:bg-bc-caramel/10"
+                }`}
+              >
+                + {s.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Adicionar Novo Relay */}
+        <form onSubmit={handleAddRelay} className="mt-4">
+          <label className="bc-label">Adicionar Relay Customizado</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="wss://meu-relay-canino.com"
+              value={newRelayUrl}
+              onChange={(e) => setNewRelayUrl(e.target.value)}
+              className="bc-input flex-1 font-mono text-xs"
+            />
+            <button type="submit" className="bc-btn-primary px-4 py-2 text-xs font-bold">
+              Adicionar
+            </button>
+          </div>
+        </form>
+
+        <div className="mt-5 flex items-center justify-between border-t border-bc-caramel/15 pt-3 text-xs">
           <button
             type="button"
             onClick={handleResetDefaults}
-            className="text-xs font-semibold text-bc-brown/70 hover:text-bc-blue hover:underline"
+            className="text-bc-brown/70 hover:text-bc-brown underline"
           >
             Restaurar Relays Padrão
           </button>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-xl bg-bc-green px-5 py-2 text-xs font-bold text-bc-white shadow-md hover:bg-bc-green-dark"
-          >
+          <button onClick={onClose} className="bc-btn-secondary px-4 py-1.5 text-xs font-bold">
             Concluir
           </button>
         </div>

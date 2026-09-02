@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-09-01 (v2.32.0-alpha.0 - Artigos Long-Form NIP-23 e Manuais da Matilha Nostr)
-Versão atual do pacote (package.json): 2.32.0-alpha.0
+Última atualização: 2026-09-01 (v2.33.0-alpha.0 - WebLN 1-Clique, Monitor de Latência de Relays e Testes de Servidor)
+Versão atual do pacote (package.json): 2.33.0-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
@@ -28,9 +28,14 @@ INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
 ================================================================================
 
 Arquivo mestre: ROADMAP.md
-Progresso: Nostr P0 7/7 · P0 Infra 10/10 · P1 Comunidades 5/6
+Progresso: Nostr P0 9/9 · P0 Infra 10/10 · P1 Comunidades 5/6
 
-**v2.32.0: Artigos Long-Form e Manuais da Matilha (NIP-23 Kind 30023).**
+**v2.33.0: WebLN 1-Clique para Zaps, Monitor Dinâmico de Relays e Testes.**
+
+Concluído v2.33:
+  [x] R-NOS-08 Pagamentos Lightning WebLN em 1-clique diretamente no navegador
+  [x] R-NOS-09 Monitor de latência ping/ms para WebSockets Nostr com relays sugeridos
+  [x] Testes de conectividade do servidor e documentação de logs de containers
 
 Concluído v2.32:
   [x] R-NOS-07 Publicações Long-Form e Manuais Caninos (NIP-23) com leitor rico e formulário de publicação

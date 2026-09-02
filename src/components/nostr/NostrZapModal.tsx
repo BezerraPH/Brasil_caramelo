@@ -23,6 +23,9 @@ export function NostrZapModal({
   const [customAmount, setCustomAmount] = useState("");
   const [comment, setComment] = useState("🐾 Um biscoito para este post!");
   const [copied, setCopied] = useState(false);
+  const [hasWebLN] = useState(() => typeof window !== "undefined" && "webln" in window);
+  const [weblnPaying, setWeblnPaying] = useState(false);
+  const [zapSuccess, setZapSuccess] = useState(false);
 
   if (!isOpen) return null;
 
@@ -47,6 +50,44 @@ export function NostrZapModal({
 
     if (typeof window !== "undefined") {
       window.location.href = lnUrl;
+    }
+  }
+
+  async function handleWebLNPay() {
+    if (!lud16 || typeof window === "undefined" || weblnPaying) return;
+    setWeblnPaying(true);
+    try {
+      const webln = (window as unknown as { webln?: { enable: () => Promise<void>; sendPayment: (invoice: string) => Promise<unknown> } }).webln;
+      if (!webln) {
+        handleOpenLightning();
+        return;
+      }
+      await webln.enable();
+      
+      // Obter fatura via LNURL-pay endpoint do lud16
+      const [user, domain] = lud16.split("@");
+      if (!user || !domain) throw new Error("Endereço Lightning inválido.");
+
+      const res = await fetch(`https://${domain}/.well-known/lnurlp/${user}`);
+      const data = await res.json();
+      if (!data.callback) throw new Error("Não foi possível obter endpoint de pagamento.");
+
+      const msats = effectiveAmount * 1000;
+      const callbackRes = await fetch(`${data.callback}?amount=${msats}&comment=${encodeURIComponent(comment)}`);
+      const callbackData = await callbackRes.json();
+      if (!callbackData.pr) throw new Error("Fatura Lightning não gerada.");
+
+      await webln.sendPayment(callbackData.pr);
+      setZapSuccess(true);
+      setTimeout(() => {
+        setZapSuccess(false);
+        onClose();
+      }, 2500);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Erro ao pagar com WebLN. Abrindo carteira padrão...");
+      handleOpenLightning();
+    } finally {
+      setWeblnPaying(false);
     }
   }
 
@@ -84,113 +125,135 @@ export function NostrZapModal({
           </div>
         </div>
 
-        {targetProfile?.picture && (
-          <div className="mt-4 flex items-center gap-3 rounded-2xl bg-amber-500/10 p-3">
-            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border border-amber-400">
-              <Image
-                src={targetProfile.picture}
-                alt={recipientName}
-                fill
-                className="object-cover"
-                unoptimized
-              />
-            </div>
-            <div className="flex-1 truncate">
-              <p className="text-xs font-bold text-bc-blue">{recipientName}</p>
-              <p className="text-[11px] font-mono text-amber-800 truncate">
-                ⚡ {lud16 || "Endereço Lightning não configurado"}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {!lud16 ? (
-          <div className="mt-5 rounded-2xl border border-dashed border-amber-500/40 bg-amber-500/5 p-4 text-center">
-            <span className="text-2xl">⚠️</span>
-            <p className="mt-2 text-xs font-semibold text-bc-brown">
-              Este autor ainda não configurou um Lightning Address (lud16) no seu perfil Nostr.
-            </p>
-            <p className="mt-1 text-[11px] text-bc-brown/70">
-              Peça para ele adicionar um endereço (como Alby ou Wallet of Satoshi) no perfil!
-            </p>
+        {zapSuccess ? (
+          <div className="mt-5 rounded-2xl bg-emerald-500/15 p-6 text-center text-emerald-900 border border-emerald-500/30">
+            <p className="text-4xl animate-bounce">⚡🐾</p>
+            <p className="mt-2 font-black text-sm">Zap de {effectiveAmount} sats enviado com sucesso!</p>
+            <p className="text-xs text-emerald-800/80 mt-1">Liquidado instantaneamente na rede Lightning.</p>
           </div>
         ) : (
-          <div className="mt-5 space-y-4">
-            {/* Seletor de Valor */}
-            <div>
-              <label className="block text-xs font-bold text-bc-brown">
-                Quantidade de Satoshis (sats)
-              </label>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {PRESET_AMOUNTS.map((sats) => (
+          <>
+            {targetProfile?.picture && (
+              <div className="mt-4 flex items-center gap-3 rounded-2xl bg-amber-500/10 p-3">
+                <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border border-amber-400">
+                  <Image
+                    src={targetProfile.picture}
+                    alt={recipientName}
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                </div>
+                <div className="flex-1 truncate">
+                  <p className="text-xs font-bold text-bc-blue">{recipientName}</p>
+                  <p className="text-[11px] font-mono text-amber-800 truncate">
+                    ⚡ {lud16 || "Endereço Lightning não configurado"}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {!lud16 ? (
+              <div className="mt-5 rounded-2xl border border-dashed border-amber-500/40 bg-amber-500/5 p-4 text-center">
+                <span className="text-2xl">⚠️</span>
+                <p className="mt-2 text-xs font-semibold text-bc-brown">
+                  Este autor ainda não configurou um Lightning Address (lud16) no seu perfil Nostr.
+                </p>
+                <p className="mt-1 text-[11px] text-bc-brown/70">
+                  Peça para ele adicionar um endereço (como Alby ou Wallet of Satoshi) no perfil!
+                </p>
+              </div>
+            ) : (
+              <div className="mt-5 space-y-4">
+                {/* Seletor de Valor */}
+                <div>
+                  <label className="block text-xs font-bold text-bc-brown">
+                    Quantidade de Satoshis (sats)
+                  </label>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {PRESET_AMOUNTS.map((sats) => (
+                      <button
+                        key={sats}
+                        type="button"
+                        onClick={() => handleQuickSelect(sats)}
+                        className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all ${
+                          effectiveAmount === sats && !customAmount
+                            ? "bg-amber-500 text-white shadow-md scale-105"
+                            : "border border-amber-500/30 bg-amber-500/10 text-amber-900 hover:bg-amber-500/20"
+                        }`}
+                      >
+                        ⚡ {sats} sats
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="mt-2">
+                    <input
+                      type="number"
+                      min="1"
+                      value={customAmount}
+                      onChange={(e) => setCustomAmount(e.target.value)}
+                      placeholder="Ou digite outro valor..."
+                      className="w-full rounded-xl border border-bc-caramel/30 bg-bc-white px-3 py-2 text-xs text-bc-brown focus:border-amber-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Mensagem / Comentário */}
+                <div>
+                  <label className="block text-xs font-bold text-bc-brown">
+                    Mensagem do Zap (opcional)
+                  </label>
+                  <input
+                    type="text"
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder="Um petisco pro dog caramelo!"
+                    className="mt-1 w-full rounded-xl border border-bc-caramel/30 bg-bc-white px-3 py-2 text-xs text-bc-brown focus:border-amber-500 focus:outline-none"
+                  />
+                </div>
+
+                {/* Ações */}
+                <div className="flex flex-col gap-2 pt-2">
+                  {hasWebLN ? (
+                    <button
+                      type="button"
+                      onClick={handleWebLNPay}
+                      disabled={weblnPaying}
+                      className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-3 text-sm font-bold text-white shadow-lg hover:from-amber-600 hover:to-amber-700 active:scale-[0.98] transition-all"
+                    >
+                      <span>⚡</span>
+                      <span>{weblnPaying ? "Processando Zap…" : `Pagar ${effectiveAmount} sats via WebLN (1-Clique)`}</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleOpenLightning}
+                      className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-3 text-sm font-bold text-white shadow-lg hover:from-amber-600 hover:to-amber-700 active:scale-[0.98] transition-all"
+                    >
+                      <span>⚡</span>
+                      <span>Pagar {effectiveAmount} sats via Carteira</span>
+                    </button>
+                  )}
+
                   <button
-                    key={sats}
                     type="button"
-                    onClick={() => handleQuickSelect(sats)}
-                    className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all ${
-                      effectiveAmount === sats && !customAmount
-                        ? "bg-amber-500 text-white shadow-md scale-105"
-                        : "border border-amber-500/30 bg-amber-500/10 text-amber-900 hover:bg-amber-500/20"
-                    }`}
+                    onClick={copyLightningAddress}
+                    className="rounded-xl border border-bc-caramel/20 py-2 text-center text-xs font-medium text-bc-brown/70 hover:bg-black/5"
                   >
-                    ⚡ {sats} sats
+                    {copied ? "✓ Endereço Copiado!" : `Copiar endereço: ${lud16}`}
                   </button>
-                ))}
+                </div>
               </div>
+            )}
 
-              <div className="mt-2">
-                <input
-                  type="number"
-                  min="1"
-                  value={customAmount}
-                  onChange={(e) => setCustomAmount(e.target.value)}
-                  placeholder="Ou digite outro valor..."
-                  className="w-full rounded-xl border border-bc-caramel/30 bg-bc-white px-3 py-2 text-xs text-bc-brown focus:border-amber-500 focus:outline-none"
-                />
-              </div>
+            <div className="mt-4 border-t border-bc-caramel/15 pt-3 text-center">
+              <p className="text-[10px] text-bc-brown/60">
+                Transmitido via Lightning Network P2P Bitcoin com liquidação instantânea em milissegundos.
+              </p>
             </div>
-
-            {/* Mensagem / Comentário */}
-            <div>
-              <label className="block text-xs font-bold text-bc-brown">
-                Mensagem do Zap (opcional)
-              </label>
-              <input
-                type="text"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Um petisco pro dog caramelo!"
-                className="mt-1 w-full rounded-xl border border-bc-caramel/30 bg-bc-white px-3 py-2 text-xs text-bc-brown focus:border-amber-500 focus:outline-none"
-              />
-            </div>
-
-            {/* Ações */}
-            <div className="flex flex-col gap-2 pt-2">
-              <button
-                type="button"
-                onClick={handleOpenLightning}
-                className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-3 text-sm font-bold text-white shadow-lg hover:from-amber-600 hover:to-amber-700 active:scale-[0.98] transition-all"
-              >
-                <span>⚡</span>
-                <span>Pagar {effectiveAmount} sats via Carteira</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={copyLightningAddress}
-                className="rounded-xl border border-bc-caramel/20 py-2 text-center text-xs font-medium text-bc-brown/70 hover:bg-black/5"
-              >
-                {copied ? "✓ Endereço Copiado!" : `Copiar endereço: ${lud16}`}
-              </button>
-            </div>
-          </div>
+          </>
         )}
-
-        <div className="mt-4 border-t border-bc-caramel/15 pt-3 text-center">
-          <p className="text-[10px] text-bc-brown/60">
-            Transmitido via Lightning Network P2P Bitcoin com liquidação instantânea em milissegundos.
-          </p>
-        </div>
       </div>
     </div>
   );

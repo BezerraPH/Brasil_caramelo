@@ -1,4 +1,4 @@
-import { finalizeEvent, verifyEvent, type EventTemplate } from "nostr-tools";
+import { finalizeEvent, nip04, verifyEvent, type EventTemplate } from "nostr-tools";
 import { decodeNostrKey, pubkeyToNpub } from "./keys";
 import { getNostrPool, getSavedRelays } from "./relays";
 import {
@@ -142,6 +142,122 @@ export async function publishNostrProfile({
     created_at: Math.floor(Date.now() / 1000),
     tags: [],
     content: JSON.stringify(metadata),
+  };
+
+  const signed = await signNostrEvent(template, identity);
+  await broadcastNostrEvent(signed, relays);
+  return signed;
+}
+
+/**
+ * Publica a lista de contatos/seguidos (Kind 3).
+ */
+export async function publishNostrFollowList({
+  followingPubkeys,
+  identity,
+  relays,
+}: {
+  followingPubkeys: string[];
+  identity: NostrIdentity;
+  relays?: string[];
+}): Promise<NostrEvent> {
+  const tags: string[][] = followingPubkeys.map((pk) => ["p", pk]);
+
+  const template: EventTemplate = {
+    kind: NOSTR_KINDS.CONTACT_LIST,
+    created_at: Math.floor(Date.now() / 1000),
+    tags,
+    content: "",
+  };
+
+  const signed = await signNostrEvent(template, identity);
+  await broadcastNostrEvent(signed, relays);
+  return signed;
+}
+
+/**
+ * Criptografa uma mensagem direta (NIP-04).
+ */
+export async function encryptNip04({
+  recipientPubkey,
+  content,
+  identity,
+}: {
+  recipientPubkey: string;
+  content: string;
+  identity: NostrIdentity;
+}): Promise<string> {
+  if (typeof window !== "undefined" && identity.mode === "extension") {
+    const nostrExt = (window as unknown as { nostr?: NostrExtension }).nostr;
+    if (nostrExt?.nip04?.encrypt) {
+      return await nostrExt.nip04.encrypt(recipientPubkey, content);
+    }
+  }
+
+  if (identity.nsec) {
+    const decoded = decodeNostrKey(identity.nsec);
+    if (decoded.secretKeyBytes) {
+      return await nip04.encrypt(decoded.secretKeyBytes, recipientPubkey, content);
+    }
+  }
+
+  throw new Error("Não foi possível criptografar a mensagem (chave/extensão ausente).");
+}
+
+/**
+ * Descriptografa uma mensagem direta (NIP-04).
+ */
+export async function decryptNip04({
+  senderPubkey,
+  ciphertext,
+  identity,
+}: {
+  senderPubkey: string;
+  ciphertext: string;
+  identity: NostrIdentity;
+}): Promise<string> {
+  if (typeof window !== "undefined" && identity.mode === "extension") {
+    const nostrExt = (window as unknown as { nostr?: NostrExtension }).nostr;
+    if (nostrExt?.nip04?.decrypt) {
+      return await nostrExt.nip04.decrypt(senderPubkey, ciphertext);
+    }
+  }
+
+  if (identity.nsec) {
+    const decoded = decodeNostrKey(identity.nsec);
+    if (decoded.secretKeyBytes) {
+      return await nip04.decrypt(decoded.secretKeyBytes, senderPubkey, ciphertext);
+    }
+  }
+
+  throw new Error("Não foi possível descriptografar a mensagem.");
+}
+
+/**
+ * Publica uma Mensagem Direta Criptografada Ponta-a-Ponta (Kind 4).
+ */
+export async function publishEncryptedDirectMessage({
+  recipientPubkey,
+  message,
+  identity,
+  relays,
+}: {
+  recipientPubkey: string;
+  message: string;
+  identity: NostrIdentity;
+  relays?: string[];
+}): Promise<NostrEvent> {
+  const ciphertext = await encryptNip04({
+    recipientPubkey,
+    content: message,
+    identity,
+  });
+
+  const template: EventTemplate = {
+    kind: NOSTR_KINDS.ENCRYPTED_DIRECT_MESSAGE,
+    created_at: Math.floor(Date.now() / 1000),
+    tags: [["p", recipientPubkey]],
+    content: ciphertext,
   };
 
   const signed = await signNostrEvent(template, identity);

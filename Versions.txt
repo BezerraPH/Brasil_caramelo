@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-09-01 (v2.30.0-alpha.0 - Versão Nostr Descentralizada)
-Versão atual do pacote (package.json): 2.30.0-alpha.0
+Última atualização: 2026-09-01 (v2.31.0-alpha.0 - Chat Privado E2E, Seguidores e Feed da Matilha Nostr)
+Versão atual do pacote (package.json): 2.31.0-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
@@ -28,17 +28,23 @@ INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
 ================================================================================
 
 Arquivo mestre: ROADMAP.md
-Progresso v2.28+: P0 10/10 · P1 Comunidades 5/6 · Federação Nostr 1/5 · Monetização 2/3
+Progresso: Nostr P0 6/6 · P0 Infra 10/10 · P1 Comunidades 5/6
 
-**v2.30.0: Integração Descentralizada Nostr (NIP-01/05/07/10/57) + Relays WebSockets.**
+**v2.31.0: Chat Privado Criptografado (NIP-04 E2E), Gestão de Matilha Seguidos (NIP-02) e Feed Seguindo.**
+
+Concluído v2.31:
+  [x] R-NOS-04 Gestão de Contatos Nostr (NIP-02) — botão Seguir/Deixar de seguir matilhas e sincronização com relays
+  [x] R-NOS-05 Chat Privado Criptografado Ponta-a-Ponta (NIP-04) — mensagens diretas com criptografia Schnorr
+  [x] R-NOS-06 Feed Exclusivo de Seguidos — aba dedicada para acompanhar publicações apenas da sua matilha
+  [x] Detecção e orientação automática de contexto seguro HTTPS / Tailscale Serve para extensões NIP-07 e WebLN
+  [x] Redesign minimalista, fluido e sem poluição visual no frontend com micro-animações táteis
 
 Concluído v2.30:
-  [x] R-FED-05 Protocolo Nostr descentralizado, chaves npub/nsec, relays pool, feed e NIP-05
-  [x] R-FED-06 Visualização de Perfil Público Nostr (/nostr/p/[pubkey]), Zaps NIP-57 e histórico de notas
-  [x] R-FED-07 Central de Notificações Nostr (Kind 1 e 7) e Sistema de Notas Salvas/Favoritos
+  [x] R-NOS-01 Protocolo Nostr descentralizado, chaves npub/nsec, relays pool, feed e NIP-05
+  [x] R-NOS-02 Zaps Lightning via WebLN e faturas NIP-57
+  [x] R-NOS-03 QR Code interativo para compartilhamento de npub e Lightning
   [x] R-COM-05 Criação de comunidades pelo usuário com modal, paleta e moderação
   [x] R-SOC-04 Painel de visitantes do perfil estilo Orkut com privacidade recíproca
-  [x] Bugfixes de compilação Next 16 e conformidade com regras de linter React 19
 
 Concluído v2.29:
   [x] R-COM-02..04,06 Moderadores, mural, ranking quente, busca

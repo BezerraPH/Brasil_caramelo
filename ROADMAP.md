@@ -51,6 +51,17 @@ Checklist de **produção** — scripts e doc prontos; configure `.env` no host 
 | R-028-09 | **Deploy** — smoke com falha não derruba stack (aviso + curl health) | v2.28 | [x] 2026-05-22 |
 | R-028-10 | **Script** `check-production-env.sh` — audita `.env` e lista o que falta (P0) | v2.28 | [x] 2026-05-22 |
 
+## P0 — Rede Descentralizada Nostr (v2.31.0)
+
+| ID | Item | Alvo | Status |
+|----|------|------|--------|
+| R-NOS-01 | **Nostr Core** — NIP-01 (Notas/Feed) + NIP-07 (Extensões de carteira Alby/nos2x) | v2.30 | [x] 2026-09-01 (v2.30.0) |
+| R-NOS-02 | **Nostr Zaps** — NIP-57 (Micro-gorjetas satoshis Lightning / WebLN) | v2.30 | [x] 2026-09-01 (v2.30.0) |
+| R-NOS-03 | **Nostr QR Code** — Compartilhamento rápido para clientes móveis (Damus/Amethyst) | v2.30 | [x] 2026-09-01 (v2.30.0) |
+| R-NOS-04 | **Nostr Seguir** — NIP-02 (Lista de contatos e matilhas seguidas) | v2.31 | [x] 2026-09-01 (v2.31.0) |
+| R-NOS-05 | **Nostr Chat DM** — NIP-04 (Mensagens privadas ponta-a-ponta criptografadas) | v2.31 | [x] 2026-09-01 (v2.31.0) |
+| R-NOS-06 | **Nostr Feed Seguindo** — Aba com stream exclusivo de notas da matilha | v2.31 | [x] 2026-09-01 (v2.31.0) |
+
 ---
 
 ## P1 — Comunidades Orkut (profundidade)

@@ -1,4 +1,4 @@
-import { finalizeEvent, nip04, verifyEvent, type EventTemplate } from "nostr-tools";
+import { finalizeEvent, nip04, nip44, verifyEvent, type EventTemplate } from "nostr-tools";
 import { decodeNostrKey, pubkeyToNpub } from "./keys";
 import { getNostrPool, getSavedRelays } from "./relays";
 import {
@@ -177,6 +177,42 @@ export async function publishNostrFollowList({
 
 /**
  * Criptografa uma mensagem direta (NIP-04).
+/**
+ * Criptografa uma mensagem direta com NIP-44 v2 (ChaCha20-Poly1305 + HKDF).
+ */
+export async function encryptNip44({
+  recipientPubkey,
+  content,
+  identity,
+}: {
+  recipientPubkey: string;
+  content: string;
+  identity: NostrIdentity;
+}): Promise<string> {
+  if (typeof window !== "undefined" && identity.mode === "extension") {
+    const nostrExt = (window as unknown as { nostr?: NostrExtension & { nip44?: { encrypt: (pk: string, msg: string) => Promise<string> } } }).nostr;
+    if (nostrExt?.nip44?.encrypt) {
+      return await nostrExt.nip44.encrypt(recipientPubkey, content);
+    }
+    // Fallback para nip04 na extensão se nip44 não estiver disponível
+    if (nostrExt?.nip04?.encrypt) {
+      return await nostrExt.nip04.encrypt(recipientPubkey, content);
+    }
+  }
+
+  if (identity.nsec) {
+    const decoded = decodeNostrKey(identity.nsec);
+    if (decoded.secretKeyBytes) {
+      const convKey = nip44.v2.utils.getConversationKey(decoded.secretKeyBytes, recipientPubkey);
+      return nip44.v2.encrypt(content, convKey);
+    }
+  }
+
+  throw new Error("Não foi possível criptografar a mensagem (chave/extensão ausente).");
+}
+
+/**
+ * Criptografa uma mensagem direta (NIP-04 clássico).
  */
 export async function encryptNip04({
   recipientPubkey,
@@ -205,7 +241,53 @@ export async function encryptNip04({
 }
 
 /**
- * Descriptografa uma mensagem direta (NIP-04).
+ * Descriptografa uma mensagem direta (Tenta NIP-44 primeiro e faz fallback para NIP-04).
+ */
+export async function decryptDirectMessage({
+  senderPubkey,
+  ciphertext,
+  identity,
+}: {
+  senderPubkey: string;
+  ciphertext: string;
+  identity: NostrIdentity;
+}): Promise<string> {
+  // Se for extensão NIP-07
+  if (typeof window !== "undefined" && identity.mode === "extension") {
+    const nostrExt = (window as unknown as {
+      nostr?: NostrExtension & { nip44?: { decrypt: (pk: string, msg: string) => Promise<string> } };
+    }).nostr;
+    if (nostrExt?.nip44?.decrypt) {
+      try {
+        return await nostrExt.nip44.decrypt(senderPubkey, ciphertext);
+      } catch {
+        // tenta nip04
+      }
+    }
+    if (nostrExt?.nip04?.decrypt) {
+      return await nostrExt.nip04.decrypt(senderPubkey, ciphertext);
+    }
+  }
+
+  if (identity.nsec) {
+    const decoded = decodeNostrKey(identity.nsec);
+    if (decoded.secretKeyBytes) {
+      // Tentar NIP-44
+      try {
+        const convKey = nip44.v2.utils.getConversationKey(decoded.secretKeyBytes, senderPubkey);
+        return nip44.v2.decrypt(ciphertext, convKey);
+      } catch {
+        // Fallback NIP-04
+        return await nip04.decrypt(decoded.secretKeyBytes, senderPubkey, ciphertext);
+      }
+    }
+  }
+
+  throw new Error("Não foi possível descriptografar a mensagem.");
+}
+
+/**
+ * Descriptografa uma mensagem direta (NIP-04 legada).
  */
 export async function decryptNip04({
   senderPubkey,
@@ -216,25 +298,11 @@ export async function decryptNip04({
   ciphertext: string;
   identity: NostrIdentity;
 }): Promise<string> {
-  if (typeof window !== "undefined" && identity.mode === "extension") {
-    const nostrExt = (window as unknown as { nostr?: NostrExtension }).nostr;
-    if (nostrExt?.nip04?.decrypt) {
-      return await nostrExt.nip04.decrypt(senderPubkey, ciphertext);
-    }
-  }
-
-  if (identity.nsec) {
-    const decoded = decodeNostrKey(identity.nsec);
-    if (decoded.secretKeyBytes) {
-      return await nip04.decrypt(decoded.secretKeyBytes, senderPubkey, ciphertext);
-    }
-  }
-
-  throw new Error("Não foi possível descriptografar a mensagem.");
+  return decryptDirectMessage({ senderPubkey, ciphertext, identity });
 }
 
 /**
- * Publica uma Mensagem Direta Criptografada Ponta-a-Ponta (Kind 4).
+ * Publica uma Mensagem Direta Criptografada Ponta-a-Ponta (Kind 4 com suporte NIP-44 / NIP-04).
  */
 export async function publishEncryptedDirectMessage({
   recipientPubkey,
@@ -247,11 +315,20 @@ export async function publishEncryptedDirectMessage({
   identity: NostrIdentity;
   relays?: string[];
 }): Promise<NostrEvent> {
-  const ciphertext = await encryptNip04({
-    recipientPubkey,
-    content: message,
-    identity,
-  });
+  let ciphertext: string;
+  try {
+    ciphertext = await encryptNip44({
+      recipientPubkey,
+      content: message,
+      identity,
+    });
+  } catch {
+    ciphertext = await encryptNip04({
+      recipientPubkey,
+      content: message,
+      identity,
+    });
+  }
 
   const template: EventTemplate = {
     kind: NOSTR_KINDS.ENCRYPTED_DIRECT_MESSAGE,

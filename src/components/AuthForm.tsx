@@ -88,6 +88,25 @@ export function AuthForm({ mode }: AuthFormProps) {
         <Field label="E-mail" name="email" type="email" required />
         <Field label="Senha" name="password" type="password" required />
 
+        {mode === "register" && (
+          <div className="flex items-start gap-2 pt-1 text-[11px] font-semibold text-bc-brown">
+            <input
+              type="checkbox"
+              required
+              id="terms_agree"
+              name="terms_agree"
+              className="mt-0.5 rounded text-bc-green focus:ring-bc-green"
+            />
+            <label htmlFor="terms_agree" className="cursor-pointer leading-tight">
+              Li e concordo com os{" "}
+              <Link href="/termos" target="_blank" className="font-bold text-bc-blue underline hover:text-bc-green">
+                Termos de Uso & Política de Privacidade (LGPD e Modo Livre Nostr)
+              </Link>
+              .
+            </label>
+          </div>
+        )}
+
         {error && (
           <p
             className="bc-auth-error rounded-lg px-3 py-2 text-sm"

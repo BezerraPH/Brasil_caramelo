@@ -19,6 +19,12 @@ export function PwaInstallBanner() {
   });
 
   useEffect(() => {
+    if ("serviceWorker" in navigator && process.env.NODE_ENV === "production") {
+      navigator.serviceWorker.register("/sw.js").catch(() => {
+        // Ignorado em ambientes sem suporte
+      });
+    }
+
     const onBip = (e: Event) => {
       e.preventDefault();
       setDeferred(e as BeforeInstallPromptEvent);

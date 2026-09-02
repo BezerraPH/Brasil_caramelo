@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-09-02 (v2.34.0-alpha.0 - Redesign Mobile-First Nacional, Acessibilidade WCAG e Limpeza Visual)
-Versão atual do pacote (package.json): 2.34.0-alpha.0
+Última atualização: 2026-09-02 (v2.35.0-alpha.0 - PWA Offline, Criptografia NIP-44, Termos LGPD e Checkout Pix/Lightning)
+Versão atual do pacote (package.json): 2.35.0-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
@@ -28,9 +28,16 @@ INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
 ================================================================================
 
 Arquivo mestre: ROADMAP.md
-Progresso: Nostr P0 9/9 · P0 Infra 10/10 · P1 Comunidades 5/6 · P0 UX 1/1
+Progresso: Nostr P0 9/9 · P0 Infra 10/10 · P1 Comunidades 5/6 · P0 UX 1/1 · P0 PWA 1/1
 
-**v2.34.0: Redesign Mobile-First Nacional, Acessibilidade WCAG e Limpeza Visual.**
+**v2.35.0: PWA Offline, Criptografia NIP-44, Termos LGPD e Checkout Pix/Lightning.**
+
+Concluído v2.35:
+  [x] R-PWA-01 Service Worker PWA com cache offline Stale-While-Revalidate e prompt de instalação
+  [x] Criptografia de ponta a ponta NIP-44 (ChaCha20-Poly1305 + HKDF) para mensagens diretas no Nostr
+  [x] Termos de Uso e Política de Privacidade diferenciando Web2 (LGPD) e Web3 (Nostr imutável)
+  [x] Checkout Pedigree híbrido com Pix / Mercado Pago e Lightning Network (Satoshis / WebLN)
+  [x] Script de deploy automatizado para Hostinger VPS (deploy-hostinger.sh)
 
 Concluído v2.34:
   [x] R-UX-01 Bottom navigation bar fixa com botão central FAB (+), menu superior enxuto de 5 abas

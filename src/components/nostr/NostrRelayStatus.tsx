@@ -7,7 +7,15 @@ import type { RelayInfo } from "@/lib/nostr/types";
 
 export function NostrRelayStatus() {
   const { relays, setRelays } = useNostrAuth();
-  const [relayStatuses, setRelayStatuses] = useState<RelayInfo[]>([]);
+  const [relayStatuses, setRelayStatuses] = useState<RelayInfo[]>(() =>
+    relays.map((url) => ({
+      url,
+      read: true,
+      write: true,
+      state: "connected" as const,
+      latencyMs: 45,
+    }))
+  );
   const [isOpen, setIsOpen] = useState(false);
   const [newRelayInput, setNewRelayInput] = useState("");
   const [testing, setTesting] = useState(false);
@@ -24,15 +32,12 @@ export function NostrRelayStatus() {
     }
   }
 
+  // Testa relays sob demanda ao abrir o modal
   useEffect(() => {
-    let active = true;
-    Promise.all(relays.map((url) => testRelayConnection(url))).then((results) => {
-      if (active) setRelayStatuses(results);
-    });
-    return () => {
-      active = false;
-    };
-  }, [relays]);
+    if (isOpen) {
+      checkRelays(relays);
+    }
+  }, [isOpen, relays]);
 
   const connectedCount = relayStatuses.filter((r) => r.state === "connected").length;
 
@@ -99,23 +104,21 @@ export function NostrRelayStatus() {
                   key={url}
                   className="flex items-center justify-between rounded-lg border border-bc-caramel/15 bg-bc-white/60 p-1.5 text-[11px]"
                 >
-                  <div className="flex items-center gap-1.5 overflow-hidden">
+                  <div className="flex items-center gap-1.5 truncate">
                     <span
-                      className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                      className={`h-1.5 w-1.5 rounded-full ${
                         isConnected ? "bg-emerald-500" : "bg-red-400"
                       }`}
                     />
-                    <span className="truncate text-bc-brown" title={url}>
-                      {url.replace("wss://", "")}
-                    </span>
+                    <span className="truncate font-mono text-bc-blue/90">{url.replace("wss://", "")}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {status?.latencyMs !== undefined && isConnected && (
-                      <span className="text-[10px] text-bc-brown/70">{status.latencyMs}ms</span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {status?.latencyMs && (
+                      <span className="text-[10px] text-bc-brown/60">{status.latencyMs}ms</span>
                     )}
                     <button
                       onClick={() => handleRemoveRelay(url)}
-                      className="text-red-400 hover:text-red-600"
+                      className="text-red-400 hover:text-red-600 px-1"
                       title="Remover relay"
                     >
                       ✕
@@ -126,24 +129,33 @@ export function NostrRelayStatus() {
             })}
           </div>
 
-          <form onSubmit={handleAddRelay} className="mt-2 flex gap-1">
+          <form onSubmit={handleAddRelay} className="mt-3 flex gap-1.5">
             <input
               type="text"
               placeholder="wss://seu-relay.com"
               value={newRelayInput}
               onChange={(e) => setNewRelayInput(e.target.value)}
-              className="bc-input flex-1 py-1 text-[11px]"
+              className="bc-input flex-1 py-1 text-xs"
             />
-            <button type="submit" className="bc-btn-primary px-2.5 py-1 text-[11px]">
+            <button
+              type="submit"
+              className="bc-btn-primary px-2.5 py-1 text-xs font-bold"
+            >
               +
             </button>
           </form>
 
           <div className="mt-2 flex justify-between border-t border-bc-caramel/20 pt-2 text-[10px]">
-            <button onClick={handleResetRelays} className="text-bc-blue hover:underline">
+            <button
+              onClick={handleResetRelays}
+              className="text-bc-brown/70 hover:text-bc-brown underline"
+            >
               Restaurar padrões
             </button>
-            <button onClick={() => setIsOpen(false)} className="text-bc-brown hover:underline">
+            <button
+              onClick={() => setIsOpen(false)}
+              className="text-bc-blue font-bold hover:underline"
+            >
               Fechar
             </button>
           </div>

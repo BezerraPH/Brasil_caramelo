@@ -7,14 +7,20 @@ export function createPusherClient(
 ): Pusher | null {
   if (!key?.trim()) return null;
 
-  const host = process.env.NEXT_PUBLIC_PUSHER_HOST?.trim();
+  const isBrowser = typeof window !== "undefined";
+  const isHttps = isBrowser && window.location.protocol === "https:";
+  const envHost = process.env.NEXT_PUBLIC_PUSHER_HOST?.trim();
+  const host = envHost || (isBrowser ? window.location.hostname : "");
+
   if (host) {
-    const port = Number(process.env.NEXT_PUBLIC_PUSHER_PORT || "6001");
-    const useTls = process.env.NEXT_PUBLIC_PUSHER_USE_TLS === "true";
+    const rawPort = process.env.NEXT_PUBLIC_PUSHER_PORT?.trim();
+    const port = isHttps ? 443 : Number(rawPort || "6001");
+    const useTls = isHttps || process.env.NEXT_PUBLIC_PUSHER_USE_TLS === "true";
+
     return new Pusher(key, {
       cluster: cluster || "mt1",
       authEndpoint: "/api/pusher/auth",
-      wsHost: host,
+      wsHost: isBrowser && (envHost?.includes("192.168.") || envHost === "localhost") && isHttps ? window.location.hostname : host,
       wsPort: port,
       wssPort: port,
       forceTLS: useTls,
@@ -38,13 +44,19 @@ export function createPublicPusherClient(
 ): Pusher | null {
   if (!key?.trim()) return null;
 
-  const host = process.env.NEXT_PUBLIC_PUSHER_HOST?.trim();
+  const isBrowser = typeof window !== "undefined";
+  const isHttps = isBrowser && window.location.protocol === "https:";
+  const envHost = process.env.NEXT_PUBLIC_PUSHER_HOST?.trim();
+  const host = envHost || (isBrowser ? window.location.hostname : "");
+
   if (host) {
-    const port = Number(process.env.NEXT_PUBLIC_PUSHER_PORT || "6001");
-    const useTls = process.env.NEXT_PUBLIC_PUSHER_USE_TLS === "true";
+    const rawPort = process.env.NEXT_PUBLIC_PUSHER_PORT?.trim();
+    const port = isHttps ? 443 : Number(rawPort || "6001");
+    const useTls = isHttps || process.env.NEXT_PUBLIC_PUSHER_USE_TLS === "true";
+
     return new Pusher(key, {
       cluster: cluster || "mt1",
-      wsHost: host,
+      wsHost: isBrowser && (envHost?.includes("192.168.") || envHost === "localhost") && isHttps ? window.location.hostname : host,
       wsPort: port,
       wssPort: port,
       forceTLS: useTls,

@@ -49,26 +49,15 @@ export function NavBar({ user, pusherKey, pusherCluster }: NavBarProps) {
                 href={link.href}
                 className={`relative rounded-lg px-3 py-1.5 text-sm font-medium transition ${navLinkClass(active)}`}
               >
-                <span className="mr-1" aria-hidden>
+                <span className="relative mr-1 inline-block" aria-hidden>
                   {link.icon}
+                  {link.href === "/cachorro" && <PetDailyNavDot />}
                 </span>
                 {link.label}
                 {link.href === "/tribunal" && <TribunalOpenDot />}
               </Link>
             );
           })}
-          <Link
-            href="/cachorro"
-            className={`relative rounded-lg px-3 py-1.5 text-sm font-medium transition ${navLinkClass(
-              pathname.startsWith("/cachorro"),
-            )}`}
-          >
-            <span className="relative mr-1 inline-block" aria-hidden>
-              🐕
-              <PetDailyNavDot />
-            </span>
-            Pet
-          </Link>
           <Link
             href={`/perfil/${user.username}`}
             className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${navLinkClass(

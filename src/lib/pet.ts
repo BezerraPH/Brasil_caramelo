@@ -15,18 +15,21 @@ const HOURS_DECAY = 4;
 const XP_PER_LEVEL = 100;
 
 export function applyPetDecay(pet: PetStats): PetStats {
-  const hours =
-    (Date.now() - new Date(pet.lastCareAt).getTime()) / (1000 * 60 * 60);
-  if (hours < HOURS_DECAY) return pet;
+  if (!pet) return pet;
+  const lastCare = pet.lastCareAt ? new Date(pet.lastCareAt).getTime() : Date.now();
+  if (isNaN(lastCare)) return pet;
+
+  const hours = (Date.now() - lastCare) / (1000 * 60 * 60);
+  if (isNaN(hours) || hours < HOURS_DECAY) return pet;
 
   const ticks = Math.floor(hours / HOURS_DECAY);
   const decay = ticks * 8;
 
   return {
     ...pet,
-    hunger: Math.max(0, pet.hunger - decay),
-    happiness: Math.max(0, pet.happiness - decay),
-    energy: Math.max(0, pet.energy - decay),
+    hunger: Math.max(0, (pet.hunger ?? 80) - decay),
+    happiness: Math.max(0, (pet.happiness ?? 80) - decay),
+    energy: Math.max(0, (pet.energy ?? 80) - decay),
   };
 }
 

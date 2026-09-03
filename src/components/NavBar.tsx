@@ -3,164 +3,131 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { DESKTOP_NAV, isNavActive, navLinkClass } from "@/lib/nav";
-import { LogoutButton } from "./LogoutButton";
+import { DESKTOP_NAV, isNavActive } from "@/lib/nav";
 import { ChatUnreadBadge } from "./ChatUnreadBadge";
-import { PetDailyNavDot } from "./PetDailyNavDot";
 import { NotificationBell } from "./NotificationBell";
-import { ThemeToggle } from "./ThemeToggle";
-import { SoundToggle } from "./SoundToggle";
-import { TribunalOpenDot } from "./TribunalOpenDot";
-import { NostrRelayStatus } from "./nostr/NostrRelayStatus";
+import { UserDropdownMenu } from "./UserDropdownMenu";
 
 type NavBarProps = {
-  user: { id: string; name: string; username: string };
+  user: {
+    id: string;
+    name: string;
+    username: string;
+    avatarUrl?: string | null;
+    isPremium?: boolean;
+  };
   pusherKey?: string | null;
   pusherCluster?: string | null;
 };
 
 export function NavBar({ user, pusherKey, pusherCluster }: NavBarProps) {
   const pathname = usePathname();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="bc-nav-brasil bc-glass sticky top-0 z-40 shadow-sm">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
+    <header className="bc-nav-brasil bc-glass sticky top-0 z-40 border-b border-bc-caramel/15 backdrop-blur-md transition-colors shadow-xs">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-2.5">
+        
+        {/* Lado Esquerdo: Logo & Identidade */}
         <Link
           href="/feed"
-          className="flex items-center gap-2 transition hover:opacity-90"
+          className="group flex items-center gap-2.5 transition duration-150 hover:opacity-90"
+          aria-label="Brasil Caramelo - Início"
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-bc-caramel/50 to-bc-green/30 text-lg shadow-sm">
+          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-bc-caramel/40 via-bc-gold/30 to-bc-blue/20 text-xl shadow-xs transition duration-200 group-hover:scale-105 group-hover:rotate-6">
             🐕
           </span>
-          <span className="hidden sm:inline">
-            <span className="text-base font-extrabold text-bc-blue">
+          <div className="flex flex-col">
+            <span className="text-base font-black tracking-tight text-bc-blue leading-tight">
               Brasil <span className="text-bc-caramel">Caramelo</span>
             </span>
-          </span>
+            <span className="text-[10px] font-bold text-bc-brown/70 tracking-wider uppercase">
+              A Rede Social do Brasil
+            </span>
+          </div>
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">
+        {/* Centro: Navegação Principal Desktop (Clean Pills) */}
+        <nav className="hidden items-center gap-1.5 rounded-full border border-bc-caramel/20 bg-bc-white/60 p-1.5 backdrop-blur-sm md:flex shadow-2xs dark:bg-slate-900/60 dark:border-white/10">
           {DESKTOP_NAV.map((link) => {
             const active = isNavActive(pathname, link);
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`relative rounded-lg px-3 py-1.5 text-sm font-medium transition ${navLinkClass(active)}`}
+                className={`relative flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-bold transition-all duration-200 ${
+                  active
+                    ? "bg-gradient-to-r from-bc-blue to-bc-blue/90 text-white shadow-xs"
+                    : "text-bc-brown hover:bg-bc-blue/10 hover:text-bc-blue"
+                }`}
               >
-                <span className="relative mr-1 inline-block" aria-hidden>
-                  {link.icon}
-                  {link.href === "/cachorro" && <PetDailyNavDot />}
-                </span>
-                {link.label}
-                {link.href === "/tribunal" && <TribunalOpenDot />}
+                <span aria-hidden>{link.icon}</span>
+                <span>{link.label}</span>
               </Link>
             );
           })}
-          <Link
-            href={`/perfil/${user.username}`}
-            className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${navLinkClass(
-              pathname === `/perfil/${user.username}` ||
-                pathname.startsWith(`/perfil/${user.username}/`),
-            )}`}
-          >
-            Perfil
-          </Link>
-          <Link href="/configuracoes" className="bc-btn-ghost hidden lg:inline">
-            Editar
-          </Link>
         </nav>
 
+        {/* Lado Direito: Mensagens, Notificações e Menu do Usuário */}
         <div className="flex items-center gap-2">
+          {/* Botão de Mensagens / Chat */}
           <Link
             href="/mensagens"
-            className={`relative rounded-lg p-2 transition hover:bg-bc-blue/10 ${navLinkClass(
-              pathname.startsWith("/mensagens"),
-            )}`}
-            aria-label="Mensagens"
+            className={`relative flex h-10 w-10 items-center justify-center rounded-full border border-bc-caramel/20 bg-bc-white/80 text-base transition hover:bg-bc-blue/10 hover:border-bc-blue/40 shadow-2xs dark:bg-slate-900 dark:border-white/10 ${
+              pathname.startsWith("/mensagens") ? "border-bc-blue bg-bc-blue/15 text-bc-blue ring-2 ring-bc-blue/20" : "text-bc-brown"
+            }`}
+            aria-label="Mensagens e Chat"
           >
-            💬
+            <span aria-hidden>💬</span>
             <ChatUnreadBadge
               userId={user.id}
               pusherKey={pusherKey}
               pusherCluster={pusherCluster}
             />
           </Link>
-          <NostrRelayStatus />
-          <ThemeToggle />
-          <SoundToggle />
+
+          {/* Sino de Notificações */}
           <NotificationBell
             userId={user.id}
             pusherKey={pusherKey}
             pusherCluster={pusherCluster}
           />
-          <span className="hidden max-w-[90px] truncate text-xs text-bc-brown md:inline">
-            @{user.username}
-          </span>
+
+          {/* Menu Dropdown do Usuário (Centraliza Perfil, Pet, Cores, Nostr, Tema, Logout) */}
+          <UserDropdownMenu user={user} />
+
+          {/* Botão Hambúrguer Mobile */}
           <button
             type="button"
-            className="rounded-lg p-2 text-bc-blue md:hidden"
-            onClick={() => setMenuOpen((o) => !o)}
-            aria-label="Menu"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-bc-caramel/20 bg-bc-white/80 text-bc-blue md:hidden shadow-2xs dark:bg-slate-900"
+            onClick={() => setMobileMenuOpen((o) => !o)}
+            aria-label="Abrir Menu de Navegação"
           >
-            {menuOpen ? "✕" : "☰"}
+            {mobileMenuOpen ? "✕" : "☰"}
           </button>
-          <div className="hidden md:block">
-            <LogoutButton />
-          </div>
         </div>
       </div>
 
-      {menuOpen && (
-        <nav className="bc-menu-enter border-t border-bc-blue/10 bg-bc-white px-4 py-3 md:hidden dark:bg-[var(--background)]">
-          <ul className="space-y-1">
+      {/* Drawer / Menu Mobile Retrátil */}
+      {mobileMenuOpen && (
+        <nav className="border-t border-bc-caramel/15 bg-bc-white/95 px-4 py-3 backdrop-blur-md md:hidden animate-in slide-in-from-top-2 duration-150 dark:bg-slate-900/95">
+          <div className="space-y-1">
             {DESKTOP_NAV.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  onClick={() => setMenuOpen(false)}
-                  className={`block rounded-lg px-3 py-2 text-sm font-medium ${navLinkClass(
-                    isNavActive(pathname, link),
-                  )}`}
-                >
-                  {link.icon} {link.label}
-                </Link>
-              </li>
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold transition ${
+                  isNavActive(pathname, link)
+                    ? "bg-bc-blue text-white shadow-xs"
+                    : "text-bc-brown hover:bg-bc-blue/10 hover:text-bc-blue"
+                }`}
+              >
+                <span>{link.icon}</span>
+                <span>{link.label}</span>
+              </Link>
             ))}
-            <li>
-              <Link
-                href="/mensagens"
-                onClick={() => setMenuOpen(false)}
-                className={`block rounded-lg px-3 py-2 text-sm font-medium ${navLinkClass(
-                  pathname.startsWith("/mensagens"),
-                )}`}
-              >
-                💬 Mensagens
-              </Link>
-            </li>
-            <li>
-              <Link
-                href={`/perfil/${user.username}`}
-                onClick={() => setMenuOpen(false)}
-                className="block rounded-lg px-3 py-2 text-sm font-medium text-bc-blue"
-              >
-                👤 Perfil
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/configuracoes"
-                onClick={() => setMenuOpen(false)}
-                className="block rounded-lg px-3 py-2 text-sm text-bc-brown"
-              >
-                ⚙️ Editar perfil
-              </Link>
-            </li>
-            <li className="pt-2">
-              <LogoutButton />
-            </li>
-          </ul>
+          </div>
         </nav>
       )}
     </header>

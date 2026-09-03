@@ -3,46 +3,58 @@ import type { ProfileTheme } from "@/generated/prisma/enums";
 export type ProfileThemeConfig = {
   id: ProfileTheme;
   label: string;
+  tagline: string;
   accent: string;
   accentSoft: string;
   banner: string;
+  previewBg: string;
 };
 
 export const PROFILE_THEMES: ProfileThemeConfig[] = [
   {
     id: "CLASSIC",
-    label: "Clássico Matilha",
-    accent: "#1e4d8c",
-    accentSoft: "#2d8b57",
-    banner: "linear-gradient(120deg, #1e4d8c 0%, #2d8b57 50%, #c68642 100%)",
-  },
-  {
-    id: "SUNSET",
-    label: "Pôr do Sol",
-    accent: "#e85d04",
-    accentSoft: "#9d4edd",
-    banner: "linear-gradient(120deg, #ff6b35 0%, #f72585 45%, #7209b7 100%)",
-  },
-  {
-    id: "TROPICAL",
-    label: "Tropical",
-    accent: "#2d8b57",
-    accentSoft: "#f4d35e",
-    banner: "linear-gradient(120deg, #2d8b57 0%, #f4d35e 50%, #06d6a0 100%)",
+    label: "Orkut Nostalgia",
+    tagline: "Azul clássico anos 2000 & Ciano acolhedor",
+    accent: "#0b4f8a",
+    accentSoft: "#1e6091",
+    banner: "linear-gradient(135deg, #004d80 0%, #0b4f8a 50%, #1e6091 100%)",
+    previewBg: "#eef4f8",
   },
   {
     id: "CARAMELO",
     label: "Caramelo Raiz",
+    tagline: "Dourado quente & Âmbar da matilha",
     accent: "#c68642",
-    accentSoft: "#8b5e3c",
-    banner: "linear-gradient(120deg, #c68642 0%, #8b5e3c 60%, #2d8b57 100%)",
+    accentSoft: "#ab5d18",
+    banner: "linear-gradient(135deg, #ab5d18 0%, #c68642 50%, #d49a5b 100%)",
+    previewBg: "#fbf7f2",
+  },
+  {
+    id: "TROPICAL",
+    label: "Matilha Tropical",
+    tagline: "Verde esmeralda & Amarelo ouro",
+    accent: "#176336",
+    accentSoft: "#2d8b57",
+    banner: "linear-gradient(135deg, #0f4c28 0%, #176336 50%, #e6a800 100%)",
+    previewBg: "#f0fdf4",
+  },
+  {
+    id: "SUNSET",
+    label: "Rosa & Pôr do Sol",
+    tagline: "Magenta retrô & Laranja vibrante",
+    accent: "#e11d48",
+    accentSoft: "#f43f5e",
+    banner: "linear-gradient(135deg, #be185d 0%, #e11d48 50%, #fb923c 100%)",
+    previewBg: "#fff1f2",
   },
   {
     id: "NIGHT",
-    label: "Noite na Matilha",
-    accent: "#4a4e69",
-    accentSoft: "#9a8c98",
-    banner: "linear-gradient(120deg, #22223b 0%, #4a4e69 50%, #9a8c98 100%)",
+    label: "Luar Noturno",
+    tagline: "Azul marinho profundo & Púrpura",
+    accent: "#6366f1",
+    accentSoft: "#818cf8",
+    banner: "linear-gradient(135deg, #0a192f 0%, #1e1e38 50%, #4338ca 100%)",
+    previewBg: "#0f172a",
   },
 ];
 

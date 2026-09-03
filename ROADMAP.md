@@ -26,7 +26,7 @@ Legenda: **P0** crítico / deploy · **P1** alto valor · **P2** polish · **P3*
 | P1 — Monetização | 3 | 2 |
 | P1 — Federação 2.0 | 4 | 0 |
 | P2 — Mobile | 5 | 0 |
-| P2 — UX | 5 | 0 |
+| P2 — UX | 6 | 1 |
 | P3 — Infra & segurança | 7 | 2 |
 | P3 — Qualidade (testes) | 4 | 0 |
 
@@ -144,6 +144,7 @@ Checklist de **produção** — scripts e doc prontos; configure `.env` no host 
 | R-UX-03 | **Performance** — WebP/AVIF + lazy no Cinelar | v2.29 | [ ] |
 | R-UX-04 | **i18n** — estrutura `next-intl` (pt-BR padrão) | v2.30 | [ ] |
 | R-UX-05 | **Economia de dados** — modo só texto / sem autoplay vídeo | v2.30 | [ ] |
+| R-UX-06 | **TopBar Clean & Paletas Orkut** — Redesign despoluído com UserDropdownMenu e personalização global de cores | v2.39 | [x] 2026-09-03 (v2.39.0) |
 
 ---
 

@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-09-02 (v2.38.0-alpha.0 - Login 1-Clique Nostr Anônimo, Sanitização NIP-01, Backoff+Jitter e SSH no .env)
-Versão atual do pacote (package.json): 2.38.0-alpha.0
+Última atualização: 2026-09-03 (v2.39.0-alpha.0 - Redesign Frontend, TopBar Clean, User Dropdown e Paletas Orkut)
+Versão atual do pacote (package.json): 2.39.0-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
@@ -28,9 +28,16 @@ INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
 ================================================================================
 
 Arquivo mestre: ROADMAP.md
-Progresso: Nostr P0 10/10 · P0 Infra 10/10 · P1 Comunidades 5/6 · P0 UX 2/2 · P0 PWA 1/1 · P0 Otimizações 1/1
+Progresso: Nostr P0 10/10 · P0 Infra 10/10 · P1 Comunidades 5/6 · P0 UX 2/2 · P0 PWA 1/1 · P0 Otimizações 1/1 · P2 UX 1/6
 
-**v2.38.0: Nostr Anônimo 1-Clique, Sanitização NIP-01, Backoff+Jitter e SSH no .env.**
+**v2.39.0: Redesign Frontend, TopBar Clean, User Dropdown e Paletas Orkut.**
+
+Concluído v2.39:
+  [x] R-UX-06 TopBar Clean: eliminação de 14 botões espremidos para layout elegante de 3 blocos (Logo, Abas e Usuário)
+  [x] Menu do Usuário (UserDropdownMenu) unificado: Perfil, Pet Diário, Tribunal, Modo Livre, Configurações, Tema, Sons, Nostr e Logout
+  [x] Sistema Global de Cores e Paletas Orkut: Orkut Nostalgia, Caramelo Raiz, Matilha Tropical, Rosa Retrô, Luar Noturno
+  [x] Seletor interativo em tempo real em /configuracoes com sincronização em localStorage e banco de dados
+  [x] Reorganização da estrutura do projeto: pasta nao_essenciais/ centralizando relatórios, scripts e testes auxiliares
 
 Concluído v2.38:
   [x] R-NOS-10 Cadastro e Login 100% Anônimo via Nostr NIP-07 (Alby/npub) sem necessidade de e-mail ou senha

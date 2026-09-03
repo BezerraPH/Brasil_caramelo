@@ -21,6 +21,51 @@
   --brasil-border: #d4e0d9;
 }
 
+/* Paletas de Cores Globais Personalizáveis */
+html[data-palette="CLASSIC"] {
+  --bc-blue: #0b4f8a;
+  --bc-caramel: #ab5d18;
+  --bc-green: #176336;
+  --brasil-primary: #0b4f8a;
+  --brasil-accent-blue: #003366;
+  --background: #f0f4f8;
+}
+
+html[data-palette="CARAMELO"] {
+  --bc-blue: #8b4513;
+  --bc-caramel: #c68642;
+  --bc-gold: #d49a5b;
+  --brasil-primary: #ab5d18;
+  --brasil-secondary: #c68642;
+  --background: #fbf7f2;
+}
+
+html[data-palette="TROPICAL"] {
+  --bc-blue: #005f73;
+  --bc-caramel: #ca6702;
+  --bc-green: #176336;
+  --brasil-primary: #176336;
+  --brasil-secondary: #e6a800;
+  --background: #f0fdf4;
+}
+
+html[data-palette="SUNSET"] {
+  --bc-blue: #be185d;
+  --bc-caramel: #e11d48;
+  --bc-green: #f43f5e;
+  --brasil-primary: #e11d48;
+  --brasil-secondary: #fb923c;
+  --background: #fff1f2;
+}
+
+html[data-palette="NIGHT"] {
+  --bc-blue: #6366f1;
+  --bc-caramel: #818cf8;
+  --bc-green: #10b981;
+  --brasil-primary: #4338ca;
+  --brasil-secondary: #a5b4fc;
+}
+
 html.dark {
   --bc-white: #17221c;
   --bc-blue: #6ab8ea;

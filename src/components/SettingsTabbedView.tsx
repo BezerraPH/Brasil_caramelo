@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import type { RelationshipStatus, ProfileTheme } from "@/generated/prisma/enums";
 import { AvatarUpload } from "./AvatarUpload";
 import { EditProfileForm } from "./EditProfileForm";
@@ -40,7 +41,20 @@ type SettingsTabbedViewProps = {
 };
 
 export function SettingsTabbedView({ full }: SettingsTabbedViewProps) {
-  const [activeTab, setActiveTab] = useState<SettingsTab>("perfil");
+  const searchParams = useSearchParams();
+  const initialTabParam = searchParams.get("tab") as SettingsTab | null;
+  const [activeTab, setActiveTab] = useState<SettingsTab>(
+    initialTabParam && ["perfil", "privacidade", "aparencia", "avancado"].includes(initialTabParam)
+      ? initialTabParam
+      : "perfil"
+  );
+
+  useEffect(() => {
+    const tabParam = searchParams.get("tab") as SettingsTab | null;
+    if (tabParam && ["perfil", "privacidade", "aparencia", "avancado"].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
 
   const tabs: { id: SettingsTab; label: string; icon: string }[] = [
     { id: "perfil", label: "Conta & Perfil", icon: "👤" },

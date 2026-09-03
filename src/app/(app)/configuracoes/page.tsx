@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { SettingsTabbedView } from "@/components/SettingsTabbedView";
 import { PageContainer } from "@/components/PageContainer";
 import { getCurrentUser } from "@/lib/auth";
@@ -46,7 +47,9 @@ export default async function SettingsPage() {
         </p>
       </header>
 
-      <SettingsTabbedView full={full} />
+      <Suspense fallback={<div className="py-8 text-center text-xs font-semibold text-bc-brown animate-pulse">Carregando configurações...</div>}>
+        <SettingsTabbedView full={full} />
+      </Suspense>
 
       <p className="mt-6 text-center text-xs font-medium text-bc-brown/70">
         E-mail da conta: <strong>{full.email}</strong>

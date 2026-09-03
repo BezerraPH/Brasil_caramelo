@@ -12,6 +12,8 @@ Este diretório centraliza todos os arquivos, relatórios, rascunhos, scripts te
 * **`tests/`**: Suítes de testes manuais e auxiliares de fases antigas.
 * **`example_template/`**: Modelos de HTML e referências visuais externas (ex: Orkut, layout de Reels).
 * **`docs/`**: Documentação complementar e notas de arquitetura legadas.
+* **`production_verification.md`**: Plano de auditoria e verificação estruturada de backend, infraestrutura e banco de dados.
+* **`frontend_verification.md`**: Plano de auditoria e verificação estruturada de frontend, UI/UX e acessibilidade.
 * **`Análise Profunda de Apps de Mídia Social.txt`**: Documento de pesquisa de benchmark e análise de produto.
 * **`dados_uteis.xml`**: Dados e referências auxiliares.
 * **`PLANO_DE_ACAO.md`**: Registro de planos de ação anteriores.

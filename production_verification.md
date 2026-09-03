@@ -214,9 +214,9 @@ Este documento estabelece um roteiro de auditoria e verificação metódica e ex
 ### 🔹 FASE 8: Scripts de Manutenção, Migração & Testes Automatizados
 
 #### 📂 Arquivos Sob Auditoria:
-* `scripts/*` (32 scripts de automação, diagnóstico e manutenção)
-* `tests/unit/*`
-* `tests/e2e/*`
+* `nao_essenciais/scripts/*` (32 scripts de automação, diagnóstico e manutenção)
+* `nao_essenciais/tests/unit/*`
+* `nao_essenciais/tests/e2e/*`
 * `vitest.config.ts`
 * `playwright.config.ts`
 * Scripts de build em `package.json`

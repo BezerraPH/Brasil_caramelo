@@ -7,7 +7,7 @@
     "build": "prisma generate && next build --webpack",
     "start": "next start",
     "lint": "eslint",
-    "validate:smoke": "bash scripts/validate-smoke-tests.sh",
+    "validate:smoke": "bash nao_essenciais/scripts/validate-smoke-tests.sh",
     "postinstall": "node -e \"const fs=require('fs');const p='node_modules/next/dist/build/polyfills/polyfill-nomodule.js';if(!fs.existsSync(p)&&fs.existsSync('node_modules/next/dist/build/polyfills/polyfill-module.js')){fs.copyFileSync('node_modules/next/dist/build/polyfills/polyfill-module.js',p);}\"",
     "cap:sync": "cap sync",
     "cap:open:android": "cap open android",

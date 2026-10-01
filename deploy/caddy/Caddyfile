@@ -3,7 +3,7 @@
     admin off
 }
 
-brasilcaramelo.com, brasilcaramelo.com.br, brasilcaramelo.local, ntek-servidor, ntek-servidor.tail51633c.ts.net, 192.168.1.6, 100.94.55.27, localhost, 127.0.0.1 {
+brasilcaramelo.com, brasilcaramelo.com.br, brasilcaramelo.local, 192.168.1.6, 100.94.55.27, localhost, 127.0.0.1 {
     tls internal
 
     # Soketi / Pusher endpoints

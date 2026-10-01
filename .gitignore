@@ -27,6 +27,10 @@
 # misc
 .DS_Store
 *.pem
+*.key
+/oracle_ssh_key/
+id_rsa*
+*.pub
 
 # debug
 npm-debug.log*

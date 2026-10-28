@@ -13,7 +13,7 @@
 
 **A união da nostalgia dos anos 2000 (estilo Orkut, comunidades e depoimentos) com a soberania digital, privacidade e liberdade descentralizada do protocolo Nostr (Web3) e pagamentos instantâneos via Lightning Network (Bitcoin).**
 
-[Visão Geral](#-1-visão-geral--proposta-de-valor) • [Arquitetura](#-2-arquitetura--infraestrutura) • [NIPs Nostr](#-3-nips-do-nostr-implementadas) • [Funcionalidades](#-4-funcionalidades-chave) • [Stack Tecnológica](#-5-stack-tecnológica) • [Como Rodar](#-6-como-executar-o-projeto)
+[Visão Geral](#-1-visão-geral--proposta-de-valor) • [Galeria Visual](#-demonstração-visual--telas-do-aplicativo) • [Arquitetura](#-2-arquitetura--infraestrutura) • [NIPs Nostr](#-3-nips-do-nostr-implementadas) • [Funcionalidades](#-4-funcionalidades-chave) • [Stack Tecnológica](#-5-stack-tecnológica) • [Como Rodar](#-6-como-executar-o-projeto)
 
 </div>
 
@@ -28,6 +28,32 @@ O **Brasil Caramelo** é uma rede social brasileira **híbrida, resiliente e 100
   * **Modo Tradicional (Web2):** Cadastro por e-mail/senha, banco relacional PostgreSQL de baixa latência, conformidade com LGPD (direito ao esquecimento e exportação).
   * **Modo Soberano (Nostr / Web3):** Login 100% anônimo por chaves `npub`/`nsec` ou extensões de navegador NIP-07 (Alby, Nos2x, Amber), mensagens privadas NIP-44 (ChaCha20-Poly1305) e Zaps instantâneos.
 * **Gamificação & Cultura Brasileira:** Pet Virtual Caramelo dinâmico com cuidados e recompensas, economia de CarameloCoins, moderação coletiva no *Tribunal do Cão*, *Comunidades/Casinhas* e salas de áudio ao vivo (*Latidos ao Vivo*).
+
+---
+
+## 📸 Demonstração Visual & Telas do Aplicativo
+
+Confira a interface do **Brasil Caramelo** unindo o design nostálgico dos anos 2000 (estilo Orkut) com a modernidade e soberania do protocolo Nostr:
+
+| 🐕 Página Inicial & Apresentação | 💬 Feed de Recados Dual-Engine |
+|:---:|:---:|
+| <img src="docs/screenshots/01-landing-page.png" alt="Página Inicial" width="480"/> | <img src="docs/screenshots/03-feed-dual-engine.png" alt="Feed de Recados" width="480"/> |
+| *Boas-vindas nostálgicas, contadores ao vivo e apresentação* | *Recados híbridos, reações, hashtags e Zaps em satoshis* |
+
+| 🏆 Perfil Estilo Orkut & Depoimentos | 🐾 Pet Virtual Caramelo |
+|:---:|:---:|
+| <img src="docs/screenshots/04-perfil-estilo-orkut.png" alt="Perfil Orkut" width="480"/> | <img src="docs/screenshots/05-pet-virtual-caramelo.png" alt="Pet Virtual" width="480"/> |
+| *Sorte do dia, selos, amigos da matilha e dono do topo* | *Mini-game com alimentação, cuidados e moedas* |
+
+| 🏘️ Casinhas & Comunidades | ⚖️ Tribunal do Cão |
+|:---:|:---:|
+| <img src="docs/screenshots/06-comunidades-casinhas.png" alt="Comunidades" width="480"/> | <img src="docs/screenshots/07-tribunal-do-cao.png" alt="Tribunal do Cão" width="480"/> |
+| *Tópicos temáticos e fóruns estilo anos 2000* | *Moderação coletiva descentralizada por jurados* |
+
+| ⚡ Login Híbrido Web2 + Nostr | 📱 Experiência Mobile PWA |
+|:---:|:---:|
+| <img src="docs/screenshots/02-login-hibrido.png" alt="Login Híbrido" width="480"/> | <img src="docs/screenshots/08-mobile-pwa-feed.png" alt="Mobile PWA" width="280"/> |
+| *Autenticação tradicional ou chave soberana NIP-07* | *Interface responsiva com navegação e mini-widget* |
 
 ---
 

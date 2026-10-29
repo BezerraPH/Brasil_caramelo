@@ -6,7 +6,8 @@ import { nip19 } from "nostr-tools";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    let { pubkey, profile } = body;
+    const { profile } = body;
+    let { pubkey } = body;
 
     if (!pubkey || typeof pubkey !== "string") {
       return NextResponse.json(
@@ -95,10 +96,11 @@ export async function POST(req: Request) {
         email: user.email,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "erro interno";
     console.error("[NOSTR_LOGIN_ERROR]", error);
     return NextResponse.json(
-      { error: "Falha ao processar login anônimo via Nostr: " + (error?.message || "erro interno") },
+      { error: "Falha ao processar login anônimo via Nostr: " + message },
       { status: 500 }
     );
   }

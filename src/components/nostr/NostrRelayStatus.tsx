@@ -35,7 +35,10 @@ export function NostrRelayStatus() {
   // Testa relays sob demanda ao abrir o modal
   useEffect(() => {
     if (isOpen) {
-      checkRelays(relays);
+      const timer = setTimeout(() => {
+        void checkRelays(relays);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [isOpen, relays]);
 

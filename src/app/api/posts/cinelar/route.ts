@@ -11,8 +11,9 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const cursor = searchParams.get("cursor");
+  const tag = searchParams.get("tag") || searchParams.get("hashtag");
 
-  const { posts, nextCursor } = await fetchCinelarFeed(user.id, cursor);
+  const { posts, nextCursor } = await fetchCinelarFeed(user.id, cursor, tag);
   const withSaved = await attachSavedFlags(user.id, posts);
 
   return NextResponse.json({ posts: withSaved, nextCursor, fyp: true });

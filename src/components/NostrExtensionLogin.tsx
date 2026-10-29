@@ -3,6 +3,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+type NostrProvider = {
+  getPublicKey: () => Promise<string>;
+  signEvent?: (event: unknown) => Promise<unknown>;
+};
+
+type WindowWithNostr = Window & {
+  nostr?: NostrProvider;
+};
+
 export function NostrExtensionLogin() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -19,17 +28,21 @@ export function NostrExtensionLogin() {
 
       // 1. Se não foi passado manualmente, tenta obter via extensão NIP-07
       if (!pubkey) {
-        if (typeof window !== "undefined" && (window as any).nostr) {
-          try {
-            pubkey = await (window as any).nostr.getPublicKey();
-          } catch (err: any) {
-            throw new Error("Permissão recusada na extensão Nostr: " + (err?.message || ""));
+        if (typeof window !== "undefined") {
+          const win = window as unknown as WindowWithNostr;
+          if (win.nostr) {
+            try {
+              pubkey = await win.nostr.getPublicKey();
+            } catch (err: unknown) {
+              const msg = err instanceof Error ? err.message : "";
+              throw new Error("Permissão recusada na extensão Nostr: " + msg);
+            }
+          } else {
+            // Extensão não encontrada -> abre campo manual
+            setManualMode(true);
+            setLoading(false);
+            return;
           }
-        } else {
-          // Extensão não encontrada -> abre campo manual
-          setManualMode(true);
-          setLoading(false);
-          return;
         }
       }
 
@@ -52,9 +65,10 @@ export function NostrExtensionLogin() {
       // 3. Sucesso -> redireciona para o Feed
       router.push("/feed");
       router.refresh();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("[NostrLogin]", err);
-      setErrorMsg(err?.message || "Erro ao conectar com Nostr.");
+      const msg = err instanceof Error ? err.message : "Erro ao conectar com Nostr.";
+      setErrorMsg(msg);
       setLoading(false);
     }
   }

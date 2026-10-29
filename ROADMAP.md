@@ -21,16 +21,17 @@ Legenda: **P0** crítico / deploy · **P1** alto valor · **P2** polish · **P3*
 | Prioridade | Total | Concluídos |
 |------------|------:|-----------:|
 | P0 — Ativar stack | 10 | 10 |
+| P0 — Nostr & Mídia | 11 | 11 |
 | P1 — Comunidades | 6 | 5 |
-| P1 — Social & descoberta | 7 | 0 |
+| P1 — Social & descoberta | 7 | 4 |
 | P1 — Monetização | 3 | 2 |
 | P1 — Federação 2.0 | 4 | 0 |
 | P2 — Mobile | 5 | 0 |
 | P2 — UX | 6 | 1 |
 | P3 — Infra & segurança | 7 | 2 |
-| P3 — Qualidade (testes) | 4 | 0 |
+| P3 — Qualidade (testes) | 4 | 1 |
 
-**Foco atual:** P1 Comunidades (`R-COM-05` criar comunidade) · P1 Social · P3 testes.
+**Foco atual:** P1 Comunidades · P1 Monetização · P2 Mobile · P3 infra.
 
 ---
 
@@ -51,7 +52,7 @@ Checklist de **produção** — scripts e doc prontos; configure `.env` no host 
 | R-028-09 | **Deploy** — smoke com falha não derruba stack (aviso + curl health) | v2.28 | [x] 2026-05-22 |
 | R-028-10 | **Script** `check-production-env.sh` — audita `.env` e lista o que falta (P0) | v2.28 | [x] 2026-05-22 |
 
-## P0 — Rede Descentralizada Nostr (v2.31.0)
+## P0 — Rede Descentralizada Nostr & Mídia (v2.40.0)
 
 | ID | Item | Alvo | Status |
 |----|------|------|--------|
@@ -69,6 +70,7 @@ Checklist de **produção** — scripts e doc prontos; configure `.env` no host 
 | R-OPT-01 | **Otimizações Globais do Relatório** — Índices compostos Prisma, Rate Limiting, TTL Caching, WebCrypto AES-GCM, Saque Lightning e Filtros de Stories | v2.36 | [x] 2026-09-02 (v2.36.0) |
 | R-UI-02 | **Frontend V2.37 & Experiência Orkut** — Tema Tri-State (Auto/Claro/Escuro), Sound FX retrô sintetizado, Mini-Widget do Pet no BottomNav e autocomplete @amigo | v2.37 | [x] 2026-09-02 (v2.37.0) |
 | R-NOS-10 | **Nostr Anônimo & Segurança v2.38** — Login 1-clique Nostr 100% anônimo sem e-mail/senha, sanitização estrita de links NIP-01, reconexão backoff+jitter e SSH no `.env` | v2.38 | [x] 2026-09-02 (v2.38.0) |
+| R-NOS-11 | **Nostr Mídia NIP-96 & Blossom Server** — Upload soberano de mídia compatível com clientes Nostr via MinIO/S3 e hash SHA-256 | v2.40 | [x] 2026-10-29 (v2.40.0) |
 
 ---
 
@@ -89,11 +91,11 @@ Checklist de **produção** — scripts e doc prontos; configure `.env` no host 
 
 | ID | Item | Alvo | Status |
 |----|------|------|--------|
-| R-SOC-01 | **Scrapbook** — comentários/respostas em depoimentos (thread) | v2.29 | [ ] |
+| R-SOC-01 | **Scrapbook** — comentários/respostas em depoimentos (thread) | v2.40 | [x] 2026-10-29 (v2.40.0) |
 | R-SOC-02 | **Álbuns** — permissões amigos / matilha / público | v2.29 | [ ] |
-| R-SOC-03 | **Recado fixado** — “recado do dia” no topo do perfil Orkut | v2.29 | [ ] |
+| R-SOC-03 | **Recado fixado** — “recado do dia” no topo do perfil Orkut | v2.40 | [x] 2026-10-29 (v2.40.0) |
 | R-SOC-04 | **Visitas** — lista ou mini-gráfico de quem visitou o perfil | v2.29 | [x] 2026-09-01 (v2.30.0) |
-| R-DIS-01 | **Cinelar** — filtros por matilha e hashtag | v2.30 | [ ] |
+| R-DIS-01 | **Cinelar** — filtros por matilha e hashtag | v2.40 | [x] 2026-10-29 (v2.40.0) |
 | R-DIS-02 | **Cinelar** — seguir criador / feed de seguidos | v2.30 | [ ] |
 | R-DIS-03 | **Amigos** — sugestões por `interests` do perfil | v2.30 | [ ] |
 

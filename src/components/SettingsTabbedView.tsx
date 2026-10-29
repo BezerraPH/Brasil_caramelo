@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { RelationshipStatus, ProfileTheme } from "@/generated/prisma/enums";
 import { AvatarUpload } from "./AvatarUpload";
@@ -42,19 +42,11 @@ type SettingsTabbedViewProps = {
 
 export function SettingsTabbedView({ full }: SettingsTabbedViewProps) {
   const searchParams = useSearchParams();
-  const initialTabParam = searchParams.get("tab") as SettingsTab | null;
-  const [activeTab, setActiveTab] = useState<SettingsTab>(
-    initialTabParam && ["perfil", "privacidade", "aparencia", "avancado"].includes(initialTabParam)
-      ? initialTabParam
-      : "perfil"
-  );
+  const urlTab = searchParams.get("tab") as SettingsTab | null;
+  const validTabs: SettingsTab[] = ["perfil", "privacidade", "aparencia", "avancado"];
+  const [selectedTab, setSelectedTab] = useState<SettingsTab | null>(null);
 
-  useEffect(() => {
-    const tabParam = searchParams.get("tab") as SettingsTab | null;
-    if (tabParam && ["perfil", "privacidade", "aparencia", "avancado"].includes(tabParam)) {
-      setActiveTab(tabParam);
-    }
-  }, [searchParams]);
+  const activeTab = selectedTab ?? (urlTab && validTabs.includes(urlTab) ? urlTab : "perfil");
 
   const tabs: { id: SettingsTab; label: string; icon: string }[] = [
     { id: "perfil", label: "Conta & Perfil", icon: "👤" },
@@ -70,7 +62,7 @@ export function SettingsTabbedView({ full }: SettingsTabbedViewProps) {
         {tabs.map((t) => (
           <button
             key={t.id}
-            onClick={() => setActiveTab(t.id)}
+            onClick={() => setSelectedTab(t.id)}
             className={`flex flex-1 min-w-[120px] items-center justify-center gap-1.5 rounded-xl py-2.5 transition ${
               activeTab === t.id
                 ? "bg-bc-white text-bc-blue shadow-xs font-black"

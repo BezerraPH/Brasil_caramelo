@@ -168,11 +168,17 @@ function interleaveCinelar<T extends { author: { id: string } }>(
   return out;
 }
 
-/** Feed Cinelar — mistura descoberta (reelScore) + amigos (recentes). */
-export async function fetchCinelarFeed(viewerId: string, cursor?: string | null) {
+/** Feed Cinelar — mistura descoberta (reelScore) + amigos (recentes) com suporte a filtro por hashtag/matilha (R-DIS-01). */
+export async function fetchCinelarFeed(
+  viewerId: string,
+  cursor?: string | null,
+  tag?: string | null
+) {
   await expirePostBoosts();
   const friendIds = await getFriendIds(viewerId);
   const poolSize = FEED_PAGE_SIZE * 4;
+
+  const cleanTag = tag ? tag.replace(/^#/, "").trim() : null;
 
   const baseWhere: Prisma.PostWhereInput = {
     videoUrl: { not: null },
@@ -180,6 +186,14 @@ export async function fetchCinelarFeed(viewerId: string, cursor?: string | null)
     ...VISIBLE_POST_WHERE,
     ...capsuleVisibleWhere(viewerId),
     author: VISIBLE_AUTHOR_WHERE,
+    ...(cleanTag
+      ? {
+          content: {
+            contains: `#${cleanTag}`,
+            mode: "insensitive",
+          },
+        }
+      : {}),
   };
 
   const [friendRows, discoveryRows] = await Promise.all([

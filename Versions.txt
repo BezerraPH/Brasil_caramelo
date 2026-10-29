@@ -2,8 +2,8 @@
   BRASIL CARAMELO — RESUMO DO PROJETO E HISTÓRICO DE VERSÕES
 ================================================================================
 
-Última atualização: 2026-09-03 (v2.39.0-alpha.0 - Redesign Frontend, TopBar Clean, User Dropdown e Paletas Orkut)
-Versão atual do pacote (package.json): 2.39.0-alpha.0
+Última atualização: 2026-10-29 (v2.40.0-alpha.0 - Blindagem Lint React 19, Scrapbook Threads Orkut, Recado do Dia, Filtros Cinelar & Nostr Media NIP-96/Blossom)
+Versão atual do pacote (package.json): 2.40.0-alpha.0
 Estágio de lançamento: ALPHA (pré-release — não é versão estável)
 
 INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
@@ -28,9 +28,17 @@ INSTRUÇÃO PARA DESENVOLVEDORES / IA (OBRIGATÓRIO):
 ================================================================================
 
 Arquivo mestre: ROADMAP.md
-Progresso: Nostr P0 10/10 · P0 Infra 10/10 · P1 Comunidades 5/6 · P0 UX 2/2 · P0 PWA 1/1 · P0 Otimizações 1/1 · P2 UX 1/6
+Progresso: Nostr P0 11/11 · P0 Infra 10/10 · P1 Comunidades 5/6 · P0 UX 2/2 · P0 PWA 1/1 · P0 Otimizações 1/1 · P1 Social 3/4 · P2 Descoberta 1/4 · P2 UX 1/6
 
-**v2.39.0: Redesign Frontend, TopBar Clean, User Dropdown e Paletas Orkut.**
+**v2.40.0: Blindagem Lint React 19, Scrapbook Threads Orkut, Recado do Dia, Filtros Cinelar & Nostr Media NIP-96/Blossom.**
+
+Concluído v2.40:
+  [x] R-SOC-01 Scrapbook / Depoimentos em Threads: respostas encadeadas aos depoimentos estilo Orkut com notificações
+  [x] R-SOC-03 Recado do Dia / Scrap Fixado no Topo do Perfil: moldura retrô dourada com citação e controles de edição
+  [x] R-DIS-01 Cinelar: Filtros Dinâmicos Horizontais por Hashtag e Matilha (#caramelo, #resgate, #adote, #humor)
+  [x] R-NOS-11 Nostr Media Sovereign: Endpoints NIP-96 e Blossom HTTP Blob Server com hash SHA-256 e S3/MinIO
+  [x] Blindagem Lint React 19: eliminação de 11 erros/warnings de setState síncrono em effects, prefer-const e any types
+  [x] Suíte de 27 testes automatizados cobrindo todas as novas regras de negócio da v2.40 (100% verde)
 
 Concluído v2.39:
   [x] R-UX-06 TopBar Clean: eliminação de 14 botões espremidos para layout elegante de 3 blocos (Logo, Abas e Usuário)
@@ -262,9 +270,13 @@ DogReputationLevel (10 personalidades ativas):
   BORDER_COLLIE, BASSET_HOUND, CHOW_CHOW
 
 ================================================================================
-  5. FUNCIONALIDADES ATUAIS (v2.4.9-alpha)
+  5. FUNCIONALIDADES ATUAIS (v2.40.0-alpha)
 ================================================================================
 
+[OK] Depoimentos em Threads (R-SOC-01) — respostas encadeadas aos depoimentos estilo Orkut com notificações
+[OK] Recado do Dia (R-SOC-03) — fixação de scrap de destaque no topo do perfil com moldura retrô dourada
+[OK] Cinelar com Filtros de Hashtags (R-DIS-01) — chips dinâmicos horizontais (#caramelo, #resgate, #adote, #humor)
+[OK] Servidor de Mídia Nostr NIP-96 & Blossom (R-NOS-11) — upload soberano indexado por SHA-256 com MinIO/S3
 [OK] Cadastro e login
 [OK] Sessão persistente (cookie; HTTP local com COOKIE_SECURE=false)
 [OK] Feed: recados, curtir (animação), comentários expansíveis
@@ -606,6 +618,17 @@ Remote Gitea:
 ================================================================================
   10. HISTÓRICO DE VERSÕES
 ================================================================================
+
+------------------------------------------------------------------------------
+v2.40.0-alpha.0 — 2026-10-29 (Blindagem Lint React 19, Scrapbook Threads Orkut, Recado do Dia, Filtros Cinelar & Nostr Media NIP-96/Blossom)
+------------------------------------------------------------------------------
+  FEAT: R-SOC-01 Scrapbook / Depoimentos em Threads — suporte a respostas aninhadas e encadeadas em depoimentos com serialização estruturada e notificação de réplica
+  FEAT: R-SOC-03 Recado do Dia — destaque fixado no topo do perfil com moldura dourada retrô, citação e modal/formulário de edição rápida
+  FEAT: R-DIS-01 Cinelar Feed com Filtros Horizontais — navegação rápida por hashtags (#caramelo, #resgate, #adote, #humor, #filhotes, #matilha)
+  FEAT: R-NOS-11 Nostr Media Sovereign — implementação de rotas /.well-known/nostr/nip96.json, /api/nostr/nip96 e /api/blossom/upload com hashing SHA-256 e S3/MinIO
+  FIX: Blindagem total do linter contra avisos do React 19 (eliminação de 11 erros/warnings de setState dentro de useEffect, prefer-const e any types em 7 arquivos)
+  TEST: Suíte automatizada com 27 testes unitários em nao_essenciais/tests/unit/v240_features.test.mjs com 100% de cobertura das novas regras de negócio
+  CHORE: Atualização de roadmap, painel da aplicação (RoadmapPanel) e sincronização de versões
 
 ------------------------------------------------------------------------------
 v2.30.0-alpha.0 — 2026-09-01 (Integração Descentralizada Nostr Completa)

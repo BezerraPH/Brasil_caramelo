@@ -5,6 +5,7 @@ import { useState } from "react";
 import { VoiceNoteRecorder } from "@/components/VoiceNoteRecorder";
 import { UivoPlayer } from "@/components/UivoPlayer";
 import { UserAvatar } from "@/components/UserAvatar";
+import { TestimonialThreadView } from "@/components/TestimonialThreadView";
 
 type TestimonialItem = {
   id: string;
@@ -87,9 +88,14 @@ export function TestimonialsSection({
                 {top.fromUser.name}
               </p>
               <p className="text-xs text-bc-brown">@{top.fromUser.username}</p>
-              <p className="mt-2 text-sm leading-relaxed text-bc-brown">
-                {top.content}
-              </p>
+              <div className="mt-2">
+                <TestimonialThreadView
+                  testimonialId={top.id}
+                  rawContent={top.content}
+                  canReply={canWrite}
+                  onReplied={() => router.refresh()}
+                />
+              </div>
               {top.audioUrl && (
                 <UivoPlayer src={top.audioUrl} className="mt-2 max-w-xs" />
               )}
@@ -111,11 +117,19 @@ export function TestimonialsSection({
                   avatarUrl={t.fromUser.avatarUrl}
                   size="sm"
                 />
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-bc-blue">
                     {t.fromUser.name}
                   </p>
-                  <p className="text-sm text-bc-brown">{t.content}</p>
+                  <p className="text-xs text-bc-brown">@{t.fromUser.username}</p>
+                  <div className="mt-2">
+                    <TestimonialThreadView
+                      testimonialId={t.id}
+                      rawContent={t.content}
+                      canReply={canWrite}
+                      onReplied={() => router.refresh()}
+                    />
+                  </div>
                   {t.audioUrl && (
                     <UivoPlayer src={t.audioUrl} className="mt-2" />
                   )}

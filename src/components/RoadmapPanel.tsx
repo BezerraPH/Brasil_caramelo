@@ -37,17 +37,20 @@ const DONE = [
   { icon: "🎨", title: "Frontend v2.37: Tema Tri-State (Auto/Claro/Escuro), Sound FX Retrô, Mini-Widget do Pet no BottomNav e Autocomplete @amigo", phase: "v2.37" },
   { icon: "⚡", title: "Nostr v2.38: Login 1-clique 100% anônimo (NIP-07/npub), sanitização de links NIP-01 e backoff+jitter em WebSockets", phase: "v2.38" },
   { icon: "✨", title: "Redesign UX v2.39: TopBar Clean sem poluição, Menu do Usuário Unificado e Personalização Global de Paletas Orkut", phase: "v2.39" },
+  { icon: "💬", title: "Scrapbook Orkut com threads em depoimentos e recados (R-SOC-01)", phase: "v2.40" },
+  { icon: "📌", title: "Recado do Dia fixado no topo do perfil Orkut com moldura retrô (R-SOC-03)", phase: "v2.40" },
+  { icon: "🎬", title: "Cinelar com chips de filtro dinâmico por hashtag e matilha (R-DIS-01)", phase: "v2.40" },
+  { icon: "📦", title: "Nostr Mídia NIP-96 & Blossom Server soberano com MinIO/S3 e hash SHA-256", phase: "v2.40" },
   { icon: "🔒", title: "HTTPS / Tailscale / mkcert (CONFIGURACAO.md)" },
   { icon: "🌳", title: "Árvore genealógica DNA" },
   { icon: "🏪", title: "Cupons pet shop regional" },
 ];
 
-/** Próximos itens de ROADMAP.md (onda v2.38+) — atualizar ao marcar [x]. */
+/** Próximos itens de ROADMAP.md — atualizar ao marcar [x]. */
 const FUTURE: { icon: string; title: string; phase?: string }[] = [
-  { icon: "💬", title: "Scrapbook com threads em depoimentos", phase: "v2.38" },
-  { icon: "📌", title: "Recado fixado no perfil Orkut", phase: "v2.38" },
-  { icon: "🔄", title: "Federação: sync agendado e preview", phase: "v2.38" },
-  { icon: "🧪", title: "Testes Vitest + Playwright", phase: "P3" },
+  { icon: "🔄", title: "Federação: sync agendado e preview", phase: "v2.41" },
+  { icon: "🏪", title: "Pet shop: cupons com estoque e validade na UI", phase: "v2.41" },
+  { icon: "🧪", title: "Testes E2E Playwright autenticados", phase: "P3" },
 ];
 
 export function RoadmapPanel() {

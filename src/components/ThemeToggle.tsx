@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { applyTheme, getSavedTheme, initThemeListener, type ThemeMode } from "@/lib/theme";
 
 export function ThemeToggle() {
-  const [mode, setMode] = useState<ThemeMode>("system");
+  const [mode, setMode] = useState<ThemeMode>(() =>
+    typeof window !== "undefined" ? getSavedTheme() : "system"
+  );
 
   useEffect(() => {
-    setMode(getSavedTheme());
     const cleanup = initThemeListener();
     return cleanup;
   }, []);

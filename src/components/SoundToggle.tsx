@@ -1,14 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { isSoundMuted, playCoinSound, setSoundMuted } from "@/lib/sound-fx";
 
 export function SoundToggle() {
-  const [muted, setMuted] = useState(false);
-
-  useEffect(() => {
-    setMuted(isSoundMuted());
-  }, []);
+  const [muted, setMuted] = useState(() =>
+    typeof window !== "undefined" ? isSoundMuted() : false
+  );
 
   function handleToggle() {
     const next = !muted;

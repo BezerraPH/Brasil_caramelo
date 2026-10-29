@@ -23,7 +23,7 @@ type UserDropdownMenuProps = {
 export function UserDropdownMenu({ user }: UserDropdownMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { theme, toggle: toggleTheme, isLuar } = useTheme();
+  const { toggle: toggleTheme, isLuar } = useTheme();
 
   // Fechar ao clicar fora
   useEffect(() => {

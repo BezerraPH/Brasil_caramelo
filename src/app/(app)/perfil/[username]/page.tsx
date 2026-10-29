@@ -27,6 +27,7 @@ import { getPersonalityTheme } from "@/lib/personality-theme";
 import { prisma } from "@/lib/prisma";
 import { FoundingMemberBadge } from "@/components/FoundingMemberBadge";
 import { CarameloVerificadoBadge } from "@/components/CarameloVerificadoBadge";
+import { ProfilePinnedScrap } from "@/components/ProfilePinnedScrap";
 import {
   ProfileOrkutView,
   ProfileOrkutBioCard,
@@ -77,6 +78,7 @@ export default async function ProfilePage({ params }: PageProps) {
     profileFriends,
     pendingFriends,
     albumPhotos,
+    pinnedPost,
   ] = await Promise.all([
     prisma.friendship.count({
       where: {
@@ -136,6 +138,18 @@ export default async function ProfilePage({ params }: PageProps) {
         })
       : Promise.resolve(0),
     getRecentAlbumPhotos(profile.id, 12),
+    prisma.post.findFirst({
+      where: {
+        authorId: profile.id,
+        boostPriority: 999,
+        communityLevel: null,
+      },
+      select: {
+        id: true,
+        content: true,
+        createdAt: true,
+      },
+    }),
   ]);
 
   const summary = summarizeReputation(
@@ -276,6 +290,23 @@ export default async function ProfilePage({ params }: PageProps) {
           topTestimonial={topTestimonial}
           centerContent={
             <>
+              <ProfilePinnedScrap
+                pinnedPost={
+                  pinnedPost
+                    ? {
+                        id: pinnedPost.id,
+                        content: pinnedPost.content,
+                        createdAt:
+                          pinnedPost.createdAt instanceof Date
+                            ? pinnedPost.createdAt.toISOString()
+                            : String(pinnedPost.createdAt),
+                      }
+                    : null
+                }
+                isOwnProfile={isOwnProfile}
+                username={profile.username}
+              />
+
               {profile.bio && <ProfileOrkutBioCard bio={profile.bio} />}
 
               <section className="bc-orkut-card p-5">

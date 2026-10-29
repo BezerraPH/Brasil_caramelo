@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAsyncEffect } from "@/hooks/use-async-effect";
 import { UserAvatar } from "@/components/UserAvatar";
+import { parseTestimonialThread } from "@/lib/testimonials-thread";
 
 type PendingItem = {
   id: string;
@@ -103,7 +104,7 @@ export function TestimonialsInbox() {
           </div>
 
           <div className="rounded-xl bg-bc-blue/5 px-4 py-3 text-sm text-bc-brown">
-            {item.content}
+            {parseTestimonialThread(item.content).mainText}
           </div>
 
           <div className="mt-3 flex flex-wrap gap-2">

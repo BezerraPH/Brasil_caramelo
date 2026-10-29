@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { prisma } from "./prisma";
 import { resolvePremiumStatus } from "./premium";
 import { SESSION_COOKIE } from "./session-cookie";
@@ -6,15 +6,39 @@ import { SESSION_COOKIE } from "./session-cookie";
 export { SESSION_COOKIE };
 const SESSION_DAYS = 30;
 
-/** Em HTTP (rede local) use COOKIE_SECURE=false. Em HTTPS, use true. */
-function cookieSecureEnabled() {
+/** Em HTTP (rede local/IP direto) a flag 'secure' deve ser false para que os navegadores aceitem o cookie.
+ *  Em HTTPS (Tailscale ou proxy SSL) ela deve ser true para segurança máxima. */
+async function isRequestSecure(): Promise<boolean> {
+  if (process.env.COOKIE_SECURE === "false") {
+    return false;
+  }
+  try {
+    const h = await headers();
+    const proto = h.get("x-forwarded-proto");
+    if (proto) {
+      return proto.toLowerCase() === "https";
+    }
+    const host = (h.get("host") || "").toLowerCase();
+    if (
+      host.startsWith("192.168.") ||
+      host.startsWith("10.") ||
+      host.startsWith("172.") ||
+      host.startsWith("localhost") ||
+      host.startsWith("127.0.0.1")
+    ) {
+      return false;
+    }
+  } catch {
+    // Fora do contexto de requisição HTTP
+  }
   return process.env.COOKIE_SECURE === "true";
 }
 
-function sessionCookieOptions(expires: Date) {
+async function sessionCookieOptions(expires: Date) {
+  const secure = await isRequestSecure();
   return {
     httpOnly: true,
-    secure: cookieSecureEnabled(),
+    secure,
     sameSite: "lax" as const,
     path: "/",
     expires,
@@ -31,7 +55,8 @@ export async function createSession(userId: string) {
   });
 
   const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE, token, sessionCookieOptions(expiresAt));
+  const options = await sessionCookieOptions(expiresAt);
+  cookieStore.set(SESSION_COOKIE, token, options);
 }
 
 export async function destroySession() {
@@ -40,8 +65,9 @@ export async function destroySession() {
   if (token) {
     await prisma.session.deleteMany({ where: { token } });
   }
+  const options = await sessionCookieOptions(new Date(0));
   cookieStore.set(SESSION_COOKIE, "", {
-    ...sessionCookieOptions(new Date(0)),
+    ...options,
     maxAge: 0,
   });
 }

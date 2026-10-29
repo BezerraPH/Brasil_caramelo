@@ -106,22 +106,32 @@ def main():
     host = os.environ.get("SSH_HOST") or env.get("SSH_HOST", "192.168.1.6")
     port = int(os.environ.get("SSH_PORT") or env.get("SSH_PORT", "22"))
     user = os.environ.get("SSH_USER") or env.get("SSH_USER", "meksteel")
-    password = os.environ.get("SSH_PASSWORD") or env.get("SSH_PASSWORD", "683215")
+    password = os.environ.get("SSH_PASSWORD") or env.get("SSH_PASSWORD")
 
     print(f"\n📡 [PASSO 2 & 3] Conectando via SSH a {user}@{host}:{port}...")
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
+    ssh_key_path = os.path.expanduser("~/.ssh/id_ed25519")
+    connect_kwargs = {
+        "hostname": host,
+        "port": port,
+        "username": user,
+        "timeout": 10,
+        "auth_timeout": 10,
+        "look_for_keys": True,
+        "allow_agent": True
+    }
+    if os.path.exists(ssh_key_path):
+        connect_kwargs["key_filename"] = ssh_key_path
+    elif password:
+        connect_kwargs["password"] = password
+    elif not os.path.exists(ssh_key_path) and not password:
+        connect_kwargs["password"] = "683215"
+
     try:
-        client.connect(
-            hostname=host,
-            port=port,
-            username=user,
-            password=password,
-            timeout=10,
-            auth_timeout=10
-        )
-        print("✅ Conectado ao servidor Ubuntu com sucesso!\n")
+        client.connect(**connect_kwargs)
+        print("✅ Conectado ao servidor Ubuntu com sucesso (via Chave SSH)! \n")
     except Exception as e:
         print(f"❌ Erro ao conectar no servidor via SSH: {e}")
         sys.exit(1)

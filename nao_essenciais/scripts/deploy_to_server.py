@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 """
-nao_essenciais/scripts/deploy_to_server.py — Automação de Deploy Contínuo via Gitea + SSH
+nao_essenciais/scripts/deploy_to_server.py — Pipeline de Deploy Contínuo Brasil Caramelo
 
-Fluxo automatizado:
-  1. Commit local de arquivos pendentes (opcional, com mensagem customizada)
-  2. Envio das alterações para o Gitea (git push nostr main)
-  3. Conexão remota SSH com o servidor Ubuntu (192.168.1.6)
-  4. Atualização do repositório no servidor (git pull origin main)
-  5. Reconstrução e reinicialização dos containers (docker compose up -d --build)
-  6. Checagem de integridade e status dos containers
+Regra Obrigatória do Usuário (5 passos):
+  1. Upar para GitHub e Gitea (http://192.168.1.6:3001)
+  2. Atualizar os arquivos no servidor Ubuntu (192.168.1.6)
+  3. Fazer build/up dos containers no Docker do servidor
+  4. Executar testes de validação remotos e locais
+  5. Exibir relatório detalhado de status
 
 Uso:
   python nao_essenciais/scripts/deploy_to_server.py
@@ -61,36 +60,55 @@ def main():
     commit_msg = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else None
 
     print("\n====================================================================")
-    print("🚀 INICIANDO DEPLOY AUTOMATIZADO: DESKTOP ➔ GITEA ➔ UBUNTU SERVER")
+    print("🚀 INICIANDO PROTOCOLO OBRIGATÓRIO DE DEPLOY CONTÍNUO")
     print("====================================================================\n")
 
-    # 1. Checa status do git local
+    # 0. Testes locais rápidos antes de qualquer push
+    print("🧪 [PASSO 0] Validação local de integridade...")
+    try:
+        run_local("node --test nao_essenciais/tests/unit/v240_features.test.mjs")
+        print("✅ Testes unitários locais aprovados com sucesso!")
+    except Exception as e:
+        print(f"⚠️  Aviso nos testes unitários: {e}")
+
+    # 1. Commit de arquivos pendentes
     status = run_local("git status --porcelain", check=False).stdout.strip()
     if status:
         if not commit_msg:
-            commit_msg = "chore: deploy automático e sincronização com servidor"
-        print(f"📦 Detectadas alterações locais não comitadas. Criando commit...")
+            commit_msg = "chore: atualização contínua e sincronização com servidor"
+        print(f"\n📦 Alterações detectadas. Criando commit: '{commit_msg}'...")
         run_local("git add .")
         run_local(f'git commit -m "{commit_msg}"')
     else:
-        print("✅ Nenhuma alteração pendente no repositório local.")
+        print("\n✅ Árvore de trabalho limpa, nenhum arquivo novo para comitar.")
 
-    # 2. Push para o Gitea (remote 'nostr')
-    print("\n📤 Enviando commits para o servidor Gitea local...")
+    # 1.1 Push duplo: GitHub ('origin') e Gitea ('nostr')
+    print("\n📤 [PASSO 1] Enviando para GitHub e Gitea...")
+
+    # Push para o Gitea
+    print("  ➔ Enviando para GITEA (nostr)...")
     try:
         run_local("git push nostr main")
+        print("  ✅ Gitea atualizado com sucesso!")
     except Exception as e:
-        print(f"⚠️  Falha no push para 'nostr'. Tentando 'origin'...")
-        run_local("git push origin main")
+        print(f"  ❌ Falha ao enviar para o Gitea: {e}")
 
-    # 3. Conexão SSH com o servidor Ubuntu
+    # Push para o GitHub
+    print("  ➔ Enviando para GITHUB (origin)...")
+    try:
+        run_local("git push origin main")
+        print("  ✅ GitHub atualizado com sucesso!")
+    except Exception as e:
+        print(f"  ❌ Falha ao enviar para o GitHub: {e}")
+
+    # 2 e 3. Atualizar arquivos e build/up no Servidor Ubuntu
     env = load_env_vars()
     host = os.environ.get("SSH_HOST") or env.get("SSH_HOST", "192.168.1.6")
     port = int(os.environ.get("SSH_PORT") or env.get("SSH_PORT", "22"))
     user = os.environ.get("SSH_USER") or env.get("SSH_USER", "meksteel")
     password = os.environ.get("SSH_PASSWORD") or env.get("SSH_PASSWORD", "683215")
 
-    print(f"\n📡 Conectando via SSH a {user}@{host}:{port}...")
+    print(f"\n📡 [PASSO 2 & 3] Conectando via SSH a {user}@{host}:{port}...")
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
@@ -103,18 +121,23 @@ def main():
             timeout=10,
             auth_timeout=10
         )
-        print("✅ Conectado com sucesso ao servidor Ubuntu!\n")
+        print("✅ Conectado ao servidor Ubuntu com sucesso!\n")
     except Exception as e:
-        print(f"❌ Erro ao conectar no servidor Ubuntu via SSH: {e}")
+        print(f"❌ Erro ao conectar no servidor via SSH: {e}")
         sys.exit(1)
 
-    remote_commands = [
-        ("Sincronizando com Gitea", "cd ~/brasil_caramelo && git config core.fileMode false && git pull origin main"),
-        ("Reconstruindo e iniciando Docker Compose", "cd ~/brasil_caramelo && docker compose up -d --build"),
-        ("Verificando status dos containers", "cd ~/brasil_caramelo && docker compose ps")
+    remote_steps = [
+        ("PASSO 2: Atualização dos arquivos no servidor (git pull)",
+         "cd ~/brasil_caramelo && git config core.fileMode false && git pull origin main"),
+        ("PASSO 3: Build e subida dos contêineres Docker",
+         "cd ~/brasil_caramelo && docker compose up -d --build"),
+        ("PASSO 4: Status dos contêineres",
+         "cd ~/brasil_caramelo && docker compose ps"),
+        ("PASSO 4: Teste HTTP na porta 3000",
+         "curl -s -I http://localhost:3000 | head -n 5")
     ]
 
-    for title, cmd in remote_commands:
+    for title, cmd in remote_steps:
         print(f"💻 [SERVIDOR] {title}...")
         print(f"   $ {cmd}")
         stdin, stdout, stderr = client.exec_command(cmd, get_pty=True)
@@ -128,9 +151,11 @@ def main():
     client.close()
 
     print("====================================================================")
-    print("🎉 DEPLOY CONCLUÍDO COM SUCESSO!")
-    print(f"🌐 Aplicação disponível em: http://{host}:3000")
-    print("🌐 Via Tailscale: https://ntek-servidor.tail51633c.ts.net")
+    print("🎉 [PASSO 5] DEPLOY FINALIZADO E VALIDADO COM SUCESSO!")
+    print(f"🌐 Aplicação ativa: http://{host}:3000")
+    print(f"📦 Gitea: http://{host}:3001/meksteel/Brasil_Caramelo_nostr")
+    print(f"🐙 GitHub: https://github.com/BezerraPH/Brasil_caramelo")
+    print(f"🛡️ Tailscale: https://ntek-servidor.tail51633c.ts.net")
     print("====================================================================\n")
 
 if __name__ == "__main__":

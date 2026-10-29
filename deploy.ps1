@@ -6,3 +6,4 @@ if ($Message) {
 } else {
     python nao_essenciais\scripts\deploy_to_server.py
 }
+

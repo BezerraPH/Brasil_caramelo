@@ -6,3 +6,4 @@ if "%MSG%"=="" (
 ) else (
     python nao_essenciais\scripts\deploy_to_server.py "%MSG%"
 )
+

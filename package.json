@@ -12,7 +12,8 @@
     "cap:sync": "cap sync",
     "cap:open:android": "cap open android",
     "db:migrate": "prisma migrate dev",
-    "db:deploy": "prisma migrate deploy"
+    "db:deploy": "prisma migrate deploy",
+    "deploy:server": "python nao_essenciais/scripts/deploy_to_server.py"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1055.0",

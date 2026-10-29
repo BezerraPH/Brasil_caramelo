@@ -1,0 +1,15 @@
+[Unit]
+Description=Brasil Caramelo Gitea Webhook Auto Deploy
+After=network.target docker.service
+
+[Service]
+Type=simple
+User=meksteel
+WorkingDirectory=/home/meksteel/brasil_caramelo
+ExecStart=/usr/bin/python3 /home/meksteel/brasil_caramelo/nao_essenciais/scripts/gitea_webhook_receiver.py
+Restart=always
+RestartSec=5
+Environment=DEPLOY_PORT=9999
+
+[Install]
+WantedBy=multi-user.target
